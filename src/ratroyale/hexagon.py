@@ -35,8 +35,14 @@ class OddRCoord:
     def get_distance(self, other: Self) -> int:
         return self.to_cube().get_distance(other.to_cube())
 
-    def line_draw(self, other: "OddRCoord") -> Iterator["OddRCoord"]:
+    def line_draw(self, other: Self) -> Iterator["OddRCoord"]:
         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
+
+    def all_in_range(self, N: int) -> Iterator["OddRCoord"]:
+        return (axial.to_odd_r() for axial in self.to_axial().all_in_range(N))
+
+    def __add__(self, other: Self) -> Self:
+        return self.__class__(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.x - other.x, self.y - other.y)
@@ -62,8 +68,19 @@ class _AxialCoord:
         row = self.r
         return OddRCoord(col, row)
 
+    def __add__(self, other: Self) -> Self:
+        return self.__class__(self.q + other.q, self.r + other.r)
+
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.q - other.q, self.r - other.r)
+
+    def all_in_range(self, N: int) -> Iterator["_AxialCoord"]:
+        """
+        https://www.redblobgames.com/grids/hexagons/#range-coordinate
+        """
+        for q in range(-N, N+1):
+            for r in range(max(-N, -q-N), min(N, -q+N) + 1):
+                yield self + _AxialCoord(q, r)
 
 
 @dataclass(frozen=True)
@@ -96,6 +113,9 @@ class _CubeCoord:
         for i in range(N):
             yield self.to_cube_float(add_epsilon=(
                 1e-6, 2e-6, -3e-6)).lerp(other.to_cube_float(), 1/N * i).round()
+
+    def __add__(self, other: Self) -> Self:
+        return self.__class__(self.q + other.q, self.r + other.r, self.s + other.s)
 
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.q - other.q, self.r - other.r, self.s - other.s)
