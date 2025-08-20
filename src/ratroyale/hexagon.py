@@ -85,11 +85,36 @@ class _CubeCoord:
         vec = self - other
         return (abs(vec.q) + abs(vec.r) + abs(vec.s)) // 2
 
+    def line_draw(self, other: Self) -> list["_CubeCoord"]:
+        N = self.get_distance(other)
+        results: list["_CubeCoord"] = []
+        for i in range(N):
+            results.append(
+                self.to_cube_float(add_epsilon=(
+                    1e-6, 2e-6, -3e-6))
+                .lerp(other.to_cube_float(), 1/N * i).round()
+            )
+        return results
+
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.q - other.q, self.r - other.r, self.s - other.s)
 
-    def to_float(self) -> "_CubeCoordFloat":
-        return _CubeCoordFloat(self.q, self.r, self.s)
+    def to_cube_float(self, add_epsilon: tuple[float, float, float] | None = None) -> "_CubeCoordFloat":
+        """
+        There are times when cube_lerp will return a point that's exactly on
+        the side between two hexes. Then cube_round will push it one way or the
+        other. The lines will look better if it's always pushed in the same
+        direction. You can do this by adding an "epsilon" hex Cube(1e-6, 2e-6,
+        -3e-6) to one or both of the endpoints before starting the loop. This
+        will "nudge" the line in one direction to avoid landing on side
+        boundaries.
+
+        https://www.redblobgames.com/grids/hexagons/#line-drawing
+        """
+        if add_epsilon is None:
+            return _CubeCoordFloat(self.q, self.r, self.s)
+        else:
+            return _CubeCoordFloat(self.q + add_epsilon[0], self.r + add_epsilon[1], self.s + add_epsilon[2])
 
 
 @dataclass(frozen=True)
@@ -99,6 +124,9 @@ class _CubeCoordFloat:
     s: float
 
     def round(self) -> "_CubeCoord":
+        """
+        https://www.redblobgames.com/grids/hexagons/#rounding
+        """
         q = round(self.q)
         r = round(self.r)
         s = round(self.s)
@@ -116,8 +144,11 @@ class _CubeCoordFloat:
 
         return _CubeCoord(q, r, s)
 
-    def lerp(self, other: "_CubeCoordFloat", t: float) -> "_CubeCoordFloat":
-        return _CubeCoordFloat(
+    def lerp(self, other: Self, t: float) -> Self:
+        """
+        https://www.redblobgames.com/grids/hexagons/#line-drawing
+        """
+        return self.__class__(
             lerp(self.q, other.q, t),
             lerp(self.r, other.r, t),
             lerp(self.s, other.s, t),
