@@ -76,10 +76,22 @@ class OddRCoord:
         return OddRCoord(self.col + diff[0], self.row + diff[1])
 
     def get_neighbors(self) -> Iterator["OddRCoord"]:
+        """
+        Get all 6 neighbors
+        """
         for i in range(6):
             yield self.get_neighbor(i)
 
     def get_reachable_coords(self, reach: int, is_coord_blocked: Callable[["OddRCoord"], bool], *, is_include_self: bool = False) -> set["OddRCoord"]:
+        """
+        Get every reachable coords within reach
+        https://www.redblobgames.com/grids/hexagons/#range-obstacles
+
+        :param reach: Movement from original coord
+        :param is_coord_blocked: A Callback function to evaluate if coord is a "wall"
+
+        :returns: Reachable coords
+        """
         visited: set[OddRCoord] = set()
         visited.add(self)
         fringes: list[list[OddRCoord]] = []
