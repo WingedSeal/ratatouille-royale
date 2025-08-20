@@ -1,4 +1,4 @@
-from .features.feature import Feature
+from .feature import Feature
 from .tile import Tile
 from .hexagon import OddRCoord
 from pathlib import Path
