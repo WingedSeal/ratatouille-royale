@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Self
+from typing import Iterator, Self
 from .utils import lerp
 
 
@@ -34,6 +34,9 @@ class OddRCoord:
 
     def get_distance(self, other: Self) -> int:
         return self.to_cube().get_distance(other.to_cube())
+
+    def line_draw(self, other: "OddRCoord") -> Iterator["OddRCoord"]:
+        return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
 
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.x - other.x, self.y - other.y)
@@ -85,19 +88,14 @@ class _CubeCoord:
         vec = self - other
         return (abs(vec.q) + abs(vec.r) + abs(vec.s)) // 2
 
-    def line_draw(self, other: Self) -> list["_CubeCoord"]:
+    def line_draw(self, other: Self) -> Iterator["_CubeCoord"]:
         """
         https://www.redblobgames.com/grids/hexagons/#line-drawing
         """
         N = self.get_distance(other)
-        results: list["_CubeCoord"] = []
         for i in range(N):
-            results.append(
-                self.to_cube_float(add_epsilon=(
-                    1e-6, 2e-6, -3e-6))
-                .lerp(other.to_cube_float(), 1/N * i).round()
-            )
-        return results
+            yield self.to_cube_float(add_epsilon=(
+                1e-6, 2e-6, -3e-6)).lerp(other.to_cube_float(), 1/N * i).round()
 
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.q - other.q, self.r - other.r, self.s - other.s)
