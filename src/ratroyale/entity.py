@@ -1,3 +1,4 @@
+from pathlib import Path
 from .hexagon import OddRCoord
 from typing import TypeVar
 
@@ -7,6 +8,7 @@ class Entity:
     Any entity on the tile system.
     """
     pos: OddRCoord
+    image_path: Path | None = None
     health: int | None = None
     defense: int | None = None
     movable: bool = False
@@ -43,12 +45,18 @@ class Entity:
 T = TypeVar('T', bound=Entity)
 
 
-def entity_data(health: int | None = None, defense: int | None = None, movable: bool = False, collision: bool = False, description: str = ""):
+def entity_data(health: int | None = None,
+                defense: int | None = None,
+                movable: bool = False,
+                collision: bool = False,
+                description: str = "",
+                image_path: Path | None = None):
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, Entity)
         cls.health = health
         cls.defense = defense
         cls.movable = movable
+        cls.image_path = image_path
         cls.collision = collision
         cls.description = description
         return cls
