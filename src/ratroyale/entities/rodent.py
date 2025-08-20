@@ -1,7 +1,6 @@
 from abc import ABCMeta, abstractmethod
 import inspect
 from dataclasses import asdict, dataclass
-from pathlib import Path
 from ..entity import Entity
 from ..hexagon import OddRCoord
 from typing import Any, Callable, TypeVar, cast
@@ -53,7 +52,6 @@ def rodent_data(*,
                 move_cost: int,
                 attack: int,
                 height: int,
-                image_path: Path,
                 health: int | None = None,
                 defense: int | None = None,
                 movable: bool = True,
@@ -73,7 +71,6 @@ def rodent_data(*,
         cls.attack = attack
         cls.height = height
         cls.movable = movable
-        cls.image_path = image_path
         cls.collision = collision
         for skill in skills:
             if not hasattr(cls, skill.method_name):
