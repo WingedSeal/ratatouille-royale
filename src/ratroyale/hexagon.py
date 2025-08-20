@@ -60,7 +60,7 @@ class OddRCoord:
         y = 1.5 * self.row
         # Origin is not on the center of odd-r (0,0)
         x += 1
-        y += 1
+        y += sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics
         return x * hex_size, y * hex_size
 
     def get_neighbor(self, direction: int) -> "OddRCoord":
@@ -165,7 +165,7 @@ class _AxialCoord:
         y /= hex_size
         # Origin is not on the center of odd-r (0,0)
         x -= 1
-        y -= 1
+        y -= sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics
 
         q = sqrt(3)/3 * x - 1/3 * y
         r = 2/3 * y
