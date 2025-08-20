@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterator, Self
+from typing import Callable, Iterator, Self
 from .utils import lerp
 from math import sqrt
 
@@ -79,7 +79,7 @@ class OddRCoord:
         for i in range(6):
             yield self.get_neighbor(i)
 
-    def get_reachable_coords(self, reach: int, blocked_coords: set["OddRCoord"], *, is_include_self: bool = False) -> set["OddRCoord"]:
+    def get_reachable_coords(self, reach: int, is_coord_blocked: Callable[["OddRCoord"], bool], *, is_include_self: bool = False) -> set["OddRCoord"]:
         visited: set[OddRCoord] = set()
         visited.add(self)
         fringes: list[list[OddRCoord]] = []
@@ -89,7 +89,7 @@ class OddRCoord:
             fringes.append([])
             for coord in fringes[k]:
                 for neighbor in coord.get_neighbors():
-                    if neighbor not in visited and neighbor not in blocked_coords:
+                    if neighbor not in visited and not is_coord_blocked(neighbor):
                         visited.add(neighbor)
                         fringes[k + 1].append(neighbor)
 
