@@ -13,6 +13,15 @@ class OddRCoord:
     x: int
     y: int
 
+    DIRECTION_DIFFERENCES = (
+        # Even Rows
+        ((+1,  0), (0, -1), (-1, -1),
+         (-1,  0), (-1, +1), (0, +1)),
+        # Odd Rows
+        ((+1,  0), (+1, -1), (0, -1),
+         (-1,  0), (0, +1), (+1, +1)),
+    )
+
     @property
     def row(self):
         return self.y
@@ -53,6 +62,41 @@ class OddRCoord:
         x += 1
         y += 1
         return x * hex_size, y * hex_size
+
+    def get_neighbor(self, direction: int) -> "OddRCoord":
+        """
+        Get neighbor on a specific direction
+        :param direction: The direction to get the neighbor, ranges between 0 (top left) to 5 (left)
+        :returns: Neighbor coord
+        """
+        if direction not in range(0, 6):
+            raise ValueError("direction must be between 0 and 5")
+        parity = self.row & 1
+        diff = self.DIRECTION_DIFFERENCES[parity][direction]
+        return OddRCoord(self.col + diff[0], self.row + diff[1])
+
+    def get_neighbors(self) -> Iterator["OddRCoord"]:
+        for i in range(6):
+            yield self.get_neighbor(i)
+
+    def get_reachable_coords(self, reach: int, blocked_coords: set["OddRCoord"], *, is_include_self: bool = False) -> set["OddRCoord"]:
+        visited: set[OddRCoord] = set()
+        visited.add(self)
+        fringes: list[list[OddRCoord]] = []
+        fringes.append([self])
+
+        for k in range(reach):
+            fringes.append([])
+            for coord in fringes[k]:
+                for neighbor in coord.get_neighbors():
+                    if neighbor not in visited and neighbor not in blocked_coords:
+                        visited.add(neighbor)
+                        fringes[k + 1].append(neighbor)
+
+        if not is_include_self:
+            visited.remove(self)
+
+        return visited
 
     @classmethod
     def from_pixel(cls, x: float, y: float, hex_size: float) -> "OddRCoord":
