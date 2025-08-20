@@ -54,6 +54,10 @@ class OddRCoord:
         y += 1
         return x * hex_size, y * hex_size
 
+    @classmethod
+    def from_pixel(cls, x: float, y: float, hex_size: float) -> "OddRCoord":
+        return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
+
     def __add__(self, other: Self) -> Self:
         return self.__class__(self.x + other.x, self.y + other.y)
 
