@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Iterator, Self
 from .utils import lerp
+from math import sqrt
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,18 @@ class OddRCoord:
 
     def all_in_range(self, N: int) -> Iterator["OddRCoord"]:
         return (axial.to_odd_r() for axial in self.to_axial().all_in_range(N))
+
+    def to_pixel(self, hex_size: float) -> tuple[float, float]:
+        """
+        https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-offset
+        https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-mod-origin
+        """
+        x = sqrt(3) * (self.col + 0.5 * (self.row & 1))
+        y = 1.5 * self.row
+        # Origin is not on the center of odd-r (0,0)
+        x += 1
+        y += 1
+        return x * hex_size, y * hex_size
 
     def __add__(self, other: Self) -> Self:
         return self.__class__(self.x + other.x, self.y + other.y)
@@ -81,6 +94,22 @@ class _AxialCoord:
         for q in range(-N, N+1):
             for r in range(max(-N, -q-N), min(N, -q+N) + 1):
                 yield self + _AxialCoord(q, r)
+
+    @classmethod
+    def from_pixel(cls, x: float, y: float, hex_size: float) -> "_AxialCoord":
+        """
+        https://www.redblobgames.com/grids/hexagons/#pixel-to-hex-axial
+        https://www.redblobgames.com/grids/hexagons/#pixel-to-hex-mod-origin
+        """
+        x /= hex_size
+        y /= hex_size
+        # Origin is not on the center of odd-r (0,0)
+        x -= 1
+        y -= 1
+
+        q = sqrt(3)/3 * x - 1/3 * y
+        r = 2/3 * y
+        return _AxialCoordFloat(q, r).round()
 
 
 @dataclass(frozen=True)
@@ -136,6 +165,21 @@ class _CubeCoord:
             return _CubeCoordFloat(self.q, self.r, self.s)
         else:
             return _CubeCoordFloat(self.q + add_epsilon[0], self.r + add_epsilon[1], self.s + add_epsilon[2])
+
+
+@dataclass(frozen=True)
+class _AxialCoordFloat:
+    q: float
+    r: float
+
+    def to_cube_float(self) -> "_CubeCoordFloat":
+        """
+        https://www.redblobgames.com/grids/hexagons/#conversions-axial
+        """
+        return _CubeCoordFloat(self.q, self.r, -self.q-self.r)
+
+    def round(self) -> "_AxialCoord":
+        return self.to_cube_float().round().to_axial()
 
 
 @dataclass(frozen=True)
