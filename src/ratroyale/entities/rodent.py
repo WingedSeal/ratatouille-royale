@@ -53,6 +53,8 @@ def rodent_data(speed: int,
                 height: int,
                 health: int | None = None,
                 defense: int | None = None,
+                movable: bool = True,
+                collision: bool = True,
                 description: str = "",
                 skills: list[_RodentSkill] = [],
                 ):
@@ -67,6 +69,8 @@ def rodent_data(speed: int,
         cls.move_cost = move_cost
         cls.attack = attack
         cls.height = height
+        cls.movable = movable
+        cls.collision = collision
         for skill in skills:
             if not hasattr(cls, skill.method_name):
                 raise ValueError(

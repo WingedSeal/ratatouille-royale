@@ -9,6 +9,8 @@ class Entity:
     pos: OddRCoord
     health: int | None = None
     defense: int | None = None
+    movable: bool = False
+    collision: bool = False
     description: str = ""
 
     def __init__(self, pos: OddRCoord) -> None:
@@ -41,11 +43,13 @@ class Entity:
 T = TypeVar('T', bound=Entity)
 
 
-def entity_data(health: int | None = None, defense: int | None = None, description: str = ""):
+def entity_data(health: int | None = None, defense: int | None = None, movable: bool = False, collision: bool = False, description: str = ""):
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, Entity)
         cls.health = health
         cls.defense = defense
+        cls.movable = movable
+        cls.collision = collision
         cls.description = description
         return cls
     return wrapper
