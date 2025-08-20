@@ -86,6 +86,9 @@ class _CubeCoord:
         return (abs(vec.q) + abs(vec.r) + abs(vec.s)) // 2
 
     def line_draw(self, other: Self) -> list["_CubeCoord"]:
+        """
+        https://www.redblobgames.com/grids/hexagons/#line-drawing
+        """
         N = self.get_distance(other)
         results: list["_CubeCoord"] = []
         for i in range(N):
