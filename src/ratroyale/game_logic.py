@@ -2,8 +2,8 @@ from enum import Enum, auto
 
 
 class Side(Enum):
-    PLAYER = auto()
-    AI = auto()
+    RAT = auto()
+    MOUSE = auto()
 
 
 class GameLogic:
@@ -18,5 +18,5 @@ class GameLogic:
     """How many turns it has been"""
 
     def __init__(self) -> None:
-        self.turn = Side.PLAYER
+        self.turn = Side.RAT
         self.turn_count = 0
