@@ -33,7 +33,6 @@ class Rodent(Entity, metaclass=RodentMeta):
     stamina: int
     move_cost: int
     attack: int
-    height: int
 
     def __init__(self, pos: OddRCoord) -> None:
         super().__init__(pos)

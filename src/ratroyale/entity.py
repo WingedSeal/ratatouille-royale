@@ -12,6 +12,7 @@ class Entity:
     movable: bool = False
     collision: bool = False
     description: str = ""
+    height: int = 0
 
     def __init__(self, pos: OddRCoord) -> None:
         self.pos = pos
@@ -47,13 +48,15 @@ def entity_data(health: int | None = None,
                 defense: int | None = None,
                 movable: bool = False,
                 collision: bool = False,
+                height: int = 0,
                 description: str = ""):
-   def wrapper(cls: type[T]) -> type[T]:
+    def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, Entity)
         cls.health = health
         cls.defense = defense
         cls.movable = movable
         cls.collision = collision
         cls.description = description
+        cls.height = height
         return cls
     return wrapper
