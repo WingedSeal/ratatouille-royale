@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Callable, TypeVar, cast
 from dataclasses import asdict, dataclass
 
 if TYPE_CHECKING:
-    from .board import Board
+    from .game_logic import GameLogic
 
 
 @dataclass
@@ -20,12 +20,12 @@ class _EntitySkill:
 class SkillResult:
     target_count: int
     available_targets: list[OddRCoord]
-    callback: Callable[["Board", list[OddRCoord]], "SkillResult | None"]
+    callback: Callable[["GameLogic", list[OddRCoord]], "SkillResult | None"]
 
 
 @dataclass
 class EntitySkill(_EntitySkill):
-    func: Callable[["Board"], SkillResult | None]
+    func: Callable[["GameLogic"], SkillResult | None]
 
 
 class Entity:
@@ -101,6 +101,6 @@ def entity_data(health: int | None = None,
                     f"Expected {skill} method to take 1 arguments (got {arg_count})"
                 )
             cls.skills.append(EntitySkill(
-                **asdict(skill), func=cast(Callable[["Board"], SkillResult | None], skill_function)))
+                **asdict(skill), func=cast(Callable[["GameLogic"], SkillResult | None], skill_function)))
         return cls
     return wrapper

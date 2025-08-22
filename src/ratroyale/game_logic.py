@@ -1,6 +1,7 @@
 import math
 from random import shuffle
 
+from ratroyale.entities.rodent import Rodent
 from ratroyale.entity import Entity, SkillResult
 
 from .hexagon import OddRCoord
@@ -15,6 +16,10 @@ HAND_LENGTH = 5
 
 def crumb_per_turn(turn_count: int):
     return min(math.ceil(turn_count / 4) * 10, 50)
+
+
+class NotEnoughCrumbError(Exception):
+    pass
 
 
 class GameLogic:
@@ -55,6 +60,13 @@ class GameLogic:
             Side.MOUSE: self.players_info[Side.MOUSE].squeak_set.deck.copy()
         }
 
+    def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
+        skill = entity.skills[skill_index]
+        if self.crumbs < skill.crumb_cost:
+            raise NotEnoughCrumbError()
+        self.crumbs -= skill.crumb_cost
+        return skill.func(self)
+
     def draw_squeak(self, side: Side) -> Squeak:
         """
         Get a squeak from a deck, spawn a new deck if it's empty
@@ -70,12 +82,12 @@ class GameLogic:
         Place squeak based on hand_index on the board
         """
         squeak = self.hands[self.turn][hand_index]
-        if squeak.crumb_cost > self.crumbs:
-            return False
-        self.crumbs -= squeak.crumb_cost
+        if self.crumbs < squeak.crumb_cost:
+            raise NotEnoughCrumbError()
         success = squeak.on_place(self.board, coord)
         if not success:
             return False
+        self.crumbs -= squeak.crumb_cost
         self.hands[self.turn][hand_index] = self.draw_squeak(self.turn)
         return True
 

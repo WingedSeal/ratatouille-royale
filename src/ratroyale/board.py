@@ -54,32 +54,26 @@ class Board:
             return None
         return self.tiles[coord.y][coord.x]
 
-    def try_move(self, start: OddRCoord, end: OddRCoord) -> bool:
+    def try_move(self, entity: Entity, target: OddRCoord) -> bool:
         """
         Check collision and move an entity from 1 tile to another.
         Not responsible for handling reach.
 
-        :param start: Start coordinate. If there's no entity here, the function will fail.
+        :param entity: Entity to move
         :param end: Target coordinate. If there's already an entity, the function will fail.
         :returns: Whether the move succeeded
         """
-        start_tile = self.get_tile(start)
-        end_tile = self.get_tile(end)
+        start_tile = self.get_tile(entity.pos)
         if start_tile is None:
-            return False
+            raise ValueError("Entity has invalid pos")
+        end_tile = self.get_tile(target)
         if end_tile is None:
             return False
-        for entity in reversed(start_tile.entities):
-            if entity.movable:
-                start_entity = entity
-                break
-        else:
+        if entity.collision and any(_entity.collision for _entity in end_tile.entities):
             return False
-        if start_entity.collision and any(entity.collision for entity in end_tile.entities):
-            return False
-        end_tile.entities.append(start_entity)
-        start_tile.entities.remove(start_entity)
-        start_entity.pos = end
+        end_tile.entities.append(entity)
+        start_tile.entities.remove(entity)
+        entity.pos = target
         return True
 
     def get_reachable_coords(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
@@ -113,8 +107,12 @@ class Board:
         if rodent_tile is None:
             raise ValueError("Rodent has invalid pos")
         max_altitude = rodent_tile.get_total_height(
-        ) + rodent.skills[skill_index].altitude
-        for target_coord in rodent.pos.all_in_range(rodent.skills[skill_index].reach):
+        ) + (rodent.skills[skill_index].altitude or 0)
+        reach = rodent.skills[skill_index].reach
+        if reach is None:
+            raise ValueError(
+                "'get_attackable_coords is called on skill without reach")
+        for target_coord in rodent.pos.all_in_range(reach):
             for passed_coord in rodent.pos.line_draw(target_coord):
                 passed_tile = self.get_tile(passed_coord)
                 if passed_tile is None:
