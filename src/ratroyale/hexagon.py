@@ -82,13 +82,13 @@ class OddRCoord:
         for i in range(6):
             yield self.get_neighbor(i)
 
-    def get_reachable_coords(self, reach: int, is_coord_blocked: Callable[["OddRCoord"], bool], *, is_include_self: bool = False) -> set["OddRCoord"]:
+    def get_reachable_coords(self, reach: int, is_coord_blocked: Callable[["OddRCoord", "OddRCoord"], bool], *, is_include_self: bool = False) -> set["OddRCoord"]:
         """
         Get every reachable coords within reach
         https://www.redblobgames.com/grids/hexagons/#range-obstacles
 
         :param reach: Movement from original coord
-        :param is_coord_blocked: A Callback function to evaluate if coord is a "wall"
+        :param is_coord_blocked: A Callback function that takes in a coord and previous coord to evaluate if the coord is reachable.
 
         :returns: Reachable coords
         """
@@ -101,7 +101,7 @@ class OddRCoord:
             fringes.append([])
             for coord in fringes[k]:
                 for neighbor in coord.get_neighbors():
-                    if neighbor not in visited and not is_coord_blocked(neighbor):
+                    if neighbor not in visited and not is_coord_blocked(neighbor, coord):
                         visited.add(neighbor)
                         fringes[k + 1].append(neighbor)
 

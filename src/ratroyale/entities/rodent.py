@@ -26,6 +26,9 @@ class RodentSkill(_RodentSkill):
     func: Callable[[], None]
 
 
+RODENT_JUMP_HEIGHT = 1
+
+
 class Rodent(Entity, metaclass=RodentMeta):
     _has_rodent_data = False
     skills: list[RodentSkill] = []

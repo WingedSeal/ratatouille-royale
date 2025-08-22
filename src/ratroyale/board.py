@@ -1,4 +1,6 @@
 from copy import deepcopy
+
+from .entities.rodent import RODENT_JUMP_HEIGHT, Rodent
 from .hexagon import OddRCoord
 from .tile import Tile
 from .map import Map
@@ -48,3 +50,15 @@ class Board:
         start_tile.entities.remove(start_entity)
         start_entity.pos = end
         return True
+
+    def get_reachable_tiles(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
+        def is_coord_blocked(coord: OddRCoord, previous_coord: OddRCoord):
+            tile = self.get_tile(coord)
+            if tile is None:
+                return False
+            previous_tile = self.get_tile(previous_coord)
+            if previous_tile is None:
+                return False
+            return tile.get_total_height() - previous_tile.get_total_height() <= RODENT_JUMP_HEIGHT
+        return rodent.pos.get_reachable_coords(
+            rodent.speed, is_coord_blocked, is_include_self=is_include_self)
