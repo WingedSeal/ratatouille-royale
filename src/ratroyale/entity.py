@@ -11,9 +11,9 @@ if TYPE_CHECKING:
 @dataclass
 class _EntitySkill:
     method_name: str
-    reach: int
+    reach: int | None
     crumb_cost: int
-    altitude: int
+    altitude: int | None
 
 
 @dataclass

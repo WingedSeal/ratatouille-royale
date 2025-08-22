@@ -1,6 +1,8 @@
 import math
 from random import shuffle
 
+from ratroyale.entity import Entity, SkillResult
+
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
