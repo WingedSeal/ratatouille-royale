@@ -21,6 +21,7 @@ class GameLogic:
     """
     Class responsible for main game logic, such as whose turn it is,
     how many crumbs each player has, etc.
+    This class is not responsible for understand player input etc.
     """
 
     turn: Side
