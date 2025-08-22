@@ -1,2 +1,5 @@
+from .squeak_set import SqueakSet
+
+
 class PlayerInfo:
-    pass
+    squeak_set: SqueakSet
