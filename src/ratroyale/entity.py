@@ -1,5 +1,31 @@
 from .hexagon import OddRCoord
-from typing import TypeVar
+import inspect
+from typing import TYPE_CHECKING, Callable, TypeVar, cast
+
+from dataclasses import asdict, dataclass
+
+if TYPE_CHECKING:
+    from .board import Board
+
+
+@dataclass
+class _EntitySkill:
+    method_name: str
+    reach: int
+    crumb_cost: int
+    altitude: int
+
+
+@dataclass
+class SkillResult:
+    target_count: int
+    available_targets: list[OddRCoord]
+    callback: Callable[["Board", list[OddRCoord]], "SkillResult | None"]
+
+
+@dataclass
+class EntitySkill(_EntitySkill):
+    func: Callable[["Board"], SkillResult | None]
 
 
 class Entity:
@@ -13,6 +39,7 @@ class Entity:
     collision: bool = False
     description: str = ""
     height: int = 0
+    skills: list[EntitySkill] = []
 
     def __init__(self, pos: OddRCoord) -> None:
         self.pos = pos
@@ -49,7 +76,9 @@ def entity_data(health: int | None = None,
                 movable: bool = False,
                 collision: bool = False,
                 height: int = 0,
-                description: str = ""):
+                description: str = "",
+                skills: list[_EntitySkill] = [],
+                ):
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, Entity)
         cls.health = health
@@ -58,5 +87,20 @@ def entity_data(health: int | None = None,
         cls.collision = collision
         cls.description = description
         cls.height = height
+        for skill in skills:
+            if not hasattr(cls, skill.method_name):
+                raise ValueError(
+                    f"{skill} is not an attribute of {cls.__name__}")
+            skill_function = getattr(cls, skill.method_name)
+            if not callable(skill_function):
+                raise ValueError(
+                    f"{skill} is not callable")
+            arg_count = len(inspect.signature(skill_function).parameters)
+            if arg_count != 1:
+                raise ValueError(
+                    f"Expected {skill} method to take 1 arguments (got {arg_count})"
+                )
+            cls.skills.append(EntitySkill(
+                **asdict(skill), func=cast(Callable[["Board"], SkillResult | None], skill_function)))
         return cls
     return wrapper

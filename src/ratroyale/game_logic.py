@@ -1,7 +1,7 @@
 import math
 from random import shuffle
 
-from ratroyale.hexagon import OddRCoord
+from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
 from .map import Map

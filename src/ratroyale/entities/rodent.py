@@ -1,9 +1,8 @@
 from abc import ABCMeta, abstractmethod
-import inspect
-from dataclasses import asdict, dataclass
-from ..entity import Entity
+from ..entity import Entity, entity_data
 from ..hexagon import OddRCoord
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
+from ..entity import _EntitySkill
+from typing import TYPE_CHECKING, Any,  TypeVar
 
 if TYPE_CHECKING:
     from ..game_logic import Side
@@ -17,25 +16,11 @@ class RodentMeta(ABCMeta):
         return super().__new__(cls, name, bases, dct)
 
 
-@dataclass
-class _RodentSkill:
-    method_name: str
-    reach: int
-    crumb_cost: int
-    altitude: int
-
-
-@dataclass
-class RodentSkill(_RodentSkill):
-    func: Callable[[], None]
-
-
 RODENT_JUMP_HEIGHT = 1
 
 
 class Rodent(Entity, metaclass=RodentMeta):
     _has_rodent_data = False
-    skills: list[RodentSkill] = []
     speed: int
     stamina: int
     move_cost: int
@@ -65,10 +50,12 @@ def rodent_data(*,
                 movable: bool = True,
                 collision: bool = True,
                 description: str = "",
-                skills: list[_RodentSkill] = [],
+                skills: list[_EntitySkill] = [],
                 ):
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, Rodent)
+        entity_data(health, defense, movable, collision,
+                    height, description, skills)(cls)
         cls._has_rodent_data = True
         cls.health = health
         cls.defense = defense
@@ -80,20 +67,5 @@ def rodent_data(*,
         cls.height = height
         cls.movable = movable
         cls.collision = collision
-        for skill in skills:
-            if not hasattr(cls, skill.method_name):
-                raise ValueError(
-                    f"{skill} is not an attribute of {cls.__name__}")
-            skill_function = getattr(cls, skill.method_name)
-            if not callable(skill_function):
-                raise ValueError(
-                    f"{skill} is not callable")
-            arg_count = len(inspect.signature(skill_function).parameters)
-            if arg_count != 0:
-                raise ValueError(
-                    f"Expected {skill} method to take 0 arguments (got {arg_count})"
-                )
-            cls.skills.append(RodentSkill(
-                **asdict(skill), func=cast(Callable[[], None], skill_function)))
         return cls
     return wrapper
