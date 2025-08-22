@@ -3,7 +3,10 @@ import inspect
 from dataclasses import asdict, dataclass
 from ..entity import Entity
 from ..hexagon import OddRCoord
-from typing import Any, Callable, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
+
+if TYPE_CHECKING:
+    from ..game_logic import Side
 
 
 class RodentMeta(ABCMeta):
@@ -19,6 +22,7 @@ class _RodentSkill:
     method_name: str
     reach: int
     crumb_cost: int
+    altitude: int
 
 
 @dataclass
@@ -36,9 +40,11 @@ class Rodent(Entity, metaclass=RodentMeta):
     stamina: int
     move_cost: int
     attack: int
+    side: Side
 
-    def __init__(self, pos: OddRCoord) -> None:
+    def __init__(self, pos: OddRCoord, side: Side) -> None:
         super().__init__(pos)
+        self.side = side
 
     @abstractmethod
     def skill_descriptions(self) -> list[str]:

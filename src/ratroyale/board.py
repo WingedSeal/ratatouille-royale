@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Iterator
 
 from .entities.rodent import RODENT_JUMP_HEIGHT, Rodent
 from .hexagon import OddRCoord
@@ -51,7 +52,14 @@ class Board:
         start_entity.pos = end
         return True
 
-    def get_reachable_tiles(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
+    def get_reachable_coords(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
+        """
+        Get every coords a rodent can reach within its movement limit
+
+        :param rodent: The rodent
+        :param is_include_self: Whether to include the coord of rodent itself in the result
+        :returns: Set of reachable coords
+        """
         def is_coord_blocked(coord: OddRCoord, previous_coord: OddRCoord):
             tile = self.get_tile(coord)
             if tile is None:
@@ -62,3 +70,26 @@ class Board:
             return tile.get_total_height() - previous_tile.get_total_height() <= RODENT_JUMP_HEIGHT
         return rodent.pos.get_reachable_coords(
             rodent.speed, is_coord_blocked, is_include_self=is_include_self)
+
+    def get_attackable_coords(self, rodent: Rodent, skill_index: int) -> Iterator[OddRCoord]:
+        """
+        Get every coords a rodent can attack with its skill altitude
+
+        :param rodent: The rodent
+        :param skill_index: Which skills of the rodent to use in calculation
+        :returns: All attackable coords
+        """
+        rodent_tile = self.get_tile(rodent.pos)
+        if rodent_tile is None:
+            raise ValueError("Rodent has invalid pos")
+        max_altitude = rodent_tile.get_total_height(
+        ) + rodent.skills[skill_index].altitude
+        for target_coord in rodent.pos.all_in_range(rodent.skills[skill_index].reach):
+            for passed_coord in rodent.pos.line_draw(target_coord):
+                passed_tile = self.get_tile(passed_coord)
+                if passed_tile is None:
+                    break
+                if passed_tile.get_total_height() > max_altitude:
+                    break
+            else:
+                yield target_coord
