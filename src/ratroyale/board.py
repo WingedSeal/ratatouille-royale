@@ -1,5 +1,10 @@
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import Iterator
+
+from .side import Side
+
+from .entity import Entity
 
 from .entities.rodent import RODENT_JUMP_HEIGHT, Rodent
 from .hexagon import OddRCoord
@@ -7,15 +12,40 @@ from .tile import Tile
 from .map import Map
 
 
+class CachedEntities:
+    def __init__(self) -> None:
+        self.rodents: list[Rodent] = []
+        self.rats: list[Rodent] = []
+        self.mice: list[Rodent] = []
+        self.entities: list[Entity] = []
+
+
 class Board:
     size_x: int
     size_y: int
     tiles: list[list[Tile]]
+    cached_entities: CachedEntities
 
     def __init__(self, map: Map) -> None:
         self.tiles = deepcopy(map.tiles)
         self.size_y = len(map.tiles)
         self.size_x = len(map.tiles[0])
+        self.cached_entities = CachedEntities()
+        for entity in map.entities:
+            self.add_entity(entity)
+
+    def add_entity(self, entity: Entity) -> None:
+        self.cached_entities.entities.append(entity)
+        if isinstance(entity, Rodent):
+            self.cached_entities.rodents.append(entity)
+            if entity.side == Side.RAT:
+                self.cached_entities.rats.append(entity)
+            elif entity.side == Side.MOUSE:
+                self.cached_entities.mice.append(entity)
+        tile = self.get_tile(entity.pos)
+        if tile is None:
+            raise ValueError("Entity has invalid pos")
+        tile.entities.append(entity)
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
