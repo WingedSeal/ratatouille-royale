@@ -1,7 +1,20 @@
+from queue import PriorityQueue
 from dataclasses import dataclass
-from typing import Callable, Iterator, Self
+from typing import Callable, Iterator, Protocol, Self
 from .utils import lerp
 from math import sqrt
+
+
+class IsCoordBlocked(Protocol):
+    """
+    A callback function that evaluate whether target coord is accessible from source coord 
+    """
+
+    def __call__(self, target_coord: "OddRCoord", source_coord: "OddRCoord") -> bool:
+        """
+        A callback function that evaluate whether target coord is accessible from source coord 
+        """
+        ...
 
 
 @dataclass(frozen=True)
@@ -82,14 +95,13 @@ class OddRCoord:
         for i in range(6):
             yield self.get_neighbor(i)
 
-    def get_reachable_coords(self, reach: int, is_coord_blocked: Callable[["OddRCoord", "OddRCoord"], bool], *, is_include_self: bool = False) -> set["OddRCoord"]:
+    def get_reachable_coords(self, reach: int, is_coord_blocked: IsCoordBlocked, *, is_include_self: bool = False) -> set["OddRCoord"]:
         """
         Get every reachable coords within reach
         https://www.redblobgames.com/grids/hexagons/#range-obstacles
 
         :param reach: Movement from original coord
-        :param is_coord_blocked: A Callback function that takes in a coord and previous coord to evaluate if the coord is reachable.
-
+        :param is_coord_blocked: A callback function that evaluate whether target coord is accessible from source coord 
         :returns: Reachable coords
         """
         visited: set[OddRCoord] = set()
@@ -119,6 +131,56 @@ class OddRCoord:
 
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.x - other.x, self.y - other.y)
+
+    def path_find(self,
+                  goal: "OddRCoord",
+                  is_coord_blocked: IsCoordBlocked,
+                  get_cost: Callable[["OddRCoord", "OddRCoord"], float] = lambda a, b: 1.0) -> list["OddRCoord"] | None:
+        """
+        https://www.redblobgames.com/pathfinding/a-star/introduction.html#astar
+
+        Using A-star method to path find to a goal
+
+        :param goal: Goal coord
+        :param is_coord_blocked: A callback function that evaluate whether target coord is accessible from source coord 
+        :param get_cost: A callback function to evaluate cost to travel from first coord to second coord, defaults to `lambda: a, b: 1.0`
+        :returns: Path calculated or None if goal is not reachable
+        """
+        frontier = PriorityQueue()
+        frontier.put((0, self))
+        came_from: dict[OddRCoord, OddRCoord | None] = {
+            self: None
+        }
+        cost_so_far: dict[OddRCoord, float] = {
+            self: 0
+        }
+
+        while not frontier.empty():
+            _, current = frontier.get()
+            if current == goal:
+                break
+            for next_coord in current.get_neighbors():
+                if is_coord_blocked(next_coord, current):
+                    continue
+
+                new_cost = cost_so_far[current] + get_cost(current, next_coord)
+
+                if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:
+                    cost_so_far[next_coord] = new_cost
+                    priority = new_cost + goal.get_distance(next_coord)
+                    frontier.put((priority, next_coord))
+                    came_from[next_coord] = current
+
+        if goal not in came_from:
+            return None
+
+        path = []
+        current = goal
+        while current is not None:
+            path.append(current)
+            current = came_from[current]
+        path.reverse()
+        return path
 
 
 @dataclass(frozen=True)
