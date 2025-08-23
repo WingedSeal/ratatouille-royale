@@ -1,8 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 
-from ratroyale.backend.entity import SkillResult
-
+from .backend.entity import SkillResult
 from .backend.hexagon import OddRCoord
 from .backend.game_manager import GameManager
 
