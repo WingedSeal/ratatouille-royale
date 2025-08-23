@@ -22,5 +22,5 @@ class Map:
 
     @classmethod
     def from_file(cls, file: Path) -> "Map":
-        pass
-        return Map(0, 0, [])
+        # TODO
+        return cls(0, 0, [])
