@@ -48,9 +48,13 @@ class Entity:
         pass
 
     def on_death(self) -> bool:
+        """
+        Method called when entity dies
+        :returns: Whether the entity actually dies
+        """
         return True
 
-    def take_damage(self, damage: int) -> bool:
+    def _take_damage(self, damage: int) -> bool:
         """
         Take damage and reduce health accordingly if entity has health
         :param damage: How much damage taken
@@ -60,7 +64,7 @@ class Entity:
         if new_damage is not None:
             damage = new_damage
         if self.health is None:
-            return False
+            raise ValueError("Entity without health just taken damage")
         self.health -= max(0, damage - (self.defense or 0))
         if self.health <= 0:
             self.health = 0

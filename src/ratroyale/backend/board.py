@@ -1,6 +1,8 @@
 from copy import deepcopy
 from typing import Iterator
 
+from ratroyale.backend.error import EntityInvalidPosError
+
 from .side import Side
 
 from .entity import Entity
@@ -43,7 +45,7 @@ class Board:
                 self.cached_entities.mice.append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
-            raise ValueError("Entity has invalid pos")
+            raise EntityInvalidPosError()
         tile.entities.append(entity)
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
@@ -52,6 +54,18 @@ class Board:
         if coord.y < 0 or coord.y >= self.size_y:
             return None
         return self.tiles[coord.y][coord.x]
+
+    def damage_entity(self, entity: Entity, damage: int):
+        is_dead = entity._take_damage(damage)
+        if not is_dead:
+            return
+        is_dead = entity.on_death()
+        if not is_dead:
+            return
+        tile = self.get_tile(entity.pos)
+        if tile is None:
+            raise EntityInvalidPosError()
+        tile.entities.remove(entity)
 
     def try_move(self, entity: Entity, target: OddRCoord) -> bool:
         """
@@ -64,7 +78,7 @@ class Board:
         """
         start_tile = self.get_tile(entity.pos)
         if start_tile is None:
-            raise ValueError("Entity has invalid pos")
+            raise EntityInvalidPosError()
         end_tile = self.get_tile(target)
         if end_tile is None:
             return False

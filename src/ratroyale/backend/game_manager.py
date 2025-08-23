@@ -1,6 +1,7 @@
 import math
 from random import shuffle
 
+from .error import NotEnoughCrumbError
 from .entity import Entity, SkillResult
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
@@ -14,10 +15,6 @@ HAND_LENGTH = 5
 
 def crumb_per_turn(turn_count: int):
     return min(math.ceil(turn_count / 4) * 10, 50)
-
-
-class NotEnoughCrumbError(Exception):
-    pass
 
 
 class GameManager:
