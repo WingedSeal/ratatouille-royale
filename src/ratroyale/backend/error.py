@@ -1,6 +1,10 @@
-class EntityInvalidPosError(Exception):
+class RatRoyaleBackendError(Exception):
     pass
 
 
-class NotEnoughCrumbError(Exception):
+class EntityInvalidPosError(RatRoyaleBackendError):
+    pass
+
+
+class NotEnoughCrumbError(RatRoyaleBackendError):
     pass
