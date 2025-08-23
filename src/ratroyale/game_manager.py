@@ -22,7 +22,7 @@ class NotEnoughCrumbError(Exception):
     pass
 
 
-class GameLogic:
+class GameManager:
     """
     Class responsible for main game logic, such as whose turn it is,
     how many crumbs each player has, etc.
