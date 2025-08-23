@@ -5,7 +5,7 @@ from ..entity import _EntitySkill
 from typing import TYPE_CHECKING, Any,  TypeVar
 
 if TYPE_CHECKING:
-    from ..game_logic import Side
+    from ..side import Side
 
 
 class RodentMeta(ABCMeta):

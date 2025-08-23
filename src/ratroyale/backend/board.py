@@ -1,5 +1,4 @@
 from copy import deepcopy
-from dataclasses import dataclass
 from typing import Iterator
 
 from .side import Side
@@ -84,11 +83,11 @@ class Board:
         :param is_include_self: Whether to include the coord of rodent itself in the result
         :returns: Set of reachable coords
         """
-        def is_coord_blocked(coord: OddRCoord, previous_coord: OddRCoord):
-            tile = self.get_tile(coord)
+        def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
+            tile = self.get_tile(target_coord)
             if tile is None:
                 return False
-            previous_tile = self.get_tile(previous_coord)
+            previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return False
             return tile.get_total_height() - previous_tile.get_total_height() <= RODENT_JUMP_HEIGHT

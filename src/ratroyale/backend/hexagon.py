@@ -1,7 +1,7 @@
 from queue import PriorityQueue
 from dataclasses import dataclass
 from typing import Callable, Iterator, Protocol, Self
-from .utils import lerp
+from ..utils import lerp
 from math import sqrt
 
 
@@ -146,7 +146,7 @@ class OddRCoord:
         :param get_cost: A callback function to evaluate cost to travel from first coord to second coord, defaults to `lambda: a, b: 1.0`
         :returns: Path calculated or None if goal is not reachable
         """
-        frontier = PriorityQueue()
+        frontier: PriorityQueue[tuple[float, OddRCoord]] = PriorityQueue()
         frontier.put((0, self))
         came_from: dict[OddRCoord, OddRCoord | None] = {
             self: None
@@ -175,10 +175,10 @@ class OddRCoord:
             return None
 
         path = []
-        current = goal
-        while current is not None:
-            path.append(current)
-            current = came_from[current]
+        current_: OddRCoord | None = goal
+        while current_ is not None:
+            path.append(current_)
+            current_ = came_from[current_]
         path.reverse()
         return path
 
