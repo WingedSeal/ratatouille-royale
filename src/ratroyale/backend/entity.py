@@ -1,3 +1,4 @@
+from ratroyale.backend.side import Side
 from .hexagon import OddRCoord
 import inspect
 from typing import TYPE_CHECKING, Callable, TypeVar, cast
@@ -40,9 +41,11 @@ class Entity:
     description: str = ""
     height: int = 0
     skills: list[EntitySkill] = []
+    side: Side | None
 
-    def __init__(self, pos: OddRCoord) -> None:
+    def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
         self.pos = pos
+        self.side = side
 
     def on_damage_taken(self, damage: int) -> int | None:
         pass

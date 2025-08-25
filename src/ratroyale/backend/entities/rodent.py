@@ -25,11 +25,10 @@ class Rodent(Entity, metaclass=RodentMeta):
     stamina: int
     move_cost: int
     attack: int
-    side: Side
+    side: Side | None
 
-    def __init__(self, pos: OddRCoord, side: Side) -> None:
-        super().__init__(pos)
-        self.side = side
+    def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
+        super().__init__(pos, side)
 
     @abstractmethod
     def skill_descriptions(self) -> list[str]:
