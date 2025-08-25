@@ -1,4 +1,4 @@
-from ratroyale.backend.side import Side
+from .side import Side
 from .hexagon import OddRCoord
 import inspect
 from typing import TYPE_CHECKING, Callable, TypeVar, cast
