@@ -1,12 +1,11 @@
 from copy import deepcopy
 from typing import Iterator
 
-from ratroyale.backend.error import EntityInvalidPosError
-
+from ..utils import EventQueue
+from .game_event import GameEvent
+from .error import EntityInvalidPosError
 from .side import Side
-
 from .entity import Entity
-
 from .entities.rodent import RODENT_JUMP_HEIGHT, Rodent
 from .hexagon import OddRCoord
 from .tile import Tile
@@ -26,12 +25,14 @@ class Board:
     size_y: int
     tiles: list[list[Tile]]
     cached_entities: CachedEntities
+    event_queue: EventQueue[GameEvent]
 
     def __init__(self, map: Map) -> None:
         self.tiles = deepcopy(map.tiles)
         self.size_y = len(map.tiles)
         self.size_x = len(map.tiles[0])
         self.cached_entities = CachedEntities()
+        self.event_queue = EventQueue()
         for entity in map.entities:
             self.add_entity(entity)
 

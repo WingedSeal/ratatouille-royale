@@ -1,6 +1,8 @@
 import math
+from queue import Queue
 from random import shuffle
 
+from .game_event import GameEvent
 from .error import NotEnoughCrumbError
 from .entity import Entity, SkillResult
 from .hexagon import OddRCoord
@@ -54,6 +56,10 @@ class GameManager:
             Side.RAT: self.players_info[Side.RAT].squeak_set.deck.copy(),
             Side.MOUSE: self.players_info[Side.MOUSE].squeak_set.deck.copy()
         }
+
+    @property
+    def event_queue(self) -> Queue[GameEvent]:
+        return self.board.event_queue
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
         skill = entity.skills[skill_index]

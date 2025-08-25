@@ -1,8 +1,10 @@
+from .input_manager import InputManager
 from ..game_states import GamePlay, GameState, MainMenu
 
 
 class Renderer:
     is_running: bool
+    input_manager: InputManager
 
     def init(self):
         pass
