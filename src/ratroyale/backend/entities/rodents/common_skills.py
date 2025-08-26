@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from ...skill_callback import SkillCallback, skill_callback
+from ...skill_callback import SkillCallback, skill_callback_check
 
 
 if TYPE_CHECKING:
@@ -27,6 +27,10 @@ def select_enemy_rodents(board: "Board", rodent: "Rodent", skill: "EntitySkill",
     return SkillResult(target_count, targets, callback)
 
 
-@skill_callback
-def normal_damage(game_manager: "GameManager", selected_targets: list["OddRCoord"]) -> None:
-    pass
+def normal_damage(damage: int) -> SkillCallback:
+    @skill_callback_check
+    def callback(game_manager: "GameManager", selected_targets: list["OddRCoord"]) -> None:
+        for target in selected_targets:
+            game_manager.board.damage_entity(
+                game_manager.get_enemy_on_pos(target), damage)
+    return callback

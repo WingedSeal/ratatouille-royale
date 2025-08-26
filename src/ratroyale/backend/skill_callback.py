@@ -12,7 +12,7 @@ class SkillCallback(Protocol):
         ...
 
 
-def skill_callback(callback: "SkillCallback") -> "SkillCallback":
+def skill_callback_check(callback: "SkillCallback") -> "SkillCallback":
     """
     A decorator to check if a function is compatible with SkillCallback
     """
