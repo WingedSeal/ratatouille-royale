@@ -18,7 +18,7 @@ def select_any_tile(board: "Board", rodent: "Rodent", skill: "EntitySkill", call
 
 
 def select_enemy_rodent(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1):
-    pass
+    board.cached_entities.sides_with_hp
 
 
 @skill_callback

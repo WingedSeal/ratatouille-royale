@@ -76,6 +76,19 @@ class Board:
         tile.entities.remove(entity)
         self.event_queue.put(EntityDieEvent(entity))
 
+    def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int) -> bool:
+        start_tile = self.get_tile(start_coord)
+        if start_tile is None:
+            raise ValueError("Start tile has invalid pos")
+        start_height = start_tile.get_total_height()
+        for coord in start_coord.line_draw(end_coord):
+            tile = self.get_tile(coord)
+            if tile is None:
+                return False
+            if tile.get_total_height() + altitude < start_height:
+                return False
+        return True
+
     def try_move(self, entity: Entity, target: OddRCoord) -> bool:
         """
         Check collision and move an entity from 1 tile to another.
