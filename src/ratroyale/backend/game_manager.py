@@ -68,6 +68,21 @@ class GameManager:
         self.crumbs -= skill.crumb_cost
         return skill.func(self)
 
+    def get_enemy_on_pos(self, pos: OddRCoord) -> Entity:
+        """
+        Get enemy at the end of the list (top) at position. Raise error if there's nothing there
+        """
+        tile = self.board.get_tile(pos)
+        if tile is None:
+            raise ValueError("There is no tile on the coord")
+        for entity in reversed(tile.entities):
+            if entity.health is None:
+                continue
+            if entity.side == self.turn:
+                continue
+            return entity
+        raise ValueError(f"No valid target on this pos ({pos})")
+
     def draw_squeak(self, side: Side) -> Squeak:
         """
         Get a squeak from a deck, spawn a new deck if it's empty
