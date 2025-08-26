@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from typing import Iterator
 
@@ -15,8 +16,7 @@ from .map import Map
 class CachedEntities:
     def __init__(self) -> None:
         self.rodents: list[Rodent] = []
-        self.rats: list[Rodent] = []
-        self.mice: list[Rodent] = []
+        self.sides: dict[Side | None, list[Rodent]] = defaultdict(list)
         self.entities: list[Entity] = []
 
 
@@ -40,10 +40,7 @@ class Board:
         self.cached_entities.entities.append(entity)
         if isinstance(entity, Rodent):
             self.cached_entities.rodents.append(entity)
-            if entity.side == Side.RAT:
-                self.cached_entities.rats.append(entity)
-            elif entity.side == Side.MOUSE:
-                self.cached_entities.mice.append(entity)
+            self.cached_entities.sides[entity.side].append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
