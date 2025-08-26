@@ -14,11 +14,15 @@ class Map:
     tiles: list[list[Tile]]
     entities: list[Entity]
 
-    def __init__(self, size_x: int, size_y: int, tiles: list[list[Tile]], entities: list[Entity] = []) -> None:
+    def __init__(self, size_x: int, size_y: int, tiles: list[list[Tile]], entities: list[Entity] = [], features: list[tuple[Feature, OddRCoord]] = []) -> None:
         self.size_x = size_x
         self.size_y = size_y
         self.tiles = tiles
         self.entities = entities
+        for feature, feature_pos in features:
+            for coord in feature.shape:
+                self.tiles[feature_pos.y + coord.y][feature_pos.x +
+                                                    coord.x].features.add(feature)
 
     @classmethod
     def from_file(cls, file: Path) -> "Map":
