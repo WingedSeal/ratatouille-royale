@@ -1,3 +1,4 @@
+from .skill_callback import SkillCallback
 from .side import Side
 from .hexagon import OddRCoord
 import inspect
@@ -21,7 +22,7 @@ class _EntitySkill:
 class SkillResult:
     target_count: int
     available_targets: list[OddRCoord]
-    callback: Callable[["GameManager", list[OddRCoord]], "SkillResult | None"]
+    callback: SkillCallback
 
 
 @dataclass
