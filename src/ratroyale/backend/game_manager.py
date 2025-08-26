@@ -1,6 +1,7 @@
 import math
 from queue import Queue
 from random import shuffle
+from typing import Iterator
 
 from .game_event import GameEvent
 from .error import NotEnoughCrumbError
@@ -82,6 +83,20 @@ class GameManager:
                 continue
             return entity
         raise ValueError(f"No valid target on this pos ({pos})")
+
+    def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
+        """
+        Get every damagable enemies at position. Raise error if there's nothing there
+        """
+        tile = self.board.get_tile(pos)
+        if tile is None:
+            raise ValueError("There is no tile on the coord")
+        for entity in reversed(tile.entities):
+            if entity.health is None:
+                continue
+            if entity.side == self.turn:
+                continue
+            yield entity
 
     def draw_squeak(self, side: Side) -> Squeak:
         """
