@@ -56,6 +56,9 @@ class Entity:
     def on_damage_taken(self, damage: int) -> int | None:
         pass
 
+    def on_hp_loss(self, hp_loss: int) -> None:
+        pass
+
     def on_death(self) -> bool:
         """
         Method called when entity dies
@@ -79,7 +82,9 @@ class Entity:
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
+            self.on_hp_loss(damage_taken)
             return True, damage_taken
+        self.on_hp_loss(damage_taken)
         return False, damage_taken
 
 
