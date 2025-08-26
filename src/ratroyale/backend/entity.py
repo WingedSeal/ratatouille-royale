@@ -10,8 +10,9 @@ if TYPE_CHECKING:
     from .game_manager import GameManager
 
 
-@dataclass
+@dataclass(kw_only=True)
 class _EntitySkill:
+    name: str
     method_name: str
     reach: int | None
     crumb_cost: int
@@ -38,6 +39,7 @@ class Entity:
     Any entity on the tile system.
     """
     pos: OddRCoord
+    name: str = ""
     health: int | None = None
     defense: int | None = None
     movable: bool = False
@@ -84,13 +86,15 @@ class Entity:
 T = TypeVar('T', bound=Entity)
 
 
-def entity_data(health: int | None = None,
+def entity_data(*,
+                health: int | None = None,
                 defense: int | None = None,
                 movable: bool = False,
                 collision: bool = False,
                 height: int = 0,
                 description: str = "",
                 skills: list[_EntitySkill] = [],
+                name: str = ""
                 ):
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, Entity)
@@ -117,3 +121,14 @@ def entity_data(health: int | None = None,
                 **asdict(skill), func=cast(Callable[["GameManager"], SkillResult | None], skill_function)))
         return cls
     return wrapper
+
+
+T = TypeVar("T", bound=Entity)
+_entity_skill_type = Callable[[T, "GameManager"], SkillResult | None]
+
+
+def entity_skill_check(method: _entity_skill_type) -> _entity_skill_type:
+    """
+    Decorator for validating skill method signature
+    """
+    return method

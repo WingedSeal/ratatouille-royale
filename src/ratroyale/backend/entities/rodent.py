@@ -39,22 +39,30 @@ T = TypeVar('T', bound=Rodent)
 
 
 def rodent_data(*,
+                name: str,
                 speed: int,
                 stamina: int,
                 move_cost: int,
                 attack: int,
                 height: int,
-                health: int | None = None,
-                defense: int | None = None,
+                health: int,
+                defense: int,
+                description: str,
+                skills: list[_EntitySkill],
                 movable: bool = True,
                 collision: bool = True,
-                description: str = "",
-                skills: list[_EntitySkill] = [],
                 ):
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, Rodent)
-        entity_data(health, defense, movable, collision,
-                    height, description, skills)(cls)
+        entity_data(
+            health=health,
+            defense=defense,
+            movable=movable,
+            collision=collision,
+            height=height,
+            description=description,
+            skills=skills,
+            name=name)(cls)
         cls._has_rodent_data = True
         cls.health = health
         cls.defense = defense
