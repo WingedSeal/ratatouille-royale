@@ -8,7 +8,7 @@ class FeatureId(Enum):
     DEPLOYMENT_ZONE_MOUSE = 2
 
 
-@dataclass
+@dataclass()
 class Feature:
     shape: list[OddRCoord]
     feature_id: FeatureId
