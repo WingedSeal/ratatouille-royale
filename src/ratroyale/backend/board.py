@@ -1,8 +1,9 @@
+from collections import defaultdict
 from copy import deepcopy
 from typing import Iterator
 
 from ..utils import EventQueue
-from .game_event import GameEvent
+from .game_event import EntityDamagedEvent, EntityMoveEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity
@@ -15,9 +16,10 @@ from .map import Map
 class CachedEntities:
     def __init__(self) -> None:
         self.rodents: list[Rodent] = []
-        self.rats: list[Rodent] = []
-        self.mice: list[Rodent] = []
+        self.sides: dict[Side | None, list[Entity]] = defaultdict(list)
         self.entities: list[Entity] = []
+        self.entities_with_hp: list[Entity] = []
+        self.sides_with_hp: dict[Side | None, list[Entity]] = defaultdict(list)
 
 
 class Board:
@@ -38,16 +40,17 @@ class Board:
 
     def add_entity(self, entity: Entity) -> None:
         self.cached_entities.entities.append(entity)
+        self.cached_entities.sides[entity.side].append(entity)
+        if entity.health is not None:
+            self.cached_entities.entities_with_hp.append(entity)
+            self.cached_entities.sides_with_hp[entity.side].append(entity)
         if isinstance(entity, Rodent):
             self.cached_entities.rodents.append(entity)
-            if entity.side == Side.RAT:
-                self.cached_entities.rats.append(entity)
-            elif entity.side == Side.MOUSE:
-                self.cached_entities.mice.append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.append(entity)
+        self.event_queue.put(EntitySpawnEvent(entity))
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
@@ -57,7 +60,11 @@ class Board:
         return self.tiles[coord.y][coord.x]
 
     def damage_entity(self, entity: Entity, damage: int):
-        is_dead = entity._take_damage(damage)
+        """
+        Damage an entity. Doesn't work on entity with no health.
+        """
+        is_dead, damage_taken = entity._take_damage(damage)
+        self.event_queue.put(EntityDamagedEvent(entity, damage, damage_taken))
         if not is_dead:
             return
         is_dead = entity.on_death()
@@ -67,6 +74,7 @@ class Board:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.remove(entity)
+        self.event_queue.put(EntityDieEvent(entity))
 
     def try_move(self, entity: Entity, target: OddRCoord) -> bool:
         """
@@ -77,7 +85,8 @@ class Board:
         :param end: Target coordinate. If there's already an entity, the function will fail.
         :returns: Whether the move succeeded
         """
-        start_tile = self.get_tile(entity.pos)
+        start_coord = entity.pos
+        start_tile = self.get_tile(start_coord)
         if start_tile is None:
             raise EntityInvalidPosError()
         end_tile = self.get_tile(target)
@@ -88,6 +97,7 @@ class Board:
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)
         entity.pos = target
+        self.event_queue.put(EntityMoveEvent(start_coord, target, entity))
         return True
 
     def get_reachable_coords(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
