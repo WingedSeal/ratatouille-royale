@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Iterator
 
 from ..utils import EventQueue
-from .game_event import EntityMoveEvent, GameEvent
+from .game_event import EntityMoveEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity
@@ -67,6 +67,7 @@ class Board:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.remove(entity)
+        self.event_queue.put(EntityDieEvent(entity))
 
     def try_move(self, entity: Entity, target: OddRCoord) -> bool:
         """
