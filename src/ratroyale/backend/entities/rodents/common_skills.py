@@ -6,7 +6,6 @@ from ...skill_callback import SkillCallback, skill_callback_check
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
-    from ...tile import Tile
     from ...entities.rodent import Rodent
     from ...entity import EntitySkill, SkillResult
     from ...board import Board
