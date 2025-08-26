@@ -88,7 +88,7 @@ class Entity:
         return False, damage_taken
 
 
-T = TypeVar('T', bound=Entity)
+Entity_T = TypeVar('Entity_T', bound=Entity)
 
 
 def entity_data(*,
@@ -101,7 +101,7 @@ def entity_data(*,
                 skills: list[_EntitySkill] = [],
                 name: str = ""
                 ):
-    def wrapper(cls: type[T]) -> type[T]:
+    def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
         assert issubclass(cls, Entity)
         cls.health = health
         cls.defense = defense
@@ -109,6 +109,7 @@ def entity_data(*,
         cls.collision = collision
         cls.description = description
         cls.height = height
+        cls.name = name
         for skill in skills:
             if not hasattr(cls, skill.method_name):
                 raise ValueError(
@@ -128,8 +129,7 @@ def entity_data(*,
     return wrapper
 
 
-T = TypeVar("T", bound=Entity)
-_entity_skill_type = Callable[[T, "GameManager"], SkillResult | None]
+_entity_skill_type = Callable[[Entity_T, "GameManager"], SkillResult | None]
 
 
 def entity_skill_check(method: _entity_skill_type) -> _entity_skill_type:
