@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Iterator
 
 from ..utils import EventQueue
-from .game_event import EntityMoveEvent, GameEvent, EntityDieEvent
+from .game_event import EntityMoveEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity
@@ -48,6 +48,7 @@ class Board:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.append(entity)
+        self.event_queue.put(EntitySpawnEvent(entity))
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:

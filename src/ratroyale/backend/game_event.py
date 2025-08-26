@@ -19,3 +19,8 @@ class EntityMoveEvent(GameEvent):
 @dataclass
 class EntityDieEvent(GameEvent):
     entity: Entity
+
+
+@dataclass
+class EntitySpawnEvent(GameEvent):
+    entity: Entity
