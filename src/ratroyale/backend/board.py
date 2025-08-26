@@ -76,16 +76,16 @@ class Board:
         tile.entities.remove(entity)
         self.event_queue.put(EntityDieEvent(entity))
 
-    def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int) -> bool:
+    def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int, turn: Side) -> bool:
         start_tile = self.get_tile(start_coord)
         if start_tile is None:
             raise ValueError("Start tile has invalid pos")
-        start_height = start_tile.get_total_height()
+        start_height = start_tile.get_total_height(turn)
         for coord in start_coord.line_draw(end_coord):
             tile = self.get_tile(coord)
             if tile is None:
                 return False
-            if tile.get_total_height() + altitude < start_height:
+            if tile.get_total_height(turn) + altitude < start_height:
                 return False
         return True
 
@@ -128,7 +128,7 @@ class Board:
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return False
-            return tile.get_total_height() - previous_tile.get_total_height() <= RODENT_JUMP_HEIGHT
+            return tile.get_total_height(rodent.side) - previous_tile.get_total_height(rodent.side) <= RODENT_JUMP_HEIGHT
         return rodent.pos.get_reachable_coords(
             rodent.speed, is_coord_blocked, is_include_self=is_include_self)
 
@@ -143,8 +143,8 @@ class Board:
         rodent_tile = self.get_tile(rodent.pos)
         if rodent_tile is None:
             raise ValueError("Rodent has invalid pos")
-        max_altitude = rodent_tile.get_total_height(
-        ) + (skill.altitude or 0)
+        max_altitude = rodent_tile.get_total_height(rodent.side
+                                                    ) + (skill.altitude or 0)
         reach = skill.reach
         if reach is None:
             raise ValueError(
@@ -154,7 +154,7 @@ class Board:
                 passed_tile = self.get_tile(passed_coord)
                 if passed_tile is None:
                     break
-                if passed_tile.get_total_height() > max_altitude:
+                if passed_tile.get_total_height(rodent.side) > max_altitude:
                     break
             else:
                 yield target_coord
