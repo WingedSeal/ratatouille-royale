@@ -24,3 +24,10 @@ class EntityDieEvent(GameEvent):
 @dataclass
 class EntitySpawnEvent(GameEvent):
     entity: Entity
+
+
+@dataclass
+class EntityDamagedEvent(GameEvent):
+    entity: Entity
+    damage: int
+    hp_loss: int

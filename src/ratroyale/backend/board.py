@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import Iterator
 
 from ..utils import EventQueue
-from .game_event import EntityMoveEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
+from .game_event import EntityDamagedEvent, EntityMoveEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity
@@ -60,7 +60,11 @@ class Board:
         return self.tiles[coord.y][coord.x]
 
     def damage_entity(self, entity: Entity, damage: int):
-        is_dead = entity._take_damage(damage)
+        """
+        Damage an entity. Doesn't work on entity with no health.
+        """
+        is_dead, damage_taken = entity._take_damage(damage)
+        self.event_queue.put(EntityDamagedEvent(entity, damage, damage_taken))
         if not is_dead:
             return
         is_dead = entity.on_death()
