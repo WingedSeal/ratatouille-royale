@@ -1,0 +1,14 @@
+
+from enum import Enum, auto
+
+
+class Side(Enum):
+    RAT = auto()
+    MOUSE = auto()
+
+    def other_side(self) -> "Side":
+        if self == Side.RAT:
+            return Side.MOUSE
+        elif self == Side.MOUSE:
+            return Side.RAT
+        raise ValueError("Unreachable")
