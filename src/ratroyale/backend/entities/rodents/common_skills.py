@@ -41,11 +41,11 @@ def normal_damage(damage: int) -> SkillCallback:
     return callback
 
 
-def explosion_damage(damage: int, radius: int, *, is_stackable: bool = False) -> SkillCallback:
+def aoe_damage(damage: int, radius: int, *, is_stackable: bool = False) -> SkillCallback:
     """
-    Deal explosion-like damage
+    Deal aoe damage
     :param damage: Damage to deal
-    :param radius: Radius of the explosion-like damage, this number is also altitude for checking line of sight
+    :param radius: Radius of the aoe damage, this number is also altitude for checking line of sight
     :param is_stackable: Whether the same tile should get hit multiple times when selected area overlaps, 
         defaults to `False`
     :returns: SkillCallback
