@@ -22,7 +22,15 @@ class Map:
         for feature, feature_pos in features:
             for coord in feature.shape:
                 self.tiles[feature_pos.y + coord.y][feature_pos.x +
-                                                    coord.x].features.add(feature)
+                                                    coord.x].features.append(feature)
+
+    def add_feature(self, feature: Feature, pos: OddRCoord):
+        for coord in feature.shape:
+            self.tiles[pos.y + coord.y][pos.x +
+                                        coord.x].features.append(feature)
+
+    def remove_feature(self, index: int):
+        pass
 
     @classmethod
     def from_file(cls, file: Path) -> "Map":
