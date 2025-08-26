@@ -1,3 +1,4 @@
+from .skill_callback import SkillCallback
 from .side import Side
 from .hexagon import OddRCoord
 import inspect
@@ -9,8 +10,9 @@ if TYPE_CHECKING:
     from .game_manager import GameManager
 
 
-@dataclass
+@dataclass(kw_only=True)
 class _EntitySkill:
+    name: str
     method_name: str
     reach: int | None
     crumb_cost: int
@@ -21,7 +23,7 @@ class _EntitySkill:
 class SkillResult:
     target_count: int
     available_targets: list[OddRCoord]
-    callback: Callable[["GameManager", list[OddRCoord]], "SkillResult | None"]
+    callback: SkillCallback
 
 
 @dataclass
@@ -37,6 +39,7 @@ class Entity:
     Any entity on the tile system.
     """
     pos: OddRCoord
+    name: str = ""
     health: int | None = None
     defense: int | None = None
     movable: bool = False
@@ -51,6 +54,9 @@ class Entity:
         self.side = side
 
     def on_damage_taken(self, damage: int) -> int | None:
+        pass
+
+    def on_hp_loss(self, hp_loss: int) -> None:
         pass
 
     def on_death(self) -> bool:
@@ -76,22 +82,26 @@ class Entity:
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
+            self.on_hp_loss(damage_taken)
             return True, damage_taken
+        self.on_hp_loss(damage_taken)
         return False, damage_taken
 
 
-T = TypeVar('T', bound=Entity)
+Entity_T = TypeVar('Entity_T', bound=Entity)
 
 
-def entity_data(health: int | None = None,
+def entity_data(*,
+                health: int | None = None,
                 defense: int | None = None,
                 movable: bool = False,
                 collision: bool = False,
                 height: int = 0,
                 description: str = "",
                 skills: list[_EntitySkill] = [],
+                name: str = ""
                 ):
-    def wrapper(cls: type[T]) -> type[T]:
+    def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
         assert issubclass(cls, Entity)
         cls.health = health
         cls.defense = defense
@@ -99,6 +109,7 @@ def entity_data(health: int | None = None,
         cls.collision = collision
         cls.description = description
         cls.height = height
+        cls.name = name
         for skill in skills:
             if not hasattr(cls, skill.method_name):
                 raise ValueError(
@@ -116,3 +127,13 @@ def entity_data(health: int | None = None,
                 **asdict(skill), func=cast(Callable[["GameManager"], SkillResult | None], skill_function)))
         return cls
     return wrapper
+
+
+_entity_skill_type = Callable[[Entity_T, "GameManager"], SkillResult | None]
+
+
+def entity_skill_check(method: _entity_skill_type) -> _entity_skill_type:
+    """
+    Decorator for validating skill method signature
+    """
+    return method

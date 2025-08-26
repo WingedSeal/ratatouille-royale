@@ -6,7 +6,7 @@ from ..utils import EventQueue
 from .game_event import EntityDamagedEvent, EntityMoveEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
 from .side import Side
-from .entity import Entity
+from .entity import Entity, EntitySkill
 from .entities.rodent import RODENT_JUMP_HEIGHT, Rodent
 from .hexagon import OddRCoord
 from .tile import Tile
@@ -76,6 +76,19 @@ class Board:
         tile.entities.remove(entity)
         self.event_queue.put(EntityDieEvent(entity))
 
+    def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int, turn: Side | None) -> bool:
+        start_tile = self.get_tile(start_coord)
+        if start_tile is None:
+            raise ValueError("Start tile has invalid pos")
+        start_height = start_tile.get_total_height(turn)
+        for coord in start_coord.line_draw(end_coord):
+            tile = self.get_tile(coord)
+            if tile is None:
+                return False
+            if tile.get_total_height(turn) + altitude < start_height:
+                return False
+        return True
+
     def try_move(self, entity: Entity, target: OddRCoord) -> bool:
         """
         Check collision and move an entity from 1 tile to another.
@@ -115,24 +128,24 @@ class Board:
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return False
-            return tile.get_total_height() - previous_tile.get_total_height() <= RODENT_JUMP_HEIGHT
+            return tile.get_total_height(rodent.side) - previous_tile.get_total_height(rodent.side) <= RODENT_JUMP_HEIGHT
         return rodent.pos.get_reachable_coords(
             rodent.speed, is_coord_blocked, is_include_self=is_include_self)
 
-    def get_attackable_coords(self, rodent: Rodent, skill_index: int) -> Iterator[OddRCoord]:
+    def get_attackable_coords(self, rodent: Rodent, skill: EntitySkill) -> Iterator[OddRCoord]:
         """
         Get every coords a rodent can attack with its skill altitude
 
         :param rodent: The rodent
-        :param skill_index: Which skills of the rodent to use in calculation
+        :param skill: Which skills of the rodent to use in calculation
         :returns: All attackable coords
         """
         rodent_tile = self.get_tile(rodent.pos)
         if rodent_tile is None:
             raise ValueError("Rodent has invalid pos")
-        max_altitude = rodent_tile.get_total_height(
-        ) + (rodent.skills[skill_index].altitude or 0)
-        reach = rodent.skills[skill_index].reach
+        max_altitude = rodent_tile.get_total_height(rodent.side
+                                                    ) + (skill.altitude or 0)
+        reach = skill.reach
         if reach is None:
             raise ValueError(
                 "'get_attackable_coords is called on skill without reach")
@@ -141,7 +154,7 @@ class Board:
                 passed_tile = self.get_tile(passed_coord)
                 if passed_tile is None:
                     break
-                if passed_tile.get_total_height() > max_altitude:
+                if passed_tile.get_total_height(rodent.side) > max_altitude:
                     break
             else:
                 yield target_coord
