@@ -16,8 +16,10 @@ from .map import Map
 class CachedEntities:
     def __init__(self) -> None:
         self.rodents: list[Rodent] = []
-        self.sides: dict[Side | None, list[Rodent]] = defaultdict(list)
+        self.sides: dict[Side | None, list[Entity]] = defaultdict(list)
         self.entities: list[Entity] = []
+        self.entities_with_hp: list[Entity] = []
+        self.sides_with_hp: dict[Side | None, list[Entity]] = defaultdict(list)
 
 
 class Board:
@@ -38,9 +40,12 @@ class Board:
 
     def add_entity(self, entity: Entity) -> None:
         self.cached_entities.entities.append(entity)
+        self.cached_entities.sides[entity.side].append(entity)
+        if entity.health is not None:
+            self.cached_entities.entities_with_hp.append(entity)
+            self.cached_entities.sides_with_hp[entity.side].append(entity)
         if isinstance(entity, Rodent):
             self.cached_entities.rodents.append(entity)
-            self.cached_entities.sides[entity.side].append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
