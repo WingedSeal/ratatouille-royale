@@ -76,7 +76,7 @@ class Board:
         tile.entities.remove(entity)
         self.event_queue.put(EntityDieEvent(entity))
 
-    def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int, turn: Side) -> bool:
+    def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int, turn: Side | None) -> bool:
         start_tile = self.get_tile(start_coord)
         if start_tile is None:
             raise ValueError("Start tile has invalid pos")
