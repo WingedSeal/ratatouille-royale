@@ -29,6 +29,9 @@ class EntitySkill(_EntitySkill):
     func: Callable[["GameManager"], SkillResult | None]
 
 
+MINIMAL_DAMAGE_TAKEN = 1
+
+
 class Entity:
     """
     Any entity on the tile system.
@@ -68,7 +71,7 @@ class Entity:
             damage = new_damage
         if self.health is None:
             raise ValueError("Entity without health just taken damage")
-        damage_taken = max(0, damage - (self.defense or 0))
+        damage_taken = max(MINIMAL_DAMAGE_TAKEN, damage - (self.defense or 0))
         self.health -= damage_taken
         if self.health <= 0:
             damage_taken += self.health
