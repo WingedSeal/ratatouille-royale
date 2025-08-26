@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Iterator
 
 from ..utils import EventQueue
-from .game_event import GameEvent
+from .game_event import EntityMoveEvent, GameEvent
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity
@@ -77,7 +77,8 @@ class Board:
         :param end: Target coordinate. If there's already an entity, the function will fail.
         :returns: Whether the move succeeded
         """
-        start_tile = self.get_tile(entity.pos)
+        start_coord = entity.pos
+        start_tile = self.get_tile(start_coord)
         if start_tile is None:
             raise EntityInvalidPosError()
         end_tile = self.get_tile(target)
@@ -88,6 +89,7 @@ class Board:
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)
         entity.pos = target
+        self.event_queue.put(EntityMoveEvent(start_coord, target, entity))
         return True
 
     def get_reachable_coords(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
