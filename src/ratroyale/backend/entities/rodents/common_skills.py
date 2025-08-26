@@ -30,6 +30,10 @@ def select_enemy_rodents(board: "Board", rodent: "Rodent", skill: "EntitySkill",
 
 
 def normal_damage(damage: int) -> SkillCallback:
+    """
+    Apply normal damage
+    :param damage: Damage to deal
+    """
     @skill_callback_check
     def callback(game_manager: "GameManager", selected_targets: list["OddRCoord"]) -> None:
         for target in selected_targets:
@@ -39,6 +43,14 @@ def normal_damage(damage: int) -> SkillCallback:
 
 
 def explosion_damage(damage: int, radius: int, *, is_stackable: bool = False) -> SkillCallback:
+    """
+    Deal explosion-like damage
+    :param damage: Damage to deal
+    :param radius: Radius of the explosion-like damage, this number is also altitude for checking line of sight
+    :param is_stackable: Whether the same tile should get hit multiple times when selected area overlaps, 
+        defaults to `False`
+    :returns: SkillCallback
+    """
     @skill_callback_check
     def callback(game_manager: "GameManager", selected_targets: list["OddRCoord"]) -> None:
         tagged_coord: set["OddRCoord"] = set()
