@@ -3,8 +3,10 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
+from ratroyale.backend.entities.rodent import Rodent
+
 from .game_event import GameEvent
-from .error import NotEnoughCrumbError
+from .error import InvalidMoveTargetError, NotEnoughCrumbError, RatRoyaleBackendError
 from .entity import Entity, SkillResult
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
@@ -84,12 +86,22 @@ class GameManager:
             return entity
         raise ValueError(f"No valid target on this pos ({pos})")
 
-    def get_valid_move_targets(self, entity: Entity):
-        # self.board.get_reachable_coords()
-        pass
-
-    def move(self, entity: Entity, target: OddRCoord):
-        pass
+    def move_rodent(self, rodent: Rodent, target: OddRCoord) -> list[OddRCoord]:
+        if self.crumbs < rodent.move_cost:
+            raise NotEnoughCrumbError()
+        if rodent.stamina <= 0:
+            raise ValueError("Rodent doesn't have stamina left")
+        if rodent.pos.get_distance(target) > rodent.speed:
+            raise InvalidMoveTargetError("Cannot move rodent beyond its reach")
+        path = self.board.path_find(rodent, target)
+        if path is None:
+            raise InvalidMoveTargetError()
+        is_success = self.board.try_move(rodent, target)
+        if not is_success:
+            raise InvalidMoveTargetError("Cannot move rodent there")
+        self.crumbs -= rodent.move_cost
+        rodent.stamina -= 1
+        return path
 
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
         """

@@ -8,3 +8,7 @@ class EntityInvalidPosError(RatRoyaleBackendError):
 
 class NotEnoughCrumbError(RatRoyaleBackendError):
     pass
+
+
+class InvalidMoveTargetError(RatRoyaleBackendError):
+    pass
