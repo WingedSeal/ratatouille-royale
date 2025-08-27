@@ -103,6 +103,16 @@ class GameManager:
         self.event_queue.put(EntityMoveEvent(path, rodent))
         return path
 
+    def move_entity_uncheck(self, entity: Entity, target: OddRCoord) -> list[OddRCoord]:
+        path = self.board.path_find(entity, target)
+        if path is None:
+            raise InvalidMoveTargetError()
+        is_success = self.board.try_move(entity, target)
+        if not is_success:
+            raise InvalidMoveTargetError("Cannot move entity there")
+        self.event_queue.put(EntityMoveEvent(path, entity))
+        return path
+
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
         """
         Get every damagable enemies at position. Raise error if there's nothing there
