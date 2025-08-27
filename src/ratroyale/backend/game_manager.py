@@ -111,7 +111,8 @@ class GameManager:
 
     def move_entity_uncheck(self, entity: Entity, target: OddRCoord) -> list[OddRCoord]:
         """
-        Blindly move entity to target. Neither crumbs nor speed was taken into account. Raise error if it cannot move there
+        Blindly move entity to target. Neither crumbs nor speed was taken into account. But it still considers jump height.
+        Raise error if it cannot move there
         :param entity: Entity to move
         :param target: Target to move to
         :returns: Path the rodent took to get there
