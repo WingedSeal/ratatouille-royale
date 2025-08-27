@@ -3,12 +3,12 @@ from copy import deepcopy
 from typing import Iterator
 
 from ..utils import EventQueue
-from .game_event import EntityDamagedEvent, EntityMoveEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
+from .game_event import EntityDamagedEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity, EntitySkill
-from .entities.rodent import RODENT_JUMP_HEIGHT, Rodent
-from .hexagon import OddRCoord
+from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
+from .hexagon import IsCoordBlocked, OddRCoord
 from .tile import Tile
 from .map import Map
 
@@ -59,6 +59,19 @@ class Board:
             return None
         return self.tiles[coord.y][coord.x]
 
+    def _is_coord_blocked(self, entity: Entity) -> IsCoordBlocked:
+        def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
+            target_tile = self.get_tile(target_coord)
+            if target_tile is None:
+                return True
+            if entity.collision and any(_entity.collision for _entity in target_tile.entities):
+                return True
+            previous_tile = self.get_tile(source_coord)
+            if previous_tile is None:
+                return True
+            return target_tile.get_total_height(entity.side) - previous_tile.get_total_height(entity.side) > ENTITY_JUMP_HEIGHT
+        return is_coord_blocked
+
     def damage_entity(self, entity: Entity, damage: int):
         """
         Damage an entity. Doesn't work on entity with no health.
@@ -95,6 +108,7 @@ class Board:
         """
         Check collision and move an entity from 1 tile to another.
         Not responsible for handling reach.
+        Does not trigger EntityMoveEvent.
 
         :param entity: Entity to move
         :param end: Target coordinate. If there's already an entity, the function will fail.
@@ -112,7 +126,6 @@ class Board:
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)
         entity.pos = target
-        self.event_queue.put(EntityMoveEvent(start_coord, target, entity))
         return True
 
     def get_reachable_coords(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
@@ -123,16 +136,11 @@ class Board:
         :param is_include_self: Whether to include the coord of rodent itself in the result
         :returns: Set of reachable coords
         """
-        def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
-            tile = self.get_tile(target_coord)
-            if tile is None:
-                return False
-            previous_tile = self.get_tile(source_coord)
-            if previous_tile is None:
-                return False
-            return tile.get_total_height(rodent.side) - previous_tile.get_total_height(rodent.side) <= RODENT_JUMP_HEIGHT
         return rodent.pos.get_reachable_coords(
-            rodent.speed, is_coord_blocked, is_include_self=is_include_self)
+            rodent.speed, self._is_coord_blocked(rodent), is_include_self=is_include_self)
+
+    def path_find(self, entity: Entity, goal: OddRCoord):
+        return entity.pos.path_find(goal, self._is_coord_blocked(entity))
 
     def get_attackable_coords(self, rodent: Rodent, skill: EntitySkill) -> Iterator[OddRCoord]:
         """

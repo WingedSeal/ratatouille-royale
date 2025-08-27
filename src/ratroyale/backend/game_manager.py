@@ -3,8 +3,9 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
-from .game_event import GameEvent
-from .error import NotEnoughCrumbError
+from .entities.rodent import Rodent
+from .game_event import EntityMoveEvent, GameEvent
+from .error import InvalidMoveTargetError, NotEnoughCrumbError
 from .entity import Entity, SkillResult
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
@@ -83,6 +84,47 @@ class GameManager:
                 continue
             return entity
         raise ValueError(f"No valid target on this pos ({pos})")
+
+    def move_rodent(self, rodent: Rodent, target: OddRCoord) -> list[OddRCoord]:
+        """
+        Move rodent to target. Raise error if it cannot move there
+        :param rodent: Rodent to move
+        :param target: Target to move to
+        :returns: Path the rodent took to get there
+        """
+        if self.crumbs < rodent.move_cost:
+            raise NotEnoughCrumbError()
+        if rodent.stamina <= 0:
+            raise ValueError("Rodent doesn't have stamina left")
+        if rodent.pos.get_distance(target) > rodent.speed:
+            raise InvalidMoveTargetError("Cannot move rodent beyond its reach")
+        path = self.board.path_find(rodent, target)
+        if path is None:
+            raise InvalidMoveTargetError()
+        is_success = self.board.try_move(rodent, target)
+        if not is_success:
+            raise InvalidMoveTargetError("Cannot move rodent there")
+        self.crumbs -= rodent.move_cost
+        rodent.stamina -= 1
+        self.event_queue.put(EntityMoveEvent(path, rodent))
+        return path
+
+    def move_entity_uncheck(self, entity: Entity, target: OddRCoord) -> list[OddRCoord]:
+        """
+        Blindly move entity to target. Neither crumbs nor speed was taken into account. But it still considers jump height.
+        Raise error if it cannot move there
+        :param entity: Entity to move
+        :param target: Target to move to
+        :returns: Path the rodent took to get there
+        """
+        path = self.board.path_find(entity, target)
+        if path is None:
+            raise InvalidMoveTargetError()
+        is_success = self.board.try_move(entity, target)
+        if not is_success:
+            raise InvalidMoveTargetError("Cannot move entity there")
+        self.event_queue.put(EntityMoveEvent(path, entity))
+        return path
 
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
         """

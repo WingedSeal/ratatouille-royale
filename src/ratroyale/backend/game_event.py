@@ -11,8 +11,7 @@ class GameEvent:
 
 @dataclass
 class EntityMoveEvent(GameEvent):
-    move_from: OddRCoord
-    move_to: OddRCoord
+    path: list[OddRCoord]
     entity: Entity
 
 
