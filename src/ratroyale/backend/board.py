@@ -63,13 +63,13 @@ class Board:
         def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
-                return False
+                return True
             if entity.collision and any(_entity.collision for _entity in target_tile.entities):
-                return False
+                return True
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
-                return False
-            return target_tile.get_total_height(entity.side) - previous_tile.get_total_height(entity.side) <= ENTITY_JUMP_HEIGHT
+                return True
+            return target_tile.get_total_height(entity.side) - previous_tile.get_total_height(entity.side) > ENTITY_JUMP_HEIGHT
         return is_coord_blocked
 
     def damage_entity(self, entity: Entity, damage: int):
