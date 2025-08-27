@@ -1,6 +1,9 @@
-from ..utils import EventQueue
-from .input_event import InputEvent
-
+import pygame
 
 class InputManager:
-    event_queue: EventQueue[InputEvent]
+    """Thin wrapper around pygame event polling"""
+    def __init__(self):
+        pass
+
+    def update(self):
+        return pygame.event.get()
