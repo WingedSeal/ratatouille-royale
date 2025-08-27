@@ -124,13 +124,15 @@ class Board:
         :returns: Set of reachable coords
         """
         def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
-            tile = self.get_tile(target_coord)
-            if tile is None:
+            target_tile = self.get_tile(target_coord)
+            if target_tile is None:
+                return False
+            if rodent.collision and any(_entity.collision for _entity in target_tile.entities):
                 return False
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return False
-            return tile.get_total_height(rodent.side) - previous_tile.get_total_height(rodent.side) <= RODENT_JUMP_HEIGHT
+            return target_tile.get_total_height(rodent.side) - previous_tile.get_total_height(rodent.side) <= RODENT_JUMP_HEIGHT
         return rodent.pos.get_reachable_coords(
             rodent.speed, is_coord_blocked, is_include_self=is_include_self)
 

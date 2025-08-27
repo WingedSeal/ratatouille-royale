@@ -84,6 +84,13 @@ class GameManager:
             return entity
         raise ValueError(f"No valid target on this pos ({pos})")
 
+    def get_valid_move_targets(self, entity: Entity):
+        # self.board.get_reachable_coords()
+        pass
+
+    def move(self, entity: Entity, target: OddRCoord):
+        pass
+
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
         """
         Get every damagable enemies at position. Raise error if there's nothing there
