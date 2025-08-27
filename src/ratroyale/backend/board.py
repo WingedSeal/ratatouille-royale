@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import Iterator
 
 from ..utils import EventQueue
-from .game_event import EntityDamagedEvent, EntityMoveEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
+from .game_event import EntityDamagedEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity, EntitySkill
@@ -59,17 +59,17 @@ class Board:
             return None
         return self.tiles[coord.y][coord.x]
 
-    def _is_coord_blocked(self, rodent: Rodent) -> IsCoordBlocked:
+    def _is_coord_blocked(self, entity: Entity) -> IsCoordBlocked:
         def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
                 return False
-            if rodent.collision and any(_entity.collision for _entity in target_tile.entities):
+            if entity.collision and any(_entity.collision for _entity in target_tile.entities):
                 return False
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return False
-            return target_tile.get_total_height(rodent.side) - previous_tile.get_total_height(rodent.side) <= RODENT_JUMP_HEIGHT
+            return target_tile.get_total_height(entity.side) - previous_tile.get_total_height(entity.side) <= RODENT_JUMP_HEIGHT
         return is_coord_blocked
 
     def damage_entity(self, entity: Entity, damage: int):
@@ -125,7 +125,6 @@ class Board:
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)
         entity.pos = target
-        self.event_queue.put(EntityMoveEvent(start_coord, target, entity))
         return True
 
     def get_reachable_coords(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
@@ -139,8 +138,8 @@ class Board:
         return rodent.pos.get_reachable_coords(
             rodent.speed, self._is_coord_blocked(rodent), is_include_self=is_include_self)
 
-    def path_find(self, rodent: Rodent, goal: OddRCoord):
-        return rodent.pos.path_find(goal, self._is_coord_blocked(rodent))
+    def path_find(self, entity: Entity, goal: OddRCoord):
+        return entity.pos.path_find(goal, self._is_coord_blocked(entity))
 
     def get_attackable_coords(self, rodent: Rodent, skill: EntitySkill) -> Iterator[OddRCoord]:
         """

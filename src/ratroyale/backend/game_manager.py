@@ -3,10 +3,9 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
-from ratroyale.backend.entities.rodent import Rodent
-
-from .game_event import GameEvent
-from .error import InvalidMoveTargetError, NotEnoughCrumbError, RatRoyaleBackendError
+from .entities.rodent import Rodent
+from .game_event import EntityMoveEvent, GameEvent
+from .error import InvalidMoveTargetError, NotEnoughCrumbError
 from .entity import Entity, SkillResult
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
@@ -101,6 +100,7 @@ class GameManager:
             raise InvalidMoveTargetError("Cannot move rodent there")
         self.crumbs -= rodent.move_cost
         rodent.stamina -= 1
+        self.event_queue.put(EntityMoveEvent(path, rodent))
         return path
 
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
