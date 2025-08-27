@@ -108,6 +108,7 @@ class Board:
         """
         Check collision and move an entity from 1 tile to another.
         Not responsible for handling reach.
+        Does not trigger EntityMoveEvent.
 
         :param entity: Entity to move
         :param end: Target coordinate. If there's already an entity, the function will fail.

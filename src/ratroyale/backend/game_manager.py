@@ -86,6 +86,12 @@ class GameManager:
         raise ValueError(f"No valid target on this pos ({pos})")
 
     def move_rodent(self, rodent: Rodent, target: OddRCoord) -> list[OddRCoord]:
+        """
+        Move rodent to target. Raise error if it cannot move there
+        :param rodent: Rodent to move
+        :param target: Target to move to
+        :returns: Path the rodent took to get there
+        """
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
         if rodent.stamina <= 0:
@@ -104,6 +110,12 @@ class GameManager:
         return path
 
     def move_entity_uncheck(self, entity: Entity, target: OddRCoord) -> list[OddRCoord]:
+        """
+        Blindly move entity to target. Neither crumbs nor speed was taken into account. Raise error if it cannot move there
+        :param entity: Entity to move
+        :param target: Target to move to
+        :returns: Path the rodent took to get there
+        """
         path = self.board.path_find(entity, target)
         if path is None:
             raise InvalidMoveTargetError()
