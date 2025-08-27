@@ -7,7 +7,7 @@ from .game_event import EntityDamagedEvent, EntitySpawnEvent, GameEvent, EntityD
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity, EntitySkill
-from .entities.rodent import RODENT_JUMP_HEIGHT, Rodent
+from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .hexagon import IsCoordBlocked, OddRCoord
 from .tile import Tile
 from .map import Map
@@ -69,7 +69,7 @@ class Board:
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return False
-            return target_tile.get_total_height(entity.side) - previous_tile.get_total_height(entity.side) <= RODENT_JUMP_HEIGHT
+            return target_tile.get_total_height(entity.side) - previous_tile.get_total_height(entity.side) <= ENTITY_JUMP_HEIGHT
         return is_coord_blocked
 
     def damage_entity(self, entity: Entity, damage: int):

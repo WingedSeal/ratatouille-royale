@@ -16,7 +16,7 @@ class RodentMeta(ABCMeta):
         return super().__new__(cls, name, bases, dct)
 
 
-RODENT_JUMP_HEIGHT = 1
+ENTITY_JUMP_HEIGHT = 1
 
 
 class Rodent(Entity, metaclass=RodentMeta):
