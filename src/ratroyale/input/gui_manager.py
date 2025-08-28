@@ -2,6 +2,7 @@ import pygame
 import pygame_gui
 from ratroyale.input import InputManager, PageFactory, GestureInterpreter, CONSUMED_UI_EVENTS
 from ratroyale.utils import EventQueue
+from pygame_gui.elements import UIButton, UITextEntryLine, UISelectionList
 
 class GUIManager:
     def __init__(self, screen: pygame.surface.Surface):
