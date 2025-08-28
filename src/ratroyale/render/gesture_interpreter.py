@@ -7,4 +7,5 @@ class GestureInterpreter:
     def handle_events(self, events):
         for event in events:
             # Placeholder for gesture interpretation logic
-            print(f"GestureInterpreter received event: {event}")
+            # print(f"GestureInterpreter received event: {event}")
+            pass

@@ -13,11 +13,21 @@ class Page:
         if callback:
             self.callbacks[element] = callback
 
+        element.hide()
+
     def remove_element(self, element):
         self.elements.remove(element)
 
     def get_elements(self):
         return self.elements
+    
+    def hide(self):
+        for element in self.elements:
+            element.hide()
+
+    def show(self):
+        for element in self.elements:
+            element.show()
     
     def handle_events(self, events):
         """Process events for all elements on this page."""
@@ -26,3 +36,6 @@ class Page:
                 # pygame_gui already handles event routing via UIManager
                 # this is for placeholder if custom handling is needed
                 pass
+
+    def get_callback(self, element):
+        return self.callbacks.get(element)
