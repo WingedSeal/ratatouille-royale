@@ -4,5 +4,5 @@ from .page import Page
 
 # TODO: Implement the board page with game elements
 class BoardPage(Page):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, gui_manager, container_rect):
+        super().__init__("game", gui_manager, container_rect)

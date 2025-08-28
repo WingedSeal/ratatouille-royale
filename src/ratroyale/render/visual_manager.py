@@ -6,7 +6,7 @@ from ratroyale.render.gesture_interpreter import GestureInterpreter
 from ratroyale.render.gui_event_constants import CONSUMED_UI_EVENTS
 
 class VisualManager:
-    def __init__(self, screen: pygame.display):
+    def __init__(self, screen: pygame.surface.Surface):
         self.screen = screen
         self.is_hovering_ui = False
 
@@ -18,7 +18,7 @@ class VisualManager:
         self.gui_manager = pygame_gui.UIManager(screen.get_size())
 
         # Dictionary of pages, each page is a list of UI elements
-        self.factory = PageFactory(self.gui_manager, self)
+        self.factory = PageFactory(self.gui_manager, self, screen.get_size())
         self.pages = self.factory.create_all_pages()
         self.active_page = None
 

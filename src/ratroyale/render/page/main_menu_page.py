@@ -3,8 +3,8 @@ import pygame_gui
 import pygame
 
 class MainMenuPage(Page):
-    def __init__(self, gui_manager, start_callback=None, quit_callback=None):
-        super().__init__("Main Menu")
+    def __init__(self, gui_manager, container_rect, start_callback=None, quit_callback=None):
+        super().__init__(name="Main Menu", gui_manager=gui_manager, container_rect=container_rect)
 
         # Add buttons and callbacks
         start_button = pygame_gui.elements.UIButton(

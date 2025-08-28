@@ -3,8 +3,8 @@ import pygame_gui
 import pygame
 
 class TestSwapPage(Page):
-    def __init__(self, gui_manager, return_callback=None):
-        super().__init__("Swap Test Page")
+    def __init__(self, gui_manager, container_rect, return_callback=None):
+        super().__init__("Swap Test Page", gui_manager, container_rect)
 
         # Add buttons and callbacks
         return_button = pygame_gui.elements.UIButton(
