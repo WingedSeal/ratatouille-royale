@@ -3,11 +3,11 @@ from pathlib import Path
 from .backend.map import MAP_FILE_EXTENSION, Map
 from .backend.player_info.squeak_set import SqueakSet
 from .backend.side import Side
-from .render.input_event import TEMP_EVENT_DELETE_LATER
+from .input.input_event import TEMP_EVENT_DELETE_LATER
 from .backend.game_manager import GameManager
 from .game_states import GamePlay, GameState, MainMenu
 from .backend.player_info.player_info import SAVE_FILE_EXTENSION, PlayerInfo
-from .render.renderer import Renderer
+from .input.renderer import Renderer
 
 SAVE_FILE = f"idk_where_this_is.{SAVE_FILE_EXTENSION}"
 

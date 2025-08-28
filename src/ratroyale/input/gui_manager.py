@@ -1,11 +1,9 @@
 import pygame
 import pygame_gui
-from ratroyale.render.input_manager import InputManager
-from ratroyale.render.page.page_factory import PageFactory
-from ratroyale.render.gesture_interpreter import GestureInterpreter
-from ratroyale.render.gui_event_constants import CONSUMED_UI_EVENTS
+from ratroyale.input import InputManager, PageFactory, GestureInterpreter, CONSUMED_UI_EVENTS
+from ratroyale.utils import EventQueue
 
-class VisualManager:
+class GUIManager:
     def __init__(self, screen: pygame.surface.Surface):
         self.screen = screen
         self.is_hovering_ui = False
@@ -13,6 +11,9 @@ class VisualManager:
         # Helping managers
         self.input_manager = InputManager()
         self.gesture_interpreter = GestureInterpreter()
+
+        # Internal queue for visual events
+        self.event_queue = EventQueue()
 
         # Top-level pygame_gui manager
         self.gui_manager = pygame_gui.UIManager(screen.get_size())
@@ -44,10 +45,10 @@ class VisualManager:
                 exit()
 
             # Determine if event is consumed by pygame_gui
+            # Only forward events that are not in our CONSUMED_UI_EVENTS set
+            self.hovering_ui(event) # Update hovering state
             event_consumed = self.gui_process_event_and_consume(event)
             if event_consumed:
-              self.hovering_ui(event) # Update hovering state
-
               # Call callbacks for buttons
               if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 active_page = self.get_active_page()
@@ -61,28 +62,26 @@ class VisualManager:
             elif not self.is_hovering_ui:
               unconsumed_events.append(event)
 
-            # Determine if event was consumed by a widget
-            # Only forward events that are not in our CONSUMED_UI_EVENTS set
-
         # Forward remaining events to gestures
         if unconsumed_events:
             self.gesture_interpreter.handle_events(unconsumed_events)
-
-    def update(self, dt):
-        """Update UI manager and active page elements"""
-        self.gui_manager.update(dt)
-
-    def draw(self):
-        """Draw active page elements"""
-        self.gui_manager.draw_ui(self.screen)
-
+            
     def gui_process_event_and_consume(self, event):
-      consumed_by_gui = self.gui_manager.process_events(event)
-      
-      # Additionally consider other GUI events as consumed
-      if hasattr(event, 'ui_element') or event.type in CONSUMED_UI_EVENTS:
-          return True
-      return consumed_by_gui
+        consumed_by_gui = self.gui_manager.process_events(event)
+
+        # Only consume if it's a widget that should block input
+        # TODO: Separate the widgets list into a file.
+        if consumed_by_gui:
+            if hasattr(event, 'ui_element'):
+                if isinstance(event.ui_element, (UIButton, UITextEntryLine, UISelectionList)):
+                    return True
+            return False
+
+        # Also consume GUI-specific events
+        if event.type in CONSUMED_UI_EVENTS:
+            return True
+
+        return False
     
     def hovering_ui(self, event: pygame.event.Event):
         if event.type == pygame_gui.UI_BUTTON_ON_HOVERED:
@@ -92,3 +91,18 @@ class VisualManager:
 
     def get_active_page(self):
         return self.pages.get(self.active_page)
+
+    # region REFACTOR TO RENDERER
+
+    def update(self, dt):
+        """Update UI manager and active page elements"""
+        self.gui_manager.update(dt)
+        self.gesture_interpreter.handle_events([])
+
+    def draw(self):
+        """Draw active page elements"""
+        self.gui_manager.draw_ui(self.screen)
+
+    # endregion
+
+    

@@ -1,8 +1,5 @@
 import pygame
-
-from ratroyale.render.page.main_menu_page import MainMenuPage
-from ratroyale.render.page.board_page import BoardPage
-from ratroyale.render.page.test_swap_page import TestSwapPage
+from ratroyale.input.page import MainMenuPage, BoardPage, TestSwapPage
 
 class PageFactory:
     def __init__(self, gui_manager, visual_manager, window_size):

@@ -1,13 +1,12 @@
 import pygame
-from ratroyale.render.page.main_menu_page import MainMenuPage
-from ratroyale.render.visual_manager import VisualManager
+from ratroyale.input.gui_manager import GUIManager
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((800, 600))
     clock = pygame.time.Clock()
 
-    visual_manager = VisualManager(screen)
+    visual_manager = GUIManager(screen)
     visual_manager.set_active_page("main_menu")
 
     running = True
