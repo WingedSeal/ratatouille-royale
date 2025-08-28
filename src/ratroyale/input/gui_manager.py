@@ -1,6 +1,6 @@
 import pygame
 import pygame_gui
-from ratroyale.input import InputManager, PageFactory, GestureInterpreter, CONSUMED_UI_EVENTS
+from ratroyale.input import InputManager, PageFactory, GestureInterpreter, CONSUMED_UI_EVENTS, GestureContextManager
 from ratroyale.utils import EventQueue
 from pygame_gui.elements import UIButton, UITextEntryLine, UISelectionList
 
@@ -11,10 +11,8 @@ class GUIManager:
 
         # Helping managers
         self.input_manager = InputManager()
-        self.gesture_interpreter = GestureInterpreter()
-
-        # Internal queue for visual events
-        self.event_queue = EventQueue()
+        self.gesture_context_manager = GestureContextManager()
+        self.gesture_interpreter = GestureInterpreter(self.gesture_context_manager)
 
         # Top-level pygame_gui manager
         self.gui_manager = pygame_gui.UIManager(screen.get_size())

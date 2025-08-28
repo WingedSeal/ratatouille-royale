@@ -1,5 +1,9 @@
 import pygame
 import time
+from collections import namedtuple
+from .gesture_context_manager import GestureContextManager
+
+GestureToken = namedtuple("GestureToken", ["type", "pos", "dx", "dy", "additional"])
 
 class GestureInterpreter:
     CLICK_THRESHOLD = 5
@@ -15,7 +19,9 @@ class GestureInterpreter:
     STATE_DRAGGING = "dragging"
     STATE_HOLD_TRIGGERED = "hold_triggered"
 
-    def __init__(self):
+    def __init__(self, gesture_context_interpreter: GestureContextManager=None):
+        self.gesture_context_manager = gesture_context_interpreter
+
         self.state = self.STATE_IDLE
         self.start_pos = None
         self.last_pos = None
@@ -128,22 +134,29 @@ class GestureInterpreter:
 
     # --- Callbacks ---
     def on_click(self, pos):
-        print("Click at", pos)
+        token = GestureToken("click", pos, 0, 0, None)
+        self.gesture_context_manager.handle_gesture(token)
 
     def on_double_click(self, pos):
-        print("Double-click at", pos)
+        token = GestureToken("double_click", pos, 0, 0, None)
+        self.gesture_context_manager.handle_gesture(token)
 
     def on_drag(self, dx, dy):
-        print("Dragging", dx, dy)
+        token = GestureToken("drag", None, dx, dy, None)
+        self.gesture_context_manager.handle_gesture(token)
 
     def on_drag_end(self):
-        print("Drag ended")
+        token = GestureToken("drag_end", None, 0, 0, None)
+        self.gesture_context_manager.handle_gesture(token)
 
     def on_hold(self, pos):
-        print("Hold triggered at", pos)
+        token = GestureToken("hold", pos, 0, 0, None)
+        self.gesture_context_manager.handle_gesture(token)
 
     def on_swipe(self, start_pos, end_pos, dir_x, dir_y):
-        print(f"Swipe from {start_pos} to {end_pos}, direction ({dir_x:.2f}, {dir_y:.2f})")
+        token = GestureToken("swipe", start_pos, dir_x, dir_y, {"end_pos": end_pos})
+        self.gesture_context_manager.handle_gesture(token)
 
     def on_scroll(self, amount):
-        print("Scroll:", amount)
+        token = GestureToken("scroll", None, 0, 0, {"amount": amount})
+        self.gesture_context_manager.handle_gesture(token)
