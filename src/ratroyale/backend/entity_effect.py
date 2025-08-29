@@ -60,18 +60,12 @@ class EntityEffect(metaclass=EffectMeta):
         ...
 
     @abstractmethod
-    def on_applied(self):
+    def on_applied(self, *, is_overriding: bool):
         ...
 
     @abstractmethod
-    def on_cleared(self):
+    def on_cleared(self, *, is_overriden: bool):
         ...
-
-    def on_overriden(self):
-        self.on_cleared()
-
-    def on_override(self):
-        self.on_applied()
 
     @abstractmethod
     def effect_descriptions(self) -> list[str]:

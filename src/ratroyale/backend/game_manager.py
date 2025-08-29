@@ -188,13 +188,13 @@ class GameManager:
         if old_effect is None:
             entity.effects[effect.name] = effect
             self.board.cache.effects.append(effect)
-            effect.on_applied()
+            effect.on_applied(is_overriding=False)
             return
         if effect.intensity > old_effect.intensity:
             effect.overriden_effects.append(old_effect)
             self.board.cache.effects.append(effect)
-            effect.on_override()
-            old_effect.on_overriden()
+            effect.on_applied(is_overriding=True)
+            old_effect.on_cleared(is_overriden=True)
             return
         elif effect.intensity == old_effect.intensity:
             if old_effect.duration is None:
@@ -214,13 +214,13 @@ class GameManager:
     def effect_duration_over(self, effect: EntityEffect):
         self.board.cache.effects.remove(effect)
         if not effect.overriden_effects:
-            effect.on_cleared()
+            effect.on_cleared(is_overriden=False)
             del effect.entity.effects[effect.name]
         effect.entity.effects = {
             name: e for name, e in effect.entity.effects.items() if (e.duration is None) or (e.duration > 1)}
         new_effect = max(effect.overriden_effects, key=lambda e: e.intensity)
-        new_effect.on_override()
-        effect.on_overriden()
+        new_effect.on_applied(is_overriding=True)
+        effect.on_cleared(is_overriden=True)
         effect.overriden_effects.remove(new_effect)
         new_effect.overriden_effects = effect.overriden_effects
         effect.entity.effects[effect.name] = new_effect
