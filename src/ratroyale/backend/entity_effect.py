@@ -3,7 +3,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, TypeVar
 from .side import Side
 if TYPE_CHECKING:
-    from entity import Entity
+    from .entity import Entity
 
 
 class EffectMeta(ABCMeta):
