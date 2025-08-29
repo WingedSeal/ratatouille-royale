@@ -26,7 +26,6 @@ class EntityEffect(metaclass=EffectMeta):
     name: str
     entity: "Entity"
     duration: int | None
-    max_duration: int | None
     effect_clear_side: EffectClearSide
     intensity: int
     overriden_effects: list["EntityEffect"]
@@ -34,7 +33,6 @@ class EntityEffect(metaclass=EffectMeta):
     def __init__(self, entity: "Entity", *, duration: int | None, intensity: int = 0) -> None:
         self.entity = entity
         self.duration = duration
-        self.max_duration = duration
         self.intensity = intensity
         self.overriden_effects = []
 
