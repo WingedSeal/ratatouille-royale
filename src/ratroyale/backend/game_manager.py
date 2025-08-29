@@ -3,7 +3,7 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
-from ratroyale.backend.entity_effect import EntityEffect, effect_data
+from ratroyale.backend.entity_effect import EntityEffect
 
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
