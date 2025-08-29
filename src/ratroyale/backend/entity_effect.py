@@ -50,7 +50,7 @@ class EntityEffect(metaclass=EffectMeta):
                 side = self.entity.side
                 if side is None:
                     raise ValueError(
-                        "Can't clear effect on enemy turn since its entity has no side")
+                        "Can't clear effect on ally turn since its entity has no side")
                 return turn == side
             case EffectClearSide.ANY:
                 return True
