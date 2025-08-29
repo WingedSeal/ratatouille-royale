@@ -1,4 +1,4 @@
-from ratroyale.backend.entity_effect import EntityEffect
+from .entity_effect import EntityEffect
 from .skill_callback import SkillCallback
 from .side import Side
 from .hexagon import OddRCoord

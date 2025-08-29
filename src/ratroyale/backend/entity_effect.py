@@ -2,8 +2,7 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from ratroyale.backend.game_manager import GameManager
-
+from .game_manager import GameManager
 from .side import Side
 if TYPE_CHECKING:
     from .entity import Entity
