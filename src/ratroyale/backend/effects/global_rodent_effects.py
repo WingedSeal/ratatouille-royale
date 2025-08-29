@@ -1,12 +1,5 @@
-
-from typing import TYPE_CHECKING
-
 from ..side import Side
-from ..entities.rodent import Rodent
-from ..error import RodentEffectNotOnRodentError
-from ..entity_effect import EffectClearSide, EntityEffect, effect_data, RodentEffect
-if TYPE_CHECKING:
-    from ..entity import Entity
+from ..entity_effect import EffectClearSide, effect_data, RodentEffect
 
 
 @effect_data(EffectClearSide.ALLY, name="Slowness")

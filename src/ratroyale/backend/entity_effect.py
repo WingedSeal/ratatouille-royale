@@ -2,10 +2,10 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from ratroyale.backend.entities.rodent import Rodent
 from .side import Side
 if TYPE_CHECKING:
     from .entity import Entity
+    from .entities.rodent import Rodent
 
 
 class EffectMeta(ABCMeta):
