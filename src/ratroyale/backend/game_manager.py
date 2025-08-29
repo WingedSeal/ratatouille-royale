@@ -3,6 +3,8 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
+from ratroyale.backend.entity_effect import EntityEffect
+
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
 from .error import InvalidMoveTargetError, NotEnoughCrumbError
@@ -165,7 +167,23 @@ class GameManager:
         return True
 
     def end_turn(self):
+        for effect in self.board.cache.effects:
+            if effect.duration is not None:
+                effect.duration -= 1
+                effect.on_turn_change(self.turn_count, self.turn)
+            if effect.duration == 0:
+                self.clear_effect(effect)
         self.turn = self.turn.other_side()
         if self.turn == self.first_turn:
             self.turn_count += 1
         self.crumbs = crumb_per_turn(self.turn_count)
+
+    def apply_effect(self, entity: Entity, effect: EntityEffect):
+        entity.effects.append(effect)
+        self.board.cache.effects.append(effect)
+        effect.on_applied()
+
+    def clear_effect(self,  effect: EntityEffect):
+        effect.on_cleared()
+        effect.entity.effects.remove(effect)
+        self.board.cache.effects.remove(effect)

@@ -23,7 +23,7 @@ def select_enemy_rodents(board: "Board", rodent: "Rodent", skill: "EntitySkill",
     if side is None:
         return SkillResult(target_count, [], callback)
     targets = [
-        enemy.pos for enemy in board.cached_entities.sides_with_hp[side.other_side()]
+        enemy.pos for enemy in board.cache.sides_with_hp[side.other_side()]
         if board.line_of_sight_check(rodent.pos, enemy.pos, skill.altitude or 0, rodent.side, skill.reach)]
     return SkillResult(target_count, targets, callback)
 

@@ -17,13 +17,14 @@ class EntityEffect(metaclass=EffectMeta):
     _has_effect_data = False
     entity: "Entity"
     duration: int | None
+    max_duration: int | None
     clear_turn: Side | None
 
     def __init__(self, entity: "Entity") -> None:
         self.entity = entity
 
     @abstractmethod
-    def on_turn_change(self, turn_count: int, turn: Side):
+    def on_turn_change(self, turn_count: int, turn_before_change: Side):
         ...
 
     @abstractmethod
@@ -47,6 +48,7 @@ def effect_data(*, duration: int | None, clear_turn: Side | None):
         assert issubclass(cls, EntityEffect)
         cls._has_effect_data = True
         cls.duration = duration
+        cls.max_duration = duration
         cls.clear_turn = clear_turn
         return cls
     return wrapper
