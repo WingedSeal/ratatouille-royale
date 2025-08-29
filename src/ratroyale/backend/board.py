@@ -2,8 +2,10 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Iterator
 
+from ratroyale.backend.feature import Feature
+
 from ..utils import EventQueue
-from .game_event import EntityDamagedEvent, EntitySpawnEvent, GameEvent, EntityDieEvent
+from .game_event import EntityDamagedEvent, EntitySpawnEvent, FeatureDamagedEvent, FeatureDieEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity, EntitySkill
@@ -88,6 +90,26 @@ class Board:
             raise EntityInvalidPosError()
         tile.entities.remove(entity)
         self.event_queue.put(EntityDieEvent(entity))
+
+    def damage_feature(self, feature: Feature, damage: int):
+        """
+        Damage a feature. Doesn't work on feature with no health.
+        """
+        is_dead, damage_taken = feature._take_damage(damage)
+        self.event_queue.put(FeatureDamagedEvent(
+            feature, damage, damage_taken))
+        if not is_dead:
+            return
+        is_dead = feature.on_death()
+        if not is_dead:
+            return
+
+        for pos_offset in feature.shape:
+            tile = self.get_tile(feature.pos + pos_offset)
+            if tile is None:
+                raise ValueError("Feature is existing on invalid tile")
+            tile.features.remove(feature)
+            self.event_queue.put(FeatureDieEvent(feature))
 
     def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int, turn: Side | None, max_range: int | None = None) -> bool:
         if max_range is not None and start_coord.get_distance(end_coord) > max_range:

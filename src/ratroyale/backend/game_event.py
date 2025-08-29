@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from .feature import Feature
 from .hexagon import OddRCoord
 from .entity import Entity
 
@@ -21,6 +22,11 @@ class EntityDieEvent(GameEvent):
 
 
 @dataclass
+class FeatureDieEvent(GameEvent):
+    feature: Feature
+
+
+@dataclass
 class EntitySpawnEvent(GameEvent):
     entity: Entity
 
@@ -28,5 +34,12 @@ class EntitySpawnEvent(GameEvent):
 @dataclass
 class EntityDamagedEvent(GameEvent):
     entity: Entity
+    damage: int
+    hp_loss: int
+
+
+@dataclass
+class FeatureDamagedEvent(GameEvent):
+    feature: Feature
     damage: int
     hp_loss: int
