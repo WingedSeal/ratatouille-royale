@@ -170,7 +170,11 @@ class GameManager:
         for effect in self.board.cache.effects:
             effect.on_turn_change(self.turn_count, self.turn)
             if effect.duration == 1 and effect._should_clear(self.turn):
-                self.effect_duration_over(effect)
+                active_effect = effect.entity.effects[type(effect)]
+                if active_effect != effect:
+                    active_effect.overriden_effects.remove(effect)
+                else:
+                    self.effect_duration_over(effect)
         self.turn = self.turn.other_side()
         if self.turn == self.first_turn:
             for effect in self.board.cache.effects:
