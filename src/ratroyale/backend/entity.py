@@ -40,6 +40,7 @@ class Entity:
     """
     pos: OddRCoord
     name: str = ""
+    max_health: int | None = None
     health: int | None = None
     defense: int | None = None
     movable: bool = False
@@ -104,6 +105,7 @@ def entity_data(*,
     def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
         assert issubclass(cls, Entity)
         cls.health = health
+        cls.max_health = health
         cls.defense = defense
         cls.movable = movable
         cls.collision = collision
