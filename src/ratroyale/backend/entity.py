@@ -40,7 +40,7 @@ class Entity:
     Any entity on the tile system.
     """
     pos: OddRCoord
-    effects: dict[type[EntityEffect], EntityEffect]
+    effects: dict[str, EntityEffect]
     name: str = ""
     max_health: int | None = None
     health: int | None = None
