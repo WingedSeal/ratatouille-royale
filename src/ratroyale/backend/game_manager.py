@@ -168,7 +168,7 @@ class GameManager:
 
     def end_turn(self):
         for effect in self.board.cache.effects:
-            effect.on_turn_change(self, self.turn_count, self.turn)
+            effect.on_turn_change(self)
             if effect.duration == 1 and effect._should_clear(self.turn):
                 active_effect = effect.entity.effects[effect.name]
                 if active_effect != effect:

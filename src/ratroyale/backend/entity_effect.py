@@ -58,15 +58,15 @@ class EntityEffect(metaclass=EffectMeta):
                 return True
 
     @abstractmethod
-    def on_turn_change(self, game_manager: "GameManager", turn_count_before_change: int, turn_before_change: Side):
+    def on_turn_change(self, game_manager: "GameManager") -> None:
         ...
 
     @abstractmethod
-    def on_applied(self, game_manager: "GameManager", *, is_overriding: bool):
+    def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
         ...
 
     @abstractmethod
-    def on_cleared(self, game_manager: "GameManager", *, is_overriden: bool):
+    def on_cleared(self, game_manager: "GameManager", *, is_overriden: bool) -> None:
         ...
 
     @abstractmethod
