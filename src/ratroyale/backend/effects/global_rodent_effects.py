@@ -1,6 +1,30 @@
 
-from ..entity_effect import EntityEffect, effect_data
+from typing import TYPE_CHECKING
+
+from ..entities.rodent import Rodent
+from ..error import RodentEffectNotOnRodentError
+from ..entity_effect import EffectClearSide, EntityEffect, effect_data
+if TYPE_CHECKING:
+    from ..entity import Entity
 
 
+@effect_data(EffectClearSide.ALLY)
 class Slowness(EntityEffect):
-    pass
+    rodent: Rodent
+    intensity: int
+
+    def __init__(self, entity: "Entity", *, duration: int | None, intensity: int) -> None:
+        self.intensity = intensity
+        if not isinstance(entity, Rodent):
+            raise RodentEffectNotOnRodentError()
+        self.rodent = entity
+        super().__init__(entity, duration=duration)
+
+    def on_turn_change(self, turn_count_before_change: int, turn_before_change: Side):
+        pass
+
+    def on_applied(self):
+        self.rodent.speed -= self.intensity
+
+    def on_cleared(self):
+        self.rodent.speed += self.intensity

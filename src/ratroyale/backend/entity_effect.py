@@ -70,7 +70,7 @@ class EntityEffect(metaclass=EffectMeta):
 T = TypeVar('T', bound=EntityEffect)
 
 
-def effect_data(*, effect_clear_side: EffectClearSide):
+def effect_data(effect_clear_side: EffectClearSide):
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, EntityEffect)
         cls._has_effect_data = True
