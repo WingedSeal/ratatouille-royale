@@ -2,6 +2,7 @@ import pygame
 import time
 from collections import namedtuple
 from .gesture_context_manager import GestureContextManager
+from typing import Optional
 
 GestureToken = namedtuple("GestureToken", ["type", "pos", "dx", "dy", "additional"])
 
@@ -19,16 +20,16 @@ class GestureInterpreter:
     STATE_DRAGGING = "dragging"
     STATE_HOLD_TRIGGERED = "hold_triggered"
 
-    def __init__(self, gesture_context_interpreter: GestureContextManager=None):
+    def __init__(self, gesture_context_interpreter: GestureContextManager):
         self.gesture_context_manager = gesture_context_interpreter
 
-        self.state = self.STATE_IDLE
-        self.start_pos = None
-        self.last_pos = None
-        self.dragging_last_pos = None
-        self.start_time = None
-        self.last_click_time = 0
-        self.last_click_pos = None
+        self.state: str = self.STATE_IDLE
+        self.start_pos: Optional[tuple[int, int]] = None
+        self.last_pos: Optional[tuple[int, int]] = None
+        self.dragging_last_pos: Optional[tuple[int, int]] = None
+        self.start_time: Optional[float] = None
+        self.last_click_time: Optional[float] = None
+        self.last_click_pos: Optional[tuple[int, int]] = None
 
     def handle_events(self, events):
         for event in events:
@@ -43,24 +44,28 @@ class GestureInterpreter:
         self._check_hold()
 
     # --- Internal ---
-    def _on_press(self, pos):
+    def _on_press(self, pos: tuple[int, int]) -> None:
         self.state = self.STATE_PRESSED
         self.start_pos = pos
         self.last_pos = pos
         self.start_time = time.time()
 
-    def _on_motion(self, pos):
-        if self.state in (self.STATE_PRESSED, self.STATE_HOLD_TRIGGERED, self.STATE_DRAGGING):
+    def _on_motion(self, pos: tuple[int, int]) -> None:
+        if (
+            self.state in (self.STATE_PRESSED, self.STATE_HOLD_TRIGGERED, self.STATE_DRAGGING)
+            and self.start_pos is not None
+            and self.last_pos is not None
+        ):
             dx = pos[0] - self.start_pos[0]
             dy = pos[1] - self.start_pos[1]
-            distance = (dx**2 + dy**2)**0.5
+            distance = (dx**2 + dy**2) ** 0.5
 
             if distance > self.DRAG_THRESHOLD and self.state != self.STATE_DRAGGING:
                 self.state = self.STATE_DRAGGING
                 self.dragging_last_pos = self.last_pos
                 self._on_drag_start()
 
-            if self.state == self.STATE_DRAGGING:
+            if self.state == self.STATE_DRAGGING and self.dragging_last_pos is not None:
                 dx_frame = pos[0] - self.dragging_last_pos[0]
                 dy_frame = pos[1] - self.dragging_last_pos[1]
                 self.dragging_last_pos = pos
@@ -68,33 +73,34 @@ class GestureInterpreter:
 
         self.last_pos = pos
 
-    def _on_release(self, pos):
-        if self.start_time is None:
-        # Ignore spurious release events
+    def _on_release(self, pos: tuple[int, int]) -> None:
+        if self.start_time is None or self.start_pos is None:
+            # Ignore spurious release events
             return
 
         elapsed_time = time.time() - self.start_time
         dx = pos[0] - self.start_pos[0]
         dy = pos[1] - self.start_pos[1]
-        distance = (dx**2 + dy**2)**0.5
+        distance = (dx**2 + dy**2) ** 0.5
 
         # Swipe detection
         if self.state == self.STATE_DRAGGING and distance >= self.SWIPE_DISTANCE_THRESHOLD:
             speed = distance / max(elapsed_time, 1e-6)
             if speed >= self.SWIPE_SPEED_THRESHOLD:
-                self.on_swipe(self.start_pos, pos, dx/distance, dy/distance)
+                self.on_swipe(self.start_pos, pos, dx / distance, dy / distance)
 
         # Click / double-click
         if self.state == self.STATE_PRESSED:
             current_time = time.time()
             if (
-                self.last_click_time > 0
+                self.last_click_time is not None
+                and self.last_click_pos is not None
                 and current_time - self.last_click_time <= self.DOUBLE_CLICK_TIME
-                and self.last_click_pos
-                and ((pos[0]-self.last_click_pos[0])**2 + (pos[1]-self.last_click_pos[1])**2)**0.5 <= self.CLICK_THRESHOLD
+                and ((pos[0] - self.last_click_pos[0]) ** 2 + (pos[1] - self.last_click_pos[1]) ** 2) ** 0.5
+                <= self.CLICK_THRESHOLD
             ):
                 self.on_double_click(pos)
-                self.last_click_time = 0
+                self.last_click_time = None
                 self.last_click_pos = None
             else:
                 self.on_click(pos)
@@ -107,27 +113,27 @@ class GestureInterpreter:
 
         self._reset_state()
 
-    def _check_hold(self):
-        if self.state == self.STATE_PRESSED:
+    def _check_hold(self) -> None:
+        if self.state == self.STATE_PRESSED and self.start_time is not None and self.start_pos is not None and self.last_pos is not None:
             elapsed = time.time() - self.start_time
             dx = self.last_pos[0] - self.start_pos[0]
             dy = self.last_pos[1] - self.start_pos[1]
-            distance = (dx**2 + dy**2)**0.5
+            distance = (dx**2 + dy**2) ** 0.5
             if elapsed >= self.HOLD_THRESHOLD and distance <= self.HOLD_MOVE_TOLERANCE:
                 self.state = self.STATE_HOLD_TRIGGERED
                 self.on_hold(self.start_pos)
 
-    def _on_drag_start(self):
+    def _on_drag_start(self) -> None:
         pass
 
-    def _reset_state(self):
+    def _reset_state(self) -> None:
         self.state = self.STATE_IDLE
         self.start_pos = None
         self.last_pos = None
         self.dragging_last_pos = None
         self.start_time = None
 
-    def _on_scroll(self, dx, dy):
+    def _on_scroll(self, dx: int, dy: int) -> None:
         if dy != 0:
             self.on_scroll(dy)
 

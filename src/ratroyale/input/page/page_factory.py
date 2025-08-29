@@ -26,6 +26,7 @@ class PageFactory:
         return BoardPage(
             self.gui_manager,
             container_rect=self.container_rect)
+    
 
     def create_all_pages(self):
         return {
