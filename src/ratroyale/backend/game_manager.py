@@ -216,6 +216,8 @@ class GameManager:
         if not effect.overriden_effects:
             effect.on_cleared()
             del effect.entity.effects[type(effect)]
+        effect.entity.effects = {
+            name: e for name, e in effect.entity.effects.items() if (e.duration is None) or (e.duration > 1)}
         new_effect = max(effect.overriden_effects, key=lambda e: e.intensity)
         new_effect.on_override()
         effect.on_overriden()
