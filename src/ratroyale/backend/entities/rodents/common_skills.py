@@ -28,7 +28,7 @@ def select_targetable(board: "Board", rodent: "Rodent", skill: "EntitySkill", ca
         if any(entity.side != rodent.side and entity.health is not None for entity in tile.entities):
             targets.append(coord)
             continue
-        if any(feature.side != rodent.side and feature.health is not None for feature in tile.features):
+        if is_feature_targetable and any(feature.side != rodent.side and feature.health is not None for feature in tile.features):
             targets.append(coord)
             continue
     return SkillResult(target_count, targets, callback)
