@@ -40,7 +40,7 @@ class Entity:
     Any entity on the tile system.
     """
     pos: OddRCoord
-    effects: list[EntityEffect]
+    effects: dict[type[EntityEffect], EntityEffect]
     name: str = ""
     max_health: int | None = None
     health: int | None = None
@@ -55,7 +55,7 @@ class Entity:
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
         self.pos = pos
         self.side = side
-        self.effects = []
+        self.effects = {}
 
     def on_damage_taken(self, damage: int) -> int | None:
         pass

@@ -23,15 +23,20 @@ class EffectClearSide(Enum):
 
 class EntityEffect(metaclass=EffectMeta):
     _has_effect_data = False
+    name: str
     entity: "Entity"
     duration: int | None
     max_duration: int | None
     effect_clear_side: EffectClearSide
+    intensity: int
+    overriden_effects: list["EntityEffect"]
 
-    def __init__(self, entity: "Entity", *, duration: int | None) -> None:
+    def __init__(self, entity: "Entity", *, duration: int | None, intensity: int = 0) -> None:
         self.entity = entity
         self.duration = duration
         self.max_duration = duration
+        self.intensity = intensity
+        self.overriden_effects = []
 
     def _should_clear(self, turn: Side) -> bool:
         match self.effect_clear_side:
@@ -62,6 +67,12 @@ class EntityEffect(metaclass=EffectMeta):
     def on_cleared(self):
         ...
 
+    def on_overriden(self):
+        self.on_cleared()
+
+    def on_override(self):
+        self.on_applied()
+
     @abstractmethod
     def effect_descriptions(self) -> list[str]:
         ...
@@ -70,10 +81,11 @@ class EntityEffect(metaclass=EffectMeta):
 T = TypeVar('T', bound=EntityEffect)
 
 
-def effect_data(effect_clear_side: EffectClearSide):
+def effect_data(effect_clear_side: EffectClearSide, *, name: str):
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, EntityEffect)
         cls._has_effect_data = True
         cls.effect_clear_side = effect_clear_side
+        cls.name = name
         return cls
     return wrapper
