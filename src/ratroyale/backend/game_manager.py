@@ -3,7 +3,7 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
-from ratroyale.backend.entity_effect import EntityEffect
+from ratroyale.backend.entity_effect import EntityEffect, effect_data
 
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
@@ -168,13 +168,14 @@ class GameManager:
 
     def end_turn(self):
         for effect in self.board.cache.effects:
-            if effect.duration is not None:
-                effect.duration -= 1
-                effect.on_turn_change(self.turn_count, self.turn)
-            if effect.duration == 0:
+            effect.on_turn_change(self.turn_count, self.turn)
+            if effect.duration == 1 and effect._should_clear(self.turn):
                 self.clear_effect(effect)
         self.turn = self.turn.other_side()
         if self.turn == self.first_turn:
+            for effect in self.board.cache.effects:
+                if effect.duration is not None:
+                    effect.duration -= 1
             self.turn_count += 1
         self.crumbs = crumb_per_turn(self.turn_count)
 
