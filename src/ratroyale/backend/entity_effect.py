@@ -2,6 +2,8 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, TypeVar
 
+from ratroyale.backend.game_manager import GameManager
+
 from .side import Side
 if TYPE_CHECKING:
     from .entity import Entity
@@ -56,15 +58,15 @@ class EntityEffect(metaclass=EffectMeta):
                 return True
 
     @abstractmethod
-    def on_turn_change(self, turn_count_before_change: int, turn_before_change: Side):
+    def on_turn_change(self, game_manager: "GameManager", turn_count_before_change: int, turn_before_change: Side):
         ...
 
     @abstractmethod
-    def on_applied(self, *, is_overriding: bool):
+    def on_applied(self, game_manager: "GameManager", *, is_overriding: bool):
         ...
 
     @abstractmethod
-    def on_cleared(self, *, is_overriden: bool):
+    def on_cleared(self, game_manager: "GameManager", *, is_overriden: bool):
         ...
 
     @abstractmethod

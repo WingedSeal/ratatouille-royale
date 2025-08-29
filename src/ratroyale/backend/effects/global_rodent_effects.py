@@ -16,3 +16,9 @@ class Slowness(RodentEffect):
     def on_cleared(self, *, is_overriden: bool):
         _ = is_overriden
         self.rodent.speed += self.intensity
+
+
+@effect_data(EffectClearSide.ALLY, name="Poison")
+class Poison(RodentEffect):
+    def on_turn_change(self, turn_count_before_change: int, turn_before_change: Side):
+        pass
