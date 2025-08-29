@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
+
+from .side import Side
 from .hexagon import OddRCoord
 
 
@@ -18,6 +20,7 @@ class Feature:
     feature_id: FeatureId
     health: int | None = None
     defense: int | None = None
+    side: Side | None = None
 
     def on_damage_taken(self, damage: int) -> int | None:
         pass

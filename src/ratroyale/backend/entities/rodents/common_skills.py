@@ -18,13 +18,19 @@ def select_any_tile(board: "Board", rodent: "Rodent", skill: "EntitySkill", call
     return SkillResult(target_count, list(coords), callback)
 
 
-def select_enemy_rodents(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1):
-    side = rodent.side
-    if side is None:
-        return SkillResult(target_count, [], callback)
-    targets = [
-        enemy.pos for enemy in board.cached_entities.sides_with_hp[side.other_side()]
-        if board.line_of_sight_check(rodent.pos, enemy.pos, skill.altitude or 0, rodent.side, skill.reach)]
+def select_targetable(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1, *, is_feature_targetable: bool = True):
+    coords = board.get_attackable_coords(rodent, skill)
+    targets = []
+    for coord in coords:
+        tile = board.get_tile(coord)
+        if tile is None:
+            continue
+        if any(entity.side != rodent.side and entity.health is not None for entity in tile.entities):
+            targets.append(coord)
+            continue
+        if any(feature.side != rodent.side and feature.health is not None for feature in tile.features):
+            targets.append(coord)
+            continue
     return SkillResult(target_count, targets, callback)
 
 
