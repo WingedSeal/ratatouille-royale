@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, TypeVar
+
+from ratroyale.backend.entities.rodent import Rodent
 from .side import Side
 if TYPE_CHECKING:
     from .entity import Entity
@@ -81,3 +83,12 @@ def effect_data(effect_clear_side: EffectClearSide, *, name: str):
         cls.name = name
         return cls
     return wrapper
+
+
+class RodentEffect(EntityEffect):
+    rodent: Rodent
+
+    def __init__(self, rodent: "Rodent", *, duration: int | None, intensity: int) -> None:
+        self.intensity = intensity
+        self.rodent = rodent
+        super().__init__(rodent, duration=duration, intensity=intensity)
