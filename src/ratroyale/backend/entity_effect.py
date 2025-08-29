@@ -24,7 +24,7 @@ class EntityEffect(metaclass=EffectMeta):
         self.entity = entity
 
     @abstractmethod
-    def on_turn_change(self, turn_count: int, turn_before_change: Side):
+    def on_turn_change(self, turn_count_before_change: int, turn_before_change: Side):
         ...
 
     @abstractmethod
