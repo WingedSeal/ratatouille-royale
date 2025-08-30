@@ -3,10 +3,11 @@ import pygame
 from pygame_gui.core.ui_element import UIElement
 from .page_config_options import PageConfigOptions
 from typing import List, Callable
+from ratroyale.utils import EventQueue
 
 class Page:
     """Base class for a page in the application."""
-    def __init__(self, config: PageConfigOptions, screen_size: tuple[int, int]):
+    def __init__(self, config: PageConfigOptions, screen_size: tuple[int, int], gui_callback_queue: EventQueue[str]):
         # Defines the page name
         self.name = config.value["name"]
 
@@ -16,13 +17,16 @@ class Page:
         # Each page has its own UIManager
         self.gui_manager = pygame_gui.UIManager(screen_size, config.value["theme_path"])
 
-        # UI elements and callbacks
-        self.elements = [
-            widget_def["type"](manager=self.gui_manager, **widget_def["kwargs"])
-            for widget_def in config.value["widgets"]
-        ]
-        # self.callbacks: dict[UIElement, Callable] = {}
+        # GUI callback queue for navigation
+        self.gui_callback_queue = gui_callback_queue
 
+        # UI elements and callbacks
+        self.callbacks: dict[UIElement, Callable] = {}
+        self.elements = []
+        for widget in config.value["widgets"]:
+            btn = widget["type"](manager=self.gui_manager, **widget["kwargs"])
+            self.add_element(btn, callback=lambda k=widget["callback_key"]: gui_callback_queue.put(k))
+        
         # Blocking flag: if true, blocks input from reaching lower pages in the stack.
         self.blocking = config.value["blocking"]
 
@@ -31,8 +35,8 @@ class Page:
     # -----------------------
     def add_element(self, element: UIElement, callback: Callable | None = None):
         self.elements.append(element)
-        # if callback:
-        #     self.callbacks[element] = callback
+        if callback:
+            self.callbacks[element] = callback
 
     def remove_element(self, element: UIElement):
         if element in self.elements:
@@ -65,29 +69,28 @@ class Page:
                 pygame.quit()
                 exit()
 
-            consumed = False
+            # Let the UIManager process the event
+            self.gui_manager.process_events(event)
 
-            # First let UI elements consume the event
-            for element in self.elements:
-                if element.visible and element.process_event(event):
-                    consumed = True
-                    break
+            # Check if a button was pressed
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element in self.callbacks:
+                    # Execute the stored lambda
+                    self.callbacks[event.ui_element]()
 
-            # Then this page-specific logic
-            # if not consumed and self.consume_event_logic(event):
-            #     consumed = True
-
-            # Keep unconsumed events for the next page
-            if not consumed:
-                unconsumed.append(event)
+            # Check if this event should be considered unconsumed
+            # (only if you want custom page logic to handle it)
+            # Example:
+            # if not self.consume_event_logic(event):
+            #     unconsumed.append(event)
 
         return unconsumed
 
     # -----------------------
     # Callbacks
     # -----------------------
-    # def get_callback(self, element: UIElement):
-    #     return self.callbacks.get(element)
+    def get_callback(self, element: UIElement):
+        return self.callbacks.get(element)
 
     # -----------------------
     # Canvas

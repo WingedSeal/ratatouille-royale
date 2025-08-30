@@ -1,26 +1,31 @@
 import pygame
-import pygame_gui
 from ratroyale.input import InputManager, PageFactory, GestureReader, CONSUMED_UI_EVENTS, GestureDispatcher, PageConfigOptions
 from ratroyale.utils import EventQueue
-from pygame_gui.elements import UIButton, UITextEntryLine, UISelectionList
 from .page.page import Page
 
 class GUIManager:
-    def __init__(self, screen: pygame.surface.Surface):
+    def __init__(self, screen: pygame.surface.Surface, gui_callback_queue: EventQueue[str]):
         self.screen = screen
         self.is_hovering_ui = False
 
         # Helping managers
         self.input_manager = InputManager()
-        self.gesture_context_manager = GestureDispatcher()
-        self.gesture_interpreter = GestureReader(self.gesture_context_manager)
+        self.gesture_dispatcher = GestureDispatcher()
+        self.gesture_interpreter = GestureReader(self.gesture_dispatcher)
 
         # Dictionary of pages, each page is a list of UI elements
-        self.page_factory = PageFactory(self, self.screen.get_size())
-        # self.pages = self.factory.create_all_pages()
+        self.page_factory = PageFactory(self, self.screen.get_size(), gui_callback_queue)
 
         # Active page stack
         self.page_stack: list[Page] = []
+
+        # Callback queue & registry for navigation
+        self.gui_callback_queue = gui_callback_queue
+        self.callback_registry = {
+            "start_game": lambda gm=self: gm.replace_top("TEST_SWAP"),
+            "quit_game": lambda gm: exit(),
+            "back_to_menu": lambda gm=self: gm.replace_top("MAIN_MENU"),
+        }
 
     """ Push page by name, create if it doesn’t exist yet """
     def push_page(self, page_option: str) -> Page:
@@ -36,6 +41,22 @@ class GUIManager:
         self.page_stack.append(page)
         page.show()
         return page
+    
+    """ Remove topmost page """
+    def pop_page(self):
+        if self.page_stack:
+            page = self.page_stack.pop()
+            page.hide()
+
+    """ Switch topmost page for a different one """
+    def replace_top(self, page_option: str):
+        if self.page_stack:
+            self.page_stack[-1].hide()
+            self.page_stack.pop()
+        self.push_page(page_option)
+
+    def get_active_page(self) -> Page | None:
+        return self.page_stack[-1] if self.page_stack else None
     
     """ High-level logical flow:
         # Each page has UI elements and a canvas (pygame.surface).
@@ -61,6 +82,14 @@ class GUIManager:
             # If this page is blocking, stop propagation
             if page.blocking:
                 break
+
+    def execute_callbacks(self):
+        while not self.gui_callback_queue.empty():
+            token = self.gui_callback_queue.get()
+            print(token)
+            callback = self.callback_registry.get(token)
+            if callback:
+                callback(self)
 
     # region REFACTOR TO RENDERER
 

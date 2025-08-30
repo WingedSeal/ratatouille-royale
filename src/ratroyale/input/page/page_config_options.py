@@ -9,8 +9,16 @@ class PageConfigOptions(Enum):
         "theme_path": "", 
         "blocking": True,
         "widgets": [
-            {"type": pygame_gui.elements.UIButton, "kwargs": {"text": "Start", "relative_rect": pygame.Rect(100,100,200,50)}},
-            {"type": pygame_gui.elements.UIButton, "kwargs": {"text": "Quit", "relative_rect": pygame.Rect(100,200,200,50)}}
+            {"type": pygame_gui.elements.UIButton, 
+             "callback_key": "start_game",
+             "kwargs": {
+                 "text": "Start", 
+                 "relative_rect": pygame.Rect(100,100,200,50)}}, 
+            {"type": pygame_gui.elements.UIButton, 
+             "callback_key": "quit_game",
+             "kwargs": {
+                 "text": "Quit", 
+                 "relative_rect": pygame.Rect(100,200,200,50)}}
             ],
         "gesture_mapping": {
             GestureType.DRAG: lambda token: print(token),
@@ -22,7 +30,11 @@ class PageConfigOptions(Enum):
         "theme_path": "", 
         "blocking": True,
         "widgets": [
-            {"type": pygame_gui.elements.UIButton, "kwargs": {"text": "Return to Main Menu", "relative_rect": pygame.Rect(100,100,200,50)}}
+            {"type": pygame_gui.elements.UIButton, 
+             "callback_key": "back_to_menu",
+             "kwargs": {
+                 "text": "Return to Main Menu", 
+                 "relative_rect": pygame.Rect(100,100,200,50)}}
             ],
         "gesture_mapping": {
             GestureType.DRAG: lambda token: print(token),
