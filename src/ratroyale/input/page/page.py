@@ -2,12 +2,15 @@ import pygame_gui
 import pygame
 from pygame_gui.core.ui_element import UIElement
 from .page_config_options import PageConfigOptions
-from typing import List, Callable
+from typing import Callable
 from ratroyale.utils import EventQueue
+from ratroyale.input.gesture_reader import GestureReader
+from ratroyale.input.event_token import InputEventToken, GUIEventSource
+from ratroyale.input.coordination_manager import CoordinationManager
 
 class Page:
     """Base class for a page in the application."""
-    def __init__(self, config: PageConfigOptions, screen_size: tuple[int, int], gui_callback_queue: EventQueue[str]):
+    def __init__(self, config: PageConfigOptions, screen_size: tuple[int, int], coordination_manager: CoordinationManager):
         # Defines the page name
         self.name = config.value["name"]
 
@@ -17,21 +20,30 @@ class Page:
         # Each page has its own UIManager
         self.gui_manager = pygame_gui.UIManager(screen_size, config.value["theme_path"])
 
+        # Each page also has its own GestureReader
+        self.gesture_reader = GestureReader(self.name, coordination_manager)
+
         # GUI callback queue for navigation
-        self.gui_callback_queue = gui_callback_queue
+        self.gui_callback_queue = coordination_manager
 
         # UI elements and callbacks
         self.callbacks: dict[UIElement, Callable] = {}
         self.elements = []
         for widget in config.value["widgets"]:
             btn = widget["type"](manager=self.gui_manager, **widget["kwargs"])
-            self.add_element(btn, callback=lambda k=widget["callback_key"]: gui_callback_queue.put(k))
+            self.add_element(btn, callback=lambda key=widget["callback_key"]: coordination_manager.put_message(
+                InputEventToken(
+                    source=GUIEventSource.UI_ELEMENT,
+                    id=key,
+                    page=self.name
+                )
+            ))
         
         # Blocking flag: if true, blocks input from reaching lower pages in the stack.
         self.blocking = config.value["blocking"]
 
     # -----------------------
-    # UI Element Management
+    # region UI Element Management
     # -----------------------
     def add_element(self, element: UIElement, callback: Callable | None = None):
         self.elements.append(element)
@@ -46,9 +58,11 @@ class Page:
 
     def get_elements(self):
         return self.elements
+    
+    # endregion
 
     # -----------------------
-    # Visibility
+    # region Visibility
     # -----------------------
     def show(self):
         for element in self.elements:
@@ -58,8 +72,10 @@ class Page:
         for element in self.elements:
             element.hide()
 
+    # endregion
+
     # -----------------------
-    # Event Handling
+    # region Event Handling
     # -----------------------
     def handle_events(self, events: list[pygame.event.Event]) -> list[pygame.event.Event]:
         unconsumed = []
@@ -85,15 +101,19 @@ class Page:
             #     unconsumed.append(event)
 
         return unconsumed
+    
+    # endregion
 
     # -----------------------
-    # Callbacks
+    # region Callbacks
     # -----------------------
     def get_callback(self, element: UIElement):
         return self.callbacks.get(element)
+    
+    # endregion
 
     # -----------------------
-    # Canvas
+    # region Canvas
     # -----------------------
     def clear_canvas(self, color=(0, 0, 0, 0)):
         """Clear the canvas (default: fully transparent)."""
@@ -106,3 +126,23 @@ class Page:
     def draw_ui(self):
         """Draw UI elements onto the page canvas."""
         self.gui_manager.draw_ui(self.canvas)
+
+    # endregion
+
+"""
+    ACCOMPANYING PAGE FACTORY CLASS
+"""
+
+class PageFactory:
+    def __init__(self, gui_manager, screen_size, coordination_manager: CoordinationManager):
+        self.gui_manager = gui_manager
+        self.screen_size = screen_size
+        self.gui_callback_queue = coordination_manager
+        self.page_option_menu: dict[str, PageConfigOptions] = {
+            "MAIN_MENU": PageConfigOptions.MAIN_MENU,
+            "TEST_SWAP": PageConfigOptions.TEST_SWAP,
+            "BOARD": PageConfigOptions.BOARD
+        }
+
+    def create_page(self, page_option: str):
+        return Page(self.page_option_menu[page_option], self.screen_size, self.gui_callback_queue)

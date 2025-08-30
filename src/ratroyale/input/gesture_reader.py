@@ -1,19 +1,8 @@
 import pygame
 import time
-from collections import namedtuple
-from .gesture_dispatcher import GestureDispatcher
-from typing import Optional
-from enum import Enum
-
-GestureToken = namedtuple("GestureToken", ["type", "pos", "dx", "dy", "additional"])
-
-class GestureType(Enum):
-    CLICK = 1
-    DOUBLE_CLICK = 2
-    DRAG = 3
-    DRAG_END = 4
-    SWIPE = 5
-    SCROLL = 6
+from ratroyale.input.event_token import InputEventToken, GUIEventSource
+from typing import Any
+from ratroyale.input.coordination_manager import CoordinationManager
 
 class GestureReader:
     CLICK_THRESHOLD = 5
@@ -29,16 +18,19 @@ class GestureReader:
     STATE_DRAGGING = "dragging"
     STATE_HOLD_TRIGGERED = "hold_triggered"
 
-    def __init__(self, gesture_context_interpreter: GestureDispatcher):
-        self.gesture_context_manager = gesture_context_interpreter
+    def __init__(self, page_name: str, coordination_manager: CoordinationManager):
+        self.page_name = page_name
+        self.coordination_manager = coordination_manager
 
         self.state: str = self.STATE_IDLE
-        self.start_pos: Optional[tuple[int, int]] = None
-        self.last_pos: Optional[tuple[int, int]] = None
-        self.dragging_last_pos: Optional[tuple[int, int]] = None
-        self.start_time: Optional[float] = None
-        self.last_click_time: Optional[float] = None
-        self.last_click_pos: Optional[tuple[int, int]] = None
+        self.start_pos: tuple[int, int] | None = None
+        self.last_pos: tuple[int, int] | None = None
+        self.dragging_last_pos: tuple[int, int] | None = None
+        self.start_time: float | None = None
+        self.last_click_time: float | None = None
+        self.last_click_pos: tuple[int, int] | None = None
+
+    # region Gesture Logic
 
     def handle_events(self, events):
         for event in events:
@@ -146,32 +138,39 @@ class GestureReader:
         if dy != 0:
             self.on_scroll(dy)
 
+    # endregion
 
     # --- Callbacks ---
     def on_click(self, pos):
-        token = GestureToken("click", pos, 0, 0, None)
-        self.gesture_context_manager.handle_gesture(token)
+        self.put_token("click", {"pos": pos})
 
     def on_double_click(self, pos):
-        token = GestureToken("double_click", pos, 0, 0, None)
-        self.gesture_context_manager.handle_gesture(token)
+        self.put_token("double_click", {"pos": pos})
 
     def on_drag(self, dx, dy):
-        token = GestureToken("drag", None, dx, dy, None)
-        self.gesture_context_manager.handle_gesture(token)
+        self.put_token("drag", {"dx": dx, "dy": dy})
 
     def on_drag_end(self):
-        token = GestureToken("drag_end", None, 0, 0, None)
-        self.gesture_context_manager.handle_gesture(token)
+        self.put_token("drag_end", {})
 
     def on_hold(self, pos):
-        token = GestureToken("hold", pos, 0, 0, None)
-        self.gesture_context_manager.handle_gesture(token)
+        self.put_token("hold", {"pos": pos})
 
     def on_swipe(self, start_pos, end_pos, dir_x, dir_y):
-        token = GestureToken("swipe", start_pos, dir_x, dir_y, {"end_pos": end_pos})
-        self.gesture_context_manager.handle_gesture(token)
+        self.put_token("swipe", {
+            "start_pos": start_pos,
+            "end_pos": end_pos,
+            "dir_x": dir_x,
+            "dir_y": dir_y
+        })
 
     def on_scroll(self, amount):
-        token = GestureToken("scroll", None, 0, 0, {"amount": amount})
-        self.gesture_context_manager.handle_gesture(token)
+        self.put_token("scroll", {"amount": amount})
+
+    def put_token(self, id: str, data: dict[str, Any]):
+        self.coordination_manager.put_message(InputEventToken(
+            source=GUIEventSource.GESTURE,
+            id=id,
+            page=self.page_name,
+            data=data
+        ))

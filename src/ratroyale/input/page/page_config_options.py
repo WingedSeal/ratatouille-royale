@@ -1,7 +1,7 @@
 from enum import Enum
 import pygame_gui
-from ..gesture_reader import GestureType
 import pygame
+from torch import FutureType
 
 class PageConfigOptions(Enum):
     MAIN_MENU = {
@@ -10,20 +10,16 @@ class PageConfigOptions(Enum):
         "blocking": True,
         "widgets": [
             {"type": pygame_gui.elements.UIButton, 
-             "callback_key": "start_game",
+             "callback_key": "CMD_START_GAME",
              "kwargs": {
                  "text": "Start", 
                  "relative_rect": pygame.Rect(100,100,200,50)}}, 
             {"type": pygame_gui.elements.UIButton, 
-             "callback_key": "quit_game",
+             "callback_key": "CMD_QUIT_GAME",
              "kwargs": {
                  "text": "Quit", 
                  "relative_rect": pygame.Rect(100,200,200,50)}}
-            ],
-        "gesture_mapping": {
-            GestureType.DRAG: lambda token: print(token),
-            GestureType.DRAG_END: lambda token: print(token)
-            }
+            ]
         }
     TEST_SWAP = {
         "name": "TEST_SWAP",
@@ -31,23 +27,15 @@ class PageConfigOptions(Enum):
         "blocking": True,
         "widgets": [
             {"type": pygame_gui.elements.UIButton, 
-             "callback_key": "back_to_menu",
+             "callback_key": "CMD_BACK_TO_MENU",
              "kwargs": {
                  "text": "Return to Main Menu", 
                  "relative_rect": pygame.Rect(100,100,200,50)}}
-            ],
-        "gesture_mapping": {
-            GestureType.DRAG: lambda token: print(token),
-            GestureType.DRAG_END: lambda: print("drag ended")
-            }
+            ]
         }
     BOARD = {
         "name": "BOARD",
         "theme_path": "", 
         "blocking": True,
-        "widgets": [],
-        "gesture_mapping": {
-            GestureType.DRAG: lambda token: print(token),
-            GestureType.DRAG_END: lambda token: print(token)
-            }
+        "widgets": []
         }
