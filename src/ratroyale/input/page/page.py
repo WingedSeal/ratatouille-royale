@@ -1,59 +1,105 @@
 import pygame_gui
 import pygame
-from pygame_gui.elements import UIPanel
+from pygame_gui.core.ui_element import UIElement
+from .page_config_options import PageConfigOptions
 from typing import List, Callable
 
-
-"""Base class for a page in the application."""
 class Page:
-    def __init__(self, name: str, gui_manager: pygame_gui.UIManager, container_rect: pygame.Rect):
-        self.name = name
-        self.container = UIPanel(relative_rect=container_rect, manager=gui_manager)
-        self.elements: List[pygame_gui.elements.UIElement] = []  # List of UI elements on this page
-        self.callbacks: dict[pygame_gui.elements.UIElement, callable] = {} # List of callbacks for elements
+    """Base class for a page in the application."""
+    def __init__(self, config: PageConfigOptions, screen_size: tuple[int, int]):
+        # Defines the page name
+        self.name = config.value["name"]
 
-        self.container.hide()
+        # Canvas for this page (transparent by default)
+        self.canvas = pygame.Surface(screen_size, pygame.SRCALPHA)
 
-    def add_element(self, element, callback: Callable = None):
-        # Attach element to container
-        element.set_container(self.container)
+        # Each page has its own UIManager
+        self.gui_manager = pygame_gui.UIManager(screen_size, config.value["theme_path"])
+
+        # UI elements and callbacks
+        self.elements = [
+            widget_def["type"](manager=self.gui_manager, **widget_def["kwargs"])
+            for widget_def in config.value["widgets"]
+        ]
+        # self.callbacks: dict[UIElement, Callable] = {}
+
+        # Blocking flag: if true, blocks input from reaching lower pages in the stack.
+        self.blocking = config.value["blocking"]
+
+    # -----------------------
+    # UI Element Management
+    # -----------------------
+    def add_element(self, element: UIElement, callback: Callable | None = None):
         self.elements.append(element)
-        if callback:
-            self.callbacks[element] = callback
+        # if callback:
+        #     self.callbacks[element] = callback
 
-    def remove_element(self, element):
-        self.elements.remove(element)
+    def remove_element(self, element: UIElement):
+        if element in self.elements:
+            self.elements.remove(element)
+        # if element in self.callbacks:
+        #     del self.callbacks[element]
 
     def get_elements(self):
         return self.elements
-    
-    def hide(self):
-        self.container.hide()
 
+    # -----------------------
+    # Visibility
+    # -----------------------
     def show(self):
-        self.container.show()
-    
-    def handle_events(self, events):
-        """Process events for all elements on this page."""
-        for event in events:
-            for element in self.elements:
-                # pygame_gui already handles event routing via UIManager
-                # this is for placeholder if custom handling is needed
-                pass
-
-    def get_callback(self, element):
-        return self.callbacks.get(element)
-    
-    def resize(self, new_rect: pygame.Rect):
-        """Resize container and optionally adjust children positions"""
-        self.container.set_relative_rect(new_rect)
-
-        # Optional: reposition child elements proportionally
         for element in self.elements:
-            rel_x = element.relative_rect.x / self.container.relative_rect.width
-            rel_y = element.relative_rect.y / self.container.relative_rect.height
-            element_width = element.relative_rect.width
-            element_height = element.relative_rect.height
-            element.set_relative_position((rel_x * new_rect.width, rel_y * new_rect.height))
-            # Optionally scale element size too
-            element.set_dimensions((element_width, element_height))
+            element.show()
+
+    def hide(self):
+        for element in self.elements:
+            element.hide()
+
+    # -----------------------
+    # Event Handling
+    # -----------------------
+    def handle_events(self, events: list[pygame.event.Event]) -> list[pygame.event.Event]:
+        unconsumed = []
+
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+            consumed = False
+
+            # First let UI elements consume the event
+            for element in self.elements:
+                if element.visible and element.process_event(event):
+                    consumed = True
+                    break
+
+            # Then this page-specific logic
+            # if not consumed and self.consume_event_logic(event):
+            #     consumed = True
+
+            # Keep unconsumed events for the next page
+            if not consumed:
+                unconsumed.append(event)
+
+        return unconsumed
+
+    # -----------------------
+    # Callbacks
+    # -----------------------
+    # def get_callback(self, element: UIElement):
+    #     return self.callbacks.get(element)
+
+    # -----------------------
+    # Canvas
+    # -----------------------
+    def clear_canvas(self, color=(0, 0, 0, 0)):
+        """Clear the canvas (default: fully transparent)."""
+        self.canvas.fill(color)
+
+    def update_ui(self, dt: float):
+        """Update UI elements for animations, transitions, etc."""
+        self.gui_manager.update(dt)
+
+    def draw_ui(self):
+        """Draw UI elements onto the page canvas."""
+        self.gui_manager.draw_ui(self.canvas)

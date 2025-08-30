@@ -1,4 +1,4 @@
-class GestureContextManager:
+class GestureDispatcher:
   def __init__(self):
     pass
 

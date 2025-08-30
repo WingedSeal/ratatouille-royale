@@ -1,12 +1,21 @@
 import pygame
 import time
 from collections import namedtuple
-from .gesture_context_manager import GestureContextManager
+from .gesture_dispatcher import GestureDispatcher
 from typing import Optional
+from enum import Enum
 
 GestureToken = namedtuple("GestureToken", ["type", "pos", "dx", "dy", "additional"])
 
-class GestureInterpreter:
+class GestureType(Enum):
+    CLICK = 1
+    DOUBLE_CLICK = 2
+    DRAG = 3
+    DRAG_END = 4
+    SWIPE = 5
+    SCROLL = 6
+
+class GestureReader:
     CLICK_THRESHOLD = 5
     DRAG_THRESHOLD = 5
     HOLD_THRESHOLD = 0.5
@@ -20,7 +29,7 @@ class GestureInterpreter:
     STATE_DRAGGING = "dragging"
     STATE_HOLD_TRIGGERED = "hold_triggered"
 
-    def __init__(self, gesture_context_interpreter: GestureContextManager):
+    def __init__(self, gesture_context_interpreter: GestureDispatcher):
         self.gesture_context_manager = gesture_context_interpreter
 
         self.state: str = self.STATE_IDLE
