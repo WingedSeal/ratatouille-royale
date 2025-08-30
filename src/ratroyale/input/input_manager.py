@@ -1,6 +1,6 @@
 import pygame
-from ratroyale.input.coordination_manager import CoordinationManager
-from ratroyale.input.event_token import PageEventToken, PageEventAction
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens import PageEventToken, PageEventAction
 
 class InputManager:
     def __init__(self, coordination_manager: CoordinationManager):

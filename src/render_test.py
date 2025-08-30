@@ -2,8 +2,8 @@ import pygame
 from ratroyale.input.page.page_manager import PageManager
 from ratroyale.input.input_manager import InputManager
 from ratroyale.utils import EventQueue
-from ratroyale.input.event_token import InputEventToken
-from ratroyale.input.coordination_manager import CoordinationManager
+from ratroyale.event_tokens import InputEventToken
+from ratroyale.coordination_manager import CoordinationManager
 
 def main():
     pygame.init()

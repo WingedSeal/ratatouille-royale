@@ -1,7 +1,7 @@
 import pygame
-from .page import Page, PageFactory
-from ratroyale.input.coordination_manager import CoordinationManager
-from ratroyale.input.event_token import PageEventAction
+from ratroyale.input.page.page import Page, PageFactory
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens import PageEventAction
 
 class PageManager:
   def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager):

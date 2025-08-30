@@ -1,8 +1,8 @@
 import pygame
 import time
-from ratroyale.input.event_token import InputEventToken, GUIEventSource
+from ratroyale.event_tokens import InputEventToken, GUIEventSource
 from typing import Any
-from ratroyale.input.coordination_manager import CoordinationManager
+from ratroyale.coordination_manager import CoordinationManager
 
 class GestureReader:
     CLICK_THRESHOLD = 5

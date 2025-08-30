@@ -1,7 +1,7 @@
 from ratroyale.input.input_manager import InputManager
-from ratroyale.input.event_token import GUIEventSource, InputEventToken
+from ratroyale.event_tokens import GUIEventSource, InputEventToken
 import pygame
-from ratroyale.input.coordination_manager import CoordinationManager
+from ratroyale.coordination_manager import CoordinationManager
 
 # class InputDispatcher:
 #   def __init__(self, coordination_manager: CoordinationManager):

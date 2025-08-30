@@ -1,9 +1,8 @@
 from enum import Enum
 import pygame_gui
 import pygame
-from torch import FutureType
 
-class PageConfigOptions(Enum):
+class PageConfig(Enum):
     MAIN_MENU = {
         "name": "MAIN_MENU",
         "theme_path": "", 

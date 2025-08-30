@@ -1,5 +1,5 @@
 from ratroyale.utils import EventQueue
-from ratroyale.input.event_token import EventToken, InputEventToken, PageEventToken, GameDomainToken, VisualDomainToken
+from ratroyale.event_tokens import EventToken, InputEventToken, PageEventToken, GameDomainToken, VisualDomainToken
 
 class CoordinationManager:
   def __init__(self):

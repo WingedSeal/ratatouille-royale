@@ -1,16 +1,15 @@
 import pygame_gui
 import pygame
 from pygame_gui.core.ui_element import UIElement
-from .page_config_options import PageConfigOptions
+from .page_config import PageConfig
 from typing import Callable
-from ratroyale.utils import EventQueue
 from ratroyale.input.gesture_reader import GestureReader
-from ratroyale.input.event_token import InputEventToken, GUIEventSource
-from ratroyale.input.coordination_manager import CoordinationManager
+from ratroyale.event_tokens import InputEventToken, GUIEventSource
+from ratroyale.coordination_manager import CoordinationManager
 
 class Page:
     """Base class for a page in the application."""
-    def __init__(self, config: PageConfigOptions, screen_size: tuple[int, int], coordination_manager: CoordinationManager):
+    def __init__(self, config: PageConfig, screen_size: tuple[int, int], coordination_manager: CoordinationManager):
         # Defines the page name
         self.name = config.value["name"]
 
@@ -138,10 +137,10 @@ class PageFactory:
         self.gui_manager = gui_manager
         self.screen_size = screen_size
         self.gui_callback_queue = coordination_manager
-        self.page_option_menu: dict[str, PageConfigOptions] = {
-            "MAIN_MENU": PageConfigOptions.MAIN_MENU,
-            "TEST_SWAP": PageConfigOptions.TEST_SWAP,
-            "BOARD": PageConfigOptions.BOARD
+        self.page_option_menu: dict[str, PageConfig] = {
+            "MAIN_MENU": PageConfig.MAIN_MENU,
+            "TEST_SWAP": PageConfig.TEST_SWAP,
+            "BOARD": PageConfig.BOARD
         }
 
     def create_page(self, page_option: str):
