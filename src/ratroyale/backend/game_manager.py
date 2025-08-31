@@ -171,7 +171,7 @@ class GameManager:
             if effect.duration == 1 and effect._should_clear(self.turn):
                 active_effect = effect.entity.effects[effect.name]
                 if active_effect != effect:
-                    active_effect.overriden_effects.remove(effect)
+                    active_effect.overridden_effects.remove(effect)
                 else:
                     self.effect_duration_over(effect)
         self.turn = self.turn.other_side()
@@ -190,10 +190,10 @@ class GameManager:
             effect.on_applied(self, is_overriding=False)
             return
         if effect.intensity > old_effect.intensity:
-            effect.overriden_effects.append(old_effect)
+            effect.overridden_effects.append(old_effect)
             self.board.cache.effects.append(effect)
             effect.on_applied(self, is_overriding=True)
-            old_effect.on_cleared(self, is_overriden=True)
+            old_effect.on_cleared(self, is_overridden=True)
             return
         elif effect.intensity == old_effect.intensity:
             if old_effect.duration is None:
@@ -207,25 +207,25 @@ class GameManager:
                 return
             if effect.duration is not None and effect.duration <= old_effect.duration:
                 return
-            old_effect.overriden_effects.append(effect)
+            old_effect.overridden_effects.append(effect)
             self.board.cache.effects.append(effect)
 
     def effect_duration_over(self, effect: EntityEffect):
         self.board.cache.effects.remove(effect)
-        if not effect.overriden_effects:
-            effect.on_cleared(self, is_overriden=False)
+        if not effect.overridden_effects:
+            effect.on_cleared(self, is_overridden=False)
             del effect.entity.effects[effect.name]
         effect.entity.effects = {
             name: e for name, e in effect.entity.effects.items() if (e.duration is None) or (e.duration > 1)}
-        new_effect = max(effect.overriden_effects, key=lambda e: e.intensity)
+        new_effect = max(effect.overridden_effects, key=lambda e: e.intensity)
         new_effect.on_applied(self, is_overriding=True)
-        effect.on_cleared(self, is_overriden=True)
-        effect.overriden_effects.remove(new_effect)
-        new_effect.overriden_effects = effect.overriden_effects
+        effect.on_cleared(self, is_overridden=True)
+        effect.overridden_effects.remove(new_effect)
+        new_effect.overridden_effects = effect.overridden_effects
         effect.entity.effects[effect.name] = new_effect
 
     def force_clear_effect(self, effect: EntityEffect):
         self.board.cache.effects.remove(effect)
         del effect.entity.effects[effect.name]
-        for _effect in effect.overriden_effects:
+        for _effect in effect.overridden_effects:
             self.board.cache.effects.remove(_effect)

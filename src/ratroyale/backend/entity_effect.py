@@ -31,13 +31,13 @@ class EntityEffect(metaclass=EffectMeta):
     duration: int | None
     effect_clear_side: EffectClearSide
     intensity: int
-    overriden_effects: list["EntityEffect"]
+    overridden_effects: list["EntityEffect"]
 
     def __init__(self, entity: "Entity", *, duration: int | None, intensity: int = 0) -> None:
         self.entity = entity
         self.duration = duration
         self.intensity = intensity
-        self.overriden_effects = []
+        self.overridden_effects = []
 
     def _should_clear(self, turn: Side) -> bool:
         match self.effect_clear_side:
@@ -65,7 +65,7 @@ class EntityEffect(metaclass=EffectMeta):
         ...
 
     @abstractmethod
-    def on_cleared(self, game_manager: "GameManager", *, is_overriden: bool) -> None:
+    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
         ...
 
     @abstractmethod

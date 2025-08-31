@@ -16,9 +16,9 @@ class Slowed(RodentEffect):
         _ = is_overriding
         self.rodent.speed -= self.intensity
 
-    def on_cleared(self, game_manager: "GameManager", *, is_overriden: bool) -> None:
+    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
         _ = game_manager
-        _ = is_overriden
+        _ = is_overridden
         self.rodent.speed += self.intensity
 
 
@@ -32,9 +32,9 @@ class Poisoned(RodentEffect):
         _ = game_manager
         _ = is_overriding
 
-    def on_cleared(self, game_manager: "GameManager", *, is_overriden: bool) -> None:
+    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
         _ = game_manager
-        _ = is_overriden
+        _ = is_overridden
 
 
 @effect_data(EffectClearSide.ALLY, name="Bleeding")
@@ -46,6 +46,6 @@ class Bleeding(RodentEffect):
         if not is_overriding:
             game_manager.board.damage_entity(self.rodent, self.intensity)
 
-    def on_cleared(self, game_manager: "GameManager", *, is_overriden: bool) -> None:
+    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
         _ = game_manager
-        _ = is_overriden
+        _ = is_overridden
