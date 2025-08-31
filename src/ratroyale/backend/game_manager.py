@@ -3,6 +3,7 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
+from .feature import Feature
 from .entity_effect import EntityEffect
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
@@ -71,9 +72,9 @@ class GameManager:
         self.crumbs -= skill.crumb_cost
         return skill.func(self)
 
-    def get_enemy_on_pos(self, pos: OddRCoord) -> Entity:
+    def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
         """
-        Get enemy at the end of the list (top) at position. Raise error if there's nothing there
+        Get enemy at the end of the list (top) at position or None if there's nothing there
         """
         tile = self.board.get_tile(pos)
         if tile is None:
@@ -84,7 +85,22 @@ class GameManager:
             if entity.side == self.turn:
                 continue
             return entity
-        raise ValueError(f"No valid target on this pos ({pos})")
+        return None
+
+    def get_feature_on_pos(self, pos: OddRCoord) -> Feature | None:
+        """
+        Get feature at the end of the list (top) at position or None if there's nothing there
+        """
+        tile = self.board.get_tile(pos)
+        if tile is None:
+            raise ValueError("There is no tile on the coord")
+        for feature in reversed(tile.features):
+            if feature.health is None:
+                continue
+            if feature.side == self.turn:
+                continue
+            return feature
+        return None
 
     def move_rodent(self, rodent: Rodent, target: OddRCoord) -> list[OddRCoord]:
         """
