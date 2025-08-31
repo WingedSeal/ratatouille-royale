@@ -12,3 +12,7 @@ class NotEnoughCrumbError(RatRoyaleBackendError):
 
 class InvalidMoveTargetError(RatRoyaleBackendError):
     pass
+
+
+class RodentEffectNotOnRodentError(RatRoyaleBackendError):
+    pass

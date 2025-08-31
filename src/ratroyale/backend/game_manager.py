@@ -4,6 +4,7 @@ from random import shuffle
 from typing import Iterator
 
 from .feature import Feature
+from .entity_effect import EntityEffect
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
 from .error import InvalidMoveTargetError, NotEnoughCrumbError
@@ -181,7 +182,66 @@ class GameManager:
         return True
 
     def end_turn(self):
+        for effect in self.board.cache.effects:
+            effect.on_turn_change(self)
+            if effect.duration == 1 and effect._should_clear(self.turn):
+                active_effect = effect.entity.effects[effect.name]
+                if active_effect != effect:
+                    active_effect.overridden_effects.remove(effect)
+                else:
+                    self.effect_duration_over(effect)
         self.turn = self.turn.other_side()
         if self.turn == self.first_turn:
+            for effect in self.board.cache.effects:
+                if effect.duration is not None:
+                    effect.duration -= 1
             self.turn_count += 1
         self.crumbs = crumb_per_turn(self.turn_count)
+
+    def apply_effect(self, entity: Entity, effect: EntityEffect):
+        old_effect = entity.effects.get(effect.name)
+        if old_effect is None:
+            entity.effects[effect.name] = effect
+            self.board.cache.effects.append(effect)
+            effect.on_applied(self, is_overriding=False)
+            return
+        if effect.intensity > old_effect.intensity:
+            effect.overridden_effects.append(old_effect)
+            self.board.cache.effects.append(effect)
+            effect.on_applied(self, is_overriding=True)
+            old_effect.on_cleared(self, is_overridden=True)
+            return
+        elif effect.intensity == old_effect.intensity:
+            if old_effect.duration is None:
+                return
+            if effect.duration is not None and effect.duration <= old_effect.duration:
+                return
+            old_effect.duration = effect.duration
+            return
+        elif effect.intensity < old_effect.intensity:
+            if old_effect.duration is None:
+                return
+            if effect.duration is not None and effect.duration <= old_effect.duration:
+                return
+            old_effect.overridden_effects.append(effect)
+            self.board.cache.effects.append(effect)
+
+    def effect_duration_over(self, effect: EntityEffect):
+        self.board.cache.effects.remove(effect)
+        if not effect.overridden_effects:
+            effect.on_cleared(self, is_overridden=False)
+            del effect.entity.effects[effect.name]
+        effect.entity.effects = {
+            name: e for name, e in effect.entity.effects.items() if (e.duration is None) or (e.duration > 1)}
+        new_effect = max(effect.overridden_effects, key=lambda e: e.intensity)
+        new_effect.on_applied(self, is_overriding=True)
+        effect.on_cleared(self, is_overridden=True)
+        effect.overridden_effects.remove(new_effect)
+        new_effect.overridden_effects = effect.overridden_effects
+        effect.entity.effects[effect.name] = new_effect
+
+    def force_clear_effect(self, effect: EntityEffect):
+        self.board.cache.effects.remove(effect)
+        del effect.entity.effects[effect.name]
+        for _effect in effect.overridden_effects:
+            self.board.cache.effects.remove(_effect)

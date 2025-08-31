@@ -3,6 +3,7 @@ from copy import deepcopy
 from typing import Iterator
 
 from .feature import Feature
+from .entity_effect import EntityEffect
 from ..utils import EventQueue
 from .game_event import EntityDamagedEvent, EntitySpawnEvent, FeatureDamagedEvent, FeatureDieEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError
@@ -14,39 +15,42 @@ from .tile import Tile
 from .map import Map
 
 
-class CachedEntities:
+class Cache:
     def __init__(self) -> None:
         self.rodents: list[Rodent] = []
         self.sides: dict[Side | None, list[Entity]] = defaultdict(list)
         self.entities: list[Entity] = []
         self.entities_with_hp: list[Entity] = []
         self.sides_with_hp: dict[Side | None, list[Entity]] = defaultdict(list)
+        # self.features: list[Feature] = []
+        self.effects: list[EntityEffect] = []
 
 
 class Board:
     size_x: int
     size_y: int
     tiles: list[list[Tile]]
-    cached_entities: CachedEntities
+    cache: Cache
     event_queue: EventQueue[GameEvent]
 
     def __init__(self, map: Map) -> None:
+        self.cache = Cache()
         self.tiles = deepcopy(map.tiles)
+        # self.cache.features = deepcopy(map.features)
         self.size_y = len(map.tiles)
         self.size_x = len(map.tiles[0])
-        self.cached_entities = CachedEntities()
         self.event_queue = EventQueue()
         for entity in map.entities:
             self.add_entity(entity)
 
     def add_entity(self, entity: Entity) -> None:
-        self.cached_entities.entities.append(entity)
-        self.cached_entities.sides[entity.side].append(entity)
+        self.cache.entities.append(entity)
+        self.cache.sides[entity.side].append(entity)
         if entity.health is not None:
-            self.cached_entities.entities_with_hp.append(entity)
-            self.cached_entities.sides_with_hp[entity.side].append(entity)
+            self.cache.entities_with_hp.append(entity)
+            self.cache.sides_with_hp[entity.side].append(entity)
         if isinstance(entity, Rodent):
-            self.cached_entities.rodents.append(entity)
+            self.cache.rodents.append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
