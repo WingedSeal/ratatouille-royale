@@ -1,21 +1,21 @@
 from ratroyale.utils import EventQueue
-from ratroyale.event_tokens import EventToken, InputEventToken, PageEventToken, GameDomainToken, VisualDomainToken
+from ratroyale.event_tokens import EventToken, InputEvent, PageEvent, GameEvent, VisualEvent
 
 class CoordinationManager:
   def __init__(self):
-    self.page_domain_mailbox = EventQueue[PageEventToken]()
-    self.input_domain_mailbox = EventQueue[InputEventToken]()
-    self.game_domain_mailbox = EventQueue[GameDomainToken]()
-    self.visual_domain_mailbox = EventQueue[VisualDomainToken]()
+    self.page_domain_mailbox = EventQueue[PageEvent]()
+    self.input_domain_mailbox = EventQueue[InputEvent]()
+    self.game_domain_mailbox = EventQueue[GameEvent]()
+    self.visual_domain_mailbox = EventQueue[VisualEvent]()
 
   def put_message(self, msg: EventToken):
-    if isinstance(msg, PageEventToken):
+    if isinstance(msg, PageEvent):
       self.page_domain_mailbox.put(msg)
-    elif isinstance(msg, InputEventToken):
+    elif isinstance(msg, InputEvent):
       self.input_domain_mailbox.put(msg)
-    elif isinstance(msg, GameDomainToken):
+    elif isinstance(msg, GameEvent):
       self.game_domain_mailbox.put(msg)
-    elif isinstance(msg, VisualDomainToken):
+    elif isinstance(msg, VisualEvent):
       self.visual_domain_mailbox.put(msg)
 
   def all_mailboxes_empty(self):

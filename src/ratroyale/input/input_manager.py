@@ -1,20 +1,19 @@
 import pygame
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens import PageEventToken, PageEventAction
+from ratroyale.event_tokens import PageEvent
+from ratroyale.input.constants import ActionKey, PageName, PageEventAction
+from dataclasses import dataclass
+from typing import Callable
+from ratroyale.input.input_bindings import create_callback_registry
+
 
 class InputManager:
     def __init__(self, coordination_manager: CoordinationManager):
         # Callback queue & registry for navigation
         self.coordination_manager = coordination_manager
+        self.callback_registry = create_callback_registry(self) # stored in input_bindings.py
 
-        # TODO: PORT THIS PORTION OUT TO INPUT DISPATCHER
-        self.callback_registry = {
-            "CMD_START_GAME": lambda: self.message_to_page(PageEventToken("TEST_SWAP", PageEventAction.REPLACE_TOP)),
-            "CMD_BACK_TO_MENU": lambda: self.message_to_page(PageEventToken("MAIN_MENU", PageEventAction.REPLACE_TOP)),
-            "CMD_QUIT_GAME": self.exit
-        }
-
-    def message_to_page(self, page_event_token: PageEventToken):
+    def message_to_page(self, page_event_token: PageEvent):
         self.coordination_manager.page_domain_mailbox.put(page_event_token)
 
     def exit(self):
@@ -24,8 +23,11 @@ class InputManager:
     def execute_callbacks(self):
         while not self.coordination_manager.input_domain_mailbox.empty():
             token = self.coordination_manager.input_domain_mailbox.get()
-            command = token.id
-            callback = self.callback_registry.get(command)
+            page_name = token.page_name
+            command = token.action_key
+
+            page_registry = self.callback_registry.get(page_name)
+            callback = page_registry.get(command) if page_registry is not None else None
             if callback:
                 callback()
 

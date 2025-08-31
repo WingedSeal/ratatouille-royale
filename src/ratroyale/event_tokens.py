@@ -1,15 +1,7 @@
 from dataclasses import dataclass
-from enum import Enum, auto
 from typing import Any
-
-class GUIEventSource(Enum):
-  UI_ELEMENT = auto()
-  GESTURE = auto()
-
-class PageEventAction(Enum):
-  ADD = auto()
-  REMOVE = auto()
-  REPLACE_TOP = auto()
+from ratroyale.input.page.page_config import PageName
+from ratroyale.input.constants import PageEventAction, GUIEventSource, ActionKey
 
 @dataclass 
 class EventToken:
@@ -18,29 +10,29 @@ class EventToken:
 # Goes to Page Mailbox
 
 @dataclass
-class PageEventToken(EventToken):
-  page_name: str
+class PageEvent(EventToken):
+  page_name: PageName
   action: PageEventAction
   pass
 
 # Goes to Input Mailbox
 
 @dataclass
-class InputEventToken(EventToken):
+class InputEvent(EventToken):
   source: GUIEventSource
-  id: str
-  page: str | None = None
+  action_key: ActionKey
+  page_name: PageName
   data: Any = None
 
 # Goes to Game Mailbox
 
 @dataclass
-class GameDomainToken(EventToken):
+class GameEvent(EventToken):
   pass
 
 # Goes to Visual Mailbox
 
 @dataclass
-class VisualDomainToken(EventToken):
+class VisualEvent(EventToken):
   pass
 

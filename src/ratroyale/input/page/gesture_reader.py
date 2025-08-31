@@ -1,6 +1,7 @@
 import pygame
 import time
-from ratroyale.event_tokens import InputEventToken, GUIEventSource
+from ratroyale.event_tokens import InputEvent
+from ratroyale.input.constants import GUIEventSource, PageName, ActionKey
 from typing import Any
 from ratroyale.coordination_manager import CoordinationManager
 
@@ -18,7 +19,7 @@ class GestureReader:
     STATE_DRAGGING = "dragging"
     STATE_HOLD_TRIGGERED = "hold_triggered"
 
-    def __init__(self, page_name: str, coordination_manager: CoordinationManager):
+    def __init__(self, page_name: PageName, coordination_manager: CoordinationManager):
         self.page_name = page_name
         self.coordination_manager = coordination_manager
 
@@ -142,22 +143,22 @@ class GestureReader:
 
     # --- Callbacks ---
     def on_click(self, pos):
-        self.put_token("click", {"pos": pos})
+        self.put_token(ActionKey.CLICK, {"pos": pos})
 
     def on_double_click(self, pos):
-        self.put_token("double_click", {"pos": pos})
+        self.put_token(ActionKey.DOUBLE_CLICK, {"pos": pos})
 
     def on_drag(self, dx, dy):
-        self.put_token("drag", {"dx": dx, "dy": dy})
+        self.put_token(ActionKey.DRAG, {"dx": dx, "dy": dy})
 
     def on_drag_end(self):
-        self.put_token("drag_end", {})
+        self.put_token(ActionKey.DRAG_END, {})
 
     def on_hold(self, pos):
-        self.put_token("hold", {"pos": pos})
+        self.put_token(ActionKey.HOLD, {"pos": pos})
 
     def on_swipe(self, start_pos, end_pos, dir_x, dir_y):
-        self.put_token("swipe", {
+        self.put_token(ActionKey.SWIPE, {
             "start_pos": start_pos,
             "end_pos": end_pos,
             "dir_x": dir_x,
@@ -165,12 +166,12 @@ class GestureReader:
         })
 
     def on_scroll(self, amount):
-        self.put_token("scroll", {"amount": amount})
+        self.put_token(ActionKey.SCROLL, {"amount": amount})
 
-    def put_token(self, id: str, data: dict[str, Any]):
-        self.coordination_manager.put_message(InputEventToken(
+    def put_token(self, id: ActionKey, data: dict[str, Any]):
+        self.coordination_manager.put_message(InputEvent(
             source=GUIEventSource.GESTURE,
-            id=id,
-            page=self.page_name,
+            action_key=id,
+            page_name=self.page_name,
             data=data
         ))

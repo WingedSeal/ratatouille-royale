@@ -1,7 +1,8 @@
 import pygame
-from ratroyale.input.page.page import Page, PageFactory
+from ratroyale.input.page.page_factory import Page, PageFactory
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens import PageEventAction
+from ratroyale.input.constants import PageEventAction
+from ratroyale.input.page.page_config import PageName
 
 class PageManager:
   def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager):
@@ -17,7 +18,7 @@ class PageManager:
     self.page_stack: list[Page] = []
 
   """ Push page by name, create if it doesn’t exist yet """
-  def push_page(self, page_option: str) -> Page:
+  def push_page(self, page_option: PageName) -> Page:
     # Check if the page already exists in stack
     for page in self.page_stack:
       if page.name == page_option:
@@ -38,7 +39,7 @@ class PageManager:
       page.hide()
 
   """ Switch topmost page for a different one """
-  def replace_top(self, page_option: str):
+  def replace_top(self, page_option: PageName):
     if self.page_stack:
       self.page_stack[-1].hide()
       self.page_stack.pop()

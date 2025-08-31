@@ -1,9 +1,8 @@
 import pygame
 from ratroyale.input.page.page_manager import PageManager
 from ratroyale.input.input_manager import InputManager
-from ratroyale.utils import EventQueue
-from ratroyale.event_tokens import InputEventToken
 from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.input.page.page_config import PageName
 
 def main():
     pygame.init()
@@ -15,7 +14,7 @@ def main():
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
     input_manager = InputManager(coordination_manager=coordination_manager)
 
-    page_manager.push_page("MAIN_MENU")
+    page_manager.push_page(PageName.MAIN_MENU)
 
     running = True
     while running:
