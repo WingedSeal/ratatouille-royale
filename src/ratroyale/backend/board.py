@@ -2,8 +2,7 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Iterator
 
-from ratroyale.backend.feature import Feature
-
+from .feature import Feature
 from ..utils import EventQueue
 from .game_event import EntityDamagedEvent, EntitySpawnEvent, FeatureDamagedEvent, FeatureDieEvent, GameEvent, EntityDieEvent
 from .error import EntityInvalidPosError

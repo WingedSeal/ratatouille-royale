@@ -3,8 +3,7 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
-from ratroyale.backend.feature import Feature
-
+from .feature import Feature
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
 from .error import InvalidMoveTargetError, NotEnoughCrumbError
