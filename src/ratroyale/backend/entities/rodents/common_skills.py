@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-
 from ...skill_callback import SkillCallback, skill_callback_check
 
 
@@ -18,17 +17,24 @@ def select_any_tile(board: "Board", rodent: "Rodent", skill: "EntitySkill", call
     return SkillResult(target_count, list(coords), callback)
 
 
-def select_enemy_rodents(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1):
-    side = rodent.side
-    if side is None:
-        return SkillResult(target_count, [], callback)
-    targets = [
-        enemy.pos for enemy in board.cached_entities.sides_with_hp[side.other_side()]
-        if board.line_of_sight_check(rodent.pos, enemy.pos, skill.altitude or 0, rodent.side, skill.reach)]
+
+def select_targetable(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1, *, is_feature_targetable: bool = True):
+    coords = board.get_attackable_coords(rodent, skill)
+    targets = []
+    for coord in coords:
+        tile = board.get_tile(coord)
+        if tile is None:
+            continue
+        if any(entity.side != rodent.side and entity.health is not None for entity in tile.entities):
+            targets.append(coord)
+            continue
+        if is_feature_targetable and any(feature.side != rodent.side and feature.health is not None for feature in tile.features):
+            targets.append(coord)
+            continue
     return SkillResult(target_count, targets, callback)
 
 
-def normal_damage(damage: int) -> SkillCallback:
+def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCallback:
     """
     Apply normal damage
     :param damage: Damage to deal
@@ -36,12 +42,21 @@ def normal_damage(damage: int) -> SkillCallback:
     @skill_callback_check
     def callback(game_manager: "GameManager", selected_targets: list["OddRCoord"]) -> None:
         for target in selected_targets:
-            game_manager.board.damage_entity(
-                game_manager.get_enemy_on_pos(target), damage)
+            enemy = game_manager.get_enemy_on_pos(target)
+            if enemy is not None:
+                game_manager.board.damage_entity(
+                    enemy, damage)
+                continue
+            if not is_feature_targetable:
+                raise ValueError("Trying to damage entity that is not there")
+            feature = game_manager.get_feature_on_pos(target)
+            if feature is None:
+                raise ValueError("Trying to damage nothing")
+            game_manager.board.damage_feature(feature, damage)
     return callback
 
 
-def aoe_damage(damage: int, radius: int, *, is_stackable: bool = False) -> SkillCallback:
+def aoe_damage(damage: int, radius: int, *, is_stackable: bool = False, is_feature_targetable: bool = True) -> SkillCallback:
     """
     Deal aoe damage
     :param damage: Damage to deal
@@ -67,8 +82,18 @@ def aoe_damage(damage: int, radius: int, *, is_stackable: bool = False) -> Skill
             for coord in selected_target.get_reachable_coords(radius, __is_coord_blocked, is_include_self=True):
                 if not is_stackable and coord in tagged_coord:
                     continue
-                game_manager.board.damage_entity(
-                    game_manager.get_enemy_on_pos(coord), damage)
+                enemy = game_manager.get_enemy_on_pos(coord)
+                if enemy is not None:
+                    game_manager.board.damage_entity(
+                        enemy, damage)
+                    continue
+                if not is_feature_targetable:
+                    raise ValueError(
+                        "Trying to damage entity that is not there")
+                feature = game_manager.get_feature_on_pos(coord)
+                if feature is None:
+                    raise ValueError("Trying to damage nothing")
+                game_manager.board.damage_feature(feature, damage)
                 if not is_stackable:
                     tagged_coord.add(coord)
     return callback

@@ -1,3 +1,4 @@
+from .entity_effect import EntityEffect
 from .skill_callback import SkillCallback
 from .side import Side
 from .hexagon import OddRCoord
@@ -39,7 +40,9 @@ class Entity:
     Any entity on the tile system.
     """
     pos: OddRCoord
+    effects: dict[str, EntityEffect]
     name: str = ""
+    max_health: int | None = None
     health: int | None = None
     defense: int | None = None
     movable: bool = False
@@ -52,6 +55,7 @@ class Entity:
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
         self.pos = pos
         self.side = side
+        self.effects = {}
 
     def on_damage_taken(self, damage: int) -> int | None:
         pass
@@ -104,6 +108,7 @@ def entity_data(*,
     def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
         assert issubclass(cls, Entity)
         cls.health = health
+        cls.max_health = health
         cls.defense = defense
         cls.movable = movable
         cls.collision = collision
