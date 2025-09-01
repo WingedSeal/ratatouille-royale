@@ -30,6 +30,10 @@ class InputEvent(EventToken):
 class GameEvent(EventToken):
   pass
 
+# example class
+class CardPlacementGameEvent(GameEvent):
+  pass
+
 # Goes to Visual Mailbox
 
 @dataclass

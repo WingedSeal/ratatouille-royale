@@ -86,16 +86,9 @@ class Page:
     # region Event Handling
     # -----------------------
 
-    # TODO: revise handle_events with new logic. (gui components can sometimes be non-blocking,
-    # potentially needs to extend for custom behaviour)
+    # FIXME: input filtering for gesture not working.
+    # FIXME: possibly needs to extend pygame_gui's components for custom behavior.
     def handle_events(self, events: list[pygame.event.Event]) -> list[pygame.event.Event]:
-        """
-        Process a list of pygame events for this page.
-        - Consumes events from certain widgets or GUI-specific events.
-        - Executes button callbacks.
-        - Sends unconsumed events to the gesture reader.
-        Returns the list of unconsumed events for game logic.
-        """
         unconsumed = []
 
         for event in events:
@@ -107,50 +100,41 @@ class Page:
             # Let UIManager process the event
             consumed_by_gui = self.gui_manager.process_events(event)
 
-            # Start with False; will be True if any GUI consumes the event
+            # Determine if the event should be fully consumed
             consumed = False
-
-            # Consume event if it came from certain widgets
-            if consumed_by_gui and hasattr(event, "ui_element"):
-                if isinstance(event.ui_element, UI_WIDGETS_ALWAYS_CONSUMING):
+            if consumed_by_gui:
+                # Only consume if the event came from certain widgets
+                if hasattr(event, "ui_element") and isinstance(event.ui_element, UI_WIDGETS_ALWAYS_CONSUMING):
                     consumed = True
 
             # Consume GUI-specific events regardless of widget
             if event.type in CONSUMED_UI_EVENTS:
                 consumed = True
 
-            # Button pressed callbacks
+            # Execute any callbacks for buttons
             if event.type == pygame_gui.UI_BUTTON_PRESSED and hasattr(event, "ui_element"):
                 callback = self.callbacks.get(event.ui_element)
                 if callback:
                     callback()
-                    # Clicking a button generally blocks gestures
-                    consumed = True
 
-            # Consider hovering events consumed (prevents gestures underneath)
-            consumed = consumed or self.hovering_ui(event)
+            # If no UI widgets consume the event, but the UI widgets are hovered on,
+            # consider the event consumed anyways.
+            consumed = self.hovering_ui(event) or consumed
 
-            # Only send unconsumed events to game logic / lower layers
+            # If not consumed, keep for game/input logic
             if not consumed:
                 unconsumed.append(event)
 
-        # Pass unconsumed events to the gesture reader
+        # Let gesture reader handle all events
         self.gesture_reader.handle_events(unconsumed)
 
         return unconsumed
-
-
-    def hovering_ui(self, event: pygame.event.Event) -> bool:
-        """
-        Returns True if the event is a UI hover that should block gestures.
-        """
+    
+    def hovering_ui(self, event: pygame.event.Event):
         if event.type == pygame_gui.UI_BUTTON_ON_HOVERED:
             return True
-        # Optionally include other hover-related events
         elif event.type == pygame_gui.UI_BUTTON_ON_UNHOVERED:
             return False
-        return False
-
     
     # endregion
 

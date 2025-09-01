@@ -1,9 +1,6 @@
 import pygame
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens import PageEvent
-from ratroyale.input.constants import ActionKey, PageName, PageEventAction
-from dataclasses import dataclass
-from typing import Callable
 from ratroyale.input.input_bindings import create_callback_registry
 
 
