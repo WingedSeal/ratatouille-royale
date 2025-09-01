@@ -1,0 +1,21 @@
+========================== How to Add a New Page ===================================
+
+1. Define the Page Name
+
+    Add a new entry to """constants.py""" for your page (e.g., PageName.NEW_PAGE).
+
+2. Configure the Page
+
+    Open the page config registry ("""page_config.py""") and create a PageConfig for your page.
+    Specify the widgets, layout, theme path, and whether it should block input.
+    The definitions for the widgets is inside the """wrapped_widgets.py""" file.
+
+3. Add Input Bindings
+
+    In """input_bindings.py""", register actions for your page in the callback registry.
+    Use InputEvent tokens to communicate with the coordination manager.
+    The list of available page actions are also in """constants.py"""
+
+
+===== TODO ======
+1. Enhance event_tokens.py to include meaningful positional data for gestures or clicks.

@@ -1,6 +1,5 @@
 import pygame
 import pygame_gui
-import json
 from typing import Callable, Tuple
 
 class WrappedWidget:
