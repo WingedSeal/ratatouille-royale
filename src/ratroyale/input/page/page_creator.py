@@ -8,6 +8,7 @@ from ratroyale.input.page.gesture_reader import GestureReader
 from ratroyale.event_tokens import InputEvent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import GUIEventSource, PageName, CONSUMED_UI_EVENTS, UI_WIDGETS_ALWAYS_CONSUMING
+from ratroyale.input.page.wrapped_widgets import WrappedWidget
 
 
 class Page:
@@ -15,10 +16,10 @@ class Page:
     def __init__(self, page_name: PageName, screen_size: tuple[int, int], coordination_manager: CoordinationManager):
         self.config: PageConfig = PAGES[page_name]
 
-        # Defines the page name (strongly typed)
+        # Strongly typed page name
         self.name: PageName = self.config.name
 
-        # Canvas for this page (transparent by default)
+        # Canvas for free drawing (transparent)
         self.canvas = pygame.Surface(screen_size, pygame.SRCALPHA)
 
         # Each page has its own UIManager
@@ -27,18 +28,21 @@ class Page:
         # GUI callback queue for navigation
         self.gui_callback_queue = coordination_manager
 
-        # Each page also has its own GestureReader
+        # Gesture handling for this page
         self.gesture_reader = GestureReader(self.name, coordination_manager)
 
-        # UI elements and callbacks
-        self.callbacks: dict[pygame_gui.core.UIElement, Callable] = {}
-        self.elements: list[pygame_gui.core.UIElement] = []
+        # Registry for wrapped UI elements
+        self.elements: list[WrappedWidget] = []
+        self.callbacks: dict[WrappedWidget, Callable] = {}
 
-        for widget in self.config.widgets:
-            element = widget.type(manager=self.gui_manager, **widget.kwargs)
+        for widget_config in self.config.widgets:
+            # Instantiate the wrapped widget
+            widget_instance = widget_config.type(manager=self.gui_manager, blocks_input=widget_config.blocks_input,**widget_config.kwargs)
+
+            # Add widget to page and register callback
             self.add_element(
-                element,
-                callback=lambda key=widget.action_key: coordination_manager.put_message(
+                widget_instance,
+                callback=lambda key=widget_config.action_key: coordination_manager.put_message(
                     InputEvent(
                         source=GUIEventSource.UI_ELEMENT,
                         action_key=key,
@@ -46,14 +50,15 @@ class Page:
                     )
                 )
             )
-        
-        # Blocking flag: if true, blocks input from reaching lower pages in the stack.
+
+        # Blocking flag: prevents input from reaching lower pages in the stack
         self.blocking = self.config.blocking
+
 
     # -----------------------
     # region UI Element Management
     # -----------------------
-    def add_element(self, element: UIElement, callback: Callable | None = None):
+    def add_element(self, element: WrappedWidget, callback: Callable | None = None):
         self.elements.append(element)
         if callback:
             self.callbacks[element] = callback
@@ -61,11 +66,6 @@ class Page:
     def remove_element(self, element: UIElement):
         if element in self.elements:
             self.elements.remove(element)
-        # if element in self.callbacks:
-        #     del self.callbacks[element]
-
-    def get_elements(self):
-        return self.elements
     
     # endregion
 
@@ -86,8 +86,6 @@ class Page:
     # region Event Handling
     # -----------------------
 
-    # FIXME: input filtering for gesture not working.
-    # FIXME: possibly needs to extend pygame_gui's components for custom behavior.
     def handle_events(self, events: list[pygame.event.Event]) -> list[pygame.event.Event]:
         unconsumed = []
 
@@ -97,52 +95,41 @@ class Page:
                 pygame.quit()
                 exit()
 
-            # Let UIManager process the event
-            consumed_by_gui = self.gui_manager.process_events(event)
+            over_ui = False  # Flag for whether this event intersects a blocking widget
 
-            # Determine if the event should be fully consumed
-            consumed = False
-            if consumed_by_gui:
-                # Only consume if the event came from certain widgets
-                if hasattr(event, "ui_element") and isinstance(event.ui_element, UI_WIDGETS_ALWAYS_CONSUMING):
-                    consumed = True
+            # First, let each wrapped widget process the event
+            for wrapped_widget in self.elements:
+                wrapped_widget.handle_event(event)
 
-            # Consume GUI-specific events regardless of widget
-            if event.type in CONSUMED_UI_EVENTS:
-                consumed = True
+                # Trigger callback if this is a button press for this wrapped widget
+                if event.type == pygame_gui.UI_BUTTON_PRESSED and getattr(event, "ui_element", None) == getattr(wrapped_widget, "button", None):
+                    callback = self.callbacks.get(wrapped_widget)
+                    if callback:
+                        callback()
 
-            # Execute any callbacks for buttons
-            if event.type == pygame_gui.UI_BUTTON_PRESSED and hasattr(event, "ui_element"):
-                callback = self.callbacks.get(event.ui_element)
-                if callback:
-                    callback()
+                # If event interacts with the widget and blocks input, mark it
+                panel_rect = wrapped_widget.panel.get_relative_rect()
+                if wrapped_widget.blocks_input and panel_rect.collidepoint(pygame.mouse.get_pos()):
+                    over_ui = True
 
-            # If no UI widgets consume the event, but the UI widgets are hovered on,
-            # consider the event consumed anyways.
-            consumed = self.hovering_ui(event) or consumed
+            # Always let UIManager process hover/focus for visual feedback
+            self.gui_manager.process_events(event)
 
-            # If not consumed, keep for game/input logic
-            if not consumed:
+            # Only pass event to canvas/gesture reader if it’s not blocked
+            if not over_ui:
                 unconsumed.append(event)
 
-        # Let gesture reader handle all events
-        self.gesture_reader.handle_events(unconsumed)
+        # Pass unconsumed events to the gesture reader with a flag
+        self.gesture_reader.handle_events(unconsumed, blocked=over_ui)
 
         return unconsumed
+
     
     def hovering_ui(self, event: pygame.event.Event):
         if event.type == pygame_gui.UI_BUTTON_ON_HOVERED:
             return True
         elif event.type == pygame_gui.UI_BUTTON_ON_UNHOVERED:
             return False
-    
-    # endregion
-
-    # -----------------------
-    # region Callbacks
-    # -----------------------
-    def get_callback(self, element: UIElement):
-        return self.callbacks.get(element)
     
     # endregion
 

@@ -1,16 +1,17 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Type, Any
+from typing import Type, Any, Callable
 import pygame
-import pygame_gui
 from ratroyale.input.constants import ActionKey, PageName
+from ratroyale.input.page.wrapped_widgets import WrappedButton, WrappedWidget  # adjust import path
+# import pygame_gui  # only if you need types for rects
 
 @dataclass
 class WidgetConfig:
-    type: Type[Any]                  # Widget class, e.g. pygame_gui.elements.UIButton
+    type: Type[WrappedWidget]                   # WrappedButton or WrappedWidget class
     action_key: ActionKey
-    kwargs: dict[str, Any] = field(default_factory=dict)
-
+    blocks_input: bool = True
+    kwargs: dict[str, Any] = field(default_factory=dict)  # rect, render_callback, button_text, draggable, etc.
 
 @dataclass
 class PageConfig:
@@ -29,14 +30,24 @@ MAIN_MENU = PageConfig(
     blocking=True,
     widgets=[
         WidgetConfig(
-            type=pygame_gui.elements.UIButton,
+            type=WrappedButton,
             action_key=ActionKey.START_GAME,
-            kwargs={"text": "Start", "relative_rect": pygame.Rect(100, 100, 200, 50)},
+            kwargs={
+                "rect": pygame.Rect(100, 100, 200, 50),
+                "render_callback": lambda: print("render callback test"),
+                "button_text": "Start",
+                "draggable": False,
+            },
         ),
         WidgetConfig(
-            type=pygame_gui.elements.UIButton,
+            type=WrappedButton,
             action_key=ActionKey.QUIT,
-            kwargs={"text": "Quit", "relative_rect": pygame.Rect(100, 200, 200, 50)},
+            kwargs={
+                "rect": pygame.Rect(100, 200, 200, 50),
+                "render_callback": lambda: print("render callback test"),
+                "button_text": "Quit",
+                "draggable": False,
+            },
         ),
     ],
 )
@@ -47,10 +58,15 @@ TEST_SWAP = PageConfig(
     blocking=True,
     widgets=[
         WidgetConfig(
-            type=pygame_gui.elements.UIButton,
+            type=WrappedButton,
             action_key=ActionKey.BACK_TO_MENU,
-            kwargs={"text": "Return to Main Menu", "relative_rect": pygame.Rect(100, 100, 200, 50)},
-        )
+            kwargs={
+                "rect": pygame.Rect(100, 100, 200, 50),
+                "render_callback": lambda: print("render callback test"),
+                "button_text": "Return to Main Menu",
+                "draggable": False,
+            },
+        ),
     ],
 )
 
@@ -58,14 +74,12 @@ BOARD = PageConfig(
     name=PageName.BOARD,
     theme_path="",
     blocking=True,
-    widgets=[],
+    widgets=[],  # no wrapped widgets for board yet
 )
 
-# endregion
-
-# ==================================
-# region: PAGE NAME - CONFIG REGISTRY
-# ==================================
+# ================================
+# region PAGE NAME -> CONFIG REGISTRY
+# ================================
 
 PAGES: dict[PageName, PageConfig] = {
     PageName.MAIN_MENU: MAIN_MENU,
@@ -73,4 +87,3 @@ PAGES: dict[PageName, PageConfig] = {
     PageName.BOARD: BOARD,
 }
 
-# endregion

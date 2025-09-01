@@ -27,31 +27,4 @@ class InputManager:
             callback = page_registry.get(command) if page_registry is not None else None
             if callback:
                 callback()
-
-    # region LEGACY CODE MAY BE PORTED TO PAGE MANAGER
-            
-    # def gui_process_event_and_consume(self, event):
-    #     consumed_by_gui = self.gui_manager.process_events(event)
-
-    #     # Only consume if it's a widget that should block input
-    #     # TODO: Separate the widgets list into a file.
-    #     if consumed_by_gui:
-    #         if hasattr(event, 'ui_element'):
-    #             if isinstance(event.ui_element, (UIButton, UITextEntryLine, UISelectionList)):
-    #                 return True
-    #         return False
-
-    #     # Also consume GUI-specific events
-    #     if event.type in CONSUMED_UI_EVENTS:
-    #         return True
-
-    #     return False
-    
-    # def hovering_ui(self, event: pygame.event.Event):
-    #     if event.type == pygame_gui.UI_BUTTON_ON_HOVERED:
-    #         self.is_hovering_ui = True
-    #     elif event.type == pygame_gui.UI_BUTTON_ON_UNHOVERED:
-    #         self.is_hovering_ui = False
-
-    # endregion
     

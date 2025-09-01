@@ -33,7 +33,12 @@ class GestureReader:
 
     # region Gesture Logic
 
-    def handle_events(self, events):
+    def handle_events(self, events, blocked=False):
+        if blocked:
+            # Cancel any ongoing gestures that require dragging or swiping
+            self._cancel_active_gestures()
+            return
+
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self._on_press(event.pos)
@@ -43,9 +48,21 @@ class GestureReader:
                 self._on_release(event.pos)
             elif event.type == pygame.MOUSEWHEEL:
                 self._on_scroll(event.x, event.y)
+
         self._check_hold()
 
     # --- Internal ---
+    def _cancel_active_gestures(self):
+        """Cancels any ongoing gestures (drag, hold, swipe) and resets the state."""
+        self.state = self.STATE_IDLE
+        self.start_pos = None
+        self.last_pos = None
+        self.dragging_last_pos = None
+        self.start_time = None
+        # Optionally reset hold-triggered or click tracking
+        self.last_click_time = None
+        self.last_click_pos = None
+
     def _on_press(self, pos: tuple[int, int]) -> None:
         self.state = self.STATE_PRESSED
         self.start_pos = pos

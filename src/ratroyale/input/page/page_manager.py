@@ -1,5 +1,5 @@
 import pygame
-from ratroyale.input.page.page_factory import Page, PageFactory
+from ratroyale.input.page.page_creator import Page, PageFactory
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageEventAction
 from ratroyale.input.page.page_config import PageName
@@ -79,7 +79,8 @@ class PageManager:
 
   def draw(self):
     for page in reversed(self.page_stack):
-      page.gui_manager.draw_ui(self.screen)
+      self.screen.blit(page.canvas, (0, 0))  # draw canvas first
+      page.draw_ui()   # then draw UI elements on top
 
   def execute_callbacks(self):
     while not self.coordination_manager.page_domain_mailbox.empty():
