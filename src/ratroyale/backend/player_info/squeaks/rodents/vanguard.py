@@ -1,7 +1,5 @@
-from typing import TYPE_CHECKING
-
 from ....entities.rodents.vanguard import TailBlazer
-from ...squeak import Squeak, SqueakType,  summon_on_place
+from ...squeak import Squeak, SqueakType, summon_on_place
 
 
 TAIL_BLAZER = Squeak(
