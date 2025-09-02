@@ -1,18 +1,18 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Type, Any, Callable
+from typing import Type, Dict
 import pygame
-from ratroyale.input.constants import ActionKey, PageName
+from ratroyale.input.constants import ActionKey, PageName, GestureKey
 from ratroyale.input.page.wrapped_widgets import WrappedButton, WrappedWidget  # adjust import path
-# import pygame_gui  # only if you need types for rects
 
 @dataclass
 class WidgetConfig:
     type: Type[WrappedWidget]                   # WrappedButton or WrappedWidget class
-    action_key: ActionKey
+    rect: pygame.Rect
+    button_text: str
+    gesture_action_mapping: Dict[GestureKey, ActionKey]
     blocks_input: bool = True
-    kwargs: dict[str, Any] = field(default_factory=dict)  # rect, render_callback, button_text, draggable, etc.
-
+    
 @dataclass
 class PageConfig:
     name: PageName
@@ -31,23 +31,19 @@ MAIN_MENU = PageConfig(
     widgets=[
         WidgetConfig(
             type=WrappedButton,
-            action_key=ActionKey.START_GAME,
-            kwargs={
-                "rect": pygame.Rect(100, 100, 200, 50),
-                "render_callback": lambda: print("render callback test"),
-                "button_text": "Start",
-                "draggable": False,
-            },
+            rect=pygame.Rect(100, 100, 200, 50),
+            button_text="Start",
+            gesture_action_mapping={
+                GestureKey.CLICK: ActionKey.START_GAME
+            }
         ),
         WidgetConfig(
             type=WrappedButton,
-            action_key=ActionKey.QUIT,
-            kwargs={
-                "rect": pygame.Rect(100, 200, 200, 50),
-                "render_callback": lambda: print("render callback test"),
-                "button_text": "Quit",
-                "draggable": False,
-            },
+            rect=pygame.Rect(100, 200, 200, 50),
+            button_text= "Quit",
+            gesture_action_mapping={
+                GestureKey.CLICK: ActionKey.QUIT
+            }
         ),
     ],
 )
@@ -59,14 +55,12 @@ TEST_SWAP = PageConfig(
     widgets=[
         WidgetConfig(
             type=WrappedButton,
-            action_key=ActionKey.BACK_TO_MENU,
-            kwargs={
-                "rect": pygame.Rect(100, 100, 200, 50),
-                "render_callback": lambda: print("render callback test"),
-                "button_text": "Return to Main Menu",
-                "draggable": False,
-            },
-        ),
+            rect=pygame.Rect(100, 100, 200, 50),
+            button_text="Return to Main Menu",
+            gesture_action_mapping={
+                GestureKey.CLICK: ActionKey.BACK_TO_MENU
+            }
+        )
     ],
 )
 

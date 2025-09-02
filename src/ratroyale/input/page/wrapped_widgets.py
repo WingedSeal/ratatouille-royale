@@ -1,70 +1,68 @@
 import pygame
 import pygame_gui
-from typing import Callable, Tuple
+from typing import Dict
+from ratroyale.input.constants import GestureKey, ActionKey
+from ratroyale.event_tokens import GestureData
+
 
 class WrappedWidget:
     """
     Base class for a wrapped UI element.
-    Handles input detection, optional dragging, and custom rendering.
+    Handles input detection, hit-testing, and gesture → action mapping.
     """
 
     def __init__(
         self,
         manager: pygame_gui.UIManager,
         rect: pygame.Rect,
-        render_callback: Callable[[pygame.Surface, Tuple[int, int]], None],
-        draggable: bool = False,
+        gesture_action_mapping: Dict[GestureKey, ActionKey],
         blocks_input: bool = True
     ):
         self.manager = manager
-        self.render_callback = render_callback
-        self.draggable = draggable
         self.blocks_input = blocks_input
+        self.gesture_action_mapping = gesture_action_mapping
 
-        # Loads styling guide
-        manager = pygame_gui.UIManager((800, 600), theme_path="theme.json")
-
-        # Transparent panel to hold the internal UI element
+        # Transparent panel serves as the widget's root container
         self.panel = pygame_gui.elements.UIPanel(
             relative_rect=rect,
             manager=manager,
             object_id="#transparent_panel"
         )
 
-        # Dragging state
-        self.dragging = False
-        self.offset_x = 0
-        self.offset_y = 0
+    def process_gesture(self, gesture: GestureData) -> ActionKey | None:
+        """
+        Decide whether this widget cares about the gesture.
+        Returns a simple ActionKey if it does, else None.
+        """
 
-    def handle_event(self, event: pygame.event.Event):
-        # Forward event to UIManager
-        self.manager.process_events(event)
+        # 1. Find the gesture position
+        gesture_pos = gesture.start_pos
+        if gesture_pos is None:
+            return None
 
-        # Handle dragging
-        if self.draggable:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.panel.get_relative_rect().collidepoint(event.pos):
-                    self.dragging = True
-                    mouse_x, mouse_y = event.pos
-                    self.offset_x = self.panel.get_relative_rect().x - mouse_x
-                    self.offset_y = self.panel.get_relative_rect().y - mouse_y
-            elif event.type == pygame.MOUSEBUTTONUP:
-                self.dragging = False
-            elif event.type == pygame.MOUSEMOTION and self.dragging:
-                mouse_x, mouse_y = event.pos
-                self.panel.set_relative_position((mouse_x + self.offset_x, mouse_y + self.offset_y))
-                
-    def draw(self, surface: pygame.Surface):
-        # Draw the custom visual at the panel's current position
-        pos = self.panel.get_relative_rect().topleft
-        int_pos = (int(pos[0]), int(pos[1]))
-        self.render_callback(surface, int_pos)
+        # 2. Check if it hits this widget's rect
+        rect = self._get_absolute_rect()
+        if rect is None:
+            return None
+
+        if not rect.collidepoint(gesture_pos):
+            return None
+
+        # 3. Map gesture to action
+        return self.gesture_action_mapping.get(gesture.gesture_key)
+
+    def _get_absolute_rect(self) -> pygame.Rect:
+        rect = self.panel.get_relative_rect().copy()
+        container = getattr(self.panel, "container", None)
+
+        while container is not None:
+            rect = rect.move(container.get_relative_rect().topleft)
+            container = getattr(container, "container", None)
+
+        return pygame.Rect(rect)  # cast to integer Rect
 
     def get_ui_element(self):
-        """
-        Returns the internal UI element that can be used for callback registration.
-        For base widget, this might return the panel itself.
-        """
+        """Return the internal UI element (panel)."""
         return self.panel
 
     def show(self):
@@ -72,7 +70,6 @@ class WrappedWidget:
 
     def hide(self):
         self.panel.hide()
-
 
 class WrappedButton(WrappedWidget):
     """
@@ -84,14 +81,11 @@ class WrappedButton(WrappedWidget):
         self,
         manager: pygame_gui.UIManager,
         rect: pygame.Rect,
-        render_callback: Callable[[pygame.Surface, Tuple[int, int]], None],
+        gesture_action_mapping: Dict[GestureKey, ActionKey],
         button_text: str = "",
-        draggable: bool = True,
-        blocks_input: bool = False,
-        callback: Callable | None = None,
+        blocks_input: bool = False
     ):
-        super().__init__(manager, rect, render_callback, draggable, blocks_input)
-        self.callback = callback
+        super().__init__(manager, rect, gesture_action_mapping, blocks_input)
 
         # Internal UIButton for input detection
         self.button = pygame_gui.elements.UIButton(
@@ -100,15 +94,6 @@ class WrappedButton(WrappedWidget):
             manager=manager,
             container=self.panel,
         )
-
-    def handle_event(self, event: pygame.event.Event):
-        # Handle button presses
-        if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == self.button:
-            if self.callback:
-                self.callback()
-
-        # Let base class handle dragging & UIManager processing
-        super().handle_event(event)
 
     def get_ui_element(self):
         # Return the internal button for callback registration

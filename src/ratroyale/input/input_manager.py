@@ -1,6 +1,6 @@
 import pygame
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens import PageEvent
+from ratroyale.event_tokens import PageEvent, InputEvent
 from ratroyale.input.input_bindings import create_callback_registry
 
 
@@ -19,12 +19,17 @@ class InputManager:
 
     def execute_callbacks(self):
         while not self.coordination_manager.input_domain_mailbox.empty():
-            token = self.coordination_manager.input_domain_mailbox.get()
-            page_name = token.page_name
-            command = token.action_key
+            token: InputEvent = self.coordination_manager.input_domain_mailbox.get()
 
-            page_registry = self.callback_registry.get(page_name)
-            callback = page_registry.get(command) if page_registry is not None else None
+            page_registry = self.callback_registry.get(token.page_name)
+            if not page_registry:
+                continue  # no registry for this page
+
+            gesture_registry = page_registry.get(token.gesture_data.gesture_key)
+            if not gesture_registry:
+                continue  # no callbacks for this gesture on this page
+
+            callback = gesture_registry.get(token.action_key)
             if callback:
-                callback()
+                callback(token)  # pass the full InputEvent
     

@@ -13,11 +13,15 @@ class StrEnum(Enum):
         return name
 
 class ActionKey(StrEnum):
+  # Canvas actions
+  NON_UI = auto()
+
   # UI actions
   START_GAME = auto()
   BACK_TO_MENU = auto()
   QUIT = auto()
 
+class GestureKey(StrEnum):
   # Gesture actions
   CLICK = auto()
   DOUBLE_CLICK = auto()

@@ -3,6 +3,7 @@ from ratroyale.input.page.page_creator import Page, PageFactory
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageEventAction
 from ratroyale.input.page.page_config import PageName
+from ratroyale.input.page.gesture_reader import GestureReader
 
 class PageManager:
   def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager):
@@ -10,6 +11,9 @@ class PageManager:
     self.is_hovering_ui = False
 
     self.coordination_manager = coordination_manager
+
+    # Highest level gesture reader. Outputs a gesture to be decorated by the pipeline.
+    self.gesture_reader = GestureReader()
 
     # Dictionary of pages, each page is a list of UI elements
     self.page_factory = PageFactory(self, self.screen.get_size(), coordination_manager)
@@ -58,20 +62,20 @@ class PageManager:
       # Additionally, this function stops propagating an event if it hits a page 
       # with a 'blocking' flag set to true. """
   def handle_events(self):
-    events = pygame.event.get()
-    unconsumed_events = events.copy()  # start with all events
+    raw_events = pygame.event.get()
+    gestures = self.gesture_reader.read_events(raw_events)  # converts to List[GestureData]
 
-    # Propagate the entire queue through the page stack (top-most first)
+    # Propagate gestures through the page stack (top-most first)
     for page in reversed(self.page_stack):
-      if not unconsumed_events:
-        break  # nothing left to propagate
+        if not gestures:
+            break  # nothing left to propagate
 
-      # Let the page handle all unconsumed events
-      unconsumed_events = page.handle_events(unconsumed_events)
+        # Let the page handle gestures
+        gestures = page.handle_gestures(gestures)
 
-      # If this page is blocking, stop propagation
-      if page.blocking:
-        break
+        # Stop propagation if the page is blocking
+        if page.blocking:
+            break
 
   def update(self, dt):
     for page in reversed(self.page_stack):
