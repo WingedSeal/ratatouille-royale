@@ -174,7 +174,7 @@ class GameManager:
         squeak = self.hands[self.turn][hand_index]
         if self.crumbs < squeak.crumb_cost:
             raise NotEnoughCrumbError()
-        success = squeak.on_place(self.board, coord)
+        success = squeak.on_place(self, coord)
         if not success:
             return False
         self.crumbs -= squeak.crumb_cost
