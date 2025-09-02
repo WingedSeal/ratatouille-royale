@@ -77,6 +77,12 @@ class Board:
             return target_tile.get_total_height(entity.side) - previous_tile.get_total_height(entity.side) > ENTITY_JUMP_HEIGHT
         return is_coord_blocked
 
+    def is_collision(self, coord: OddRCoord) -> bool:
+        tile = self.get_tile(coord)
+        if tile is None:
+            raise ValueError("Invalid Tile")
+        return any(entity.collision for entity in tile.entities)
+
     def damage_entity(self, entity: Entity, damage: int):
         """
         Damage an entity. Doesn't work on entity with no health.
