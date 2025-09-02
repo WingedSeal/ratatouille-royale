@@ -3,6 +3,8 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
+from ..features.commmon import DeploymentZone
+
 
 from ..hexagon import OddRCoord
 
@@ -28,7 +30,12 @@ class Squeak(ABC):
 
 
 def summon(game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]) -> bool:
-    if game_manager.board.is_collision(coord):
+    tile = game_manager.board.get_tile(coord)
+    if tile is None:
+        raise ValueError("Trying to summon rodent on None tile")
+    if any(entity.collision for entity in tile.entities):
         return False
-    game_manager.board.add_entity(rodent_type(coord, game_manager.turn))
-    return True
+    if any(isinstance(feature, DeploymentZone) and feature.side == game_manager.turn for feature in tile.features):
+        game_manager.board.add_entity(rodent_type(coord, game_manager.turn))
+        return True
+    return False
