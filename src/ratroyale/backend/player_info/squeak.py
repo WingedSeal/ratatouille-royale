@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Iterable, Protocol
 from dataclasses import dataclass
 
 from ..features.commmon import DeploymentZone
@@ -22,12 +22,22 @@ class SqueakOnPlace(Protocol):
         ...
 
 
+class SqueakGetPlacableTiles(Protocol):
+    def __call__(self, game_manager: "GameManager") -> Iterable[OddRCoord]:
+        ...
+
+
 @dataclass(frozen=True, kw_only=True)
 class Squeak:
     crumb_cost: int
     squeak_type: SqueakType
-    is_deployment_zone_only: bool = True
     on_place: SqueakOnPlace
+    get_placable_tiles: SqueakGetPlacableTiles
+
+
+def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
+    # TODO
+    ...
 
 
 def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
