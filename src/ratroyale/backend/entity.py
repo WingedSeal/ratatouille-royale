@@ -25,6 +25,7 @@ class SkillResult:
     target_count: int
     available_targets: list[OddRCoord]
     callback: SkillCallback
+    can_cancel: bool
 
 
 @dataclass
