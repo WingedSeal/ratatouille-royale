@@ -1,7 +1,6 @@
 from .entity import Entity
 from .feature import Feature
 from .tile import Tile
-from .hexagon import OddRCoord
 from pathlib import Path
 
 MAP_FILE_EXTENSION = "rrmap"

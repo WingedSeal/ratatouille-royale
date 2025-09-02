@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Protocol
 from dataclasses import dataclass
@@ -24,7 +23,7 @@ class SqueakOnPlace(Protocol):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Squeak(ABC):
+class Squeak:
     crumb_cost: int
     squeak_type: SqueakType
     is_deployment_zone_only: bool = True

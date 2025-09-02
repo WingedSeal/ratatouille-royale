@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-from enum import Enum
-
 from .side import Side
 from .hexagon import OddRCoord
 
