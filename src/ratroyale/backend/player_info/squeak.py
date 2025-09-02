@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 from dataclasses import dataclass
 
 from ..features.commmon import DeploymentZone
@@ -18,15 +18,23 @@ class SqueakType(Enum):
     TRICK = auto()
 
 
+class SqueakOnPlace(Protocol):
+    def __call__(self, game_manager: "GameManager", coord: OddRCoord) -> bool:
+        ...
+
+
 @dataclass(frozen=True, kw_only=True)
 class Squeak(ABC):
     crumb_cost: int
     squeak_type: SqueakType
     is_deployment_zone_only: bool = True
+    on_place: SqueakOnPlace
 
-    @abstractmethod
-    def on_place(self, game_manager: "GameManager", coord: OddRCoord) -> bool:
-        ...
+
+def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
+    def on_place(game_manager: "GameManager", coord: OddRCoord) -> bool:
+        return summon(game_manager, coord, rodent_type)
+    return on_place
 
 
 def summon(game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]) -> bool:
