@@ -12,13 +12,12 @@ if TYPE_CHECKING:
 
 
 def select_any_tile(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback",
-                    target_count: int = 1) -> SkillResult:
+                    target_count: int = 1, *,  can_cancel: bool = True) -> SkillResult:
     coords = board.get_attackable_coords(rodent, skill)
-    return SkillResult(target_count, list(coords), callback)
+    return SkillResult(target_count, list(coords), callback, can_cancel)
 
 
-
-def select_targetable(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1, *, is_feature_targetable: bool = True):
+def select_targetable(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1, *, is_feature_targetable: bool = True, can_cancel: bool = True):
     coords = board.get_attackable_coords(rodent, skill)
     targets = []
     for coord in coords:
@@ -31,7 +30,7 @@ def select_targetable(board: "Board", rodent: "Rodent", skill: "EntitySkill", ca
         if is_feature_targetable and any(feature.side != rodent.side and feature.health is not None for feature in tile.features):
             targets.append(coord)
             continue
-    return SkillResult(target_count, targets, callback)
+    return SkillResult(target_count, targets, callback, can_cancel)
 
 
 def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCallback:
