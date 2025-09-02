@@ -5,11 +5,6 @@ from .side import Side
 from .hexagon import OddRCoord
 
 
-class FeatureId(Enum):
-    DEPLOYMENT_ZONE_RAT = 1
-    DEPLOYMENT_ZONE_MOUSE = 2
-
-
 MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 
 
@@ -17,7 +12,6 @@ MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 class Feature:
     pos: OddRCoord
     shape: list[OddRCoord]
-    feature_id: FeatureId
     health: int | None = None
     defense: int | None = None
     side: Side | None = None

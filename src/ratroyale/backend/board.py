@@ -2,6 +2,7 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Iterator
 
+from .features.commmon import DeploymentZone, Lair
 from .feature import Feature
 from .entity_effect import EntityEffect
 from ..utils import EventQueue
@@ -22,7 +23,10 @@ class Cache:
         self.entities: list[Entity] = []
         self.entities_with_hp: list[Entity] = []
         self.sides_with_hp: dict[Side | None, list[Entity]] = defaultdict(list)
-        # self.features: list[Feature] = []
+        self.features: list[Feature] = []
+        self.deployment_zones: dict[Side | None,
+                                    list[DeploymentZone]] = defaultdict(list)
+        self.lairs: dict[Side, list[Lair]] = defaultdict(list)
         self.effects: list[EntityEffect] = []
 
 
@@ -36,7 +40,14 @@ class Board:
     def __init__(self, map: Map) -> None:
         self.cache = Cache()
         self.tiles = deepcopy(map.tiles)
-        # self.cache.features = deepcopy(map.features)
+        self.cache.features = deepcopy(map.features)
+        for feature in self.cache.features:
+            if isinstance(feature, DeploymentZone):
+                self.cache.deployment_zones[feature.side].append(feature)
+            elif isinstance(feature, Lair):
+                if feature.side is None:
+                    raise ValueError("Lair cannot have side of None")
+                self.cache.lairs[feature.side].append(feature)
         self.size_y = len(map.tiles)
         self.size_x = len(map.tiles[0])
         self.event_queue = EventQueue()
@@ -118,7 +129,14 @@ class Board:
             if tile is None:
                 raise ValueError("Feature is existing on invalid tile")
             tile.features.remove(feature)
-            self.event_queue.put(FeatureDieEvent(feature))
+        self.cache.features.remove(feature)
+        if isinstance(feature, DeploymentZone):
+            self.cache.deployment_zones[feature.side].remove(feature)
+        elif isinstance(feature, Lair):
+            if feature.side is None:
+                raise ValueError("Lair cannot have side of None")
+            self.cache.lairs[feature.side].remove(feature)
+        self.event_queue.put(FeatureDieEvent(feature))
 
     def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int, turn: Side | None, max_range: int | None = None) -> bool:
         if max_range is not None and start_coord.get_distance(end_coord) > max_range:
