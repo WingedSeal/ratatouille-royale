@@ -118,8 +118,8 @@ class Board:
         if not is_dead:
             return
 
-        for pos_offset in feature.shape:
-            tile = self.get_tile(feature.pos + pos_offset)
+        for pos in feature.resolve_shape():
+            tile = self.get_tile(pos)
             if tile is None:
                 raise ValueError("Feature is existing on invalid tile")
             tile.features.remove(feature)

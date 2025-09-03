@@ -36,8 +36,7 @@ class Squeak:
 
 
 def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
-    # TODO
-    ...
+    side = game_manager.turn
 
 
 def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
