@@ -57,8 +57,9 @@ class GameManager:
             first_turn.other_side(): players_info[1]
         }
         self.decks = {
-            Side.RAT: self.players_info[Side.RAT].squeak_set.deck.copy(),
-            Side.MOUSE: self.players_info[Side.MOUSE].squeak_set.deck.copy()
+            Side.RAT: self.players_info[Side.RAT].get_squeak_set().get_new_deck(),
+            Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set(
+            ).get_new_deck()
         }
 
     @property
@@ -163,7 +164,7 @@ class GameManager:
         """
         if self.decks[side]:
             return self.decks[side].pop()
-        self.decks[side] = self.players_info[side].squeak_set.deck.copy()
+        self.decks[side] = self.players_info[side].get_squeak_set().get_new_deck()
         shuffle(self.decks[side])
         return self.decks[side].pop()
 
