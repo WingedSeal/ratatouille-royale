@@ -1,9 +1,10 @@
 import pygame
-from ratroyale.input.page.page import Page, PageFactory
+from ratroyale.input.page.page_creator import Page, PageFactory
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageEventAction
 from ratroyale.input.page.page_config import PageName
 from ratroyale.input.page.gesture_reader import GestureReader
+from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity, DummyCoord, DummyPos
 
 class PageManager:
   def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager):
@@ -30,7 +31,14 @@ class PageManager:
         return page
 
     # Otherwise, create it on demand
-    page = self.page_factory.create_page(page_option)
+    if page_option == PageName.GAME_BOARD:
+      # Create dummy tiles and entities
+      dummy_tiles = [DummyTile(DummyCoord(q, r)) for q in range(5) for r in range(5)]
+      dummy_entities = [DummyEntity(DummyPos(q, r)) for q, r in [(1,1), (3,2)]]
+
+      page = self.page_factory.create_page(page_option, tiles=dummy_tiles, entities=dummy_entities)
+    else:
+      page = self.page_factory.create_page(page_option)
     self.page_stack.append(page)
     return page
   
@@ -74,7 +82,9 @@ class PageManager:
 
   def draw(self):
     for page in reversed(self.page_stack):
+      page.draw()
       self.screen.blit(page.canvas, (0, 0))  # draw canvas first
+
       page.draw_ui()   # then draw UI elements on top
 
   def execute_callbacks(self):

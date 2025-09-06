@@ -15,6 +15,7 @@ class StrEnum(Enum):
 class ActionKey(StrEnum):
   # Canvas actions
   SELECT_TILE = auto()
+  SELECT_UNIT = auto()
 
   # UI actions
   START_GAME = auto()

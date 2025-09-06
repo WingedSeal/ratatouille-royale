@@ -6,10 +6,11 @@ from .page_config import PAGES, PageConfig
 from ratroyale.event_tokens import InputEvent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageName
-from ratroyale.input.page.interactable import Interactable
+from ratroyale.input.page.interactable import Interactable, TileInteractable, EntityInteractable
 from ratroyale.event_tokens import GestureData
 from ratroyale.visual.visual_component import VisualComponent
-from ratroyale.backend.game_manager import GameManager
+from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity
+# from ratroyale.backend.game_manager import GameManager
 
 # ============================================
 # region Base Page Class
@@ -33,7 +34,10 @@ class Page:
         self.coordination_manager = coordination_manager
 
         # Registry for interactables (UI elements, tiles, cards, etc.)
-        self.elements: List[Interactable] = []
+        self.interactables: List[Interactable] = []
+
+        # Registry for visual elements
+        self.visuals: List[VisualComponent] = []
 
         for widget_config in self.config.widgets:
             visual_instances: list[VisualComponent] = []
@@ -43,6 +47,7 @@ class Page:
                 # If the visual is a UIVisual, pass gui_manager; otherwise creation may be no-op
                 visual_cfg.create(manager=self.gui_manager)
                 visual_instances.append(visual_cfg)
+                self.visuals.append(visual_cfg)
 
             # Create the Interactable with a list of visuals
             interactable_instance = Interactable(
@@ -56,22 +61,22 @@ class Page:
             self.add_element(interactable_instance)
 
         # Sort all interactables by Z-order (highest first)
-        self.elements.sort(key=lambda e: e.z_order, reverse=True)
+        self.interactables.sort(key=lambda e: e.z_order, reverse=True)
 
         # Blocking flag: prevents input from reaching lower pages in the stack
         self.blocking = self.config.blocking
 
     def add_element(self, element: Interactable):
-        self.elements.append(element)
+        self.interactables.append(element)
 
     def remove_element(self, element: Interactable):
-        if element in self.elements:
-            self.elements.remove(element)
+        if element in self.interactables:
+            self.interactables.remove(element)
 
 
     def handle_gestures(self, gestures: list[GestureData]):
         for gesture in gestures:
-            for widget in self.elements:
+            for widget in self.interactables:
                 action_key = widget.process_gesture(gesture)
                 if action_key:
                     self.emit_input_event(InputEvent(
@@ -99,6 +104,9 @@ class Page:
         """Draw UI elements onto the page canvas."""
         self.gui_manager.draw_ui(self.canvas)
 
+    def draw(self):
+        pass
+
 # endregion
 
 # ====================================
@@ -107,21 +115,65 @@ class Page:
 
 class GameBoardPage(Page):
     def __init__(self, page_name: PageName, screen_size: tuple[int,int],
-                 coordination_manager: CoordinationManager, game_manager: GameManager):
+                 coordination_manager: CoordinationManager, 
+                 tiles: list[DummyTile],
+                 entities: list[DummyEntity]):
         super().__init__(page_name, screen_size, coordination_manager)
-        self.game_manager = game_manager
+
+        # Visuals for tiles and entities.
+        self.tile_visuals: list[VisualComponent] = []
+        self.entity_visuals: list[VisualComponent] = []
 
         # Visual-only selection and preview
         self.selected_unit: Interactable | None = None
         self.path_preview: list[Interactable] = []
 
-    # def update_path_preview(self, gesture: GestureData):
-    #     start_tile_visual = self.get_tile_visual_at(gesture.start_pos)
-    #     end_tile_visual = self.get_tile_visual_at(gesture.current_pos)
+        # --- Tiles as interactables ---
+        for tile in tiles:
+            tile_interactable = TileInteractable(tile)
+            self.add_element(tile_interactable)
+            self.tile_visuals.extend(tile_interactable.visuals)  
 
-    #     if start_tile_visual and end_tile_visual:
-    #         # Generate a list of visuals for the path preview
-    #         self.path_preview_visuals = self.generate_preview_path(start_tile_visual, end_tile_visual)
+        # --- Entities as interactables ---
+        for entity in entities:
+            entity_interactable = EntityInteractable(entity)
+            self.add_element(entity_interactable)
+            self.entity_visuals.extend(entity_interactable.visuals)  # append to base class visuals
+            print(entity_interactable)
+
+        # Sort all interactables by Z-order (highest first)
+        self.interactables.sort(key=lambda e: e.z_order, reverse=True)
+
+
+    def draw(self):
+        self.clear_canvas()  # optional: clear to transparent or a background color
+        
+        # Draw tiles first
+        for tile in self.tile_visuals:
+            tile.render(self.canvas)
+
+        # Draw entities on top of tiles
+        for entity in self.entity_visuals:
+            entity.render(self.canvas)
+
+        # Draw selection/path previews
+        if self.selected_unit:
+            # draw selection highlight
+            pass
+        if self.path_preview:
+            for tile in self.path_preview:
+                # draw path overlay
+                pass
+
+        self.render_hitbox()
+
+        # Draw UI elements last
+        self.draw_ui()
+
+    # Hitbox debug
+    def render_hitbox(self):
+        for interactable in self.interactables:
+            interactable.hitbox.draw(self.canvas)
 
 class CardOverlayPage(Page):
     pass
@@ -141,13 +193,20 @@ class PageFactory:
         self.page_class_map: dict[PageName, type[Page]] = {
             PageName.MAIN_MENU: Page,
             PageName.TEST_SWAP: Page,
-            PageName.GAME_BOARD: GameBoardPage,  # your subclass
+            PageName.GAME_BOARD: GameBoardPage,  # specialized page
             PageName.CARD_OVERLAY: CardOverlayPage,
             # Add more specialized pages as needed
         }
 
-    def create_page(self, page_option: PageName):
+    def create_page(self, page_option: PageName, **kwargs):
         page_cls = self.page_class_map.get(page_option, Page)  # fallback to base Page
-        return page_cls(page_option, self.screen_size, self.coordination_manager)
+
+        # Pass screen_size and coordination_manager plus any extra kwargs (tiles/entities)
+        return page_cls(
+            page_option,
+            self.screen_size,
+            self.coordination_manager,
+            **kwargs
+        )
     
 # endregion

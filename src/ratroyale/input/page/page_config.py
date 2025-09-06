@@ -5,7 +5,6 @@ import pygame
 import pygame_gui
 from ratroyale.input.constants import ActionKey, PageName, GestureKey
 from ratroyale.input.page.interactable import Hitbox, RectHitbox  # adjust import path
-from pygame_gui.core.ui_element import UIElement
 from ratroyale.visual.visual_component import VisualComponent, UIVisual
 
 @dataclass
