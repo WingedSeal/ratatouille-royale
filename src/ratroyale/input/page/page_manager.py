@@ -1,5 +1,5 @@
 import pygame
-from ratroyale.input.page.page_creator import Page, PageFactory
+from ratroyale.input.page.page import Page, PageFactory
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageEventAction
 from ratroyale.input.page.page_config import PageName
@@ -27,40 +27,31 @@ class PageManager:
     for page in self.page_stack:
       if page.name == page_option:
         self.page_stack.append(page)
-        page.show()
         return page
 
     # Otherwise, create it on demand
     page = self.page_factory.create_page(page_option)
     self.page_stack.append(page)
-    page.show()
     return page
   
   """ Remove topmost page """
   def pop_page(self):
     if self.page_stack:
       page = self.page_stack.pop()
-      page.hide()
 
   """ Switch topmost page for a different one """
   def replace_top(self, page_option: PageName):
     if self.page_stack:
-      self.page_stack[-1].hide()
       self.page_stack.pop()
     self.push_page(page_option)
 
   def get_active_page(self) -> Page | None:
     return self.page_stack[-1] if self.page_stack else None
   
-  """ High-level logical flow:
-      # Each page has UI elements and a canvas (pygame.surface).
-      # This method propagates events downwards through the page stack, until all
-      # events are consumed, or no pages remain.
-      # When a page tries to consume an event, it lets the UI elements it contains
-      # get the event first, then it will let its internal logic see if it wants 
-      # to consume an event.
-      # Additionally, this function stops propagating an event if it hits a page 
-      # with a 'blocking' flag set to true. """
+  """ This method propagates gestures downwards through the page stack, until all
+      events are consumed, or no pages remain.
+      Additionally, this function stops propagating an event if it hits a page 
+      with a 'blocking' flag set to true. """
   def handle_events(self):
     raw_events = pygame.event.get()
     gestures = self.gesture_reader.read_events(raw_events)  # converts to List[GestureData]

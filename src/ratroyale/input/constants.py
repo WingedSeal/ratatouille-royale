@@ -14,7 +14,7 @@ class StrEnum(Enum):
 
 class ActionKey(StrEnum):
   # Canvas actions
-  NON_UI = auto()
+  CANVAS = auto()
 
   # UI actions
   START_GAME = auto()

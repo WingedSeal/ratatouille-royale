@@ -9,7 +9,7 @@ class GestureReader:
     DRAG_THRESHOLD = 5
     HOLD_THRESHOLD = 0.5
     HOLD_MOVE_TOLERANCE = 10
-    DOUBLE_CLICK_TIME = 0.35
+    DOUBLE_CLICK_TIME = 0.20
     SWIPE_SPEED_THRESHOLD = 800  # pixels per second
     SWIPE_DISTANCE_THRESHOLD = 50  # pixels
 

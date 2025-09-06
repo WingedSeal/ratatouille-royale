@@ -1,24 +1,33 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Type, Dict
+from typing import Dict, List
 import pygame
+import pygame_gui
 from ratroyale.input.constants import ActionKey, PageName, GestureKey
-from ratroyale.input.page.wrapped_widgets import WrappedButton, WrappedWidget  # adjust import path
+from ratroyale.input.page.interactable import Hitbox, RectHitbox  # adjust import path
+from pygame_gui.core.ui_element import UIElement
+from ratroyale.visual.visual_component import VisualComponent, UIVisual
 
 @dataclass
-class WidgetConfig:
-    type: Type[WrappedWidget]                   # WrappedButton or WrappedWidget class
-    rect: pygame.Rect
-    button_text: str
+class InteractableConfig:
+    hitbox: Hitbox
     gesture_action_mapping: Dict[GestureKey, ActionKey]
     blocks_input: bool = True
+    visuals: List[VisualComponent] | None = None
+    z_order: int = 0
+
+# @dataclass
+# class UIConfig:
+#     type: type[UIElement]
+#     relative_rect: pygame.Rect
+#     kwargs: dict = field(default_factory=dict)
     
 @dataclass
 class PageConfig:
     name: PageName
     theme_path: str
     blocking: bool
-    widgets: list[WidgetConfig] = field(default_factory=list)
+    widgets: list[InteractableConfig] = field(default_factory=list)
 
 # ================================
 # region PAGE CONFIGURATIONS
@@ -29,21 +38,27 @@ MAIN_MENU = PageConfig(
     theme_path="",
     blocking=True,
     widgets=[
-        WidgetConfig(
-            type=WrappedButton,
-            rect=pygame.Rect(100, 100, 200, 50),
-            button_text="Start",
+        InteractableConfig(
+            hitbox=RectHitbox(pygame.Rect(100, 100, 200, 50)),
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.START_GAME
-            }
+            },
+            visuals=[UIVisual(
+                type=pygame_gui.elements.UIButton,
+                relative_rect=pygame.Rect(100, 100, 200, 50),
+                kwargs={"text": "Start"}
+            )]
         ),
-        WidgetConfig(
-            type=WrappedButton,
-            rect=pygame.Rect(100, 200, 200, 50),
-            button_text= "Quit",
+        InteractableConfig(
+            hitbox=RectHitbox(pygame.Rect(100, 200, 200, 50)),
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.QUIT
-            }
+            },
+            visuals=[UIVisual(
+                type=pygame_gui.elements.UIButton,
+                relative_rect=pygame.Rect(100, 200, 200, 50),
+                kwargs={"text": "Quit"}
+            )]
         ),
     ],
 )
@@ -53,16 +68,20 @@ TEST_SWAP = PageConfig(
     theme_path="",
     blocking=True,
     widgets=[
-        WidgetConfig(
-            type=WrappedButton,
-            rect=pygame.Rect(100, 100, 200, 50),
-            button_text="Return to Main Menu",
+        InteractableConfig(
+            hitbox=RectHitbox(pygame.Rect(100, 100, 200, 50)),
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.BACK_TO_MENU
-            }
+            },
+            visuals=[UIVisual(
+                type=pygame_gui.elements.UIButton,
+                relative_rect=pygame.Rect(100, 100, 200, 50),
+                kwargs={"text": "Return to Main Menu"}
+            )]
         )
     ],
 )
+
 
 BOARD = PageConfig(
     name=PageName.BOARD,
