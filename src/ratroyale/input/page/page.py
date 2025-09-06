@@ -1,16 +1,19 @@
 import pygame_gui
 import pygame
-from pygame_gui.core.ui_element import UIElement
 from typing import List
 
 from .page_config import PAGES, PageConfig
 from ratroyale.event_tokens import InputEvent
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.constants import PageName, CONSUMED_UI_EVENTS
+from ratroyale.input.constants import PageName
 from ratroyale.input.page.interactable import Interactable
 from ratroyale.event_tokens import GestureData
 from ratroyale.visual.visual_component import VisualComponent
+from ratroyale.backend.game_manager import GameManager
 
+# ============================================
+# region Base Page Class
+# ============================================
 
 class Page:
     """Base class for a page in the application."""
@@ -29,7 +32,7 @@ class Page:
         # Coordination manager to put events into.
         self.coordination_manager = coordination_manager
 
-        # Registry for interactable UI elements
+        # Registry for interactables (UI elements, tiles, cards, etc.)
         self.elements: List[Interactable] = []
 
         for widget_config in self.config.widgets:
@@ -58,22 +61,13 @@ class Page:
         # Blocking flag: prevents input from reaching lower pages in the stack
         self.blocking = self.config.blocking
 
-
-    # -----------------------
-    # region UI Element Management
-    # -----------------------
     def add_element(self, element: Interactable):
         self.elements.append(element)
 
     def remove_element(self, element: Interactable):
         if element in self.elements:
             self.elements.remove(element)
-    
-    # endregion
 
-    # -----------------------
-    # region Event Handling
-    # -----------------------
 
     def handle_gestures(self, gestures: list[GestureData]):
         for gesture in gestures:
@@ -92,11 +86,7 @@ class Page:
     def emit_input_event(self, input_event: InputEvent):
         self.coordination_manager.input_domain_mailbox.put(input_event)
 
-    # endregion
 
-    # -----------------------
-    # region Canvas
-    # -----------------------
     def clear_canvas(self, color=(0, 0, 0, 0)):
         """Clear the canvas (default: fully transparent)."""
         self.canvas.fill(color)
@@ -109,17 +99,55 @@ class Page:
         """Draw UI elements onto the page canvas."""
         self.gui_manager.draw_ui(self.canvas)
 
-    # endregion
+# endregion
 
-"""
-    ACCOMPANYING PAGE FACTORY CLASS
-"""
+# ====================================
+# region Special Page Definitions
+# ====================================
+
+class GameBoardPage(Page):
+    def __init__(self, page_name: PageName, screen_size: tuple[int,int],
+                 coordination_manager: CoordinationManager, game_manager: GameManager):
+        super().__init__(page_name, screen_size, coordination_manager)
+        self.game_manager = game_manager
+
+        # Visual-only selection and preview
+        self.selected_unit: Interactable | None = None
+        self.path_preview: list[Interactable] = []
+
+    # def update_path_preview(self, gesture: GestureData):
+    #     start_tile_visual = self.get_tile_visual_at(gesture.start_pos)
+    #     end_tile_visual = self.get_tile_visual_at(gesture.current_pos)
+
+    #     if start_tile_visual and end_tile_visual:
+    #         # Generate a list of visuals for the path preview
+    #         self.path_preview_visuals = self.generate_preview_path(start_tile_visual, end_tile_visual)
+
+class CardOverlayPage(Page):
+    pass
+
+
+# ====================================
+# region Page Factory 
+# ====================================
 
 class PageFactory:
     def __init__(self, gui_manager, screen_size, coordination_manager: CoordinationManager):
         self.gui_manager = gui_manager
         self.screen_size = screen_size
-        self.gui_callback_queue = coordination_manager
+        self.coordination_manager = coordination_manager
+
+        # Map PageName to actual class to instantiate
+        self.page_class_map: dict[PageName, type[Page]] = {
+            PageName.MAIN_MENU: Page,
+            PageName.TEST_SWAP: Page,
+            PageName.GAME_BOARD: GameBoardPage,  # your subclass
+            PageName.CARD_OVERLAY: CardOverlayPage,
+            # Add more specialized pages as needed
+        }
 
     def create_page(self, page_option: PageName):
-        return Page(page_option, self.screen_size, self.gui_callback_queue)
+        page_cls = self.page_class_map.get(page_option, Page)  # fallback to base Page
+        return page_cls(page_option, self.screen_size, self.coordination_manager)
+    
+# endregion

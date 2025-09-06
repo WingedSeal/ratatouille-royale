@@ -1,10 +1,11 @@
 import pygame
 import pygame_gui
-from typing import Dict
+from typing import Dict, List
 from ratroyale.input.constants import GestureKey, ActionKey
 from ratroyale.event_tokens import GestureData
 from pygame_gui.core.ui_element import UIElement
-from ratroyale.visual.visual_component import VisualComponent
+from ratroyale.visual.visual_component import VisualComponent, TileVisual, REGULAR_TILE_SIZE
+from ratroyale.backend.tile import Tile
 
 # Base interface
 class Hitbox:
@@ -120,5 +121,37 @@ class Interactable:
     #     if self.visuals:
     #         self.visuals.hide()
 
+class TileInteractable(Interactable):
+    """
+    Interactable specialized for tiles.
+    Handles hitbox, tile-specific visuals, and any tile-specific input logic.
+    """
+    def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0):
+        # Compute screen center for hex hitbox
+        cx, cy = TileVisual(tile)._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
+        hitbox = HexHitbox(center=(cx, cy), width=REGULAR_TILE_SIZE[0], height=REGULAR_TILE_SIZE[1])
+
+        # Gesture mapping
+        gesture_action_mapping = {
+            GestureKey.CLICK: ActionKey.SELECT_TILE
+        }
+
+        visuals: List[VisualComponent] = [TileVisual(tile)]
+
+        super().__init__(
+            hitbox=hitbox,
+            gesture_action_mapping=gesture_action_mapping,
+            visuals=visuals,
+            blocks_input=blocks_input,
+            z_order=z_order
+        )
+
+    # Optional: tile-specific gesture overrides
+    # def process_gesture(self, gesture: GestureData) -> ActionKey | None:
+    #     # For example, you could highlight the tile on hover
+    #     action_key = super().process_gesture(gesture)
+    #     if action_key:
+    #         self.visuals[0].tile.highlighted = True
+    #     return action_key
 
 

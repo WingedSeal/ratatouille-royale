@@ -25,11 +25,7 @@ class InputManager:
             if not page_registry:
                 continue  # no registry for this page
 
-            gesture_registry = page_registry.get(token.gesture_data.gesture_key)
-            if not gesture_registry:
-                continue  # no callbacks for this gesture on this page
-
-            callback = gesture_registry.get(token.action_key)
+            callback = page_registry.get(token.action_key)
             if callback:
-                callback(token)  # pass the full InputEvent
+                callback(token)
     

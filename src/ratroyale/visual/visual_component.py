@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pygame_gui.core.ui_element import UIElement
 import pygame
+from ratroyale.backend.tile import Tile
+from ratroyale.backend.entity import Entity
+from ratroyale.visual.sprite_registry import SPRITE_REGISTRY, SpriteRegistryKey, REGULAR_TILE_SIZE
 
 class VisualComponent(ABC):
     """Base class for anything that can be rendered as part of an Interactable."""
@@ -38,11 +41,41 @@ class UIVisual(VisualComponent):
         pass
     
 class SpriteVisual(VisualComponent):
-    image: pygame.Surface
-    position: tuple[int, int]
+    def __init__(self, sprite_enum: SpriteRegistryKey, position: tuple[int, int]):
+        # Look up the surface from the registry; fallback to DEFAULT_ENTITY if missing
+        self.image = SPRITE_REGISTRY.get(
+            sprite_enum, 
+            SPRITE_REGISTRY[SpriteRegistryKey.DEFAULT_ENTITY]
+        )
+        self.position = position
 
     def create(self, manager=None):
-        pass  # nothing to build
+        pass
 
     def render(self, surface: pygame.Surface):
         surface.blit(self.image, self.position)
+
+# TODO: Refactor the hexagon-related method to utils later
+class TileVisual(SpriteVisual):
+    def __init__(self, tile: Tile):
+        self.tile = tile
+        super().__init__(sprite_enum=getattr(tile, "sprite_variant", SpriteRegistryKey.DEFAULT_TILE),
+                         position=self._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE))
+        
+    def _hex_to_world(self, q: int, r: int, tile_size: tuple[int,int]) -> tuple[int,int]:
+        width, height = tile_size
+        x = width * (q + 0.5 * (r % 2))  # offset for odd rows
+        y = height * 0.75 * r            # vertical spacing
+        return (int(x), int(y))
+        
+class EntityVisual(SpriteVisual):
+    def __init__(self, entity: Entity):
+        self.entity = entity
+        super().__init__(sprite_enum=getattr(entity, "sprite_variant", SpriteRegistryKey.DEFAULT_ENTITY),
+                         position=self._hex_to_world(entity.pos.x, entity.pos.y, REGULAR_TILE_SIZE))
+        
+    def _hex_to_world(self, q: int, r: int, tile_size: tuple[int,int]) -> tuple[int,int]:
+        width, height = tile_size
+        x = width * (q + 0.5 * (r % 2))  # offset for odd rows
+        y = height * 0.75 * r            # vertical spacing
+        return (int(x), int(y))

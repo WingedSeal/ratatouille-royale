@@ -8,20 +8,13 @@ if TYPE_CHECKING:
 def create_callback_registry(manager: InputManager):
     return {
         PageName.MAIN_MENU: {
-            GestureKey.CLICK: {
-                ActionKey.START_GAME: lambda tkn: manager.message_to_page(PageEvent(PageName.TEST_SWAP, PageEventAction.REPLACE_TOP)),
-                ActionKey.QUIT: lambda tkn: manager.exit(),
-            },
-            GestureKey.DOUBLE_CLICK: {
-                ActionKey.CANVAS: lambda tkn: print("canvas double clicked") # replace with visual query pipeline
-            },
-            GestureKey.DRAG: {
-                ActionKey.CANVAS: lambda tkn: print("drag test")
-            }
+            ActionKey.START_GAME: lambda tkn: manager.message_to_page(PageEvent(PageName.TEST_SWAP, PageEventAction.REPLACE_TOP)),
+            ActionKey.QUIT: lambda tkn: manager.exit(),
         },
         PageName.TEST_SWAP: {
-            GestureKey.CLICK: {
-                ActionKey.BACK_TO_MENU: lambda tkn: manager.message_to_page(PageEvent(PageName.MAIN_MENU, PageEventAction.REPLACE_TOP))
-            }
+            ActionKey.BACK_TO_MENU: lambda tkn: manager.message_to_page(PageEvent(PageName.MAIN_MENU, PageEventAction.REPLACE_TOP))
+        },
+        PageName.GAME_BOARD: {
+            ActionKey.SELECT_TILE: lambda tkn: print("Tile clicked")
         }
     }

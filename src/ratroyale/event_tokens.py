@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 from ratroyale.input.page.page_config import PageName
-from ratroyale.input.constants import PageEventAction, GUIEventSource, ActionKey, GestureKey
+from ratroyale.input.constants import PageEventAction, ActionKey, GestureKey
 import pygame
 
 @dataclass 

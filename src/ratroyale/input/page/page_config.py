@@ -15,12 +15,6 @@ class InteractableConfig:
     blocks_input: bool = True
     visuals: List[VisualComponent] | None = None
     z_order: int = 0
-
-# @dataclass
-# class UIConfig:
-#     type: type[UIElement]
-#     relative_rect: pygame.Rect
-#     kwargs: dict = field(default_factory=dict)
     
 @dataclass
 class PageConfig:
@@ -83,8 +77,8 @@ TEST_SWAP = PageConfig(
 )
 
 
-BOARD = PageConfig(
-    name=PageName.BOARD,
+GAME_BOARD = PageConfig(
+    name=PageName.GAME_BOARD,
     theme_path="",
     blocking=True,
     widgets=[],  # no wrapped widgets for board yet
@@ -97,6 +91,5 @@ BOARD = PageConfig(
 PAGES: dict[PageName, PageConfig] = {
     PageName.MAIN_MENU: MAIN_MENU,
     PageName.TEST_SWAP: TEST_SWAP,
-    PageName.BOARD: BOARD,
+    PageName.GAME_BOARD: GAME_BOARD,
 }
-

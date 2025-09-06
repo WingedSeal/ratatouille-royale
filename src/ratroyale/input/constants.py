@@ -14,7 +14,7 @@ class StrEnum(Enum):
 
 class ActionKey(StrEnum):
   # Canvas actions
-  CANVAS = auto()
+  SELECT_TILE = auto()
 
   # UI actions
   START_GAME = auto()
@@ -44,7 +44,8 @@ class PageEventAction(StrEnum):
 class PageName(StrEnum):
     MAIN_MENU = auto()
     TEST_SWAP = auto()
-    BOARD = auto()
+    GAME_BOARD = auto()
+    CARD_OVERLAY = auto()
 
 CONSUMED_UI_EVENTS = {
     UI_BUTTON_PRESSED,
