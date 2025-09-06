@@ -2,18 +2,18 @@ from abc import ABCMeta, abstractmethod
 from ..entity import Entity, entity_data
 from ..hexagon import OddRCoord
 from ..entity import _EntitySkill
-from typing import TYPE_CHECKING, Any,  TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from ..side import Side
 
 
 class RodentMeta(ABCMeta):
-    def __new__(cls, name: str, bases: tuple[type, ...], dct: dict[str, Any]):
-        if bases and not dct.get("_has_rodent_data", False):
+    def __call__(cls, *args, **kwargs):
+        if not getattr(cls, '_has_rodent_data', False):
             raise TypeError(
-                f"'{name}' must be decorated with @rodent_data(...)")
-        return super().__new__(cls, name, bases, dct)
+                f"'{cls.__name__}' must be decorated with @rodent_data(...)")
+        return super().__call__(*args, **kwargs)
 
 
 ENTITY_JUMP_HEIGHT = 1
