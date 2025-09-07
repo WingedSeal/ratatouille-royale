@@ -1,20 +1,20 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
-from .game_manager import GameManager
 from .side import Side
 if TYPE_CHECKING:
     from .entity import Entity
+    from .game_manager import GameManager
     from .entities.rodent import Rodent
 
 
 class EffectMeta(ABCMeta):
-    def __new__(cls, name: str, bases: tuple[type, ...], dct: dict[str, Any]):
-        if bases and not dct.get("_has_effect_data", False):
+    def __call__(cls, *args, **kwargs):
+        if not getattr(cls, "_has_effect_data", False):
             raise TypeError(
-                f"'{name}' must be decorated with @effect_data(...)")
-        return super().__new__(cls, name, bases, dct)
+                f"'{cls.__name__}' must be decorated with @effect_subclass")
+        return super().__call__(*args, **kwargs)
 
 
 class EffectClearSide(Enum):
@@ -86,8 +86,15 @@ def effect_data(effect_clear_side: EffectClearSide, *, name: str):
     return wrapper
 
 
+def effect_subclass(cls: type[T]) -> type[T]:
+    assert issubclass(cls, EntityEffect)
+    cls._has_effect_data = True
+    return cls
+
+
+@effect_subclass
 class RodentEffect(EntityEffect):
-    rodent: Rodent
+    rodent: "Rodent"
 
     def __init__(self, rodent: "Rodent", *, duration: int | None, intensity: int) -> None:
         self.intensity = intensity
