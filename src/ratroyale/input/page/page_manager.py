@@ -1,10 +1,11 @@
 import pygame
 from ratroyale.input.page.page_creator import Page, PageFactory
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.constants import PageEventAction
 from ratroyale.input.page.page_config import PageName
 from ratroyale.input.page.gesture_reader import GestureReader
-from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity, DummyCoord, DummyPos
+# from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity, DummyCoord, DummyPos
+from ratroyale.backend.board import Board
+from ratroyale.event_tokens import *
 
 class PageManager:
   def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager):
@@ -22,6 +23,8 @@ class PageManager:
     # Active page stack
     self.page_stack: list[Page] = []
 
+  # region Page Creation & Deletion
+
   """ Push page by name, create if it doesn’t exist yet """
   def push_page(self, page_option: PageName) -> Page:
     # Check if the page already exists in stack
@@ -31,21 +34,24 @@ class PageManager:
         return page
 
     # Otherwise, create it on demand
-    if page_option == PageName.GAME_BOARD:
-      # Create dummy tiles and entities
-      dummy_tiles = [DummyTile(DummyCoord(q, r)) for q in range(5) for r in range(5)]
-      dummy_entities = [DummyEntity(DummyPos(q, r)) for q, r in [(1,1), (3,2)]]
-
-      page = self.page_factory.create_page(page_option, tiles=dummy_tiles, entities=dummy_entities)
-    else:
-      page = self.page_factory.create_page(page_option)
+    page = self.page_factory.create_page(page_option)
     self.page_stack.append(page)
     return page
   
   """ Remove topmost page """
-  def pop_page(self):
-    if self.page_stack:
-      page = self.page_stack.pop()
+  def pop_page(self, page_option: PageName | None = None):
+    if not self.page_stack:
+        return  # nothing to remove
+
+    if page_option is None:
+        # Remove the topmost page
+        self.page_stack.pop()
+    else:
+        # Remove the first page that matches the name
+        for i, page in enumerate(self.page_stack):
+            if page.name == page_option:
+                self.page_stack.pop(i)
+                break
 
   """ Switch topmost page for a different one """
   def replace_top(self, page_option: PageName):
@@ -53,8 +59,15 @@ class PageManager:
       self.page_stack.pop()
     self.push_page(page_option)
 
-  def get_active_page(self) -> Page | None:
-    return self.page_stack[-1] if self.page_stack else None
+  def push_game_board_page(self, board: Board | None):
+     self.pop_page(None)
+
+     page = self.page_factory.create_game_board_page(board)
+     self.page_stack.append(page)
+  
+  # endregion
+
+  # region Event Handling
   
   """ This method propagates gestures downwards through the page stack, until all
       events are consumed, or no pages remain.
@@ -75,6 +88,10 @@ class PageManager:
         # Stop propagation if the page is blocking
         if page.blocking:
             break
+        
+  # endregion
+
+  # region Drawing
 
   def update(self, dt):
     for page in reversed(self.page_stack):
@@ -87,16 +104,21 @@ class PageManager:
 
       page.draw_ui()   # then draw UI elements on top
 
+  # endregion
+
+  # region Message Processing
+
   def execute_callbacks(self):
     while not self.coordination_manager.page_domain_mailbox.empty():
-      token = self.coordination_manager.page_domain_mailbox.get()
-      page_name = token.page_name
-      action = token.action
+        token = self.coordination_manager.page_domain_mailbox.get()
 
-      match action:
-        case PageEventAction.ADD:
-          self.push_page(page_name)
-        case PageEventAction.REMOVE:
-          self.pop_page()
-        case PageEventAction.REPLACE_TOP:
-          self.replace_top(page_name)
+        if isinstance(token, AddPageEvent):
+          self.push_page(token.page_name)
+        elif isinstance(token, RemovePageEvent):
+          self.pop_page(getattr(token, "page_name", None))  # remove top if no page_name
+        elif isinstance(token, ReplaceTopPageEvent):
+          self.replace_top(token.page_name)
+        elif isinstance(token, ConfirmStartGamePageEvent):
+          self.push_game_board_page(token.board)
+
+  # endregion

@@ -9,8 +9,11 @@ from ratroyale.input.constants import PageName
 from ratroyale.input.page.interactable import Interactable, TileInteractable, EntityInteractable
 from ratroyale.event_tokens import GestureData
 from ratroyale.visual.visual_component import VisualComponent
-from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity
-# from ratroyale.backend.game_manager import GameManager
+from ratroyale.backend.tile import Tile
+from ratroyale.backend.entity import Entity
+from ratroyale.backend.board import Board
+from ratroyale.backend.hexagon import OddRCoord
+
 
 # ============================================
 # region Base Page Class
@@ -114,11 +117,10 @@ class Page:
 # ====================================
 
 class GameBoardPage(Page):
-    def __init__(self, page_name: PageName, screen_size: tuple[int,int],
+    def __init__(self, screen_size: tuple[int,int],
                  coordination_manager: CoordinationManager, 
-                 tiles: list[DummyTile],
-                 entities: list[DummyEntity]):
-        super().__init__(page_name, screen_size, coordination_manager)
+                 board: Board | None):
+        super().__init__(PageName.GAME_BOARD, screen_size, coordination_manager)
 
         # Visuals for tiles and entities.
         self.tile_visuals: list[VisualComponent] = []
@@ -128,18 +130,33 @@ class GameBoardPage(Page):
         self.selected_unit: Interactable | None = None
         self.path_preview: list[Interactable] = []
 
-        # --- Tiles as interactables ---
-        for tile in tiles:
-            tile_interactable = TileInteractable(tile)
-            self.add_element(tile_interactable)
-            self.tile_visuals.extend(tile_interactable.visuals)  
+        if board:
+            for tile_list in board.tiles:
+                for tile in tile_list:
+                    tile_interactable = TileInteractable(tile)
+                    self.add_element(tile_interactable)
+                    self.tile_visuals.extend(tile_interactable.visuals)  
+        else:
+            # Create a 5x5 grid of Tiles
+            for q in range(5):
+                for r in range(5):
+                    tile = Tile(
+                        coord=OddRCoord(q, r),
+                        entities=[],
+                        height=0,
+                        features=[]
+                    )
+                    tile_interactable = TileInteractable(tile)
+                    self.add_element(tile_interactable)
+                    self.tile_visuals.extend(tile_interactable.visuals)
 
         # --- Entities as interactables ---
-        for entity in entities:
-            entity_interactable = EntityInteractable(entity)
-            self.add_element(entity_interactable)
-            self.entity_visuals.extend(entity_interactable.visuals)  # append to base class visuals
-            print(entity_interactable)
+        # Kept in case we wanna test maps with entities already on.
+        # for entity in entities:
+        #     entity_interactable = EntityInteractable(entity)
+        #     self.add_element(entity_interactable)
+        #     self.entity_visuals.extend(entity_interactable.visuals)  # append to base class visuals
+        #     print(entity_interactable)
 
         # Sort all interactables by Z-order (highest first)
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
@@ -189,24 +206,13 @@ class PageFactory:
         self.screen_size = screen_size
         self.coordination_manager = coordination_manager
 
-        # Map PageName to actual class to instantiate
-        self.page_class_map: dict[PageName, type[Page]] = {
-            PageName.MAIN_MENU: Page,
-            PageName.TEST_SWAP: Page,
-            PageName.GAME_BOARD: GameBoardPage,  # specialized page
-            PageName.CARD_OVERLAY: CardOverlayPage,
-            # Add more specialized pages as needed
-        }
+    # Used for creating non-specialized page classes.
+    def create_page(self, page_option: PageName):
+        return Page(page_option, self.screen_size, self.coordination_manager)
+    
+    def create_game_board_page(self, board: Board | None):
+        return GameBoardPage(self.screen_size, self.coordination_manager, board)
 
-    def create_page(self, page_option: PageName, **kwargs):
-        page_cls = self.page_class_map.get(page_option, Page)  # fallback to base Page
 
-        # Pass screen_size and coordination_manager plus any extra kwargs (tiles/entities)
-        return page_cls(
-            page_option,
-            self.screen_size,
-            self.coordination_manager,
-            **kwargs
-        )
     
 # endregion

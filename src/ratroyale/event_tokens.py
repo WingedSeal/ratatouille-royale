@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Any
 from ratroyale.input.page.page_config import PageName
-from ratroyale.input.constants import PageEventAction, ActionKey, GestureKey
+from ratroyale.input.constants import ActionKey, GestureKey
 import pygame
+from ratroyale.backend.board import Board
 
 @dataclass 
 class EventToken:
@@ -12,9 +12,23 @@ class EventToken:
 
 @dataclass
 class PageEvent(EventToken):
-  page_name: PageName
-  action: PageEventAction
   pass
+
+@dataclass
+class AddPageEvent(PageEvent):
+    page_name: PageName
+
+@dataclass
+class RemovePageEvent(PageEvent):
+    page_name: PageName | None = None
+
+@dataclass
+class ReplaceTopPageEvent(PageEvent):
+    page_name: PageName
+
+@dataclass
+class ConfirmStartGamePageEvent(PageEvent):
+   board: Board | None
 
 # Goes to Input Mailbox
 
@@ -48,6 +62,10 @@ class GameEvent(EventToken):
   pass
 
 # example class
+class RequestStartGameEvent(GameEvent):
+  map_path: str | None = None # Could change to enums that represents different premade stages later.
+  pass
+
 class CardPlacementGameEvent(GameEvent):
   pass
 
