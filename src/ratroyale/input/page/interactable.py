@@ -4,8 +4,8 @@ from typing import Dict, List
 from ratroyale.input.constants import GestureKey, ActionKey
 from ratroyale.event_tokens import GestureData
 from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, REGULAR_TILE_SIZE
-#from ratroyale.backend.tile import Tile    # Wait until the game logic guy fixes this.
-from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity
+from ratroyale.backend.tile import Tile
+from ratroyale.backend.entity import Entity
 
 # Base interface
 class Hitbox:
@@ -127,9 +127,9 @@ class Interactable:
     Handles hitbox, tile-specific visuals, and any tile-specific input logic.
     """
 class TileInteractable(Interactable):
-    def __init__(self, tile: DummyTile, blocks_input: bool = True, z_order: int = 0):
+    def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0):
         # Compute top-left for sprite placement
-        tx, ty = TileVisual(tile)._hex_to_world(tile.coord.q, tile.coord.r, REGULAR_TILE_SIZE)
+        tx, ty = TileVisual(tile)._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
 
         # Correct hitbox center: shift by half width/height
         w, h = REGULAR_TILE_SIZE
@@ -152,7 +152,7 @@ class TileInteractable(Interactable):
         )
 
 class EntityInteractable(Interactable):
-    def __init__(self, entity: DummyEntity, blocks_input: bool = True, z_order: int = 1):
+    def __init__(self, entity: Entity, blocks_input: bool = True, z_order: int = 1):
         entity_visual = EntityVisual(entity)
         hitbox = RectHitbox(pygame.Rect(
             *entity_visual.position,

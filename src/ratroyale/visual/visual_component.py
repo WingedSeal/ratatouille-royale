@@ -2,9 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pygame_gui.core.ui_element import UIElement
 import pygame
-# from ratroyale.backend.tile import Tile
-# from ratroyale.backend.entity import Entity
-from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity
+from ratroyale.backend.tile import Tile
+from ratroyale.backend.entity import Entity
 from ratroyale.visual.sprite_registry import SPRITE_REGISTRY, SpriteRegistryKey, REGULAR_TILE_SIZE
 
 class VisualComponent(ABC):
@@ -57,9 +56,9 @@ class SpriteVisual(VisualComponent):
         surface.blit(self.image, self.position)
 
 class TileVisual(SpriteVisual):
-    def __init__(self, tile: DummyTile):
+    def __init__(self, tile: Tile):
         self.tile = tile
-        pos = self._hex_to_world(tile.coord.q, tile.coord.r, REGULAR_TILE_SIZE)
+        pos = self._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
         super().__init__(
             sprite_enum=getattr(tile, "sprite_variant", SpriteRegistryKey.DEFAULT_TILE),
             position=pos
@@ -72,7 +71,7 @@ class TileVisual(SpriteVisual):
         return (int(x), int(y))   # top-left of tile
         
 class EntityVisual(SpriteVisual):
-    def __init__(self, entity: DummyEntity):
+    def __init__(self, entity: Entity):
         self.entity = entity
         super().__init__(
             sprite_enum=getattr(entity, "sprite_variant", SpriteRegistryKey.DEFAULT_ENTITY),
