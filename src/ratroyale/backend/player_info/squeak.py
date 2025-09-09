@@ -39,7 +39,7 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
     side = game_manager.turn
     used_coord: set[OddRCoord] = set()
     for deployment_zone in game_manager.board.cache.deployment_zones[side]:
-        for pos in deployment_zone.resolve_shape():
+        for pos in deployment_zone.shape:
             if pos in used_coord:
                 continue
             used_coord.add(pos)

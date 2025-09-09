@@ -26,12 +26,12 @@ class Map:
         if feature in self.features:
             raise ValueError("This feature already exist in this position")
         self.features.append(feature)
-        for pos in feature.resolve_shape():
+        for pos in feature.shape:
             self.tiles[pos.y][pos.x].features.append(feature)
 
     def remove_feature(self, feature: Feature):
         self.features.remove(feature)
-        for pos in feature.resolve_shape():
+        for pos in feature.shape:
             self.tiles[pos.y][pos.x].features.remove(feature)
 
     @classmethod
