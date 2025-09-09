@@ -33,7 +33,8 @@ class Map:
     tiles: list[list[Tile | None]]
     entities: list[Entity]
 
-    def __init__(self, size_x: int, size_y: int, tiles: list[list[Tile | None]], entities: list[Entity] = [], features: list[Feature] = []) -> None:
+    def __init__(self, name: str, size_x: int, size_y: int, tiles: list[list[Tile | None]], entities: list[Entity] = [], features: list[Feature] = []) -> None:
+        self.name = name
         self.size_x = size_x
         self.size_y = size_y
         self.tiles = tiles
@@ -51,7 +52,7 @@ class Map:
             if tile is None:
                 continue
             tile.features.append(feature)
-            
+
     def remove_feature(self, feature: Feature):
         self.features.remove(feature)
         for pos in feature.shape:
@@ -59,11 +60,10 @@ class Map:
             if tile is None:
                 continue
             tile.features.remove(feature)
-            
 
     @classmethod
     def from_file(cls, file: Path) -> "Map":
-        return cls(0, 0, [])
+        return cls("", 0, 0, [])
 
     @classmethod
     def load(cls, data: bytes) -> "Map":
@@ -191,4 +191,4 @@ class Map:
             entities.append(entity_class(
                 OddRCoord(x, y), side, *entity_unique_parameters))
 
-        return cls(size_x, size_y, tiles, entities, features)
+        return cls(name, size_x, size_y, tiles, entities, features)
