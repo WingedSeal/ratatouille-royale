@@ -50,10 +50,6 @@ class GameManager:
         self.turn = first_turn
         self.turn_count = 1
         self.board = Board(map)
-        self.hands = {
-            Side.RAT: [self.draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
-            Side.MOUSE: [self.draw_squeak(Side.MOUSE) for _ in range(HAND_LENGTH)],
-        }
         self.players_info = {
             first_turn: players_info[0],
             first_turn.other_side(): players_info[1]
@@ -63,18 +59,23 @@ class GameManager:
             Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set(
             ).get_new_deck()
         }
+        self.hands = {
+            Side.RAT: [self.draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
+            Side.MOUSE: [self.draw_squeak(Side.MOUSE) for _ in range(HAND_LENGTH)],
+        }
         self.coordination_manager = coordination_manager
 
     @property
     def event_queue(self) -> Queue[GameEvent]:
         return self.board.event_queue
-    
+
     def execute_callbacks(self) -> None:
         while not self.coordination_manager.game_domain_mailbox.empty():
             token = self.coordination_manager.game_domain_mailbox.get()
 
             if isinstance(token, RequestStart_GameManagerEvent):
-                self.coordination_manager.page_domain_mailbox.put(ConfirmStartGame_PageManagerEvent(self.board))
+                self.coordination_manager.page_domain_mailbox.put(
+                    ConfirmStartGame_PageManagerEvent(self.board))
                 # In actual implementation, replace the sample map in render test with an actual loaded map
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
