@@ -11,7 +11,7 @@ MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 class Feature:
     shape: list[OddRCoord]
     health: int | None = None
-    defense: int | None = None
+    defense: int = 0
     side: Side | None = None
 
     def on_damage_taken(self, damage: int) -> int | None:
@@ -39,7 +39,7 @@ class Feature:
         if self.health is None:
             raise ValueError("Entity without health just taken damage")
         damage_taken = max(MINIMAL_FEATURE_DAMAGE_TAKEN,
-                           damage - (self.defense or 0))
+                           damage - self.defense)
         self.health -= damage_taken
         if self.health <= 0:
             damage_taken += self.health
