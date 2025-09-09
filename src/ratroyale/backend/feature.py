@@ -9,7 +9,6 @@ MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 
 @dataclass
 class Feature:
-    pos: OddRCoord
     shape: list[OddRCoord]
     health: int | None = None
     defense: int | None = None
@@ -27,10 +26,6 @@ class Feature:
         :returns: Whether the entity actually dies
         """
         return True
-
-    def resolve_shape(self) -> Iterable[OddRCoord]:
-        for pos_offset in self.shape:
-            yield self.pos + pos_offset
 
     def _take_damage(self, damage: int) -> tuple[bool, int]:
         """

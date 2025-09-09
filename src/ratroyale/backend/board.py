@@ -118,7 +118,7 @@ class Board:
         if not is_dead:
             return
 
-        for pos in feature.resolve_shape():
+        for pos in feature.shape:
             tile = self.get_tile(pos)
             if tile is None:
                 raise ValueError("Feature is existing on invalid tile")
