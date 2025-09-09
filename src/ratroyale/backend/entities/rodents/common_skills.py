@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from ...skill_callback import SkillCallback, skill_callback_check
-
 from ...entity import SkillResult
 
 if TYPE_CHECKING:

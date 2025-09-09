@@ -125,9 +125,9 @@ def entity_data(*,
                 raise ValueError(
                     f"{skill} is not callable")
             arg_count = len(inspect.signature(skill_function).parameters)
-            if arg_count != 1:
+            if arg_count != 2:
                 raise ValueError(
-                    f"Expected {skill} method to take 1 arguments (got {arg_count})"
+                    f"Expected {skill} method to take 1 arguments (got {arg_count - 1})"
                 )
             cls.skills.append(EntitySkill(
                 **asdict(skill), func=cast(Callable[["GameManager"], SkillResult | None], skill_function)))
