@@ -2,7 +2,7 @@ import pygame
 import time
 from ratroyale.event_tokens import InputManagerEvent, GestureData
 from ratroyale.input.constants import GestureKey
-from typing import List
+from typing import List, Tuple
 
 class GestureReader:
     CLICK_THRESHOLD = 5
@@ -106,14 +106,14 @@ class GestureReader:
         dy = pos[1] - self.start_pos[1]
         distance = (dx**2 + dy**2) ** 0.5
 
-        # Swipe detection
-        if self.state == self.STATE_DRAGGING and distance >= self.SWIPE_DISTANCE_THRESHOLD:
+        IS_SWIPING = self.state == self.STATE_DRAGGING and distance >= self.SWIPE_DISTANCE_THRESHOLD
+        if IS_SWIPING:
             speed = distance / max(elapsed_time, 1e-6)
             if speed >= self.SWIPE_SPEED_THRESHOLD:
                 self.on_swipe(self.start_pos, pos, dx / distance, dy / distance, raw_event)
 
-        # Click / double-click
-        if self.state == self.STATE_PRESSED:
+        IS_CLICKING = self.state == self.STATE_PRESSED
+        if IS_CLICKING:
             current_time = time.time()
             if (
                 self.last_click_time is not None
@@ -163,41 +163,48 @@ class GestureReader:
     # endregion
 
     # --- Callbacks ---
-    def on_click(self, pos, raw_event=None):
+    def on_click(self, pos: Tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.CLICK, 
             start_pos=pos,
             raw_event=raw_event
         ))
 
-    def on_double_click(self, pos, raw_event=None):
+    def on_double_click(self, pos: Tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.DOUBLE_CLICK, 
             start_pos=pos,
             raw_event=raw_event
         ))
 
-    def on_drag(self, dx, dy, raw_event=None):
+    def on_drag(self, dx: int, dy: int, raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.DRAG, 
             delta=(dx, dy),
             raw_event=raw_event
         ))
 
-    def on_drag_end(self, raw_event=None):
+    def on_drag_end(self, raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.DRAG_END,
             raw_event=raw_event
         ))
 
-    def on_hold(self, pos, raw_event=None):
+    def on_hold(self, pos: Tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.HOLD, 
             start_pos=pos,
             raw_event=raw_event
         ))
 
-    def on_swipe(self, start_pos, end_pos, velo_x, velo_y, raw_event=None):
+    def on_swipe(
+        self, 
+        start_pos: Tuple[int, int], 
+        end_pos: Tuple[int, int], 
+        velo_x: float, 
+        velo_y: float, 
+        raw_event: pygame.event.Event | None = None
+    ) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.SWIPE, 
             start_pos=start_pos, 
@@ -206,12 +213,12 @@ class GestureReader:
             raw_event=raw_event
         ))
 
-    def on_scroll(self, amount, raw_event=None):
+    def on_scroll(self, amount: int, raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.SCROLL, 
             scroll_amount=amount,
             raw_event=raw_event
         ))
 
-    def output_gesture(self, gesture_data: GestureData):
-        return self.gesture_queue.append(gesture_data)
+    def output_gesture(self, gesture_data: GestureData) -> None:
+        self.gesture_queue.append(gesture_data)

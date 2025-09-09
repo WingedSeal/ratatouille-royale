@@ -1,13 +1,6 @@
 from enum import Enum, auto
 
 # gui_event_constants.py
-from pygame_gui import UI_BUTTON_PRESSED, UI_BUTTON_DOUBLE_CLICKED, UI_BUTTON_START_PRESS, UI_BUTTON_ON_HOVERED, UI_BUTTON_ON_UNHOVERED
-from pygame_gui import UI_TEXT_ENTRY_FINISHED, UI_TEXT_ENTRY_CHANGED
-from pygame_gui import UI_CHECK_BOX_CHECKED, UI_CHECK_BOX_UNCHECKED
-from pygame_gui import UI_DROP_DOWN_MENU_CHANGED
-
-from pygame_gui.elements import UIButton, UITextEntryLine, UISelectionList
-
 class StrEnum(Enum):
     def _generate_next_value_(name, start, count, last_values):
         return name

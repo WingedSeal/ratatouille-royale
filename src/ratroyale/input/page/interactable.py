@@ -1,23 +1,23 @@
 import pygame
-import pygame_gui
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from ratroyale.input.constants import GestureKey, ActionKey
 from ratroyale.event_tokens import GestureData
 from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, REGULAR_TILE_SIZE
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
+from abc import ABC, abstractmethod
 
-# Base interface
-class Hitbox:
-    def contains_point(self, point):
-        raise NotImplementedError
+class Hitbox(ABC):
+    @abstractmethod
+    def contains_point(self, point: Tuple[int, int]) -> bool:
+        """Return True if the point is inside the hitbox."""
+        pass
+    @abstractmethod
+    def draw(self, surface: pygame.Surface, color: Tuple[int, int, int] = (255, 0, 0)) -> None:
+        """Draw the hitbox for debugging purposes."""
+        pass
 
-    def draw(self, surface, color=(255, 0, 0)):
-        raise NotImplementedError
-
-
-# Rectangle hitbox
-class RectHitbox(Hitbox):
+class RectangleHitbox(Hitbox):
     def __init__(self, rect: pygame.Rect):
         self.rect = rect
 
@@ -28,7 +28,6 @@ class RectHitbox(Hitbox):
         pygame.draw.rect(surface, color, self.rect, 1)
 
 
-# Circle hitbox
 class CircleHitbox(Hitbox):
     def __init__(self, center, radius):
         self.center = center
@@ -122,11 +121,11 @@ class Interactable:
     #     if self.visuals:
     #         self.visuals.hide()
 
-"""
+class TileInteractable(Interactable):
+    """
     Interactable specialized for tiles.
     Handles hitbox, tile-specific visuals, and any tile-specific input logic.
     """
-class TileInteractable(Interactable):
     def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0):
         # Compute top-left for sprite placement
         tx, ty = TileVisual(tile)._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
@@ -152,9 +151,13 @@ class TileInteractable(Interactable):
         )
 
 class EntityInteractable(Interactable):
+    """
+    Interactable specialized for entities.
+    Handles hitbox, entity-specific visuals, and any entity-specific input logic.
+    """
     def __init__(self, entity: Entity, blocks_input: bool = True, z_order: int = 1):
         entity_visual = EntityVisual(entity)
-        hitbox = RectHitbox(pygame.Rect(
+        hitbox = RectangleHitbox(pygame.Rect(
             *entity_visual.position,
             entity_visual.image.get_width(),
             entity_visual.image.get_height()

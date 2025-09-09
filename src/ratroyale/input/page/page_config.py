@@ -4,7 +4,7 @@ from typing import Dict, List
 import pygame
 import pygame_gui
 from ratroyale.input.constants import ActionKey, PageName, GestureKey
-from ratroyale.input.page.interactable import Hitbox, RectHitbox  # adjust import path
+from ratroyale.input.page.interactable import Hitbox, RectangleHitbox  # adjust import path
 from ratroyale.visual.visual_component import VisualComponent, UIVisual
 
 @dataclass
@@ -32,7 +32,7 @@ MAIN_MENU = PageConfig(
     blocking=True,
     widgets=[
         InteractableConfig(
-            hitbox=RectHitbox(pygame.Rect(100, 100, 200, 50)),
+            hitbox=RectangleHitbox(pygame.Rect(100, 100, 200, 50)),
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.START_GAME
             },
@@ -43,7 +43,7 @@ MAIN_MENU = PageConfig(
             )]
         ),
         InteractableConfig(
-            hitbox=RectHitbox(pygame.Rect(100, 200, 200, 50)),
+            hitbox=RectangleHitbox(pygame.Rect(100, 200, 200, 50)),
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.QUIT
             },
@@ -62,7 +62,7 @@ PAUSE_BUTTON_PAGE = PageConfig(
     blocking=False,  # non-blocking, game continues in background
     widgets=[
         InteractableConfig(
-            hitbox=RectHitbox(pygame.Rect(700, 20, 80, 40)),  # top-right corner (adjust as needed)
+            hitbox=RectangleHitbox(pygame.Rect(700, 20, 80, 40)),  # top-right corner (adjust as needed)
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.PAUSE_GAME
             },
@@ -81,7 +81,7 @@ PAUSE_MENU_PAGE = PageConfig(
     blocking=True,  # stops input to underlying game
     widgets=[
         InteractableConfig(
-            hitbox=RectHitbox(pygame.Rect(300, 200, 200, 50)),
+            hitbox=RectangleHitbox(pygame.Rect(300, 200, 200, 50)),
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.RESUME_GAME
             },
@@ -92,7 +92,7 @@ PAUSE_MENU_PAGE = PageConfig(
             )]
         ),
         InteractableConfig(
-            hitbox=RectHitbox(pygame.Rect(300, 300, 200, 50)),
+            hitbox=RectangleHitbox(pygame.Rect(300, 300, 200, 50)),
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.BACK_TO_MENU
             },

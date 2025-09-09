@@ -2,10 +2,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from ratroyale.input.constants import ActionKey, PageName
 from ratroyale.event_tokens import *
+from typing import Dict, Callable
 if TYPE_CHECKING:
     from ratroyale.input.input_manager import InputManager  
 
-def create_callback_registry(manager: InputManager):
+def create_callback_registry(manager: InputManager) -> Dict[ActionKey, Callable[[InputManagerEvent], None]]:
     return {
             ActionKey.START_GAME: lambda tkn: manager.message_to_game(RequestStart_GameManagerEvent()),
             ActionKey.QUIT: lambda tkn: manager.exit(),
