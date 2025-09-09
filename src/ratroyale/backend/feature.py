@@ -1,13 +1,7 @@
 from dataclasses import dataclass
-from enum import Enum
-
+from typing import Iterable
 from .side import Side
 from .hexagon import OddRCoord
-
-
-class FeatureId(Enum):
-    DEPLOYMENT_ZONE_RAT = 1
-    DEPLOYMENT_ZONE_MOUSE = 2
 
 
 MINIMAL_FEATURE_DAMAGE_TAKEN = 1
@@ -17,7 +11,6 @@ MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 class Feature:
     pos: OddRCoord
     shape: list[OddRCoord]
-    feature_id: FeatureId
     health: int | None = None
     defense: int | None = None
     side: Side | None = None
@@ -34,6 +27,10 @@ class Feature:
         :returns: Whether the entity actually dies
         """
         return True
+
+    def resolve_shape(self) -> Iterable[OddRCoord]:
+        for pos_offset in self.shape:
+            yield self.pos + pos_offset
 
     def _take_damage(self, damage: int) -> tuple[bool, int]:
         """

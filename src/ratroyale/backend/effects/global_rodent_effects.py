@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-from ..side import Side
 from ..entity_effect import EffectClearSide, effect_data, RodentEffect
 
 if TYPE_CHECKING:

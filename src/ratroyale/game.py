@@ -41,7 +41,7 @@ class Game:
                     f"path/to/randomly_selected_map_file.{MAP_FILE_EXTENSION}")
                 map = Map.from_file(map_path)
                 # Generate AI's side info (deck, etc.)
-                ai_info = PlayerInfo(SqueakSet())
+                ai_info = PlayerInfo([], [], 0)
                 self.state = GamePlay(GameManager(
                     map, (self.player_info, ai_info), Side.RAT))
 
