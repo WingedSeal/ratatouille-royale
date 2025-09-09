@@ -11,6 +11,7 @@ class InputManager:
         self.callback_registry = create_callback_registry(self) # stored in input_bindings.py
 
     def message_to_page(self, page_event_token: PageManagerEvent):
+        print(page_event_token)
         self.coordination_manager.page_domain_mailbox.put(page_event_token)
 
     def message_to_game(self, game_event_token: GameManagerEvent):
@@ -24,11 +25,8 @@ class InputManager:
         while not self.coordination_manager.input_domain_mailbox.empty():
             token: InputManagerEvent = self.coordination_manager.input_domain_mailbox.get()
 
-            page_registry = self.callback_registry.get(token.page_name)
-            if not page_registry:
-                continue  # no registry for this page
-
-            callback = page_registry.get(token.action_key)
+            callback = self.callback_registry.get(token.action_key)
             if callback:
+                print("found no action")
                 callback(token)
     

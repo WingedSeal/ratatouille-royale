@@ -78,7 +78,10 @@ class Page:
 
 
     def handle_gestures(self, gestures: list[GestureData]):
+        remaining_gestures = []
+
         for gesture in gestures:
+            consumed = False
             for widget in self.interactables:
                 action_key = widget.process_gesture(gesture)
                 if action_key:
@@ -87,9 +90,17 @@ class Page:
                         action_key=action_key,
                         page_name=self.name
                     ))
+                    print(self.name, action_key)
 
                     if widget.blocks_input:
-                        break  # stop here if widget consumes the gesture
+                        consumed = True
+                        break  # stop checking more widgets for this gesture
+
+            if not consumed:
+                remaining_gestures.append(gesture)
+
+        return remaining_gestures
+
         
     def emit_input_event(self, input_event: InputManagerEvent):
         self.coordination_manager.input_domain_mailbox.put(input_event)

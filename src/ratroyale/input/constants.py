@@ -21,6 +21,9 @@ class ActionKey(StrEnum):
   START_GAME = auto()
   BACK_TO_MENU = auto()
   QUIT = auto()
+  PAUSE_GAME = auto()
+  RESUME_GAME = auto()
+
 
 class GestureKey(StrEnum):
   # Gesture actions
@@ -42,5 +45,7 @@ class PageName(StrEnum):
     TEST_SWAP = auto()
     GAME_BOARD = auto()
     CARD_OVERLAY = auto()
+    PAUSE_BUTTON = auto()
+    PAUSE_MENU = auto()
 
 

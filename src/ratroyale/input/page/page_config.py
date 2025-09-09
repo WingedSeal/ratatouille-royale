@@ -56,23 +56,53 @@ MAIN_MENU = PageConfig(
     ],
 )
 
-TEST_SWAP = PageConfig(
-    name=PageName.TEST_SWAP,
+PAUSE_BUTTON_PAGE = PageConfig(
+    name=PageName.PAUSE_BUTTON,
     theme_path="",
-    blocking=True,
+    blocking=False,  # non-blocking, game continues in background
     widgets=[
         InteractableConfig(
-            hitbox=RectHitbox(pygame.Rect(100, 100, 200, 50)),
+            hitbox=RectHitbox(pygame.Rect(700, 20, 80, 40)),  # top-right corner (adjust as needed)
+            gesture_action_mapping={
+                GestureKey.CLICK: ActionKey.PAUSE_GAME
+            },
+            visuals=[UIVisual(
+                type=pygame_gui.elements.UIButton,
+                relative_rect=pygame.Rect(700, 20, 80, 40),
+                kwargs={"text": "Pause"}
+            )]
+        )
+    ]
+)
+
+PAUSE_MENU_PAGE = PageConfig(
+    name=PageName.PAUSE_MENU,
+    theme_path="",
+    blocking=True,  # stops input to underlying game
+    widgets=[
+        InteractableConfig(
+            hitbox=RectHitbox(pygame.Rect(300, 200, 200, 50)),
+            gesture_action_mapping={
+                GestureKey.CLICK: ActionKey.RESUME_GAME
+            },
+            visuals=[UIVisual(
+                type=pygame_gui.elements.UIButton,
+                relative_rect=pygame.Rect(300, 200, 200, 50),
+                kwargs={"text": "Continue"}
+            )]
+        ),
+        InteractableConfig(
+            hitbox=RectHitbox(pygame.Rect(300, 300, 200, 50)),
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.BACK_TO_MENU
             },
             visuals=[UIVisual(
                 type=pygame_gui.elements.UIButton,
-                relative_rect=pygame.Rect(100, 100, 200, 50),
-                kwargs={"text": "Return to Main Menu"}
+                relative_rect=pygame.Rect(300, 300, 200, 50),
+                kwargs={"text": "Quit Game"}
             )]
         )
-    ],
+    ]
 )
 
 
@@ -89,6 +119,7 @@ GAME_BOARD = PageConfig(
 
 PAGES: dict[PageName, PageConfig] = {
     PageName.MAIN_MENU: MAIN_MENU,
-    PageName.TEST_SWAP: TEST_SWAP,
     PageName.GAME_BOARD: GAME_BOARD,
+    PageName.PAUSE_BUTTON: PAUSE_BUTTON_PAGE,
+    PageName.PAUSE_MENU: PAUSE_MENU_PAGE
 }

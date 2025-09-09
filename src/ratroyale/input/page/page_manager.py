@@ -62,9 +62,17 @@ class PageManager:
   def push_game_board_page(self, board: Board | None):
      self.pop_page(None)
 
-     print("using board:", board)
      page = self.page_factory.create_game_board_page(board)
      self.page_stack.append(page)
+
+     self.push_page(PageName.PAUSE_BUTTON)
+     
+  def end_game_return_to_menu(self):
+     self.pop_page(PageName.PAUSE_BUTTON)
+     self.pop_page(PageName.PAUSE_MENU)
+     self.pop_page(PageName.GAME_BOARD)
+
+     self.push_page(PageName.MAIN_MENU)
   
   # endregion
 
@@ -95,11 +103,11 @@ class PageManager:
   # region Drawing
 
   def update(self, dt):
-    for page in reversed(self.page_stack):
+    for page in self.page_stack:
       page.gui_manager.update(dt)
 
   def draw(self):
-    for page in reversed(self.page_stack):
+    for page in self.page_stack:
       page.draw()
       self.screen.blit(page.canvas, (0, 0))  # draw canvas first
 
@@ -114,13 +122,15 @@ class PageManager:
         token = self.coordination_manager.page_domain_mailbox.get()
 
         if isinstance(token, AddPageEvent_PageManagerEvent):
+          print("trying to push:", token.page_name)
           self.push_page(token.page_name)
         elif isinstance(token, RemovePageEvent_PageManagerEvent):
           self.pop_page(getattr(token, "page_name", None))  # remove top if no page_name
         elif isinstance(token, ReplaceTopPage_PageManagerEvent):
           self.replace_top(token.page_name)
         elif isinstance(token, ConfirmStartGame_PageManagerEvent):
-          print("page domain received board:", token.board)
           self.push_game_board_page(token.board)
+        elif isinstance(token, EndGame_PageManagerEvent):
+          self.end_game_return_to_menu()
 
   # endregion

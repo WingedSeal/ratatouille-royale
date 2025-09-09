@@ -7,15 +7,12 @@ if TYPE_CHECKING:
 
 def create_callback_registry(manager: InputManager):
     return {
-        PageName.MAIN_MENU: {
             ActionKey.START_GAME: lambda tkn: manager.message_to_game(RequestStart_GameManagerEvent()),
             ActionKey.QUIT: lambda tkn: manager.exit(),
-        },
-        PageName.TEST_SWAP: {
-            ActionKey.BACK_TO_MENU: lambda tkn: manager.message_to_page(ReplaceTopPage_PageManagerEvent(PageName.MAIN_MENU))
-        },
-        PageName.GAME_BOARD: {
+
             ActionKey.SELECT_TILE: lambda tkn: print("Tile clicked"),
-            ActionKey.SELECT_UNIT: lambda tkn: print("Unit clicked")
-        }
+            ActionKey.SELECT_UNIT: lambda tkn: print("Unit clicked"),
+            ActionKey.PAUSE_GAME: lambda tkn: manager.message_to_page(AddPageEvent_PageManagerEvent(PageName.PAUSE_MENU)),
+            ActionKey.RESUME_GAME: lambda tkn: manager.message_to_page(RemovePageEvent_PageManagerEvent(PageName.PAUSE_MENU)),
+            ActionKey.BACK_TO_MENU: lambda tkn: manager.message_to_page(EndGame_PageManagerEvent())
     }

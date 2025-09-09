@@ -30,6 +30,10 @@ class ReplaceTopPage_PageManagerEvent(PageManagerEvent):
 class ConfirmStartGame_PageManagerEvent(PageManagerEvent):
    board: Board | None
 
+@dataclass 
+class EndGame_PageManagerEvent(PageManagerEvent):
+   pass
+
 # Goes to Input Mailbox
 
 @dataclass
