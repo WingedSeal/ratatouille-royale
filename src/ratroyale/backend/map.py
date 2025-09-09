@@ -1,9 +1,27 @@
+from ratroyale.backend.hexagon import OddRCoord
 from .entity import Entity
 from .feature import Feature
 from .tile import Tile
 from pathlib import Path
 
 MAP_FILE_EXTENSION = "rrmap"
+
+
+class _DataPointer:
+    data: bytes
+    pointer: int
+
+    def __init__(self, data: bytes) -> None:
+        self.data = data
+        self.pointer = 0
+
+    def get_byte(self, size: int = 1) -> int:
+        return int.from_bytes(self.get_raw_bytes(size), 'big')
+
+    def get_raw_bytes(self, size: int = 1) -> bytes:
+        value = self.data[self.pointer:self.pointer + size]
+        self.pointer += size
+        return value
 
 
 class Map:
@@ -76,4 +94,46 @@ class Map:
             (1 + large_map_flag) bytes for entity's `OddRCoord.y`
         }
         """
+        data_pointer = _DataPointer(data)
+        map_name_length = data_pointer.get_byte()
+        name = data_pointer.get_raw_bytes(map_name_length).decode()
+        flags = data_pointer.get_byte()
+        large_map_flag = bool(flags & 1 << 2)
+        many_features_flag = bool(flags & 1 << 1)
+        many_entities_flag = bool(flags & 1 << 0)
+
+        coord_size = 1 + large_map_flag
+        size_x = data_pointer.get_byte(coord_size)
+        size_y = data_pointer.get_byte(coord_size)
+
+        tiles: list[list[Tile | None]] = []
+        for y in range(size_y):
+            tiles.append([])
+            for x in range(size_x):
+                height_byte = data_pointer.get_byte()
+                height = None if height_byte == 0 else height_byte - 1
+                if height is None:
+                    tiles[y].append(None)
+                else:
+                    tiles[y].append(Tile(OddRCoord(x, y), height))
+
+        feature_count = data_pointer.get_byte(1 + many_features_flag)
+        features: list[Feature] = []
+
+        for _ in range(feature_count):
+            feature_class = Feature.ALL_FEATURES[data_pointer.get_byte(2)]
+            health_byte = data_pointer.get_byte()
+            health = None if health_byte == 0 else health_byte
+            defense = data_pointer.get_byte()
+            side = data_pointer.get_byte()
+            shape_size = data_pointer.get_byte()
+
+            shape: list[OddRCoord] = []
+            for _ in range(shape_size):
+                x = data_pointer.get_byte(coord_size)
+                y = data_pointer.get_byte(coord_size)
+                shape.append(OddRCoord(x, y))
+
+            feature_class()
+
         return cls(0, 0, [])
