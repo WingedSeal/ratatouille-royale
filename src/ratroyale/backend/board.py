@@ -33,7 +33,7 @@ class Cache:
 class Board:
     size_x: int
     size_y: int
-    tiles: list[list[Tile]]
+    tiles: list[list[Tile | None]]
     cache: Cache
     event_queue: EventQueue[GameEvent]
 
