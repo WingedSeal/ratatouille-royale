@@ -1,6 +1,6 @@
 import pygame
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens import PageEvent, InputEvent
+from ratroyale.event_tokens import PageManagerEvent, InputManagerEvent, GameManagerEvent
 from ratroyale.input.input_bindings import create_callback_registry
 
 
@@ -10,8 +10,11 @@ class InputManager:
         self.coordination_manager = coordination_manager
         self.callback_registry = create_callback_registry(self) # stored in input_bindings.py
 
-    def message_to_page(self, page_event_token: PageEvent):
+    def message_to_page(self, page_event_token: PageManagerEvent):
         self.coordination_manager.page_domain_mailbox.put(page_event_token)
+
+    def message_to_game(self, game_event_token: GameManagerEvent):
+        self.coordination_manager.game_domain_mailbox.put(game_event_token)
 
     def exit(self):
         pygame.quit()
@@ -19,7 +22,7 @@ class InputManager:
 
     def execute_callbacks(self):
         while not self.coordination_manager.input_domain_mailbox.empty():
-            token: InputEvent = self.coordination_manager.input_domain_mailbox.get()
+            token: InputManagerEvent = self.coordination_manager.input_domain_mailbox.get()
 
             page_registry = self.callback_registry.get(token.page_name)
             if not page_registry:

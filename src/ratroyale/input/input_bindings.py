@@ -8,11 +8,11 @@ if TYPE_CHECKING:
 def create_callback_registry(manager: InputManager):
     return {
         PageName.MAIN_MENU: {
-            ActionKey.START_GAME: lambda tkn: manager.message_to_page(ConfirmStartGamePageEvent(None)),
+            ActionKey.START_GAME: lambda tkn: manager.message_to_game(RequestStart_GameManagerEvent()),
             ActionKey.QUIT: lambda tkn: manager.exit(),
         },
         PageName.TEST_SWAP: {
-            ActionKey.BACK_TO_MENU: lambda tkn: manager.message_to_page(ReplaceTopPageEvent(PageName.MAIN_MENU))
+            ActionKey.BACK_TO_MENU: lambda tkn: manager.message_to_page(ReplaceTopPage_PageManagerEvent(PageName.MAIN_MENU))
         },
         PageName.GAME_BOARD: {
             ActionKey.SELECT_TILE: lambda tkn: print("Tile clicked"),

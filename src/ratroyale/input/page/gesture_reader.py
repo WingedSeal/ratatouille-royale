@@ -1,6 +1,6 @@
 import pygame
 import time
-from ratroyale.event_tokens import InputEvent, GestureData
+from ratroyale.event_tokens import InputManagerEvent, GestureData
 from ratroyale.input.constants import GestureKey
 from typing import List
 

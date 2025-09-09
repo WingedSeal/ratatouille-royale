@@ -112,13 +112,13 @@ class PageManager:
     while not self.coordination_manager.page_domain_mailbox.empty():
         token = self.coordination_manager.page_domain_mailbox.get()
 
-        if isinstance(token, AddPageEvent):
+        if isinstance(token, AddPageEvent_PageManagerEvent):
           self.push_page(token.page_name)
-        elif isinstance(token, RemovePageEvent):
+        elif isinstance(token, RemovePageEvent_PageManagerEvent):
           self.pop_page(getattr(token, "page_name", None))  # remove top if no page_name
-        elif isinstance(token, ReplaceTopPageEvent):
+        elif isinstance(token, ReplaceTopPage_PageManagerEvent):
           self.replace_top(token.page_name)
-        elif isinstance(token, ConfirmStartGamePageEvent):
+        elif isinstance(token, ConfirmStartGame_PageManagerEvent):
           self.push_game_board_page(token.board)
 
   # endregion

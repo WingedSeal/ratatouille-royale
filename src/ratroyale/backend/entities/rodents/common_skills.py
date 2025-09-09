@@ -2,11 +2,12 @@ from typing import TYPE_CHECKING
 
 from ...skill_callback import SkillCallback, skill_callback_check
 
+from ...entity import SkillResult
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
     from ...entities.rodent import Rodent
-    from ...entity import EntitySkill, SkillResult
+    from ...entity import EntitySkill
     from ...board import Board
     from ...hexagon import OddRCoord
 

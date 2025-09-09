@@ -1,19 +1,19 @@
 from ratroyale.utils import EventQueue
-from ratroyale.event_tokens import EventToken, InputEvent, PageEvent, GameEvent, VisualEvent
+from ratroyale.event_tokens import EventToken, InputManagerEvent, PageManagerEvent, GameManagerEvent, VisualEvent
 
 class CoordinationManager:
   def __init__(self):
-    self.page_domain_mailbox = EventQueue[PageEvent]()
-    self.input_domain_mailbox = EventQueue[InputEvent]()
-    self.game_domain_mailbox = EventQueue[GameEvent]()
+    self.page_domain_mailbox = EventQueue[PageManagerEvent]()
+    self.input_domain_mailbox = EventQueue[InputManagerEvent]()
+    self.game_domain_mailbox = EventQueue[GameManagerEvent]()
     self.visual_domain_mailbox = EventQueue[VisualEvent]()
 
   def put_message(self, msg: EventToken):
-    if isinstance(msg, PageEvent):
+    if isinstance(msg, PageManagerEvent):
       self.page_domain_mailbox.put(msg)
-    elif isinstance(msg, InputEvent):
+    elif isinstance(msg, InputManagerEvent):
       self.input_domain_mailbox.put(msg)
-    elif isinstance(msg, GameEvent):
+    elif isinstance(msg, GameManagerEvent):
       self.game_domain_mailbox.put(msg)
     elif isinstance(msg, VisualEvent):
       self.visual_domain_mailbox.put(msg)

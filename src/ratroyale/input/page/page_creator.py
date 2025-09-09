@@ -3,7 +3,7 @@ import pygame
 from typing import List
 
 from .page_config import PAGES, PageConfig
-from ratroyale.event_tokens import InputEvent
+from ratroyale.event_tokens import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageName
 from ratroyale.input.page.interactable import Interactable, TileInteractable, EntityInteractable
@@ -82,7 +82,7 @@ class Page:
             for widget in self.interactables:
                 action_key = widget.process_gesture(gesture)
                 if action_key:
-                    self.emit_input_event(InputEvent(
+                    self.emit_input_event(InputManagerEvent(
                         gesture_data=gesture,
                         action_key=action_key,
                         page_name=self.name
@@ -91,7 +91,7 @@ class Page:
                     if widget.blocks_input:
                         break  # stop here if widget consumes the gesture
         
-    def emit_input_event(self, input_event: InputEvent):
+    def emit_input_event(self, input_event: InputManagerEvent):
         self.coordination_manager.input_domain_mailbox.put(input_event)
 
 

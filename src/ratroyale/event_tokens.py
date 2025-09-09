@@ -11,23 +11,23 @@ class EventToken:
 # Goes to Page Mailbox
 
 @dataclass
-class PageEvent(EventToken):
+class PageManagerEvent(EventToken):
   pass
 
 @dataclass
-class AddPageEvent(PageEvent):
+class AddPageEvent_PageManagerEvent(PageManagerEvent):
     page_name: PageName
 
 @dataclass
-class RemovePageEvent(PageEvent):
+class RemovePageEvent_PageManagerEvent(PageManagerEvent):
     page_name: PageName | None = None
 
 @dataclass
-class ReplaceTopPageEvent(PageEvent):
+class ReplaceTopPage_PageManagerEvent(PageManagerEvent):
     page_name: PageName
 
 @dataclass
-class ConfirmStartGamePageEvent(PageEvent):
+class ConfirmStartGame_PageManagerEvent(PageManagerEvent):
    board: Board | None
 
 # Goes to Input Mailbox
@@ -48,7 +48,7 @@ class GestureData:
     raw_event: pygame.event.Event | None = None # Optional
 
 @dataclass
-class InputEvent(EventToken):
+class InputManagerEvent(EventToken):
   gesture_data: GestureData
 
   # To be decorated via the input consumption pipeline
@@ -58,15 +58,15 @@ class InputEvent(EventToken):
 # Goes to Game Mailbox
 
 @dataclass
-class GameEvent(EventToken):
+class GameManagerEvent(EventToken):
   pass
 
 # example class
-class RequestStartGameEvent(GameEvent):
+class RequestStart_GameManagerEvent(GameManagerEvent):
   map_path: str | None = None # Could change to enums that represents different premade stages later.
   pass
 
-class CardPlacementGameEvent(GameEvent):
+class CardPlacement_GameManagerEvent(GameManagerEvent):
   pass
 
 # Goes to Visual Mailbox
