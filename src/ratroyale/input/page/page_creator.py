@@ -135,7 +135,7 @@ class GameBoardPage(Page):
                 for tile in tile_list:
                     tile_interactable = TileInteractable(tile)
                     self.add_element(tile_interactable)
-                    self.tile_visuals.extend(tile_interactable.visuals)  
+                    self.tile_visuals.extend(tile_interactable.visuals)
         else:
             # Create a 5x5 grid of Tiles
             for q in range(5):
@@ -151,12 +151,12 @@ class GameBoardPage(Page):
                     self.tile_visuals.extend(tile_interactable.visuals)
 
         # --- Entities as interactables ---
-        # Kept in case we wanna test maps with entities already on.
-        # for entity in entities:
-        #     entity_interactable = EntityInteractable(entity)
-        #     self.add_element(entity_interactable)
-        #     self.entity_visuals.extend(entity_interactable.visuals)  # append to base class visuals
-        #     print(entity_interactable)
+        # Iterate over all entities on the board (or empty list if no board)
+        entities_to_add = board.cache.entities if board else []
+        for entity in entities_to_add:
+            entity_interactable = EntityInteractable(entity)
+            self.add_element(entity_interactable)
+            self.entity_visuals.extend(entity_interactable.visuals)
 
         # Sort all interactables by Z-order (highest first)
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)

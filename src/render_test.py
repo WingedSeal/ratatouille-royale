@@ -13,6 +13,7 @@ from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.side import Side
 from ratroyale.backend.player_info.squeak_set import SqueakSet
+from ratroyale.backend.player_info.squeak import Squeak, SqueakType, SqueakOnPlace, SqueakGetPlacableTiles
 
 
 
@@ -27,11 +28,11 @@ def main():
     input_manager = InputManager(coordination_manager=coordination_manager)
 
     # region GAME MANAGER DOMAIN 
-    size_x, size_y = 5, 8
+    size_x, size_y = 5, 10
     tiles: list[list[Tile]] = []
-    for q in range(5):
+    for q in range(size_x):
         row = []
-        for r in range(5):
+        for r in range(size_y):
             tile = Tile(
                 coord=OddRCoord(q, r),
                 entities=[],
@@ -41,12 +42,44 @@ def main():
             row.append(tile)
         tiles.append(row)
     entities: list[Entity] = [TailBlazer(OddRCoord(1,3))]
+
+    # Dummy callables
+    dummy_on_place: SqueakOnPlace = lambda game_manager, coord: True
+    dummy_get_placable: SqueakGetPlacableTiles = lambda game_manager: []
+
+    # Create 5 dummy squeaks
+    dummy_squeaks = [
+        Squeak(
+            crumb_cost=1,
+            squeak_type=SqueakType.RODENT,
+            on_place=dummy_on_place,
+            get_placable_tiles=dummy_get_placable
+        )
+        for i in range(5)
+    ]
+
+    # Example squeak sets (just indices into dummy_squeaks)
+    dummy_squeak_sets = [set(range(len(dummy_squeaks)))]
+    selected_index = 0
+
+    # PlayerInfo
+    player_info_1 = PlayerInfo(
+        all_squeaks=dummy_squeaks,
+        squeak_sets=dummy_squeak_sets,
+        selected_squeak_set_index=selected_index
+    )
+
+    player_info_2 = PlayerInfo(
+        all_squeaks=dummy_squeaks,
+        squeak_sets=dummy_squeak_sets,
+        selected_squeak_set_index=selected_index
+)
     
     map = Map(size_x=size_x, size_y=size_y, tiles=tiles, entities=entities, features=[])
     game_manager = GameManager(map=map, 
                                players_info=(
-                                   PlayerInfo(squeak_set=SqueakSet()), 
-                                   PlayerInfo(squeak_set=SqueakSet())), 
+                                   player_info_1, 
+                                   player_info_2),
                                 first_turn=Side.MOUSE,
                                 coordination_manager=coordination_manager)
     # endregion

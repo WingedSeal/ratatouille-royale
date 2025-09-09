@@ -60,7 +60,7 @@ class TileVisual(SpriteVisual):
         self.tile = tile
         pos = self._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
         super().__init__(
-            sprite_enum=getattr(tile, "sprite_variant", SpriteRegistryKey.DEFAULT_TILE),
+            sprite_enum=getattr(tile, "sprite_key", SpriteRegistryKey.DEFAULT_TILE),
             position=pos
         )
 
@@ -74,7 +74,7 @@ class EntityVisual(SpriteVisual):
     def __init__(self, entity: Entity):
         self.entity = entity
         super().__init__(
-            sprite_enum=getattr(entity, "sprite_variant", SpriteRegistryKey.DEFAULT_ENTITY),
+            sprite_enum=getattr(entity, "sprite_key", SpriteRegistryKey.DEFAULT_ENTITY),
             position=self._hex_to_world(entity.pos.x, entity.pos.y, REGULAR_TILE_SIZE)
         )
 

@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from ..rodent import Rodent, rodent_data
 from ...entity import _EntitySkill, SkillResult, entity_skill_check
 from .common_skills import normal_damage, select_targetable
+from ratroyale.visual.sprite_registry import SpriteRegistryKey
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
@@ -33,7 +34,8 @@ if TYPE_CHECKING:
             crumb_cost=7
         )
 
-    ]
+    ],
+    sprite_key=SpriteRegistryKey.RODENT_TAILBLAZER
 )
 class TailBlazer(Rodent):
     @entity_skill_check

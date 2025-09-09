@@ -76,6 +76,7 @@ class GameManager:
             if isinstance(token, RequestStart_GameManagerEvent):
                 self.coordination_manager.page_domain_mailbox.put(
                     ConfirmStartGame_PageManagerEvent(self.board))
+                print("game domain sent board:", self.board)
                 # In actual implementation, replace the sample map in render test with an actual loaded map
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:

@@ -62,6 +62,7 @@ class PageManager:
   def push_game_board_page(self, board: Board | None):
      self.pop_page(None)
 
+     print("using board:", board)
      page = self.page_factory.create_game_board_page(board)
      self.page_stack.append(page)
   
@@ -119,6 +120,7 @@ class PageManager:
         elif isinstance(token, ReplaceTopPage_PageManagerEvent):
           self.replace_top(token.page_name)
         elif isinstance(token, ConfirmStartGame_PageManagerEvent):
+          print("page domain received board:", token.board)
           self.push_game_board_page(token.board)
 
   # endregion
