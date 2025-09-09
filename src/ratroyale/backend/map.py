@@ -7,6 +7,7 @@ MAP_FILE_EXTENSION = "rrmap"
 
 
 class Map:
+    name: str
     size_x: int
     size_y: int
     features: list[Feature]
@@ -36,5 +37,43 @@ class Map:
 
     @classmethod
     def from_file(cls, file: Path) -> "Map":
-        # TODO
+        return cls(0, 0, [])
+
+    @classmethod
+    def load(cls, data: bytes) -> "Map":
+        """
+        1 byte for map_name_length
+        map_name_length byte for `name`
+        5 bits 
+        1 bit for large_map_flag
+        1 bit for many_features_flag
+        1 bit for many_entities_flag
+        (1 + large_map_flag) bytes for `size_x`
+        (1 + large_map_flag) bytes for `size_y`
+
+        loop (`size_x`*`size_y`) times {
+            1 byte for tile's `height` (`None if byte == 0 else byte - 1`)
+        }
+
+        (1 + many_features_flag) byte for feature_count
+        loop feature_count times {
+            2 byte for feature's class
+            1 byte for feature's `health` (`None if byte == 0 else byte`)
+            1 byte for feature's `defense`
+            1 byte for feature's `side`
+            1 byte for shape_size
+            loop shape_size times {
+                (1 + large_map_flag) bytes for shape's `OddRCoord.x`
+                (1 + large_map_flag) bytes for shape's `OddRCoord.y`
+            }
+        }
+
+        (1 + many_entities_flag) byte for entity_count
+        loop entity_count times {
+            2 byte for entity's class
+            1 byte for entity's `side`
+            (1 + large_map_flag) bytes for entity's `OddRCoord.x`
+            (1 + large_map_flag) bytes for entity's `OddRCoord.y`
+        }
+        """
         return cls(0, 0, [])
