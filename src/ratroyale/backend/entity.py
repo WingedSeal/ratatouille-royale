@@ -45,7 +45,7 @@ class Entity:
     name: str = ""
     max_health: int | None = None
     health: int | None = None
-    defense: int | None = None
+    defense: int = 0
     movable: bool = False
     collision: bool = False
     description: str = ""
@@ -82,7 +82,7 @@ class Entity:
             damage = new_damage
         if self.health is None:
             raise ValueError("Entity without health just taken damage")
-        damage_taken = max(MINIMAL_DAMAGE_TAKEN, damage - (self.defense or 0))
+        damage_taken = max(MINIMAL_DAMAGE_TAKEN, damage - self.defense)
         self.health -= damage_taken
         if self.health <= 0:
             damage_taken += self.health
@@ -98,7 +98,7 @@ Entity_T = TypeVar('Entity_T', bound=Entity)
 
 def entity_data(*,
                 health: int | None = None,
-                defense: int | None = None,
+                defense: int = 0,
                 movable: bool = False,
                 collision: bool = False,
                 height: int = 0,
