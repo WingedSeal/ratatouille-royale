@@ -9,10 +9,9 @@ MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 
 @dataclass
 class Feature:
-    pos: OddRCoord
     shape: list[OddRCoord]
     health: int | None = None
-    defense: int | None = None
+    defense: int = 0
     side: Side | None = None
 
     def on_damage_taken(self, damage: int) -> int | None:
@@ -28,10 +27,6 @@ class Feature:
         """
         return True
 
-    def resolve_shape(self) -> Iterable[OddRCoord]:
-        for pos_offset in self.shape:
-            yield self.pos + pos_offset
-
     def _take_damage(self, damage: int) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health
@@ -44,7 +39,7 @@ class Feature:
         if self.health is None:
             raise ValueError("Entity without health just taken damage")
         damage_taken = max(MINIMAL_FEATURE_DAMAGE_TAKEN,
-                           damage - (self.defense or 0))
+                           damage - self.defense)
         self.health -= damage_taken
         if self.health <= 0:
             damage_taken += self.health

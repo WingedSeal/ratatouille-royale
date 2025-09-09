@@ -18,7 +18,7 @@ class SqueakType(Enum):
 
 
 class SqueakOnPlace(Protocol):
-    def __call__(self, game_manager: "GameManager", coord: OddRCoord) -> bool:
+    def __call__(self, game_manager: "GameManager", coord: OddRCoord) -> None:
         ...
 
 
@@ -39,26 +39,26 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
     side = game_manager.turn
     used_coord: set[OddRCoord] = set()
     for deployment_zone in game_manager.board.cache.deployment_zones[side]:
-        for pos in deployment_zone.resolve_shape():
+        for pos in deployment_zone.shape:
             if pos in used_coord:
                 continue
             used_coord.add(pos)
+            tile = game_manager.board.get_tile(pos)
+            if tile is None:
+                continue
+            if any(entity.collision for entity in tile.entities):
+                continue
             yield pos
 
 
 def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
-    def on_place(game_manager: "GameManager", coord: OddRCoord) -> bool:
+    def on_place(game_manager: "GameManager", coord: OddRCoord) -> None:
         return summon(game_manager, coord, rodent_type)
     return on_place
 
 
-def summon(game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]) -> bool:
+def summon(game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]) -> None:
     tile = game_manager.board.get_tile(coord)
     if tile is None:
         raise ValueError("Trying to summon rodent on None tile")
-    if any(entity.collision for entity in tile.entities):
-        return False
-    if any(isinstance(feature, DeploymentZone) and feature.side == game_manager.turn for feature in tile.features):
-        game_manager.board.add_entity(rodent_type(coord, game_manager.turn))
-        return True
-    return False
+    game_manager.board.add_entity(rodent_type(coord, game_manager.turn))

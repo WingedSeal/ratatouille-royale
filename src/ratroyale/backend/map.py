@@ -26,19 +26,20 @@ class Map:
         if feature in self.features:
             raise ValueError("This feature already exist in this position")
         self.features.append(feature)
-        for pos in feature.resolve_shape():
+        for pos in feature.shape:
             tile = self.tiles[pos.y][pos.x]
             if tile is None:
                 continue
             tile.features.append(feature)
-
+            
     def remove_feature(self, feature: Feature):
         self.features.remove(feature)
-        for pos in feature.resolve_shape():
+        for pos in feature.shape:
             tile = self.tiles[pos.y][pos.x]
             if tile is None:
                 continue
             tile.features.remove(feature)
+            
 
     @classmethod
     def from_file(cls, file: Path) -> "Map":
