@@ -1,4 +1,5 @@
-from ratroyale.backend.hexagon import OddRCoord
+from .hexagon import OddRCoord
+from .side import Side
 from .entity import Entity
 from .feature import Feature
 from .tile import Tile
@@ -75,7 +76,8 @@ class Map:
 
         (1 + many_features_flag) byte for feature_count
         loop feature_count times {
-            2 byte for feature's class
+            1 bit for feature_unique_constructor_flag
+            15 bits for feature's class
             1 byte for feature's `health` (`None if byte == 0 else byte`)
             1 byte for feature's `defense`
             1 byte for feature's `side`
@@ -84,14 +86,27 @@ class Map:
                 (1 + large_map_flag) bytes for shape's `OddRCoord.x`
                 (1 + large_map_flag) bytes for shape's `OddRCoord.y`
             }
+            if feature_unique_constructor_flag {
+                1 byte for unique_parameter_count 
+                loop unique_parameter_count {
+                    1 byte for feature's unique parameter
+                }
+            }
         }
 
         (1 + many_entities_flag) byte for entity_count
         loop entity_count times {
-            2 byte for entity's class
+            1 bit for entity_unique_constructor_flag
+            15 bits for entity's class
             1 byte for entity's `side`
             (1 + large_map_flag) bytes for entity's `OddRCoord.x`
             (1 + large_map_flag) bytes for entity's `OddRCoord.y`
+            if entity_unique_constructor_flag {
+                1 byte for unique_parameter_count 
+                loop unique_parameter_count {
+                    1 byte for entity's unique parameter
+                }
+            }
         }
         """
         data_pointer = _DataPointer(data)
@@ -121,11 +136,16 @@ class Map:
         features: list[Feature] = []
 
         for _ in range(feature_count):
-            feature_class = Feature.ALL_FEATURES[data_pointer.get_byte(2)]
+            feature_class_and_unique_constructor_flag = data_pointer.get_byte(
+                2)
+            feature_class = Feature.ALL_FEATURES[feature_class_and_unique_constructor_flag & ~(
+                1 << 15)]
+            unique_constructor_flag = bool(feature_class_and_unique_constructor_flag & (
+                1 << 15))
             health_byte = data_pointer.get_byte()
             health = None if health_byte == 0 else health_byte
             defense = data_pointer.get_byte()
-            side = data_pointer.get_byte()
+            side = Side.from_int(data_pointer.get_byte())
             shape_size = data_pointer.get_byte()
 
             shape: list[OddRCoord] = []
@@ -134,6 +154,34 @@ class Map:
                 y = data_pointer.get_byte(coord_size)
                 shape.append(OddRCoord(x, y))
 
-            feature_class()
+            feature_unique_parameters: list[int] = []
+            if unique_constructor_flag:
+                unique_parameter_count = data_pointer.get_byte()
+                for _ in range(unique_parameter_count):
+                    feature_unique_parameters.append(data_pointer.get_byte())
 
-        return cls(0, 0, [])
+            features.append(feature_class(
+                shape, health, defense, side, *feature_unique_parameters))
+
+        entity_count = data_pointer.get_byte(1 + many_entities_flag)
+        entities: list[Entity] = []
+
+        for _ in range(entity_count):
+            entity_class_and_unique_constructor_flag = data_pointer.get_byte(
+                2)
+            entity_class = Entity.PRE_PLACED_ENTITIES[entity_class_and_unique_constructor_flag & ~(
+                1 << 15)]
+            unique_constructor_flag = bool(entity_class_and_unique_constructor_flag & (
+                1 << 15))
+            side = Side.from_int(data_pointer.get_byte())
+            x = data_pointer.get_byte(coord_size)
+            y = data_pointer.get_byte(coord_size)
+            entity_unique_parameters: list[int] = []
+            if unique_constructor_flag:
+                unique_parameter_count = data_pointer.get_byte()
+                for _ in range(unique_parameter_count):
+                    entity_unique_parameters.append(data_pointer.get_byte())
+            entities.append(entity_class(
+                OddRCoord(x, y), side, *entity_unique_parameters))
+
+        return cls(size_x, size_y, tiles, entities, features)

@@ -12,3 +12,9 @@ class Side(Enum):
         elif self == Side.MOUSE:
             return Side.RAT
         raise ValueError("Unreachable")
+
+    @classmethod
+    def from_int(cls, value: int) -> "Side | None":
+        if value == 0:
+            return None
+        return cls(value - 1)
