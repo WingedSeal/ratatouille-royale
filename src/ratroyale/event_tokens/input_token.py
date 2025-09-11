@@ -22,7 +22,7 @@ class GestureData:
     key: str | None = None
     mouse: str | None = None
     scroll_amount: int | None = None
-    raw_event: pygame.event.Event | None = None # Optional
+    raw_event: pygame.event.Event | None = None
 
 @dataclass
 class InputManagerEvent(EventToken):

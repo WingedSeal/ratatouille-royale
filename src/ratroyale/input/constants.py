@@ -1,11 +1,7 @@
 from enum import Enum, auto
 
-# gui_event_constants.py
-class StrEnum(Enum):
-    def _generate_next_value_(name, start, count, last_values):
-        return name
 
-class ActionKey(StrEnum):
+class ActionKey(Enum):
   # Canvas actions
   SELECT_TILE = auto()
   SELECT_UNIT = auto()
@@ -18,7 +14,7 @@ class ActionKey(StrEnum):
   RESUME_GAME = auto()
 
 
-class GestureKey(StrEnum):
+class GestureKey(Enum):
   # Gesture actions
   CLICK = auto()
   DOUBLE_CLICK = auto()
@@ -28,12 +24,12 @@ class GestureKey(StrEnum):
   HOLD = auto()
   SCROLL = auto()
 
-class GUIEventSource(StrEnum):
+class GUIEventSource(Enum):
   UI_ELEMENT = auto()
   GESTURE = auto()
 
 # Enum for page names
-class PageName(StrEnum):
+class PageName(Enum):
     MAIN_MENU = auto()
     TEST_SWAP = auto()
     GAME_BOARD = auto()
