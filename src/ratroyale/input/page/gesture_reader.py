@@ -13,13 +13,35 @@ class GestureState(Enum):
     STATE_HOLD_TRIGGERED = auto()
 
 class GestureReader:
-    CLICK_THRESHOLD = 10
-    DRAG_THRESHOLD = 5
-    HOLD_THRESHOLD = 0.5
-    HOLD_MOVE_TOLERANCE = 10
-    DOUBLE_CLICK_TIME = 0.40
-    SWIPE_SPEED_THRESHOLD = 800  # pixels per second
-    SWIPE_DISTANCE_THRESHOLD = 50  # pixels
+    CLICK_THRESHOLD__PX = 10 
+    """
+    When attempting to detect double clicks, check how far the mouse has moved from the last click.
+    If it is farther than this distance, the second click does not register as a double click.
+    """
+    DRAG_THRESHOLD__PX = 5
+    """
+    How far the mouse has to move while held down to begin a drag sequence.
+    """
+    HOLD_THRESHOLD__SEC = 0.5
+    """
+    How long the mouse has to be held to register a hold.
+    """
+    HOLD_MOVE_TOLERANCE__PX = 10
+    """
+    While holding, if the mouse moves beyond this distance, it cancels the hold and initiates a drag instead.
+    """
+    DOUBLE_CLICK_TIME__SEC = 0.40
+    """
+    Maximum time between two clicks to register as a double click.
+    """
+    SWIPE_SPEED_THRESHOLD__PX_PER_SEC = 800  
+    """
+    The velocity a drag gesture must reach to be considered a swipe instead.
+    """
+    SWIPE_DISTANCE_THRESHOLD__PX = 50  
+    """
+    The minimum distance for a drag gesture to be eligible for being considered as a swipe.
+    """
 
     STATE_IDLE = GestureState.STATE_IDLE
     STATE_PRESSED = GestureState.STATE_PRESSED
@@ -103,7 +125,7 @@ class GestureReader:
             dy = pos[1] - self.start_pos[1]
             distance = (dx**2 + dy**2) ** 0.5
 
-            if distance > self.DRAG_THRESHOLD and self.state != self.STATE_DRAGGING:
+            if distance > self.DRAG_THRESHOLD__PX and self.state != self.STATE_DRAGGING:
                 self.state = self.STATE_DRAGGING
                 self.dragging_last_pos = self.last_pos
                 self._on_drag_start()
@@ -126,10 +148,10 @@ class GestureReader:
         dy = pos[1] - self.start_pos[1]
         distance = (dx**2 + dy**2) ** 0.5
 
-        IS_SWIPING = self.state == self.STATE_DRAGGING and distance >= self.SWIPE_DISTANCE_THRESHOLD
+        IS_SWIPING = self.state == self.STATE_DRAGGING and distance >= self.SWIPE_DISTANCE_THRESHOLD__PX
         if IS_SWIPING:
             speed = distance / max(elapsed_time, 1e-6)
-            if speed >= self.SWIPE_SPEED_THRESHOLD:
+            if speed >= self.SWIPE_SPEED_THRESHOLD__PX_PER_SEC:
                 self.on_swipe(self.start_pos, pos, dx / distance, dy / distance, raw_event)
 
         IS_CLICKING = self.state == self.STATE_PRESSED
@@ -138,9 +160,9 @@ class GestureReader:
             if (
                 self.last_click_time is not None
                 and self.last_click_pos is not None
-                and current_time - self.last_click_time <= self.DOUBLE_CLICK_TIME
+                and current_time - self.last_click_time <= self.DOUBLE_CLICK_TIME__SEC
                 and ((pos[0] - self.last_click_pos[0]) ** 2 + (pos[1] - self.last_click_pos[1]) ** 2) ** 0.5
-                <= self.CLICK_THRESHOLD
+                <= self.CLICK_THRESHOLD__PX
             ):
                 self.on_double_click(pos, raw_event)
                 self.last_click_time = None
@@ -162,7 +184,7 @@ class GestureReader:
             dx = self.last_pos[0] - self.start_pos[0]
             dy = self.last_pos[1] - self.start_pos[1]
             distance = (dx**2 + dy**2) ** 0.5
-            if elapsed >= self.HOLD_THRESHOLD and distance <= self.HOLD_MOVE_TOLERANCE:
+            if elapsed >= self.HOLD_THRESHOLD__SEC and distance <= self.HOLD_MOVE_TOLERANCE__PX:
                 self.state = self.STATE_HOLD_TRIGGERED
                 self.on_hold(self.start_pos)
 
