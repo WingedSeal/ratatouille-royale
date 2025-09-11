@@ -3,8 +3,15 @@ import time
 from ratroyale.event_tokens.input_token import GestureData
 from ratroyale.input.constants import GestureKey
 from typing import List, Tuple
+from enum import Enum, auto
 
 # TODO: fix strange unresponsive click issues.
+class GestureState(Enum):
+    STATE_IDLE = auto()
+    STATE_PRESSED = auto()
+    STATE_DRAGGING = auto()
+    STATE_HOLD_TRIGGERED = auto()
+
 class GestureReader:
     CLICK_THRESHOLD = 10
     DRAG_THRESHOLD = 5
@@ -14,13 +21,13 @@ class GestureReader:
     SWIPE_SPEED_THRESHOLD = 800  # pixels per second
     SWIPE_DISTANCE_THRESHOLD = 50  # pixels
 
-    STATE_IDLE = "idle"
-    STATE_PRESSED = "pressed"
-    STATE_DRAGGING = "dragging"
-    STATE_HOLD_TRIGGERED = "hold_triggered"
+    STATE_IDLE = GestureState.STATE_IDLE
+    STATE_PRESSED = GestureState.STATE_PRESSED
+    STATE_DRAGGING = GestureState.STATE_DRAGGING
+    STATE_HOLD_TRIGGERED = GestureState.STATE_HOLD_TRIGGERED
 
     def __init__(self):
-        self.state: str = self.STATE_IDLE
+        self.state: GestureState = self.STATE_IDLE
         self.start_pos: tuple[int, int] | None = None
         self.last_pos: tuple[int, int] | None = None
         self.dragging_last_pos: tuple[int, int] | None = None
