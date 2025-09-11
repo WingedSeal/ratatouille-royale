@@ -12,6 +12,10 @@ T = TypeVar("T", bound=EventToken)
 
 class CoordinationManager:
     def __init__(self):
+        """
+        Controls the running state of the game.
+        """
+        self.game_running = True
         # Map each EventToken type to its mailbox queue
         self.mailboxes: Dict[Type[EventToken], EventQueue] = {
             PageManagerEvent: EventQueue[PageManagerEvent](),
@@ -34,3 +38,6 @@ class CoordinationManager:
 
     def all_mailboxes_empty(self) -> bool:
         return all(q.empty() for q in self.mailboxes.values())
+    
+    def stop_game(self):
+        self.game_running = False

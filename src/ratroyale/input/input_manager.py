@@ -9,7 +9,6 @@ from ratroyale.input.input_bindings import create_callback_registry
 
 class InputManager:
     def __init__(self, coordination_manager: CoordinationManager):
-        # Callback queue & registry for navigation
         self.coordination_manager = coordination_manager
         self.callback_registry = create_callback_registry(self) # stored in input_bindings.py
 
@@ -17,8 +16,7 @@ class InputManager:
         self.coordination_manager.put_message(event_token)
 
     def exit(self):
-        pygame.quit()
-        exit()
+        self.coordination_manager.stop_game()
 
     def execute_callbacks(self):
         input_queue = self.coordination_manager.mailboxes[InputManagerEvent]

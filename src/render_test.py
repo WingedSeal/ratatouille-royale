@@ -86,8 +86,7 @@ def main():
 
     page_manager.push_page(PageName.MAIN_MENU)
 
-    running = True
-    while running:
+    while coordination_manager.game_running:
         dt = clock.tick(60) / 1000.0  # delta time in seconds
 
         while not coordination_manager.all_mailboxes_empty():
@@ -104,7 +103,10 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                coordination_manager.stop_game()
+        
+    # Cleanup process
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
