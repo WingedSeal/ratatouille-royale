@@ -21,36 +21,37 @@ class Page:
     """Base class for a page in the application."""
     def __init__(self, page_name: PageName, screen_size: tuple[int, int], coordination_manager: CoordinationManager):
         self.config: PageConfig = PAGES[page_name]
-
-        # Page name
         self.name: PageName = self.config.name
 
-        # Canvas for free drawing (transparent)
         self.canvas = pygame.Surface(screen_size, pygame.SRCALPHA)
+        """ Canvas for blitting visual objects onto (transparent by default) """
 
-        # Each page has its own UIManager
         self.gui_manager = pygame_gui.UIManager(screen_size, self.config.theme_path)
+        """ Each page has its own UIManager """
 
-        # Coordination manager to put events into.
         self.coordination_manager = coordination_manager
 
-        # Registry for interactables (UI elements, tiles, cards, etc.)
         self.interactables: List[Interactable] = []
+        """ Registry for interactables (UI elements, tiles, cards, etc.) """
 
-        # Registry for visual elements
         self.visuals: List[VisualComponent] = []
+        """ Registry for visual elements """
 
         for widget_config in self.config.widgets:
             visual_instances: list[VisualComponent] = []
 
-            # Lazily create visuals if any exist
-            for visual_cfg in getattr(widget_config, "visuals", []):
-                # If the visual is a UIVisual, pass gui_manager; otherwise creation may be no-op
-                visual_cfg.create(manager=self.gui_manager)
-                visual_instances.append(visual_cfg)
-                self.visuals.append(visual_cfg)
+            # For each widget, see if it has any visual components it'd like to create.
+            if widget_config.visuals:
+                for visual_config in widget_config.visuals:
+                    # If it is of type UIVisual (e.g. buttons), pass in gui_manager to handle creation.
+                    # Otherwise, if it is of type SpriteVisual, the passed in gui_manager does nothing.
+                    visual_config.create(manager=self.gui_manager)
+                    visual_instances.append(visual_config)
+                    self.visuals.append(visual_config)
 
-            # Create the Interactable with a list of visuals
+            # Then, create the interactable, and attach the visual components to it.
+            # TODO: may separate the hitbox component and visual component in the future, to loosen
+            # the coupling.
             interactable_instance = Interactable(
                 hitbox=widget_config.hitbox,
                 gesture_action_mapping=widget_config.gesture_action_mapping,
@@ -79,7 +80,7 @@ class Page:
         remaining_gestures = []
 
         for gesture in gestures:
-            consumed = False
+            gesture_is_consumed = False
             for widget in self.interactables:
                 action_key = widget.process_gesture(gesture)
                 if action_key:
@@ -90,10 +91,10 @@ class Page:
                     ))
 
                     if widget.blocks_input:
-                        consumed = True
+                        gesture_is_consumed = True
                         break  # stop checking more widgets for this gesture
 
-            if not consumed:
+            if not gesture_is_consumed:
                 remaining_gestures.append(gesture)
 
         return remaining_gestures
@@ -103,19 +104,20 @@ class Page:
         self.coordination_manager.put_message(input_event)
 
 
-    def clear_canvas(self, color=(0, 0, 0, 0)):
+    def clear_canvas(self, color: tuple[int, int, int, int]=(0, 0, 0, 0)) -> None:
         """Clear the canvas (default: fully transparent)."""
         self.canvas.fill(color)
 
-    def update_ui(self, dt: float):
+    def update_ui(self, dt: float) -> None:
         """Update UI elements for animations, transitions, etc."""
         self.gui_manager.update(dt)
 
-    def draw_ui(self):
+    def draw_ui(self) -> None:
         """Draw UI elements onto the page canvas."""
         self.gui_manager.draw_ui(self.canvas)
 
     def draw(self):
+        """Draw method for non-UI elements. Used as a base to be extended by special page definitions."""
         pass
 
 # endregion
@@ -130,13 +132,15 @@ class GameBoardPage(Page):
                  board: Board | None):
         super().__init__(PageName.GAME_BOARD, screen_size, coordination_manager)
 
-        # Visuals for tiles and entities.
         self.tile_visuals: list[VisualComponent] = []
+        """ Visual components for tiles """
         self.entity_visuals: list[VisualComponent] = []
+        """ Visual components for entities """
 
-        # Visual-only selection and preview
         self.selected_unit: Interactable | None = None
+        """ Keeps track of which unit is being selected """
         self.path_preview: list[Interactable] = []
+        """ Keeps track of tiles included in path dragging """
 
         if board:
             for tile_list in board.tiles:
@@ -171,25 +175,24 @@ class GameBoardPage(Page):
 
 
     def draw(self):
-        self.clear_canvas()  # optional: clear to transparent or a background color
+        self.clear_canvas()  
         
-        # Draw tiles first
+        # TODO: Revise the draw order to align with the isometric style.
+
         for tile in self.tile_visuals:
             tile.render(self.canvas)
 
-        # Draw entities on top of tiles
         for entity in self.entity_visuals:
             entity.render(self.canvas)
 
-        # Draw selection/path previews
+        # TODO: implement unit selection & path preview highlight.
         if self.selected_unit:
-            # draw selection highlight
             pass
         if self.path_preview:
             for tile in self.path_preview:
-                # draw path overlay
                 pass
 
+        # TODO: implement SHOW HITBOX trigger
         self.render_hitbox()
 
         # Draw UI elements last
