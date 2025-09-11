@@ -72,12 +72,13 @@ class GameManager:
         return self.board.event_queue
 
     def execute_callbacks(self) -> None:
-        while not self.coordination_manager.game_domain_mailbox.empty():
-            token = self.coordination_manager.game_domain_mailbox.get()
+        game_event_queue = self.coordination_manager.mailboxes[GameManagerEvent]
+
+        while not game_event_queue.empty():
+            token: GameManagerEvent = game_event_queue.get()
 
             if isinstance(token, RequestStart_GameManagerEvent):
-                self.coordination_manager.page_domain_mailbox.put(
-                    ConfirmStartGame_PageManagerEvent(self.board))
+                self.coordination_manager.put_message(ConfirmStartGame_PageManagerEvent(self.board))
                 # In actual implementation, replace the sample map in render test with an actual loaded map
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:

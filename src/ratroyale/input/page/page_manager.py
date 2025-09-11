@@ -3,9 +3,8 @@ from ratroyale.input.page.page_creator import Page, PageFactory
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.page.page_config import PageName
 from ratroyale.input.page.gesture_reader import GestureReader
-# from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity, DummyCoord, DummyPos
 from ratroyale.backend.board import Board
-from ratroyale.event_tokens.base import *
+from ratroyale.event_tokens.page_token import *
 
 class PageManager:
   def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager):
@@ -122,8 +121,10 @@ class PageManager:
   # region Message Processing
 
   def execute_callbacks(self):
-    while not self.coordination_manager.page_domain_mailbox.empty():
-        token = self.coordination_manager.page_domain_mailbox.get()
+    page_event_queue = self.coordination_manager.mailboxes[PageManagerEvent]
+
+    while not page_event_queue.empty():
+        token = page_event_queue.get()
 
         if isinstance(token, AddPageEvent_PageManagerEvent):
           self.push_page(token.page_name)

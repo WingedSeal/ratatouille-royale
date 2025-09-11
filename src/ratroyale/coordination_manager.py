@@ -1,27 +1,36 @@
+from typing import TypeVar, Type, Dict
+
 from ratroyale.utils import EventQueue
 from ratroyale.event_tokens.base import EventToken
-from ratroyale.event_tokens.page_token import *
-from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.input_token import *
-from ratroyale.event_tokens.visual_token import *
+from ratroyale.event_tokens.page_token import PageManagerEvent
+from ratroyale.event_tokens.game_token import GameManagerEvent
+from ratroyale.event_tokens.input_token import InputManagerEvent
+from ratroyale.event_tokens.visual_token import VisualManagerEvent
 
+
+T = TypeVar("T", bound=EventToken)
 
 class CoordinationManager:
-  def __init__(self):
-    self.page_domain_mailbox = EventQueue[PageManagerEvent]()
-    self.input_domain_mailbox = EventQueue[InputManagerEvent]()
-    self.game_domain_mailbox = EventQueue[GameManagerEvent]()
-    self.visual_domain_mailbox = EventQueue[VisualManagerEvent]()
+    def __init__(self):
+        # Map each EventToken type to its mailbox queue
+        self.mailboxes: Dict[Type[EventToken], EventQueue] = {
+            PageManagerEvent: EventQueue[PageManagerEvent](),
+            InputManagerEvent: EventQueue[InputManagerEvent](),
+            GameManagerEvent: EventQueue[GameManagerEvent](),
+            VisualManagerEvent: EventQueue[VisualManagerEvent](),
+        }
 
-  def put_message(self, msg: EventToken):
-    if isinstance(msg, PageManagerEvent):
-      self.page_domain_mailbox.put(msg)
-    elif isinstance(msg, InputManagerEvent):
-      self.input_domain_mailbox.put(msg)
-    elif isinstance(msg, GameManagerEvent):
-      self.game_domain_mailbox.put(msg)
-    elif isinstance(msg, VisualManagerEvent):
-      self.visual_domain_mailbox.put(msg)
+    def put_message(self, msg: EventToken):
+      if isinstance(msg, PageManagerEvent):
+          self.mailboxes[PageManagerEvent].put(msg)
+      elif isinstance(msg, InputManagerEvent):
+          self.mailboxes[InputManagerEvent].put(msg)
+      elif isinstance(msg, GameManagerEvent):
+          self.mailboxes[GameManagerEvent].put(msg)
+      elif isinstance(msg, VisualManagerEvent):
+          self.mailboxes[VisualManagerEvent].put(msg)
+      else:
+          raise ValueError(f"No mailbox found for message type {type(msg)}")
 
-  def all_mailboxes_empty(self):
-    return self.page_domain_mailbox.empty() & self.input_domain_mailbox.empty() & self.game_domain_mailbox.empty() & self.visual_domain_mailbox.empty()
+    def all_mailboxes_empty(self) -> bool:
+        return all(q.empty() for q in self.mailboxes.values())

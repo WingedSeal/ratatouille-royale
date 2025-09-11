@@ -3,14 +3,12 @@ import pygame
 from typing import List
 
 from .page_config import PAGES, PageConfig
-from ratroyale.event_tokens.base import InputManagerEvent
+from ratroyale.event_tokens.input_token import InputManagerEvent, GestureData
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageName
 from ratroyale.input.page.interactable import Interactable, TileInteractable, EntityInteractable
-from ratroyale.event_tokens.base import GestureData
 from ratroyale.visual.visual_component import VisualComponent
 from ratroyale.backend.tile import Tile
-from ratroyale.backend.entity import Entity
 from ratroyale.backend.board import Board
 from ratroyale.backend.hexagon import OddRCoord
 
@@ -102,7 +100,7 @@ class Page:
 
         
     def emit_input_event(self, input_event: InputManagerEvent):
-        self.coordination_manager.input_domain_mailbox.put(input_event)
+        self.coordination_manager.put_message(input_event)
 
 
     def clear_canvas(self, color=(0, 0, 0, 0)):
