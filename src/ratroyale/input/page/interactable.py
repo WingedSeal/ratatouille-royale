@@ -1,7 +1,7 @@
 import pygame
 from typing import Dict, List, Tuple
 from ratroyale.input.constants import GestureKey, ActionKey
-from ratroyale.event_tokens import GestureData
+from ratroyale.event_tokens.base import GestureData
 from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, REGULAR_TILE_SIZE
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity

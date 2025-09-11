@@ -15,8 +15,10 @@ from .player_info.squeak import Squeak
 from .map import Map
 from .board import Board
 from .side import Side
+
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens import *
+from ratroyale.event_tokens.game_token import *
+from ratroyale.event_tokens.page_token import *
 
 HAND_LENGTH = 5
 

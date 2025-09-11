@@ -3,11 +3,11 @@ import pygame
 from typing import List
 
 from .page_config import PAGES, PageConfig
-from ratroyale.event_tokens import InputManagerEvent
+from ratroyale.event_tokens.base import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageName
 from ratroyale.input.page.interactable import Interactable, TileInteractable, EntityInteractable
-from ratroyale.event_tokens import GestureData
+from ratroyale.event_tokens.base import GestureData
 from ratroyale.visual.visual_component import VisualComponent
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity

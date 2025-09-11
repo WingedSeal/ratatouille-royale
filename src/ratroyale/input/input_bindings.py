@@ -1,7 +1,7 @@
 from __future__ import annotations 
 from typing import TYPE_CHECKING
 from ratroyale.input.constants import ActionKey, PageName
-from ratroyale.event_tokens import *
+from ratroyale.event_tokens.base import *
 from typing import Dict, Callable
 if TYPE_CHECKING:
     from ratroyale.input.input_manager import InputManager  

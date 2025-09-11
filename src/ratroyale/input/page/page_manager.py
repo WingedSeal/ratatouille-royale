@@ -5,7 +5,7 @@ from ratroyale.input.page.page_config import PageName
 from ratroyale.input.page.gesture_reader import GestureReader
 # from ratroyale.visual.dummy_game_objects import DummyTile, DummyEntity, DummyCoord, DummyPos
 from ratroyale.backend.board import Board
-from ratroyale.event_tokens import *
+from ratroyale.event_tokens.base import *
 
 class PageManager:
   def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager):
