@@ -63,16 +63,12 @@ class GestureReader:
 
     def read_events(self, events: list[pygame.event.Event]) -> list[GestureData]:
         """
-        Convert raw pygame events into GestureData objects, storing raw_event for downstream processing.
+        Convert a list of raw pygame events into a list of GestureData objects, storing raw_event for downstream processing.
         """
-        # Clear old gesture queue
         self.gesture_queue.clear()
 
         for event in events:
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self._on_press(event.pos)
             elif event.type == pygame.MOUSEMOTION:
                 self._on_motion(event.pos, raw_event=event)
