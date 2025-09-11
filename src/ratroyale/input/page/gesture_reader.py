@@ -82,7 +82,8 @@ class GestureReader:
         return self.gesture_queue.copy()
 
 
-    # --- Internal ---
+    # region Internals
+
     def _sync_with_hardware(self):
         """Correct our state machine if it desyncs from actual mouse button state."""
         mouse_down = pygame.mouse.get_pressed()[0]
@@ -135,8 +136,10 @@ class GestureReader:
         self.last_pos = pos
 
     def _on_release(self, pos: tuple[int, int], raw_event: pygame.event.Event) -> None:
+        # IS_SPURIOUS_RELEASE_EVENT
+        # for some reason putting the check into a variable blinds Pylance from seeing that we've already
+        # prevented None from entering the calculations.
         if self.start_time is None or self.start_pos is None:
-            # Ignore spurious release events
             return
 
         elapsed_time = time.time() - self.start_time
@@ -199,8 +202,9 @@ class GestureReader:
         self.start_time = None
 
     # endregion
+    # endregion
 
-    # --- Callbacks ---
+    # region Callbacks
     def on_click(self, pos: Tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.CLICK, 
@@ -260,3 +264,5 @@ class GestureReader:
 
     def output_gesture(self, gesture_data: GestureData) -> None:
         self.gesture_queue.append(gesture_data)
+    
+    # endregion
