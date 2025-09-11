@@ -13,19 +13,19 @@ class PageManager:
 
     self.coordination_manager = coordination_manager
 
-    # Highest level gesture reader. Outputs a gesture to be decorated by the pipeline.
     self.gesture_reader = GestureReader()
+    """Highest level gesture reader. Outputs a gesture to be decorated by the pipeline."""
 
-    # Dictionary of pages, each page is a list of UI elements
     self.page_factory = PageFactory(self, self.screen.get_size(), coordination_manager)
+    """Dictionary of pages, each page is a list of interactables and visuals"""
 
-    # Active page stack
     self.page_stack: list[Page] = []
+    """Active page stack"""
 
-  # region Page Creation & Deletion
+  # region basic Page Management Methods
 
-  """ Push page by name, create if it doesn’t exist yet """
   def push_page(self, page_option: PageName) -> Page:
+    """ Push page by name, create if it doesn’t exist yet """
     # Check if the page already exists in stack
     for page in self.page_stack:
       if page.name == page_option:
@@ -37,8 +37,8 @@ class PageManager:
     self.page_stack.append(page)
     return page
   
-  """ Remove topmost page """
   def pop_page(self, page_option: PageName | None = None):
+    """ Remove topmost page """
     if not self.page_stack:
         return  # nothing to remove
 
@@ -52,11 +52,15 @@ class PageManager:
                 self.page_stack.pop(i)
                 break
 
-  """ Switch topmost page for a different one """
   def replace_top(self, page_option: PageName):
+    """ Switch topmost page for a different one """
     if self.page_stack:
       self.page_stack.pop()
     self.push_page(page_option)
+
+  # endregion
+
+  # region Composite Page Management Methods
 
   def push_game_board_page(self, board: Board | None):
      self.pop_page(None)
@@ -105,16 +109,16 @@ class PageManager:
 
   # region Drawing
 
-  def update(self, dt):
+  def update(self, dt: float):
     for page in self.page_stack:
       page.gui_manager.update(dt)
 
   def draw(self):
     for page in self.page_stack:
       page.draw()
-      self.screen.blit(page.canvas, (0, 0))  # draw canvas first
+      self.screen.blit(page.canvas, (0, 0))  
 
-      page.draw_ui()   # then draw UI elements on top
+      page.draw_ui()   
 
   # endregion
 
@@ -126,15 +130,16 @@ class PageManager:
     while not page_event_queue.empty():
         token = page_event_queue.get()
 
-        if isinstance(token, AddPageEvent_PageManagerEvent):
-          self.push_page(token.page_name)
-        elif isinstance(token, RemovePageEvent_PageManagerEvent):
-          self.pop_page(getattr(token, "page_name", None))  # remove top if no page_name
-        elif isinstance(token, ReplaceTopPage_PageManagerEvent):
-          self.replace_top(token.page_name)
-        elif isinstance(token, ConfirmStartGame_PageManagerEvent):
-          self.push_game_board_page(token.board)
-        elif isinstance(token, EndGame_PageManagerEvent):
-          self.end_game_return_to_menu()
+        match token:
+            case AddPageEvent_PageManagerEvent(page_name=page_name):
+                self.push_page(page_name)
+            case RemovePageEvent_PageManagerEvent(page_name=page_name):
+                self.pop_page(page_name)
+            case ReplaceTopPage_PageManagerEvent(page_name=page_name):
+                self.replace_top(page_name)
+            case ConfirmStartGame_PageManagerEvent(board=board):
+                self.push_game_board_page(board)
+            case EndGame_PageManagerEvent():
+                self.end_game_return_to_menu()
 
   # endregion
