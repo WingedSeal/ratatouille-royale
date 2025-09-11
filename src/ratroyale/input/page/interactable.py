@@ -128,14 +128,13 @@ class TileInteractable(Interactable):
     """
     def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0):
         # Compute top-left for sprite placement
-        tx, ty = TileVisual(tile)._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
+        tile_x, tile_y = TileVisual(tile)._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
 
         # Correct hitbox center: shift by half width/height
-        w, h = REGULAR_TILE_SIZE
-        cx, cy = tx + w // 2, ty + h // 2
-        hitbox = HexHitbox(center=(cx, cy), width=w, height=h)
+        width, height = REGULAR_TILE_SIZE
+        center_x, center_y = tile_x + width // 2, tile_y + height // 2
+        hitbox = HexHitbox(center=(center_x, center_y), width=width, height=height)
 
-        # Gesture mapping
         gesture_action_mapping = {
             GestureKey.CLICK: ActionKey.SELECT_TILE
         }
@@ -163,7 +162,6 @@ class EntityInteractable(Interactable):
             entity_visual.image.get_height()
         ))
 
-        # Gesture mapping
         self.gesture_action_mapping = {
             GestureKey.CLICK: ActionKey.SELECT_UNIT
         }
