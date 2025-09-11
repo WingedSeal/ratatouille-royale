@@ -128,7 +128,7 @@ class TileInteractable(Interactable):
     """
     def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0):
         # Compute top-left for sprite placement
-        tile_x, tile_y = TileVisual(tile)._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
+        tile_x, tile_y = TileVisual(tile)._hex_to_world(tile.coord, REGULAR_TILE_SIZE)
 
         # Correct hitbox center: shift by half width/height
         width, height = REGULAR_TILE_SIZE
