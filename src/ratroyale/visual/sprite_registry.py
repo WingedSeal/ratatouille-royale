@@ -1,5 +1,6 @@
 from enum import Enum, auto
 import pygame
+from ratroyale.visual.game_obj_to_sprite_registry import SpriteRegistryKey
 
 # region PLACEHOLDER VISUALS
 
@@ -52,15 +53,13 @@ def make_surface(size: tuple[int, int], color: tuple[int, int, int] | tuple[int,
 
 # endregion
 
-class SpriteRegistryKey(Enum):
-  DEFAULT_TILE = auto()
-  DEFAULT_ENTITY = auto()
-  RODENT_TAILBLAZER = auto()
-
 SPRITE_REGISTRY = {
     SpriteRegistryKey.DEFAULT_TILE: make_surface((64, 64), (0, 255, 0, 128)),
+
     SpriteRegistryKey.DEFAULT_ENTITY: make_surface((32, 32), (255, 0, 0, 255)),
     SpriteRegistryKey.RODENT_TAILBLAZER: make_labeled_box((32, 32), (255, 0, 0, 255), "TailBlazer")
 }
+
+
 
 REGULAR_TILE_SIZE = (64, 64)

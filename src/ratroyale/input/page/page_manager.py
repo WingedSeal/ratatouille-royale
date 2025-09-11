@@ -86,6 +86,10 @@ class PageManager:
     raw_events = pygame.event.get()
     gestures = self.gesture_reader.read_events(raw_events)  # converts to List[GestureData]
 
+    if gestures:
+       for gesture in gestures:
+          print(gesture.gesture_key)
+
     # Propagate gestures through the page stack (top-most first)
     for page in reversed(self.page_stack):
         if not gestures:
@@ -122,7 +126,6 @@ class PageManager:
         token = self.coordination_manager.page_domain_mailbox.get()
 
         if isinstance(token, AddPageEvent_PageManagerEvent):
-          print("trying to push:", token.page_name)
           self.push_page(token.page_name)
         elif isinstance(token, RemovePageEvent_PageManagerEvent):
           self.pop_page(getattr(token, "page_name", None))  # remove top if no page_name

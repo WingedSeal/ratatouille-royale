@@ -3,8 +3,6 @@ from ..entity import Entity, entity_data
 from ..hexagon import OddRCoord
 from ..entity import _EntitySkill
 from typing import TYPE_CHECKING, TypeVar
-from ratroyale.visual.sprite_registry import SpriteRegistryKey
-
 from ..side import Side
 
 
@@ -49,7 +47,6 @@ def rodent_data(*,
                 defense: int,
                 description: str,
                 skills: list[_EntitySkill],
-                sprite_key: SpriteRegistryKey,   # <- new field
                 movable: bool = True,
                 collision: bool = True,
                 ):
@@ -75,6 +72,5 @@ def rodent_data(*,
         cls.height = height
         cls.movable = movable
         cls.collision = collision
-        cls.sprite_key = sprite_key
         return cls
     return wrapper

@@ -4,7 +4,6 @@ from .side import Side
 from .hexagon import OddRCoord
 import inspect
 from typing import TYPE_CHECKING, Callable, TypeVar, cast
-from ratroyale.visual.sprite_registry import SpriteRegistryKey
 
 from dataclasses import asdict, dataclass
 
@@ -53,7 +52,6 @@ class Entity:
     height: int = 0
     skills: list[EntitySkill] = []
     side: Side | None
-    sprite_key: SpriteRegistryKey
 
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
         self.pos = pos

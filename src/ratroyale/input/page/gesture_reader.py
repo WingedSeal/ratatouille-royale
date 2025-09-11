@@ -1,15 +1,16 @@
 import pygame
 import time
-from ratroyale.event_tokens import InputManagerEvent, GestureData
+from ratroyale.event_tokens import GestureData
 from ratroyale.input.constants import GestureKey
 from typing import List, Tuple
 
+# TODO: fix strange unresponsive click issues.
 class GestureReader:
-    CLICK_THRESHOLD = 5
+    CLICK_THRESHOLD = 10
     DRAG_THRESHOLD = 5
     HOLD_THRESHOLD = 0.5
     HOLD_MOVE_TOLERANCE = 10
-    DOUBLE_CLICK_TIME = 0.20
+    DOUBLE_CLICK_TIME = 0.40
     SWIPE_SPEED_THRESHOLD = 800  # pixels per second
     SWIPE_DISTANCE_THRESHOLD = 50  # pixels
 
@@ -52,10 +53,22 @@ class GestureReader:
                 self._on_scroll(event.x, event.y, raw_event=event)
 
         self._check_hold()
+        self._sync_with_hardware()
         return self.gesture_queue.copy()
 
 
     # --- Internal ---
+    def _sync_with_hardware(self):
+        """Correct our state machine if it desyncs from actual mouse button state."""
+        mouse_down = pygame.mouse.get_pressed()[0]
+
+        if not mouse_down and self.state in (self.STATE_PRESSED, self.STATE_DRAGGING, self.STATE_HOLD_TRIGGERED):
+            # Button is up but we still think it's down → force release
+            self._reset_state()
+        elif mouse_down and self.state == self.STATE_IDLE:
+            # Button is down but we think idle → fake a press
+            self._on_press(pygame.mouse.get_pos())
+
     def _cancel_active_gestures(self):
         """Cancels any ongoing gestures (drag, hold, swipe) and resets the state."""
         self.state = self.STATE_IDLE

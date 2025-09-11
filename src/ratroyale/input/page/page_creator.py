@@ -90,7 +90,6 @@ class Page:
                         action_key=action_key,
                         page_name=self.name
                     ))
-                    print(self.name, action_key)
 
                     if widget.blocks_input:
                         consumed = True

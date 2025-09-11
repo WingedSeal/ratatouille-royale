@@ -4,7 +4,9 @@ from pygame_gui.core.ui_element import UIElement
 import pygame
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
-from ratroyale.visual.sprite_registry import SPRITE_REGISTRY, SpriteRegistryKey, REGULAR_TILE_SIZE
+from ratroyale.backend.entities.rodent import Rodent
+from ratroyale.visual.sprite_registry import SPRITE_REGISTRY, REGULAR_TILE_SIZE
+from ratroyale.visual.game_obj_to_sprite_registry import SpriteRegistryKey, ENTITY_TO_SPRITE_REGISTRY, TILE_TO_SPRITE_REGISTRY
 
 class VisualComponent(ABC):
     """Base class for anything that can be rendered as part of an Interactable."""
@@ -58,9 +60,13 @@ class SpriteVisual(VisualComponent):
 class TileVisual(SpriteVisual):
     def __init__(self, tile: Tile):
         self.tile = tile
+
+        sprite_key = TILE_TO_SPRITE_REGISTRY.get(type(tile), SpriteRegistryKey.DEFAULT_TILE)
+
         pos = self._hex_to_world(tile.coord.x, tile.coord.y, REGULAR_TILE_SIZE)
+
         super().__init__(
-            sprite_enum=getattr(tile, "sprite_key", SpriteRegistryKey.DEFAULT_TILE),
+            sprite_enum=sprite_key,
             position=pos
         )
 
@@ -73,8 +79,11 @@ class TileVisual(SpriteVisual):
 class EntityVisual(SpriteVisual):
     def __init__(self, entity: Entity):
         self.entity = entity
+
+        sprite_key = ENTITY_TO_SPRITE_REGISTRY.get(type(entity), SpriteRegistryKey.DEFAULT_ENTITY)
+
         super().__init__(
-            sprite_enum=getattr(entity, "sprite_key", SpriteRegistryKey.DEFAULT_ENTITY),
+            sprite_enum=sprite_key,
             position=self._hex_to_world(entity.pos.x, entity.pos.y, REGULAR_TILE_SIZE)
         )
 
