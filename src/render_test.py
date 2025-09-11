@@ -100,10 +100,6 @@ def main():
         page_manager.draw()
 
         pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                coordination_manager.stop_game()
         
     # Cleanup process
     pygame.quit()

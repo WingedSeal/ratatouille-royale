@@ -1,16 +1,15 @@
-from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import List
 import pygame
 import pygame_gui
 from ratroyale.input.constants import ActionKey, PageName, GestureKey
-from ratroyale.input.page.interactable import Hitbox, RectangleHitbox  # adjust import path
+from ratroyale.input.page.interactable import Hitbox, RectangleHitbox  
 from ratroyale.visual.visual_component import VisualComponent, UIVisual
 
 @dataclass
 class InteractableConfig:
     hitbox: Hitbox
-    gesture_action_mapping: Dict[GestureKey, ActionKey]
+    gesture_action_mapping: dict[GestureKey, ActionKey]
     blocks_input: bool = True
     visuals: List[VisualComponent] | None = None
     z_order: int = 0
