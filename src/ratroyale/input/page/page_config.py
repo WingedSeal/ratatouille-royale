@@ -11,6 +11,9 @@ class InteractableConfig:
     hitbox: Hitbox
     gesture_action_mapping: dict[GestureKey, ActionKey]
     blocks_input: bool = True
+    """
+    If this is true, this interactable component stops inputs from reaching any other interactables or pages below it.
+    """
     visuals: List[VisualComponent] | None = None
     z_order: int = 0
     
@@ -19,6 +22,9 @@ class PageConfig:
     name: PageName
     theme_path: str
     blocking: bool
+    """
+    If this is true, this page stops inputs from reaching any other interactables or pages below it.
+    """
     widgets: list[InteractableConfig] = field(default_factory=list)
 
 # ================================
@@ -58,10 +64,10 @@ MAIN_MENU = PageConfig(
 PAUSE_BUTTON_PAGE = PageConfig(
     name=PageName.PAUSE_BUTTON,
     theme_path="",
-    blocking=False,  # non-blocking, game continues in background
+    blocking=False,  
     widgets=[
         InteractableConfig(
-            hitbox=RectangleHitbox(pygame.Rect(700, 20, 80, 40)),  # top-right corner (adjust as needed)
+            hitbox=RectangleHitbox(pygame.Rect(700, 20, 80, 40)),  
             gesture_action_mapping={
                 GestureKey.CLICK: ActionKey.PAUSE_GAME
             },
@@ -77,7 +83,7 @@ PAUSE_BUTTON_PAGE = PageConfig(
 PAUSE_MENU_PAGE = PageConfig(
     name=PageName.PAUSE_MENU,
     theme_path="",
-    blocking=True,  # stops input to underlying game
+    blocking=True,  
     widgets=[
         InteractableConfig(
             hitbox=RectangleHitbox(pygame.Rect(300, 200, 200, 50)),
@@ -109,7 +115,7 @@ GAME_BOARD = PageConfig(
     name=PageName.GAME_BOARD,
     theme_path="",
     blocking=True,
-    widgets=[],  # no wrapped widgets for board yet
+    widgets=[],  
 )
 
 # ================================
