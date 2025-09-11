@@ -12,7 +12,6 @@ from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.side import Side
-from ratroyale.backend.player_info.squeak_set import SqueakSet
 from ratroyale.backend.player_info.squeak import Squeak, SqueakType, SqueakOnPlace, SqueakGetPlacableTiles
 
 

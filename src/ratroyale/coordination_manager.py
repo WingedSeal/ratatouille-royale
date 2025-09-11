@@ -12,11 +12,10 @@ T = TypeVar("T", bound=EventToken)
 
 class CoordinationManager:
     def __init__(self):
+        self.game_running = True
         """
         Controls the running state of the game.
         """
-        self.game_running = True
-        # Map each EventToken type to its mailbox queue
         self.mailboxes: Dict[Type[EventToken], EventQueue] = {
             PageManagerEvent: EventQueue[PageManagerEvent](),
             InputManagerEvent: EventQueue[InputManagerEvent](),

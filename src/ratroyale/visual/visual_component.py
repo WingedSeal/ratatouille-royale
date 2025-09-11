@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pygame_gui.core.ui_element import UIElement
+from pygame_gui.ui_manager import UIManager
 import pygame
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
@@ -12,7 +13,7 @@ class VisualComponent(ABC):
     """Base class for anything that can be rendered as part of an Interactable."""
 
     @abstractmethod
-    def create(self, manager=None) -> None:
+    def create(self, manager: UIManager) -> None:
         """Optional: create/init the visual. 
         For UI, this might need the gui_manager; for sprites, maybe not."""
         ...
@@ -30,7 +31,7 @@ class UIVisual(VisualComponent):
     kwargs: dict = field(default_factory=dict)
     instance: UIElement | None = None
 
-    def create(self, manager) -> None:
+    def create(self, manager: UIManager) -> None:
         self.instance = self.type(
             relative_rect=self.relative_rect,
             manager=manager,

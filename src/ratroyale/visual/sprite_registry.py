@@ -35,14 +35,18 @@ def make_labeled_box(size: tuple[int, int], color: tuple[int, int, int, int], la
 def make_surface(size: tuple[int, int], color: tuple[int, int, int] | tuple[int, int, int, int], border_thickness: int = 3) -> pygame.Surface:
     surf = pygame.Surface(size, pygame.SRCALPHA)
     
-    # Fill the main rectangle
     surf.fill(color)
     
-    # Compute a darker version of the color for the border
-    def darker(c):
-        r, g, b, *rest = (*c, 255)  # ensure alpha present
+    def darker(c: tuple[int, int, int, int] | tuple[int, int, int]) -> tuple[int, int, int, int]:
+        # Ensure c has 4 elements (RGBA)
+        if len(c) == 3:
+            r, g, b = c
+            a = 255
+        else:
+            r, g, b, a = c
+
         factor = 0.6  # darken by 40%
-        return (int(r * factor), int(g * factor), int(b * factor), rest[0] if rest else 255)
+        return (int(r * factor), int(g * factor), int(b * factor), a)
     
     border_color = darker(color)
     
