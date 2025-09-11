@@ -89,10 +89,10 @@ class GestureReader:
         mouse_down = pygame.mouse.get_pressed()[0]
 
         if not mouse_down and self.state in (self.STATE_PRESSED, self.STATE_DRAGGING, self.STATE_HOLD_TRIGGERED):
-            # Button is up but we still think it's down → force release
+            # Button is up but we still think it's down -> force release
             self._reset_state()
         elif mouse_down and self.state == self.STATE_IDLE:
-            # Button is down but we think idle → fake a press
+            # Button is down but we think idle -> fake a press
             self._on_press(pygame.mouse.get_pos())
 
     def _cancel_active_gestures(self):

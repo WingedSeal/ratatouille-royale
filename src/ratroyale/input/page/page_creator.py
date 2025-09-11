@@ -92,7 +92,7 @@ class Page:
 
                     if widget.blocks_input:
                         gesture_is_consumed = True
-                        break  # stop checking more widgets for this gesture
+                        break  
 
             if not gesture_is_consumed:
                 remaining_gestures.append(gesture)
@@ -186,11 +186,11 @@ class GameBoardPage(Page):
             entity.render(self.canvas)
 
         # TODO: implement unit selection & path preview highlight.
-        if self.selected_unit:
-            pass
-        if self.path_preview:
-            for tile in self.path_preview:
-                pass
+        # if self.selected_unit:
+        #     pass
+        # if self.path_preview:
+        #     for tile in self.path_preview:
+        #         pass
 
         # TODO: implement SHOW HITBOX trigger
         self.render_hitbox()

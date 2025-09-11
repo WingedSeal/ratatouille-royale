@@ -90,16 +90,16 @@ class Interactable:
     def __init__(
         self,
         hitbox: Hitbox,
-        gesture_action_mapping: Dict[GestureKey, ActionKey],
+        gesture_action_mapping: dict[GestureKey, ActionKey],
         visuals: list[VisualComponent] | None = None,
         blocks_input: bool = True,
         z_order: int = 0
     ):
-        self.hitbox = hitbox
-        self.gesture_action_mapping = gesture_action_mapping
-        self.blocks_input = blocks_input
-        self.visuals = visuals or [] # external UI element, optional
-        self.z_order = z_order
+        self.hitbox: Hitbox = hitbox
+        self.gesture_action_mapping: dict[GestureKey, ActionKey] = gesture_action_mapping
+        self.blocks_input: bool = blocks_input
+        self.visuals: list[VisualComponent] = visuals or [] 
+        self.z_order: int = z_order
 
     def process_gesture(self, gesture: GestureData) -> ActionKey | None:
         gesture_pos = gesture.start_pos
