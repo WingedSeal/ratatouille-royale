@@ -92,6 +92,12 @@ class Entity:
         self.on_hp_loss(damage_taken)
         return False, damage_taken
 
+    def __repr__(self) -> str:
+        return f"Entity({self.pos!r}, {self.side!r})"
+
+    def __str__(self) -> str:
+        return self.name
+
 
 Entity_T = TypeVar('Entity_T', bound=Entity)
 
