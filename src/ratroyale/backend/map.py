@@ -119,8 +119,15 @@ class Map:
             tile.features.remove(feature)
 
     @classmethod
-    def from_file(cls, file: Path) -> "Map":
-        return cls("", 0, 0, [])
+    def from_file(cls, file_path: Path) -> "Map":
+        with file_path.open('rb') as file:
+            data = file.read()
+        return cls.load(data)
+
+    def to_file(self, file_path: Path) -> None:
+        data = self.save()
+        with file_path.open('wb') as file:
+            file.write(data)
 
     def save(self) -> bytes:
         data = bytearray()
