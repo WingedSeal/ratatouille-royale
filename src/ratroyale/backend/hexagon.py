@@ -1,6 +1,6 @@
 from queue import PriorityQueue
 from dataclasses import dataclass
-from typing import Callable, Iterator, Protocol, Self
+from typing import Callable, Iterator, Protocol, Self, overload
 from ..utils import lerp
 from math import sqrt
 
@@ -64,17 +64,28 @@ class OddRCoord:
     def all_in_range(self, N: int) -> Iterator["OddRCoord"]:
         return (axial.to_odd_r() for axial in self.to_axial().all_in_range(N))
 
-    def to_pixel(self, hex_size: float) -> tuple[float, float]:
+    @overload
+    def to_pixel(self, hex_size: float) -> tuple[float, float]: ...
+
+    @overload
+    def to_pixel(self, hex_width: float,
+                 hex_height: float) -> tuple[float, float]: ...
+
+    def to_pixel(  # type: ignore
+            self, hex_width: float, hex_height: float | None = None
+    ) -> tuple[float, float]:
         """
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-offset
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-mod-origin
         """
+        if hex_height is None:
+            hex_height = hex_width
         x = sqrt(3) * (self.col + 0.5 * (self.row & 1))
         y = 1.5 * self.row
         # Origin is not on the center of odd-r (0,0)
         x += 1
         y += sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics
-        return x * hex_size, y * hex_size
+        return x * hex_width, y * hex_height
 
     def get_neighbor(self, direction: int) -> "OddRCoord":
         """
