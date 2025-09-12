@@ -10,8 +10,8 @@ from .entity import Entity
 @dataclass
 class Tile:
     coord: OddRCoord
-    entities: list[Entity]
     height: int
+    entities: list[Entity] = field(default_factory=list)
     features: list[Feature] = field(default_factory=list)
 
     def get_total_height(self, turn: Side | None) -> int:

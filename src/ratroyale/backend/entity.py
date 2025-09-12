@@ -1,9 +1,10 @@
+from abc import abstractmethod
 from .entity_effect import EntityEffect
 from .skill_callback import SkillCallback
 from .side import Side
 from .hexagon import OddRCoord
 import inspect
-from typing import TYPE_CHECKING, Callable, TypeVar, cast
+from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar, cast
 
 from dataclasses import asdict, dataclass
 
@@ -52,6 +53,20 @@ class Entity:
     height: int = 0
     skills: list[EntitySkill] = []
     side: Side | None
+    PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
+
+    @classmethod
+    def PRE_PLACED_ENTITY_ID(cls) -> int | None:
+        return None
+
+    def __init_subclass__(cls) -> None:
+        entity_id = cls.PRE_PLACED_ENTITY_ID()
+        if entity_id is None:
+            return
+        if entity_id in Entity.PRE_PLACED_ENTITIES:
+            raise Exception(
+                f"{cls.__name__} and {Entity.PRE_PLACED_ENTITIES[entity_id]} both have the same preplaced entity ID ({entity_id})")
+        Entity.PRE_PLACED_ENTITIES[entity_id] = cls
 
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
         self.pos = pos

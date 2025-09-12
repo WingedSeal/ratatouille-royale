@@ -1,6 +1,7 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pprint import pformat
-from typing import Iterable
+from typing import ClassVar, Iterable
 from .side import Side
 from .hexagon import OddRCoord
 
@@ -9,11 +10,23 @@ MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 
 
 @dataclass
-class Feature:
+class Feature(ABC):
     shape: list[OddRCoord]
     health: int | None = None
     defense: int = 0
     side: Side | None = None
+    ALL_FEATURES: ClassVar[dict[int, type["Feature"]]] = {}
+
+    @abstractmethod
+    @classmethod
+    def FEATURE_ID(cls) -> int:
+        ...
+
+    def __init_subclass__(cls) -> None:
+        if cls.FEATURE_ID() in Feature.ALL_FEATURES:
+            raise Exception(
+                f"{cls.__name__} and {Feature.ALL_FEATURES[cls.FEATURE_ID()]} both have the same feature ID ({cls.FEATURE_ID()})")
+        Feature.ALL_FEATURES[cls.FEATURE_ID()] = cls
 
     def on_damage_taken(self, damage: int) -> int | None:
         pass
