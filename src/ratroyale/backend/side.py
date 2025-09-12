@@ -17,10 +17,10 @@ class Side(Enum):
     def from_int(cls, value: int) -> "Side | None":
         if value == 0:
             return None
-        return cls(value - 1)
+        return cls(value)
 
     @classmethod
     def to_int(cls, value: "Side | None"):
         if value is None:
             return 0
-        return value.value + 1
+        return value.value
