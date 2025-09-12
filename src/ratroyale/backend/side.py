@@ -18,3 +18,9 @@ class Side(Enum):
         if value == 0:
             return None
         return cls(value - 1)
+
+    @classmethod
+    def to_int(cls, value: "Side | None"):
+        if value is None:
+            return 0
+        return value.value + 1
