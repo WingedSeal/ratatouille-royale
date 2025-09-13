@@ -2,14 +2,15 @@ import pygame
 
 from ratroyale.input.constants import GestureKey, ActionKey
 from ratroyale.event_tokens.input_token import GestureData
-from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, REGULAR_TILE_SIZE
+from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, TYPICAL_TILE_SIZE
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from abc import ABC, abstractmethod
+from math import sqrt
 
 class Hitbox(ABC):
     @abstractmethod
-    def contains_point(self, point: tuple[int, int]) -> bool:
+    def contains_point(self, point: tuple[float, float]) -> bool:
         """Return True if the point is inside the hitbox."""
         pass
     @abstractmethod
@@ -21,7 +22,7 @@ class RectangleHitbox(Hitbox):
     def __init__(self, rect: pygame.Rect) -> None:
         self.rect = rect
 
-    def contains_point(self, point: tuple[int, int]) -> bool:
+    def contains_point(self, point: tuple[float, float]) -> bool:
         return self.rect.collidepoint(point)
 
     def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 0, 255)) -> None:
@@ -29,11 +30,11 @@ class RectangleHitbox(Hitbox):
 
 
 class CircleHitbox(Hitbox):
-    def __init__(self, center: tuple[int, int], radius: int) -> None:
+    def __init__(self, center: tuple[float, float], radius: int) -> None:
         self.center = center
         self.radius = radius
 
-    def contains_point(self, point: tuple[int, int]) -> bool:
+    def contains_point(self, point: tuple[float, float]) -> bool:
         x, y = point
         cx, cy = self.center
         return (x - cx) ** 2 + (y - cy) ** 2 <= self.radius ** 2
@@ -42,7 +43,7 @@ class CircleHitbox(Hitbox):
         pygame.draw.circle(surface, color, self.center, self.radius, 1)
 
 class HexHitbox(Hitbox):
-    def __init__(self, center: tuple[int, int], width: float, height: float) -> None:
+    def __init__(self, center: tuple[float, float], width: float, height: float) -> None:
         """
         center: (x, y) of hex center
         width: distance from flat side to flat side (corner-to-corner horizontally)
@@ -61,7 +62,7 @@ class HexHitbox(Hitbox):
             (self.cx - w,   self.cy - h/2)  # top-left
         ]
 
-    def contains_point(self, point: tuple[int, int]) -> bool:
+    def contains_point(self, point: tuple[float, float]) -> bool:
         # Simple ray-casting algorithm for polygons
         x, y = point
         inside = False
@@ -126,10 +127,10 @@ class TileInteractable(Interactable):
     """
     def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0) -> None:
         # Compute top-left for sprite placement
-        tile_x, tile_y = TileVisual(tile)._hex_to_world(tile.coord, REGULAR_TILE_SIZE)
+        tile_x, tile_y = tile.coord.to_pixel(TYPICAL_TILE_SIZE[0]/sqrt(3), TYPICAL_TILE_SIZE[1]/2)
 
         # Correct hitbox center: shift by half width/height
-        width, height = REGULAR_TILE_SIZE
+        width, height = TYPICAL_TILE_SIZE
         center_x, center_y = tile_x + width // 2, tile_y + height // 2
         hitbox = HexHitbox(center=(center_x, center_y), width=width, height=height)
 

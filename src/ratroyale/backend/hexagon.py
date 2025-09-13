@@ -85,6 +85,7 @@ class OddRCoord:
         # Origin is not on the center of odd-r (0,0)
         x += 1
         y += sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics
+        
         return x * hex_width, y * hex_height
 
     def get_neighbor(self, direction: int) -> "OddRCoord":

@@ -143,9 +143,10 @@ class GameBoardPage(Page):
         if board:
             for tile_list in board.tiles:
                 for tile in tile_list:
-                    tile_interactable = TileInteractable(tile)
-                    self.add_element(tile_interactable)
-                    self.tile_visuals.extend(tile_interactable.visuals)
+                    if tile:
+                        tile_interactable = TileInteractable(tile)
+                        self.add_element(tile_interactable)
+                        self.tile_visuals.extend(tile_interactable.visuals)
         else:
             # Create a 5x5 grid of Tiles
             for q in range(5):

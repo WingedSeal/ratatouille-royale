@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from math import sqrt
 from dataclasses import dataclass, field
 from pygame_gui.core.ui_element import UIElement
 from pygame_gui.ui_manager import UIManager
@@ -6,7 +7,7 @@ import pygame
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.hexagon import OddRCoord
-from ratroyale.visual.sprite_registry import SPRITE_REGISTRY, REGULAR_TILE_SIZE
+from ratroyale.visual.sprite_registry import SPRITE_REGISTRY, TYPICAL_TILE_SIZE
 from ratroyale.visual.game_obj_to_sprite_registry import SpriteRegistryKey, ENTITY_TO_SPRITE_REGISTRY, TILE_TO_SPRITE_REGISTRY
 
 class VisualComponent(ABC):
@@ -43,7 +44,7 @@ class UIVisual(VisualComponent):
         pass
     
 class SpriteVisual(VisualComponent):
-    def __init__(self, sprite_enum: SpriteRegistryKey, position: tuple[int, int]) -> None:
+    def __init__(self, sprite_enum: SpriteRegistryKey, position: tuple[float, float]) -> None:
         # Look up the surface from the registry; fallback to DEFAULT_ENTITY if missing
         self.image = SPRITE_REGISTRY.get(
             sprite_enum, 
@@ -63,46 +64,23 @@ class TileVisual(SpriteVisual):
 
         sprite_key = TILE_TO_SPRITE_REGISTRY.get(type(tile), SpriteRegistryKey.DEFAULT_TILE)
 
-        pos = self._hex_to_world(tile.coord, REGULAR_TILE_SIZE)
+        pos = tile.coord.to_pixel(TYPICAL_TILE_SIZE[0]/sqrt(3), TYPICAL_TILE_SIZE[1]/2)
 
         super().__init__(
             sprite_enum=sprite_key,
             position=pos
         )
 
-    def _hex_to_world(self, tile_coord: OddRCoord, tile_size: tuple[int,int]) -> tuple[int,int]:
-        width, height = tile_size
-        hex_q = tile_coord.x
-        hex_r = tile_coord.y
-
-        world_x = width * (hex_q + 0.5 * (hex_r % 2))
-        world_y = height * 0.75 * hex_r
-        return (int(world_x), int(world_y))   
-        
+# TODO: re-implement entity visual offsets
 class EntityVisual(SpriteVisual):
     def __init__(self, entity: Entity) -> None:
         self.entity = entity
 
         sprite_key = ENTITY_TO_SPRITE_REGISTRY.get(type(entity), SpriteRegistryKey.DEFAULT_ENTITY)
 
+        pos = entity.pos.to_pixel(TYPICAL_TILE_SIZE[0]/sqrt(3), TYPICAL_TILE_SIZE[1]/2)
+
         super().__init__(
             sprite_enum=sprite_key,
-            position=self._hex_to_world(entity.pos, REGULAR_TILE_SIZE)
+            position=pos
         )
-
-    def _hex_to_world(self, entity_coord: OddRCoord, tile_size: tuple[int, int]) -> tuple[int, int]:
-        width, height = tile_size
-        hex_q = entity_coord.x
-        hex_r = entity_coord.y
-        # base tile position (top-left of bounding box for the hex)
-        world_x = width * (hex_q + 0.5 * (hex_r % 2))  
-        world_y = height * 0.75 * hex_r            
-
-        # Adjust entity so its bottom is near bottom of hex
-        entity_surface = SPRITE_REGISTRY[SpriteRegistryKey.DEFAULT_ENTITY]
-        entity_w, entity_h = entity_surface.get_size()
-
-        offset_x = (width - entity_w) // 2       # center horizontally in the hex
-        offset_y = height - entity_h - 10         # 4px above the hex’s bottom edge
-
-        return int(world_x + offset_x), int(world_y + offset_y)

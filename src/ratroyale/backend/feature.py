@@ -16,8 +16,8 @@ class Feature(ABC):
     side: Side | None = None
     ALL_FEATURES: ClassVar[dict[int, type["Feature"]]] = {}
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def FEATURE_ID(cls) -> int:
         ...
 

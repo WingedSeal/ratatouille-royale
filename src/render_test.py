@@ -28,7 +28,7 @@ def main():
 
     # region GAME MANAGER DOMAIN 
     size_x, size_y = 5, 10
-    tiles: list[list[Tile]] = []
+    tiles: list[list[Tile | None]] = []
     for q in range(size_x):
         row = []
         for r in range(size_y):
@@ -43,7 +43,7 @@ def main():
     entities: list[Entity] = [TailBlazer(OddRCoord(1,3))]
 
     # Dummy callables
-    dummy_on_place: SqueakOnPlace = lambda game_manager, coord: True
+    dummy_on_place: SqueakOnPlace = lambda game_manager, coord: None
     dummy_get_placable: SqueakGetPlacableTiles = lambda game_manager: []
 
     # Create 5 dummy squeaks
@@ -74,7 +74,7 @@ def main():
         selected_squeak_set_index=selected_index
 )
     
-    map = Map(size_x=size_x, size_y=size_y, tiles=tiles, entities=entities, features=[])
+    map = Map(name="", size_x=size_x, size_y=size_y, tiles=tiles, entities=entities, features=[])
     game_manager = GameManager(map=map, 
                                players_info=(
                                    player_info_1, 

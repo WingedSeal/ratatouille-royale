@@ -1,4 +1,4 @@
-from _typeshed import DataclassInstance
+# from _typeshed import DataclassInstance
 from dataclasses import fields
 from typing import TypeVar
 from .hexagon import OddRCoord

@@ -57,13 +57,11 @@ def make_surface(size: tuple[int, int], color: tuple[int, int, int] | tuple[int,
 
 # endregion
 
+TYPICAL_TILE_SIZE = (64, 64)
+
 SPRITE_REGISTRY = {
-    SpriteRegistryKey.DEFAULT_TILE: make_surface((64, 64), (0, 255, 0, 128)),
+    SpriteRegistryKey.DEFAULT_TILE: make_surface(TYPICAL_TILE_SIZE, (0, 255, 0, 128)),
 
     SpriteRegistryKey.DEFAULT_ENTITY: make_surface((32, 32), (255, 0, 0, 255)),
     SpriteRegistryKey.RODENT_TAILBLAZER: make_labeled_box((32, 32), (255, 0, 0, 255), "TailBlazer")
 }
-
-
-
-REGULAR_TILE_SIZE = (64, 64)
