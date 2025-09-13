@@ -43,7 +43,7 @@ class UIVisual(VisualComponent):
         pass
     
 class SpriteVisual(VisualComponent):
-    def __init__(self, sprite_enum: SpriteRegistryKey, position: tuple[int, int]):
+    def __init__(self, sprite_enum: SpriteRegistryKey, position: tuple[int, int]) -> None:
         # Look up the surface from the registry; fallback to DEFAULT_ENTITY if missing
         self.image = SPRITE_REGISTRY.get(
             sprite_enum, 
@@ -58,7 +58,7 @@ class SpriteVisual(VisualComponent):
         surface.blit(self.image, self.position)
 
 class TileVisual(SpriteVisual):
-    def __init__(self, tile: Tile):
+    def __init__(self, tile: Tile) -> None:
         self.tile = tile
 
         sprite_key = TILE_TO_SPRITE_REGISTRY.get(type(tile), SpriteRegistryKey.DEFAULT_TILE)
@@ -80,7 +80,7 @@ class TileVisual(SpriteVisual):
         return (int(world_x), int(world_y))   
         
 class EntityVisual(SpriteVisual):
-    def __init__(self, entity: Entity):
+    def __init__(self, entity: Entity) -> None:
         self.entity = entity
 
         sprite_key = ENTITY_TO_SPRITE_REGISTRY.get(type(entity), SpriteRegistryKey.DEFAULT_ENTITY)
