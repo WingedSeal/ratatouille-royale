@@ -69,10 +69,10 @@ class OddRCoord:
 
     @overload
     def to_pixel(self, hex_width: float,
-                 hex_height: float) -> tuple[float, float]: ...
+                 hex_height: float, is_bounding_box: bool = False) -> tuple[float, float]: ...
 
     def to_pixel(  # type: ignore
-            self, hex_width: float, hex_height: float | None = None
+            self, hex_width: float, hex_height: float | None = None, is_bounding_box: bool = False
     ) -> tuple[float, float]:
         """
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-offset
@@ -80,6 +80,9 @@ class OddRCoord:
         """
         if hex_height is None:
             hex_height = hex_width
+        if is_bounding_box:
+            hex_width /= sqrt(3)
+            hex_height *= 0.5
         x = sqrt(3) * (self.col + 0.5 * (self.row & 1))
         y = 1.5 * self.row
         # Origin is not on the center of odd-r (0,0)

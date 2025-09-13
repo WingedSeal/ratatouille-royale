@@ -64,7 +64,7 @@ class TileVisual(SpriteVisual):
 
         sprite_key = TILE_TO_SPRITE_REGISTRY.get(type(tile), SpriteRegistryKey.DEFAULT_TILE)
 
-        pos = tile.coord.to_pixel(TYPICAL_TILE_SIZE[0]/sqrt(3), TYPICAL_TILE_SIZE[1]/2)
+        pos = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
 
         super().__init__(
             sprite_enum=sprite_key,
@@ -78,7 +78,7 @@ class EntityVisual(SpriteVisual):
 
         sprite_key = ENTITY_TO_SPRITE_REGISTRY.get(type(entity), SpriteRegistryKey.DEFAULT_ENTITY)
 
-        pos = entity.pos.to_pixel(TYPICAL_TILE_SIZE[0]/sqrt(3), TYPICAL_TILE_SIZE[1]/2)
+        pos = entity.pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
 
         super().__init__(
             sprite_enum=sprite_key,
