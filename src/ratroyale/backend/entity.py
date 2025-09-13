@@ -1,9 +1,10 @@
+from abc import abstractmethod
 from .entity_effect import EntityEffect
 from .skill_callback import SkillCallback
 from .side import Side
 from .hexagon import OddRCoord
 import inspect
-from typing import TYPE_CHECKING, Callable, TypeVar, cast
+from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar, cast
 
 from dataclasses import asdict, dataclass
 
@@ -45,13 +46,27 @@ class Entity:
     name: str = ""
     max_health: int | None = None
     health: int | None = None
-    defense: int | None = None
+    defense: int = 0
     movable: bool = False
     collision: bool = False
     description: str = ""
     height: int = 0
     skills: list[EntitySkill] = []
     side: Side | None
+    PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
+
+    @classmethod
+    def PRE_PLACED_ENTITY_ID(cls) -> int | None:
+        return None
+
+    def __init_subclass__(cls) -> None:
+        entity_id = cls.PRE_PLACED_ENTITY_ID()
+        if entity_id is None:
+            return
+        if entity_id in Entity.PRE_PLACED_ENTITIES:
+            raise Exception(
+                f"{cls.__name__} and {Entity.PRE_PLACED_ENTITIES[entity_id]} both have the same preplaced entity ID ({entity_id})")
+        Entity.PRE_PLACED_ENTITIES[entity_id] = cls
 
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
         self.pos = pos
@@ -82,7 +97,7 @@ class Entity:
             damage = new_damage
         if self.health is None:
             raise ValueError("Entity without health just taken damage")
-        damage_taken = max(MINIMAL_DAMAGE_TAKEN, damage - (self.defense or 0))
+        damage_taken = max(MINIMAL_DAMAGE_TAKEN, damage - self.defense)
         self.health -= damage_taken
         if self.health <= 0:
             damage_taken += self.health
@@ -98,7 +113,7 @@ Entity_T = TypeVar('Entity_T', bound=Entity)
 
 def entity_data(*,
                 health: int | None = None,
-                defense: int | None = None,
+                defense: int = 0,
                 movable: bool = False,
                 collision: bool = False,
                 height: int = 0,

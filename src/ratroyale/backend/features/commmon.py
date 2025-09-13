@@ -1,12 +1,13 @@
-from dataclasses import dataclass
 from ..feature import Feature
 
 
-@dataclass
-class DeploymentZone(Feature):
-    pass
-
-
-@dataclass
 class Lair(Feature):
-    pass
+    @classmethod
+    def FEATURE_ID(cls) -> int:
+        return 1
+
+
+class DeploymentZone(Feature):
+    @classmethod
+    def FEATURE_ID(cls) -> int:
+        return 2

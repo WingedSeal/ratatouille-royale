@@ -1,5 +1,6 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Iterable
+from typing import ClassVar, Iterable
 from .side import Side
 from .hexagon import OddRCoord
 
@@ -8,12 +9,23 @@ MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 
 
 @dataclass
-class Feature:
-    pos: OddRCoord
+class Feature(ABC):
     shape: list[OddRCoord]
     health: int | None = None
-    defense: int | None = None
+    defense: int = 0
     side: Side | None = None
+    ALL_FEATURES: ClassVar[dict[int, type["Feature"]]] = {}
+
+    @abstractmethod
+    @classmethod
+    def FEATURE_ID(cls) -> int:
+        ...
+
+    def __init_subclass__(cls) -> None:
+        if cls.FEATURE_ID() in Feature.ALL_FEATURES:
+            raise Exception(
+                f"{cls.__name__} and {Feature.ALL_FEATURES[cls.FEATURE_ID()]} both have the same feature ID ({cls.FEATURE_ID()})")
+        Feature.ALL_FEATURES[cls.FEATURE_ID()] = cls
 
     def on_damage_taken(self, damage: int) -> int | None:
         pass
@@ -28,10 +40,6 @@ class Feature:
         """
         return True
 
-    def resolve_shape(self) -> Iterable[OddRCoord]:
-        for pos_offset in self.shape:
-            yield self.pos + pos_offset
-
     def _take_damage(self, damage: int) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health
@@ -44,7 +52,7 @@ class Feature:
         if self.health is None:
             raise ValueError("Entity without health just taken damage")
         damage_taken = max(MINIMAL_FEATURE_DAMAGE_TAKEN,
-                           damage - (self.defense or 0))
+                           damage - self.defense)
         self.health -= damage_taken
         if self.health <= 0:
             damage_taken += self.health

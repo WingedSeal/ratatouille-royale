@@ -183,19 +183,16 @@ class GameManager:
         shuffle(self.decks[side])
         return self.decks[side].pop()
 
-    def place_squeak(self, hand_index: int, coord: OddRCoord) -> bool:
+    def place_squeak(self, hand_index: int, coord: OddRCoord):
         """
         Place squeak based on hand_index on the board
         """
         squeak = self.hands[self.turn][hand_index]
         if self.crumbs < squeak.crumb_cost:
             raise NotEnoughCrumbError()
-        success = squeak.on_place(self, coord)
-        if not success:
-            return False
+        squeak.on_place(self, coord)
         self.crumbs -= squeak.crumb_cost
         self.hands[self.turn][hand_index] = self.draw_squeak(self.turn)
-        return True
 
     def end_turn(self):
         for effect in self.board.cache.effects:
