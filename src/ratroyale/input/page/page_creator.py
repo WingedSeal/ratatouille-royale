@@ -61,7 +61,6 @@ class Page:
 
             self.add_element(interactable_instance)
 
-        # Sort all interactables by Z-order (highest first)
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
 
         # Blocking flag: prevents input from reaching lower pages in the stack

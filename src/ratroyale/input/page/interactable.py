@@ -41,8 +41,6 @@ class CircleHitbox(Hitbox):
     def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 255, 0)) -> None:
         pygame.draw.circle(surface, color, self.center, self.radius, 1)
 
-
-# Hex hitbox
 class HexHitbox(Hitbox):
     def __init__(self, center: tuple[int, int], width: float, height: float) -> None:
         """

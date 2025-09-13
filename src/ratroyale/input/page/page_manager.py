@@ -81,27 +81,25 @@ class PageManager:
 
   # region Event Handling
   
-  """ This method propagates gestures downwards through the page stack, until all
+  
+  def handle_events(self) -> None:
+    """ This method propagates gestures downwards through the page stack, until all
       events are consumed, or no pages remain.
       Additionally, this function stops propagating an event if it hits a page 
       with a 'blocking' flag set to true. """
-  def handle_events(self) -> None:
     raw_events = pygame.event.get()
-    gestures = self.gesture_reader.read_events(raw_events)  # converts to list[GestureData]
+    gestures = self.gesture_reader.read_events(raw_events) 
 
     if gestures:
        for gesture in gestures:
           print(gesture.gesture_key)
 
-    # Propagate gestures through the page stack (top-most first)
     for page in reversed(self.page_stack):
         if not gestures:
-            break  # nothing left to propagate
+            break  
 
-        # Let the page handle gestures
         gestures = page.handle_gestures(gestures)
 
-        # Stop propagation if the page is blocking
         if page.blocking:
             break
         
