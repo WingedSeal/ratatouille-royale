@@ -5,12 +5,12 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.input_token import *
 from ratroyale.event_tokens.page_token import *
 
-from typing import Dict, Callable
+from typing import Callable
 
 if TYPE_CHECKING:
     from ratroyale.input.input_manager import InputManager  
 
-def create_callback_registry(manager: InputManager) -> Dict[ActionKey, Callable[[InputManagerEvent], None]]:
+def create_callback_registry(manager: "InputManager") -> dict[ActionKey, Callable[[InputManagerEvent], None]]:
     return {
             ActionKey.START_GAME: lambda tkn: manager.message(RequestStart_GameManagerEvent()),
             ActionKey.QUIT: lambda tkn: manager.exit(),

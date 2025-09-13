@@ -19,7 +19,7 @@ from ratroyale.backend.hexagon import OddRCoord
 
 class Page:
     """Base class for a page in the application."""
-    def __init__(self, page_name: PageName, screen_size: tuple[int, int], coordination_manager: CoordinationManager):
+    def __init__(self, page_name: PageName, screen_size: tuple[int, int], coordination_manager: CoordinationManager) -> None:
         self.config: PageConfig = PAGES[page_name]
         self.name: PageName = self.config.name
 
@@ -68,10 +68,10 @@ class Page:
         # Blocking flag: prevents input from reaching lower pages in the stack
         self.blocking = self.config.blocking
 
-    def add_element(self, element: Interactable):
+    def add_element(self, element: Interactable) -> None:
         self.interactables.append(element)
 
-    def remove_element(self, element: Interactable):
+    def remove_element(self, element: Interactable) -> None:
         if element in self.interactables:
             self.interactables.remove(element)
 
@@ -100,7 +100,7 @@ class Page:
         return remaining_gestures
 
         
-    def emit_input_event(self, input_event: InputManagerEvent):
+    def emit_input_event(self, input_event: InputManagerEvent) -> None:
         self.coordination_manager.put_message(input_event)
 
 
@@ -116,7 +116,7 @@ class Page:
         """Draw UI elements onto the page canvas."""
         self.gui_manager.draw_ui(self.canvas)
 
-    def draw(self):
+    def draw(self) -> None:
         """Draw method for non-UI elements. Used as a base to be extended by special page definitions."""
         pass
 
@@ -129,7 +129,7 @@ class Page:
 class GameBoardPage(Page):
     def __init__(self, screen_size: tuple[int,int],
                  coordination_manager: CoordinationManager, 
-                 board: Board | None):
+                 board: Board | None) -> None:
         super().__init__(PageName.GAME_BOARD, screen_size, coordination_manager)
 
         self.tile_visuals: list[VisualComponent] = []
@@ -174,7 +174,7 @@ class GameBoardPage(Page):
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
 
 
-    def draw(self):
+    def draw(self) -> None:
         self.clear_canvas()  
         
         # TODO: Revise the draw order to align with the isometric style.
@@ -199,7 +199,7 @@ class GameBoardPage(Page):
         self.draw_ui()
 
     # Hitbox debug
-    def render_hitbox(self):
+    def render_hitbox(self) -> None:
         for interactable in self.interactables:
             interactable.hitbox.draw(self.canvas)
 
@@ -212,7 +212,7 @@ class CardOverlayPage(Page):
 # ====================================
 
 class PageFactory:
-    def __init__(self, gui_manager, screen_size, coordination_manager: CoordinationManager):
+    def __init__(self, gui_manager, screen_size, coordination_manager: CoordinationManager) -> None:
         self.gui_manager = gui_manager
         self.screen_size = screen_size
         self.coordination_manager = coordination_manager

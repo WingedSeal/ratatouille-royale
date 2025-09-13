@@ -7,7 +7,7 @@ from ratroyale.backend.board import Board
 from ratroyale.event_tokens.page_token import *
 
 class PageManager:
-  def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager):
+  def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager) -> None:
     self.screen = screen
     self.is_hovering_ui = False
 
@@ -37,7 +37,7 @@ class PageManager:
     self.page_stack.append(page)
     return page
   
-  def pop_page(self, page_option: PageName | None = None):
+  def pop_page(self, page_option: PageName | None = None) -> None:
     """ Remove topmost page """
     if not self.page_stack:
         return  # nothing to remove
@@ -52,7 +52,7 @@ class PageManager:
                 self.page_stack.pop(i)
                 break
 
-  def replace_top(self, page_option: PageName):
+  def replace_top(self, page_option: PageName) -> None:
     """ Switch topmost page for a different one """
     if self.page_stack:
       self.page_stack.pop()
@@ -62,7 +62,7 @@ class PageManager:
 
   # region Composite Page Management Methods
 
-  def push_game_board_page(self, board: Board | None):
+  def push_game_board_page(self, board: Board | None) -> None:
      self.pop_page(None)
 
      page = self.page_factory.create_game_board_page(board)
@@ -70,7 +70,7 @@ class PageManager:
 
      self.push_page(PageName.PAUSE_BUTTON)
      
-  def end_game_return_to_menu(self):
+  def end_game_return_to_menu(self) -> None:
      self.pop_page(PageName.PAUSE_BUTTON)
      self.pop_page(PageName.PAUSE_MENU)
      self.pop_page(PageName.GAME_BOARD)
@@ -85,7 +85,7 @@ class PageManager:
       events are consumed, or no pages remain.
       Additionally, this function stops propagating an event if it hits a page 
       with a 'blocking' flag set to true. """
-  def handle_events(self):
+  def handle_events(self) -> None:
     raw_events = pygame.event.get()
     gestures = self.gesture_reader.read_events(raw_events)  # converts to List[GestureData]
 
@@ -109,11 +109,11 @@ class PageManager:
 
   # region Drawing
 
-  def update(self, dt: float):
+  def update(self, dt: float) -> None:
     for page in self.page_stack:
       page.gui_manager.update(dt)
 
-  def draw(self):
+  def draw(self) -> None:
     for page in self.page_stack:
       page.draw()
       self.screen.blit(page.canvas, (0, 0))  
@@ -124,7 +124,7 @@ class PageManager:
 
   # region Message Processing
 
-  def execute_callbacks(self):
+  def execute_callbacks(self) -> None:
     page_event_queue = self.coordination_manager.mailboxes[PageManagerEvent]
 
     while not page_event_queue.empty():

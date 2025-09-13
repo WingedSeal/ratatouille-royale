@@ -8,17 +8,17 @@ from ratroyale.input.input_bindings import create_callback_registry
 
 
 class InputManager:
-    def __init__(self, coordination_manager: CoordinationManager):
+    def __init__(self, coordination_manager: CoordinationManager) -> None:
         self.coordination_manager = coordination_manager
         self.callback_registry = create_callback_registry(self) 
 
-    def message(self, event_token: EventToken):
+    def message(self, event_token: EventToken) -> None:
         self.coordination_manager.put_message(event_token)
 
-    def exit(self):
+    def exit(self) -> None:
         self.coordination_manager.stop_game()
 
-    def execute_callbacks(self):
+    def execute_callbacks(self) -> None:
         input_queue = self.coordination_manager.mailboxes[InputManagerEvent]
 
         while not input_queue.empty():

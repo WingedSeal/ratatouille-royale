@@ -18,18 +18,18 @@ class Hitbox(ABC):
         pass
 
 class RectangleHitbox(Hitbox):
-    def __init__(self, rect: pygame.Rect):
+    def __init__(self, rect: pygame.Rect) -> None:
         self.rect = rect
 
     def contains_point(self, point):
         return self.rect.collidepoint(point)
 
-    def draw(self, surface, color=(0, 0, 255)):
+    def draw(self, surface, color=(0, 0, 255)) -> None:
         pygame.draw.rect(surface, color, self.rect, 1)
 
 
 class CircleHitbox(Hitbox):
-    def __init__(self, center, radius):
+    def __init__(self, center, radius) -> None:
         self.center = center
         self.radius = radius
 
@@ -38,13 +38,13 @@ class CircleHitbox(Hitbox):
         cx, cy = self.center
         return (x - cx) ** 2 + (y - cy) ** 2 <= self.radius ** 2
 
-    def draw(self, surface, color=(0, 255, 0)):
+    def draw(self, surface, color=(0, 255, 0)) -> None:
         pygame.draw.circle(surface, color, self.center, self.radius, 1)
 
 
 # Hex hitbox
 class HexHitbox(Hitbox):
-    def __init__(self, center, width, height):
+    def __init__(self, center, width, height) -> None:
         """
         center: (x, y) of hex center
         width: distance from flat side to flat side (corner-to-corner horizontally)
@@ -77,7 +77,7 @@ class HexHitbox(Hitbox):
                     inside = not inside
         return inside
 
-    def draw(self, surface, color=(0, 0, 255)):
+    def draw(self, surface, color=(0, 0, 255)) -> None:
         pygame.draw.polygon(surface, color, self.points, 1)
 
 
@@ -94,7 +94,7 @@ class Interactable:
         visuals: list[VisualComponent] | None = None,
         blocks_input: bool = True,
         z_order: int = 0
-    ):
+    ) -> None:
         self.hitbox: Hitbox = hitbox
         self.gesture_action_mapping: dict[GestureKey, ActionKey] = gesture_action_mapping
         self.blocks_input: bool = blocks_input
@@ -126,7 +126,7 @@ class TileInteractable(Interactable):
     Interactable specialized for tiles.
     Handles hitbox, tile-specific visuals, and any tile-specific input logic.
     """
-    def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0):
+    def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0) -> None:
         # Compute top-left for sprite placement
         tile_x, tile_y = TileVisual(tile)._hex_to_world(tile.coord, REGULAR_TILE_SIZE)
 
@@ -154,7 +154,7 @@ class EntityInteractable(Interactable):
     Interactable specialized for entities.
     Handles hitbox, entity-specific visuals, and any entity-specific input logic.
     """
-    def __init__(self, entity: Entity, blocks_input: bool = True, z_order: int = 1):
+    def __init__(self, entity: Entity, blocks_input: bool = True, z_order: int = 1) -> None:
         entity_visual = EntityVisual(entity)
         hitbox = RectangleHitbox(pygame.Rect(
             *entity_visual.position,
