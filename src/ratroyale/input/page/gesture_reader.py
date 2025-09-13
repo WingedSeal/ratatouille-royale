@@ -55,7 +55,7 @@ class GestureReader:
     """
     # endregion
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.state: GestureState = GestureState.STATE_IDLE
         self.start_pos: tuple[int, int] | None = None
         self.last_pos: tuple[int, int] | None = None
@@ -65,8 +65,6 @@ class GestureReader:
         self.last_click_pos: tuple[int, int] | None = None
 
         self.gesture_queue: List[GestureData] = []
-
-    # region Gesture Logic
 
     def read_events(self, events: list[pygame.event.Event]) -> list[GestureData]:
         """
@@ -89,9 +87,9 @@ class GestureReader:
         return self.gesture_queue.copy()
 
 
-    # region Internals
+    # region Gesture Logic
 
-    def _sync_with_hardware(self):
+    def _sync_with_hardware(self) -> None:
         """Correct our state machine if it desyncs from actual mouse button state."""
         mouse_down = pygame.mouse.get_pressed()[0]
 
@@ -102,7 +100,7 @@ class GestureReader:
             # Button is down but we think idle -> fake a press
             self._on_press(pygame.mouse.get_pos())
 
-    def _cancel_active_gestures(self):
+    def _cancel_active_gestures(self) -> None:
         """Cancels any ongoing gestures (drag, hold, swipe) and resets the state."""
         self.state = GestureState.STATE_IDLE
         self.start_pos = None
@@ -143,9 +141,7 @@ class GestureReader:
         self.last_pos = pos
 
     def _on_release(self, pos: tuple[int, int], raw_event: pygame.event.Event) -> None:
-        # IS_SPURIOUS_RELEASE_EVENT
-        # for some reason putting the check into a variable blinds Pylance from seeing that we've already
-        # prevented None from entering the calculations.
+        # is_spurious_release_event
         if self.start_time is None or self.start_pos is None:
             return
 
@@ -154,14 +150,14 @@ class GestureReader:
         dy = pos[1] - self.start_pos[1]
         distance = (dx**2 + dy**2) ** 0.5
 
-        IS_SWIPING = self.state == GestureState.STATE_DRAGGING and distance >= self.SWIPE_MOVEMENT_THRESHOLD
-        if IS_SWIPING:
+        is_swiping = self.state == GestureState.STATE_DRAGGING and distance >= self.SWIPE_MOVEMENT_THRESHOLD
+        if is_swiping:
             speed = distance / max(elapsed_time, 1e-6)
             if speed >= self.SWIPE_SPEED_THRESHOLD:
                 self.on_swipe(self.start_pos, pos, dx / distance, dy / distance, raw_event)
 
-        IS_CLICKING = self.state == GestureState.STATE_PRESSED
-        if IS_CLICKING:
+        is_clicking = self.state == GestureState.STATE_PRESSED
+        if is_clicking:
             current_time = time.time()
             if (
                 self.last_click_time is not None
@@ -208,7 +204,6 @@ class GestureReader:
         self.dragging_last_pos = None
         self.start_time = None
 
-    # endregion
     # endregion
 
     # region Callbacks
