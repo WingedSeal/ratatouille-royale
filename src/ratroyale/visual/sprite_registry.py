@@ -1,4 +1,3 @@
-from enum import Enum, auto
 import pygame
 from ratroyale.visual.game_obj_to_sprite_registry import SpriteRegistryKey
 

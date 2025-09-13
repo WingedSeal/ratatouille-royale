@@ -6,7 +6,6 @@ from ratroyale.visual.visual_component import VisualComponent, TileVisual, Entit
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from abc import ABC, abstractmethod
-from math import sqrt
 
 class Hitbox(ABC):
     @abstractmethod
