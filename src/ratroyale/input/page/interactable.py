@@ -1,5 +1,5 @@
 import pygame
-from typing import Dict, List, Tuple
+
 from ratroyale.input.constants import GestureKey, ActionKey
 from ratroyale.event_tokens.input_token import GestureData
 from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, REGULAR_TILE_SIZE
@@ -9,11 +9,11 @@ from abc import ABC, abstractmethod
 
 class Hitbox(ABC):
     @abstractmethod
-    def contains_point(self, point: Tuple[int, int]) -> bool:
+    def contains_point(self, point: tuple[int, int]) -> bool:
         """Return True if the point is inside the hitbox."""
         pass
     @abstractmethod
-    def draw(self, surface: pygame.Surface, color: Tuple[int, int, int] = (255, 0, 0)) -> None:
+    def draw(self, surface: pygame.Surface, color: tuple[int, int, int] = (255, 0, 0)) -> None:
         """Draw the hitbox for debugging purposes."""
         pass
 
@@ -21,30 +21,30 @@ class RectangleHitbox(Hitbox):
     def __init__(self, rect: pygame.Rect) -> None:
         self.rect = rect
 
-    def contains_point(self, point):
+    def contains_point(self, point: tuple[int, int]) -> bool:
         return self.rect.collidepoint(point)
 
-    def draw(self, surface, color=(0, 0, 255)) -> None:
+    def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 0, 255)) -> None:
         pygame.draw.rect(surface, color, self.rect, 1)
 
 
 class CircleHitbox(Hitbox):
-    def __init__(self, center, radius) -> None:
+    def __init__(self, center: tuple[int, int], radius: int) -> None:
         self.center = center
         self.radius = radius
 
-    def contains_point(self, point):
+    def contains_point(self, point: tuple[int, int]) -> bool:
         x, y = point
         cx, cy = self.center
         return (x - cx) ** 2 + (y - cy) ** 2 <= self.radius ** 2
 
-    def draw(self, surface, color=(0, 255, 0)) -> None:
+    def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 255, 0)) -> None:
         pygame.draw.circle(surface, color, self.center, self.radius, 1)
 
 
 # Hex hitbox
 class HexHitbox(Hitbox):
-    def __init__(self, center, width, height) -> None:
+    def __init__(self, center: tuple[int, int], width: float, height: float) -> None:
         """
         center: (x, y) of hex center
         width: distance from flat side to flat side (corner-to-corner horizontally)
@@ -63,7 +63,7 @@ class HexHitbox(Hitbox):
             (self.cx - w,   self.cy - h/2)  # top-left
         ]
 
-    def contains_point(self, point):
+    def contains_point(self, point: tuple[int, int]) -> bool:
         # Simple ray-casting algorithm for polygons
         x, y = point
         inside = False
@@ -77,7 +77,7 @@ class HexHitbox(Hitbox):
                     inside = not inside
         return inside
 
-    def draw(self, surface, color=(0, 0, 255)) -> None:
+    def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 0, 255)) -> None:
         pygame.draw.polygon(surface, color, self.points, 1)
 
 
@@ -109,7 +109,7 @@ class Interactable:
             return None
         return self.gesture_action_mapping.get(gesture.gesture_key)
 
-    def get_ui_element(self):
+    def get_ui_element(self) -> list[VisualComponent]:
         """Return the visual element if any."""
         return self.visuals
 
@@ -139,7 +139,7 @@ class TileInteractable(Interactable):
             GestureKey.CLICK: ActionKey.SELECT_TILE
         }
 
-        visuals: List[VisualComponent] = [TileVisual(tile)]
+        visuals: list[VisualComponent] = [TileVisual(tile)]
 
         super().__init__(
             hitbox=hitbox,

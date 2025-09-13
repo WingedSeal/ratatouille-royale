@@ -1,6 +1,5 @@
 import pygame_gui
 import pygame
-from typing import List
 
 from .page_config import PAGES, PageConfig
 from ratroyale.event_tokens.input_token import InputManagerEvent, GestureData
@@ -31,10 +30,10 @@ class Page:
 
         self.coordination_manager = coordination_manager
 
-        self.interactables: List[Interactable] = []
+        self.interactables: list[Interactable] = []
         """ Registry for interactables (UI elements, tiles, cards, etc.) """
 
-        self.visuals: List[VisualComponent] = []
+        self.visuals: list[VisualComponent] = []
         """ Registry for visual elements """
 
         for widget_config in self.config.widgets:
@@ -76,7 +75,7 @@ class Page:
             self.interactables.remove(element)
 
 
-    def handle_gestures(self, gestures: list[GestureData]):
+    def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         remaining_gestures = []
 
         for gesture in gestures:
@@ -206,24 +205,3 @@ class GameBoardPage(Page):
 class CardOverlayPage(Page):
     pass
 
-
-# ====================================
-# region Page Factory 
-# ====================================
-
-class PageFactory:
-    def __init__(self, gui_manager, screen_size, coordination_manager: CoordinationManager) -> None:
-        self.gui_manager = gui_manager
-        self.screen_size = screen_size
-        self.coordination_manager = coordination_manager
-
-    # Used for creating non-specialized page classes.
-    def create_page(self, page_option: PageName):
-        return Page(page_option, self.screen_size, self.coordination_manager)
-    
-    def create_game_board_page(self, board: Board | None):
-        return GameBoardPage(self.screen_size, self.coordination_manager, board)
-
-
-    
-# endregion

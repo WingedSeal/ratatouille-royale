@@ -2,7 +2,6 @@ import pygame
 import time
 from ratroyale.event_tokens.input_token import GestureData
 from ratroyale.input.constants import GestureKey
-from typing import List, Tuple
 from enum import Enum, auto
 
 # TODO: fix strange unresponsive click issues.
@@ -64,7 +63,7 @@ class GestureReader:
         self.last_click_time: float | None = None
         self.last_click_pos: tuple[int, int] | None = None
 
-        self.gesture_queue: List[GestureData] = []
+        self.gesture_queue: list[GestureData] = []
 
     def read_events(self, events: list[pygame.event.Event]) -> list[GestureData]:
         """
@@ -207,14 +206,14 @@ class GestureReader:
     # endregion
 
     # region Callbacks
-    def on_click(self, pos: Tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
+    def on_click(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.CLICK, 
             start_pos=pos,
             raw_event=raw_event
         ))
 
-    def on_double_click(self, pos: Tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
+    def on_double_click(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.DOUBLE_CLICK, 
             start_pos=pos,
@@ -234,7 +233,7 @@ class GestureReader:
             raw_event=raw_event
         ))
 
-    def on_hold(self, pos: Tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
+    def on_hold(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_key=GestureKey.HOLD, 
             start_pos=pos,
@@ -243,8 +242,8 @@ class GestureReader:
 
     def on_swipe(
         self, 
-        start_pos: Tuple[int, int], 
-        end_pos: Tuple[int, int], 
+        start_pos: tuple[int, int], 
+        end_pos: tuple[int, int], 
         velo_x: float, 
         velo_y: float, 
         raw_event: pygame.event.Event | None = None

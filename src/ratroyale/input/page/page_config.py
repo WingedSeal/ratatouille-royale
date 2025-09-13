@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 import pygame
 import pygame_gui
 from ratroyale.input.constants import ActionKey, PageName, GestureKey
@@ -14,7 +13,7 @@ class InteractableConfig:
     """
     If this is true, this interactable component stops inputs from reaching any other interactables or pages below it.
     """
-    visuals: List[VisualComponent] | None = None
+    visuals: list[VisualComponent] | None = None
     z_order: int = 0
     
 @dataclass

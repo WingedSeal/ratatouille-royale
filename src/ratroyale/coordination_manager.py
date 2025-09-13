@@ -9,8 +9,8 @@ from ratroyale.event_tokens.visual_token import VisualManagerEvent
 
 
 class CoordinationManager:
-    def __init__(self):
-        self.game_running = True
+    def __init__(self) -> None:
+        self.game_running: bool = True
     
         self.mailboxes: dict[Type[EventToken], EventQueue] = {
             PageManagerEvent: EventQueue[PageManagerEvent](),
@@ -19,7 +19,7 @@ class CoordinationManager:
             VisualManagerEvent: EventQueue[VisualManagerEvent](),
         }
 
-    def put_message(self, msg: EventToken):
+    def put_message(self, msg: EventToken) -> None:
         for mail_type in self.mailboxes.keys():
             if isinstance(msg, mail_type):
                 self.mailboxes[mail_type].put(msg)
@@ -30,5 +30,5 @@ class CoordinationManager:
     def all_mailboxes_empty(self) -> bool:
         return all(q.empty() for q in self.mailboxes.values())
     
-    def stop_game(self):
+    def stop_game(self) -> None:
         self.game_running = False

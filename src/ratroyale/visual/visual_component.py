@@ -51,7 +51,7 @@ class SpriteVisual(VisualComponent):
         )
         self.position = position
 
-    def create(self, manager=None) -> None:
+    def create(self, manager: UIManager) -> None:
         pass
 
     def render(self, surface: pygame.Surface) -> None:

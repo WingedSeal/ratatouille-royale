@@ -1,5 +1,5 @@
 import pygame
-from ratroyale.input.page.page_creator import Page, PageFactory
+from ratroyale.input.page.page_creator import Page, GameBoardPage
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.page.page_config import PageName
 from ratroyale.input.page.gesture_reader import GestureReader
@@ -87,7 +87,7 @@ class PageManager:
       with a 'blocking' flag set to true. """
   def handle_events(self) -> None:
     raw_events = pygame.event.get()
-    gestures = self.gesture_reader.read_events(raw_events)  # converts to List[GestureData]
+    gestures = self.gesture_reader.read_events(raw_events)  # converts to list[GestureData]
 
     if gestures:
        for gesture in gestures:
@@ -143,3 +143,22 @@ class PageManager:
                 self.end_game_return_to_menu()
 
   # endregion
+
+# ====================================
+# region Page Factory 
+# ====================================
+
+class PageFactory:
+    def __init__(self, page_manager: PageManager, screen_size: tuple[int, int], coordination_manager: CoordinationManager) -> None:
+        self.page_manager = page_manager
+        self.screen_size = screen_size
+        self.coordination_manager = coordination_manager
+
+    # Used for creating non-specialized page classes.
+    def create_page(self, page_option: PageName) -> Page:
+        return Page(page_option, self.screen_size, self.coordination_manager)
+    
+    def create_game_board_page(self, board: Board | None) -> GameBoardPage:
+        return GameBoardPage(self.screen_size, self.coordination_manager, board)
+    
+# endregion

@@ -1,4 +1,3 @@
-import pygame
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.base import EventToken
 from ratroyale.event_tokens.page_token import *
