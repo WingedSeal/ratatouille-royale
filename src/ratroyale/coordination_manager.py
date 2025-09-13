@@ -1,4 +1,4 @@
-from typing import TypeVar, Type, Dict
+from typing import Type
 
 from ratroyale.utils import EventQueue
 from ratroyale.event_tokens.base import EventToken
@@ -8,15 +8,11 @@ from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.event_tokens.visual_token import VisualManagerEvent
 
 
-T = TypeVar("T", bound=EventToken)
-
 class CoordinationManager:
     def __init__(self):
         self.game_running = True
-        """
-        Controls the running state of the game.
-        """
-        self.mailboxes: Dict[Type[EventToken], EventQueue] = {
+    
+        self.mailboxes: dict[Type[EventToken], EventQueue] = {
             PageManagerEvent: EventQueue[PageManagerEvent](),
             InputManagerEvent: EventQueue[InputManagerEvent](),
             GameManagerEvent: EventQueue[GameManagerEvent](),
@@ -24,16 +20,12 @@ class CoordinationManager:
         }
 
     def put_message(self, msg: EventToken):
-      if isinstance(msg, PageManagerEvent):
-          self.mailboxes[PageManagerEvent].put(msg)
-      elif isinstance(msg, InputManagerEvent):
-          self.mailboxes[InputManagerEvent].put(msg)
-      elif isinstance(msg, GameManagerEvent):
-          self.mailboxes[GameManagerEvent].put(msg)
-      elif isinstance(msg, VisualManagerEvent):
-          self.mailboxes[VisualManagerEvent].put(msg)
-      else:
-          raise ValueError(f"No mailbox found for message type {type(msg)}")
+        for mail_type in self.mailboxes.keys():
+            if isinstance(msg, mail_type):
+                self.mailboxes[mail_type].put(msg)
+                break
+        else:
+            raise ValueError(f"No mailbox found for message type {type(msg)}")
 
     def all_mailboxes_empty(self) -> bool:
         return all(q.empty() for q in self.mailboxes.values())
