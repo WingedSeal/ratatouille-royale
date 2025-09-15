@@ -78,7 +78,6 @@ class Page:
         remaining_gestures = []
 
         for gesture in gestures:
-            gesture_is_consumed = False
             for widget in self.interactables:
                 action_key = widget.process_gesture(gesture)
                 if action_key:
@@ -89,10 +88,8 @@ class Page:
                     ))
 
                     if widget.blocks_input:
-                        gesture_is_consumed = True
-                        break  
-
-            if not gesture_is_consumed:
+                        break
+            else:
                 remaining_gestures.append(gesture)
 
         return remaining_gestures
