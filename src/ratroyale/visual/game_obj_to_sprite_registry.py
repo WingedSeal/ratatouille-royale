@@ -4,6 +4,8 @@ from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.tile import Tile
 
+# TODO: refactor entity/tile sprite drawing into type-based handlers.
+
 class SpriteRegistryKey(Enum):
   DEFAULT_TILE = auto()
   DEFAULT_ENTITY = auto()
