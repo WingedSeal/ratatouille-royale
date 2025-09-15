@@ -16,6 +16,10 @@ from .map import Map
 from .board import Board
 from .side import Side
 
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.game_token import *
+from ratroyale.event_tokens.page_token import *
+
 HAND_LENGTH = 5
 
 
@@ -44,14 +48,10 @@ class GameManager:
     """Crumbs of the current side"""
     first_turn: Side
 
-    def __init__(self, map: Map, players_info: tuple[PlayerInfo, PlayerInfo], first_turn: Side) -> None:
+    def __init__(self, map: Map, players_info: tuple[PlayerInfo, PlayerInfo], first_turn: Side, coordination_manager: CoordinationManager) -> None:
         self.turn = first_turn
         self.turn_count = 1
         self.board = Board(map)
-        self.hands = {
-            Side.RAT: [self.draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
-            Side.MOUSE: [self.draw_squeak(Side.MOUSE) for _ in range(HAND_LENGTH)],
-        }
         self.players_info = {
             first_turn: players_info[0],
             first_turn.other_side(): players_info[1]
@@ -61,10 +61,25 @@ class GameManager:
             Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set(
             ).get_new_deck()
         }
+        self.hands = {
+            Side.RAT: [self.draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
+            Side.MOUSE: [self.draw_squeak(Side.MOUSE) for _ in range(HAND_LENGTH)],
+        }
+        self.coordination_manager = coordination_manager
 
     @property
     def event_queue(self) -> Queue[GameEvent]:
         return self.board.event_queue
+
+    def execute_callbacks(self) -> None:
+        game_event_queue = self.coordination_manager.mailboxes[GameManagerEvent]
+
+        while not game_event_queue.empty():
+            token: GameManagerEvent = game_event_queue.get()
+
+            if isinstance(token, RequestStart_GameManagerEvent):
+                self.coordination_manager.put_message(ConfirmStartGame_PageManagerEvent(self.board))
+                # In actual implementation, replace the sample map in render test with an actual loaded map
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
         skill = entity.skills[skill_index]

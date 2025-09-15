@@ -65,26 +65,31 @@ class OddRCoord:
         return (axial.to_odd_r() for axial in self.to_axial().all_in_range(N))
 
     @overload
-    def to_pixel(self, hex_size: float) -> tuple[float, float]: ...
+    def to_pixel(self, hex_size: float, is_bounding_box: bool = False) -> tuple[float, float]: ...
 
     @overload
     def to_pixel(self, hex_width: float,
-                 hex_height: float) -> tuple[float, float]: ...
+                 hex_height: float, is_bounding_box: bool = False) -> tuple[float, float]: ...
 
     def to_pixel(  # type: ignore
-            self, hex_width: float, hex_height: float | None = None
+            self, hex_width: float, hex_height: float | None = None, is_bounding_box: bool = False
     ) -> tuple[float, float]:
         """
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-offset
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-mod-origin
+        is_bounding_box: Whether hex_width and hex_height specify the hexagon's bounding box instead of its radius.
         """
         if hex_height is None:
             hex_height = hex_width
+        if is_bounding_box:
+            hex_width /= sqrt(3)
+            hex_height *= 0.5
         x = sqrt(3) * (self.col + 0.5 * (self.row & 1))
         y = 1.5 * self.row
         # Origin is not on the center of odd-r (0,0)
         x += 1
         y += sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics
+        
         return x * hex_width, y * hex_height
 
     def get_neighbor(self, direction: int) -> "OddRCoord":

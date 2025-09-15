@@ -32,7 +32,6 @@ if TYPE_CHECKING:
             altitude=0,
             crumb_cost=7
         )
-
     ]
 )
 class TailBlazer(Rodent):

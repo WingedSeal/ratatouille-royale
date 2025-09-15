@@ -3,9 +3,7 @@ from ..entity import Entity, entity_data
 from ..hexagon import OddRCoord
 from ..entity import _EntitySkill
 from typing import TYPE_CHECKING, TypeVar
-
-if TYPE_CHECKING:
-    from ..side import Side
+from ..side import Side
 
 
 class RodentMeta(ABCMeta):
