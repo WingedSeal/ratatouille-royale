@@ -75,7 +75,7 @@ class Page:
 
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
-        remaining_gestures = []
+        remaining_gestures: list[GestureData] = []
 
         for gesture in gestures:
             for widget in self.interactables:
