@@ -129,13 +129,13 @@ class PageManager:
         token = page_event_queue.get()
 
         match token:
-            case AddPageEvent_PageManagerEvent(page_name=page_name):
+            case AddPageEvent_PageManagerEvent(page_name):
                 self.push_page(page_name)
-            case RemovePageEvent_PageManagerEvent(page_name=page_name):
+            case RemovePageEvent_PageManagerEvent(page_name):
                 self.pop_page(page_name)
-            case ReplaceTopPage_PageManagerEvent(page_name=page_name):
+            case ReplaceTopPage_PageManagerEvent(page_name):
                 self.replace_top(page_name)
-            case ConfirmStartGame_PageManagerEvent(board=board):
+            case ConfirmStartGame_PageManagerEvent(board):
                 self.push_game_board_page(board)
             case EndGame_PageManagerEvent():
                 self.end_game_return_to_menu()
