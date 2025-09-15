@@ -65,7 +65,7 @@ class OddRCoord:
         return (axial.to_odd_r() for axial in self.to_axial().all_in_range(N))
 
     @overload
-    def to_pixel(self, hex_size: float) -> tuple[float, float]: ...
+    def to_pixel(self, hex_size: float, is_bounding_box: bool = False) -> tuple[float, float]: ...
 
     @overload
     def to_pixel(self, hex_width: float,
@@ -77,6 +77,7 @@ class OddRCoord:
         """
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-offset
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-mod-origin
+        is_bounding_box: Whether hex_width and hex_height specify the hexagon's bounding box instead of its radius.
         """
         if hex_height is None:
             hex_height = hex_width

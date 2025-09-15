@@ -2,11 +2,11 @@ from enum import Enum, auto
 
 
 class ActionKey(Enum):
-  # Canvas actions
+  # Game actions
   SELECT_TILE = auto()
   SELECT_UNIT = auto()
 
-  # UI actions
+  # Navigation actions
   START_GAME = auto()
   BACK_TO_MENU = auto()
   QUIT = auto()
@@ -15,7 +15,12 @@ class ActionKey(Enum):
 
 
 class GestureKey(Enum):
-  # Gesture actions
+  """
+  Represents high-level gesture types produced by GestureReader.
+
+  The GestureReader converts raw input events (e.g., mouse or touch events) into these
+  higher-level gestures, which are then tagged using this enum.
+  """
   CLICK = auto()
   DOUBLE_CLICK = auto()
   DRAG = auto()
@@ -24,11 +29,6 @@ class GestureKey(Enum):
   HOLD = auto()
   SCROLL = auto()
 
-class GUIEventSource(Enum):
-  UI_ELEMENT = auto()
-  GESTURE = auto()
-
-# Enum for page names
 class PageName(Enum):
     MAIN_MENU = auto()
     TEST_SWAP = auto()
