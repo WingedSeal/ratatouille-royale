@@ -1,7 +1,8 @@
 import pygame
 
-from ratroyale.input.constants import GestureKey, ActionKey
-from ratroyale.event_tokens.input_token import GestureData
+from ratroyale.input.dispatch_management.action_name import ActionName
+from ratroyale.input.gesture_management.gesture_type import GestureType
+from ratroyale.input.gesture_management.gesture_data import GestureData
 from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, TYPICAL_TILE_SIZE
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
@@ -90,18 +91,18 @@ class Interactable:
     def __init__(
         self,
         hitbox: Hitbox,
-        gesture_action_mapping: dict[GestureKey, ActionKey],
+        gesture_action_mapping: dict[GestureType, ActionName],
         visuals: list[VisualComponent] | None = None,
         blocks_input: bool = True,
         z_order: int = 0
     ) -> None:
         self.hitbox: Hitbox = hitbox
-        self.gesture_action_mapping: dict[GestureKey, ActionKey] = gesture_action_mapping
+        self.gesture_action_mapping: dict[GestureType, ActionName] = gesture_action_mapping
         self.blocks_input: bool = blocks_input
         self.visuals: list[VisualComponent] = visuals or [] 
         self.z_order: int = z_order
 
-    def process_gesture(self, gesture: GestureData) -> ActionKey | None:
+    def process_gesture(self, gesture: GestureData) -> ActionName | None:
         gesture_pos = gesture.start_pos
         if gesture_pos is None:
             return None
@@ -138,7 +139,7 @@ class TileInteractable(Interactable):
         hitbox = HexHitbox(center=(center_x, center_y), width=width, height=height)
 
         gesture_action_mapping = {
-            GestureKey.CLICK: ActionKey.SELECT_TILE
+            GestureType.CLICK: ActionName.SELECT_TILE
         }
 
         visuals: list[VisualComponent] = [TileVisual(tile)]
@@ -165,7 +166,7 @@ class EntityInteractable(Interactable):
         ))
 
         self.gesture_action_mapping = {
-            GestureKey.CLICK: ActionKey.SELECT_UNIT
+            GestureType.CLICK: ActionName.SELECT_UNIT
         }
 
         super().__init__(

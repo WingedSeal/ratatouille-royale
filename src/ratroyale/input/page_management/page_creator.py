@@ -4,8 +4,8 @@ import pygame
 from .page_config import PAGES, PageConfig
 from ratroyale.event_tokens.input_token import InputManagerEvent, GestureData
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.constants import PageName
-from ratroyale.input.page.interactable import Interactable, TileInteractable, EntityInteractable
+from ratroyale.input.page_management.page_name import PageName
+from ratroyale.input.page_management.interactable import Interactable, TileInteractable, EntityInteractable
 from ratroyale.visual.visual_component import VisualComponent
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.board import Board
@@ -78,16 +78,16 @@ class Page:
         remaining_gestures: list[GestureData] = []
 
         for gesture in gestures:
-            for widget in self.interactables:
-                action_key = widget.process_gesture(gesture)
+            for interactable in self.interactables:
+                action_key = interactable.process_gesture(gesture)
                 if action_key:
                     self.emit_input_event(InputManagerEvent(
                         gesture_data=gesture,
                         action_key=action_key,
-                        page_name=self.name
+                        interactable=interactable
                     ))
 
-                    if widget.blocks_input:
+                    if interactable.blocks_input:
                         break
             else:
                 remaining_gestures.append(gesture)

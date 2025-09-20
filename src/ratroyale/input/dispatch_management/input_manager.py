@@ -3,7 +3,7 @@ from ratroyale.event_tokens.base import EventToken
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.input_token import *
-from ratroyale.input.input_bindings import create_callback_registry
+from ratroyale.input.dispatch_management.input_bindings import create_callback_registry
 
 
 class InputManager:

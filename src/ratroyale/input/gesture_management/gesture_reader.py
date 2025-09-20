@@ -1,7 +1,7 @@
 import pygame
 import time
 from ratroyale.event_tokens.input_token import GestureData
-from ratroyale.input.constants import GestureKey
+from ratroyale.input.gesture_management.gesture_type import GestureType
 from enum import Enum, auto
 
 # TODO: fix strange unresponsive click issues.
@@ -208,34 +208,34 @@ class GestureReader:
     # region Callbacks
     def on_click(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
-            gesture_key=GestureKey.CLICK, 
+            gesture_key=GestureType.CLICK, 
             start_pos=pos,
             raw_event=raw_event
         ))
 
     def on_double_click(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
-            gesture_key=GestureKey.DOUBLE_CLICK, 
+            gesture_key=GestureType.DOUBLE_CLICK, 
             start_pos=pos,
             raw_event=raw_event
         ))
 
     def on_drag(self, dx: int, dy: int, raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
-            gesture_key=GestureKey.DRAG, 
+            gesture_key=GestureType.DRAG, 
             delta=(dx, dy),
             raw_event=raw_event
         ))
 
     def on_drag_end(self, raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
-            gesture_key=GestureKey.DRAG_END,
+            gesture_key=GestureType.DRAG_END,
             raw_event=raw_event
         ))
 
     def on_hold(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
-            gesture_key=GestureKey.HOLD, 
+            gesture_key=GestureType.HOLD, 
             start_pos=pos,
             raw_event=raw_event
         ))
@@ -249,7 +249,7 @@ class GestureReader:
         raw_event: pygame.event.Event | None = None
     ) -> None:
         self.output_gesture(GestureData(
-            gesture_key=GestureKey.SWIPE, 
+            gesture_key=GestureType.SWIPE, 
             start_pos=start_pos, 
             end_pos=end_pos, 
             velocity=(velo_x, velo_y),
@@ -258,7 +258,7 @@ class GestureReader:
 
     def on_scroll(self, amount: int, raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
-            gesture_key=GestureKey.SCROLL, 
+            gesture_key=GestureType.SCROLL, 
             scroll_amount=amount,
             raw_event=raw_event
         ))

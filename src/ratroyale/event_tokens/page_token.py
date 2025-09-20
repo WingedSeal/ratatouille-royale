@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from .base import EventToken
-from ratroyale.input.page.page_config import PageName
+from ratroyale.input.page_management.page_config import PageName
 from ratroyale.backend.board import Board
 
 __all__ = [

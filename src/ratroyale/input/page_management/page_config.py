@@ -1,14 +1,16 @@
 from dataclasses import dataclass, field
 import pygame
 import pygame_gui
-from ratroyale.input.constants import ActionKey, PageName, GestureKey
-from ratroyale.input.page.interactable import Hitbox, RectangleHitbox  
+from ratroyale.input.dispatch_management.action_name import ActionName
+from ratroyale.input.gesture_management.gesture_type import GestureType
+from ratroyale.input.page_management.page_name import PageName
+from ratroyale.input.page_management.interactable import Hitbox, RectangleHitbox  
 from ratroyale.visual.visual_component import VisualComponent, UIVisual
 
 @dataclass
 class InteractableConfig:
     hitbox: Hitbox
-    gesture_action_mapping: dict[GestureKey, ActionKey]
+    gesture_action_mapping: dict[GestureType, ActionName]
     blocks_input: bool = True
     """
     If this is true, this interactable component stops inputs from reaching any other interactables or pages below it.
@@ -38,7 +40,7 @@ MAIN_MENU = PageConfig(
         InteractableConfig(
             hitbox=RectangleHitbox(pygame.Rect(100, 100, 200, 50)),
             gesture_action_mapping={
-                GestureKey.CLICK: ActionKey.START_GAME
+                GestureType.CLICK: ActionName.START_GAME
             },
             visuals=[UIVisual(
                 type=pygame_gui.elements.UIButton,
@@ -49,7 +51,7 @@ MAIN_MENU = PageConfig(
         InteractableConfig(
             hitbox=RectangleHitbox(pygame.Rect(100, 200, 200, 50)),
             gesture_action_mapping={
-                GestureKey.CLICK: ActionKey.QUIT
+                GestureType.CLICK: ActionName.QUIT
             },
             visuals=[UIVisual(
                 type=pygame_gui.elements.UIButton,
@@ -68,7 +70,7 @@ PAUSE_BUTTON_PAGE = PageConfig(
         InteractableConfig(
             hitbox=RectangleHitbox(pygame.Rect(700, 20, 80, 40)),  
             gesture_action_mapping={
-                GestureKey.CLICK: ActionKey.PAUSE_GAME
+                GestureType.CLICK: ActionName.PAUSE_GAME
             },
             visuals=[UIVisual(
                 type=pygame_gui.elements.UIButton,
@@ -87,7 +89,7 @@ PAUSE_MENU_PAGE = PageConfig(
         InteractableConfig(
             hitbox=RectangleHitbox(pygame.Rect(300, 200, 200, 50)),
             gesture_action_mapping={
-                GestureKey.CLICK: ActionKey.RESUME_GAME
+                GestureType.CLICK: ActionName.RESUME_GAME
             },
             visuals=[UIVisual(
                 type=pygame_gui.elements.UIButton,
@@ -98,7 +100,7 @@ PAUSE_MENU_PAGE = PageConfig(
         InteractableConfig(
             hitbox=RectangleHitbox(pygame.Rect(300, 300, 200, 50)),
             gesture_action_mapping={
-                GestureKey.CLICK: ActionKey.BACK_TO_MENU
+                GestureType.CLICK: ActionName.BACK_TO_MENU
             },
             visuals=[UIVisual(
                 type=pygame_gui.elements.UIButton,
