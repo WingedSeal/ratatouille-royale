@@ -19,7 +19,8 @@ class VisualManager:
 
         self.event_handlers: dict[type[VisualManagerEvent], Callable] = {
             RegisterPage_VisualManagerEvent: lambda tkn: self.register_renderer(tkn),
-            UnregisterPage_VisualManagerEvent: lambda tkn: self.unregister_renderer(tkn)
+            UnregisterPage_VisualManagerEvent: lambda tkn: self.unregister_renderer(tkn),
+            RegisterVisualComponent_VisualManagerEvent: lambda tkn: self.register_component(tkn),
         }
 
     def register_renderer(self, tkn: VisualManagerEvent) -> None:
@@ -32,13 +33,30 @@ class VisualManager:
       renderer = renderer_cls(screen_size=tkn.page.screen_size)
       self.page_to_renderer_registry[page] = renderer
 
-    def unregister_renderer(self, page: Page) -> None:
-        """Remove a renderer if a page is closed or destroyed."""
-        if page in self.page_to_renderer_registry:
-            del self.page_to_renderer_registry[page]
+    def unregister_renderer(self, tkn: VisualManagerEvent) -> None:
+      """Remove a renderer if a page is closed or destroyed."""
+      assert isinstance(tkn, UnregisterPage_VisualManagerEvent)
 
-    def register_gui_element_to_page(self) -> None:
-        pass
+      page = tkn.page
+      self.page_to_renderer_registry.pop(page, None)
+
+    def register_component(self, tkn: VisualManagerEvent) -> None:
+        """Add visual component to the designated page"""
+        assert isinstance(tkn, RegisterVisualComponent_VisualManagerEvent)
+
+        renderer = self.page_to_renderer_registry.get(tkn.page)
+        
+        if renderer:
+          renderer.register_component(tkn.interactable ,tkn.visual_component)
+    
+    def unregister_component(self, tkn: VisualManagerEvent) -> None:
+        """Remove targeted visual component from the designated page"""
+        assert isinstance(tkn, UnregisterVisualComponent_VisualManagerEvent)
+        
+        renderer = self.page_to_renderer_registry.get(tkn.page)
+
+        if renderer:
+           renderer.unregister_component(tkn.interactable)
 
     def draw_all(self) -> None:
         """Delegate draw calls to all registered renderers and blit to screen."""

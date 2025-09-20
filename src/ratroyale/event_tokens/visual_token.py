@@ -1,17 +1,15 @@
 from dataclasses import dataclass
 from .base import EventToken
 from ratroyale.input.page_management.page_creator import Page
+from ratroyale.visual.asset_management.visual_component import VisualComponent
+from ratroyale.input.page_management.interactable import Interactable
 
 __all__ = [
     "VisualManagerEvent",
     "RegisterPage_VisualManagerEvent",
     "UnregisterPage_VisualManagerEvent",
-    "RegisterGUIVisual_VisualManagerEvent",
-    "RegisterTileVisual_VisualManagerEvent",
-    "RegisterEntityVisual_VisualManagerEvent",
-    "UnregisterGUIVisual_VisualManagerEvent",
-    "UnregisterTileVisual_VisualManagerEvent",
-    "UnregisterEntityVisual_VisualManagerEvent"
+    "RegisterVisualComponent_VisualManagerEvent",
+    "UnregisterVisualComponent_VisualManagerEvent"
 ]
 
 @dataclass
@@ -28,31 +26,12 @@ class UnregisterPage_VisualManagerEvent(VisualManagerEvent):
   page: Page
 
 @dataclass
-class RegisterGUIVisual_VisualManagerEvent(VisualManagerEvent):
-  # TODO: add GUI visual data
-  pass
+class RegisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
+  visual_component: VisualComponent
+  interactable: Interactable
+  page: Page
 
 @dataclass
-class RegisterTileVisual_VisualManagerEvent(VisualManagerEvent):
-  # TODO: add tile data
-  pass
-
-@dataclass
-class RegisterEntityVisual_VisualManagerEvent(VisualManagerEvent):
-  # TODO: add entity data
-  pass
-
-@dataclass
-class UnregisterGUIVisual_VisualManagerEvent(VisualManagerEvent):
-  # TODO: add GUI visual data
-  pass
-
-@dataclass
-class UnregisterTileVisual_VisualManagerEvent(VisualManagerEvent):
-  # TODO: add tile data
-  pass
-
-@dataclass
-class UnregisterEntityVisual_VisualManagerEvent(VisualManagerEvent):
-  # TODO: add entity data
-  pass
+class UnregisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
+  interactable: Interactable
+  page: Page
