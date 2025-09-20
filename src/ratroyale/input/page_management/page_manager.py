@@ -121,16 +121,16 @@ class PageManager:
 
   # region Drawing
 
-  def update(self, dt: float) -> None:
-    for page in self.page_stack:
-      page.gui_manager.update(dt)
+  # def update(self, dt: float) -> None:
+  #   for page in self.page_stack:
+  #     page.gui_manager.update(dt)
 
-  def draw(self) -> None:
-    for page in self.page_stack:
-      page.draw()
-      self.screen.blit(page.canvas, (0, 0))  
+  # def draw(self) -> None:
+  #   for page in self.page_stack:
+  #     page.draw()
+  #     self.screen.blit(page.canvas, (0, 0))  
 
-      page.draw_ui()   
+  #     page.draw_ui()   
 
   # endregion
 

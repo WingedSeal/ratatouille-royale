@@ -87,15 +87,16 @@ def main():
     while coordination_manager.game_running:
         dt = clock.tick(60) / 1000.0  # delta time in seconds
 
+        screen.fill((0, 0, 0))
+        page_manager.handle_events()
+
         while not coordination_manager.all_mailboxes_empty():
             page_manager.execute_callbacks()
             input_manager.execute_callbacks()
             game_manager.execute_callbacks()
 
-        screen.fill((0, 0, 0))
-        page_manager.handle_events()
-        page_manager.update(dt)
-        page_manager.draw()
+        # page_manager.update(dt)
+        # page_manager.draw()
 
         pygame.display.flip()
         

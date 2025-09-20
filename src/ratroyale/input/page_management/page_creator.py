@@ -25,8 +25,8 @@ class Page:
         self.canvas = pygame.Surface(screen_size, pygame.SRCALPHA)
         """ Canvas for blitting visual objects onto (transparent by default) """
 
-        self.gui_manager = pygame_gui.UIManager(screen_size, self.config.theme_path)
-        """ Each page has its own UIManager """
+        # self.gui_manager = pygame_gui.UIManager(screen_size, self.config.theme_path)
+        # """ Each page has its own UIManager """
 
         self.coordination_manager = coordination_manager
 
@@ -99,21 +99,21 @@ class Page:
         self.coordination_manager.put_message(input_event)
 
 
-    def clear_canvas(self, color: tuple[int, int, int, int]=(0, 0, 0, 0)) -> None:
-        """Clear the canvas (default: fully transparent)."""
-        self.canvas.fill(color)
+    # def clear_canvas(self, color: tuple[int, int, int, int]=(0, 0, 0, 0)) -> None:
+    #     """Clear the canvas (default: fully transparent)."""
+    #     self.canvas.fill(color)
 
-    def update_ui(self, dt: float) -> None:
-        """Update UI elements for animations, transitions, etc."""
-        self.gui_manager.update(dt)
+    # def update_ui(self, dt: float) -> None:
+    #     """Update UI elements for animations, transitions, etc."""
+    #     self.gui_manager.update(dt)
 
-    def draw_ui(self) -> None:
-        """Draw UI elements onto the page canvas."""
-        self.gui_manager.draw_ui(self.canvas)
+    # def draw_ui(self) -> None:
+    #     """Draw UI elements onto the page canvas."""
+    #     self.gui_manager.draw_ui(self.canvas)
 
-    def draw(self) -> None:
-        """Draw method for non-UI elements. Used as a base to be extended by special page definitions."""
-        pass
+    # def draw(self) -> None:
+    #     """Draw method for non-UI elements. Used as a base to be extended by special page definitions."""
+    #     pass
 
 # endregion
 
