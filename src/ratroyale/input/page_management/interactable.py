@@ -129,6 +129,10 @@ class TileInteractable(Interactable):
     Handles hitbox, tile-specific visuals, and any tile-specific input logic.
     """
     def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0) -> None:
+        # Save tile's hex coord for later reference
+        self.tile_row = tile.coord.row
+        self.tile_col = tile.coord.col
+
         # Compute top-left for sprite placement
         tile_x, tile_y = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
 
@@ -150,6 +154,9 @@ class TileInteractable(Interactable):
             blocks_input=blocks_input,
             z_order=z_order
         )
+
+    def get_tile_coord(self) -> tuple[int, int]:
+        return (self.tile_row, self.tile_col)
 
 class EntityInteractable(Interactable):
     """
