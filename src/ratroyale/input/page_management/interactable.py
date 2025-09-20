@@ -2,7 +2,7 @@ import pygame
 
 from ratroyale.input.dispatch_management.action_name import ActionName
 from ratroyale.input.gesture_management.gesture_data import GestureData, GestureType
-from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, TYPICAL_TILE_SIZE
+from ratroyale.visual.asset_management.visual_component import VisualComponent, TileVisual, EntityVisual, TYPICAL_TILE_SIZE
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from abc import ABC, abstractmethod
@@ -91,14 +91,14 @@ class Interactable:
         self,
         hitbox: Hitbox,
         gesture_action_mapping: dict[GestureType, ActionName],
-        visuals: list[VisualComponent] | None = None,
+        # visuals: list[VisualComponent] | None = None,
         blocks_input: bool = True,
         z_order: int = 0
     ) -> None:
         self.hitbox: Hitbox = hitbox
         self.gesture_action_mapping: dict[GestureType, ActionName] = gesture_action_mapping
         self.blocks_input: bool = blocks_input
-        self.visuals: list[VisualComponent] = visuals or [] 
+        # self.visuals: list[VisualComponent] = visuals or [] 
         self.z_order: int = z_order
 
     def process_gesture(self, gesture: GestureData) -> ActionName | None:
@@ -109,9 +109,9 @@ class Interactable:
             return None
         return self.gesture_action_mapping.get(gesture.gesture_key)
 
-    def get_ui_element(self) -> list[VisualComponent]:
-        """Return the visual element if any."""
-        return self.visuals
+    # def get_ui_element(self) -> list[VisualComponent]:
+    #     """Return the visual element if any."""
+    #     return self.visuals
 
     # def show(self):
     #     if self.visuals:
@@ -150,7 +150,7 @@ class TileInteractable(Interactable):
         super().__init__(
             hitbox=hitbox,
             gesture_action_mapping=gesture_action_mapping,
-            visuals=visuals,
+            # visuals=visuals,
             blocks_input=blocks_input,
             z_order=z_order
         )
@@ -178,7 +178,7 @@ class EntityInteractable(Interactable):
         super().__init__(
             hitbox=hitbox,
             gesture_action_mapping=self.gesture_action_mapping,
-            visuals=[entity_visual],
+            # visuals=[entity_visual],
             blocks_input=blocks_input,
             z_order=z_order
         )

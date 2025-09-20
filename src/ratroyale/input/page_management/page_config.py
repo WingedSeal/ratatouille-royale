@@ -5,7 +5,7 @@ from ratroyale.input.dispatch_management.action_name import ActionName
 from ratroyale.input.gesture_management.gesture_data import GestureType
 from ratroyale.input.page_management.page_name import PageName
 from ratroyale.input.page_management.interactable import Hitbox, RectangleHitbox  
-from ratroyale.visual.visual_component import VisualComponent, UIVisual
+from ratroyale.visual.asset_management.visual_component import VisualComponent, UIVisual
 
 @dataclass
 class InteractableConfig:
