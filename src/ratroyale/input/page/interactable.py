@@ -7,6 +7,8 @@ from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from abc import ABC, abstractmethod
 
+# region Base Hitbox Classes
+
 class Hitbox(ABC):
     @abstractmethod
     def contains_point(self, point: tuple[float, float]) -> bool:
@@ -118,6 +120,8 @@ class Interactable:
     # def hide(self):
     #     if self.visuals:
     #         self.visuals.hide()
+
+# endregion
 
 class TileInteractable(Interactable):
     """

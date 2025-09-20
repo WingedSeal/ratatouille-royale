@@ -3,6 +3,7 @@ from ratroyale.input.page.page_config import PageName
 from ratroyale.input.constants import ActionKey, GestureKey
 import pygame
 from .base import EventToken
+from ratroyale.input.page.interactable import Interactable
 
 __all__ = [
    "GestureData",
@@ -30,4 +31,4 @@ class InputManagerEvent(EventToken):
 
   # To be decorated via the input consumption pipeline
   action_key: ActionKey 
-  page_name: PageName
+  interactable: Interactable
