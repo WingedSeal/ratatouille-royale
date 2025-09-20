@@ -1,8 +1,7 @@
 import pygame
 
 from ratroyale.input.dispatch_management.action_name import ActionName
-from ratroyale.input.gesture_management.gesture_type import GestureType
-from ratroyale.input.gesture_management.gesture_data import GestureData
+from ratroyale.input.gesture_management.gesture_data import GestureData, GestureType
 from ratroyale.visual.visual_component import VisualComponent, TileVisual, EntityVisual, TYPICAL_TILE_SIZE
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity

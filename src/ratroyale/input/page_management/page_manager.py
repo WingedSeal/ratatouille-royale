@@ -5,6 +5,7 @@ from ratroyale.input.page_management.page_config import PageName
 from ratroyale.input.gesture_management.gesture_reader import GestureReader
 from ratroyale.backend.board import Board
 from ratroyale.event_tokens.page_token import *
+from typing import Callable
 
 class PageManager:
   def __init__(self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager) -> None:
@@ -22,7 +23,14 @@ class PageManager:
     self.page_stack: list[Page] = []
     """Active page stack"""
 
-  # region basic Page Management Methods
+    self.event_handlers: dict[type[PageManagerEvent], Callable] = {
+       ConfirmStartGame_PageManagerEvent: lambda tkn: self.push_game_board_page(tkn.board),
+       EndGame_PageManagerEvent: lambda tkn: self.end_game_return_to_menu(),
+       PauseGame_PageManagerEvent: lambda tkn: self.pause_game(),
+       ResumeGame_PageManagerEvent: lambda tkn: self.resume_game()
+    }
+
+  # region Basic Page Management Methods
 
   def push_page(self, page_option: PageName) -> Page:
     """ Push page by name, create if it doesn’t exist yet """
@@ -76,6 +84,12 @@ class PageManager:
      self.pop_page(PageName.GAME_BOARD)
 
      self.push_page(PageName.MAIN_MENU)
+
+  def pause_game(self) -> None:
+     self.push_page(PageName.PAUSE_MENU)
+
+  def resume_game(self) -> None:
+     self.pop_page(PageName.PAUSE_MENU)
   
   # endregion
 
@@ -127,18 +141,12 @@ class PageManager:
 
     while not page_event_queue.empty():
         token = page_event_queue.get()
+        handler = self.event_handlers.get(type(token))
+        if handler:
+            handler(token)
+        else:
+            print(f"Unhandled page manager event: {token}")
 
-        match token:
-            case AddPageEvent_PageManagerEvent(page_name):
-                self.push_page(page_name)
-            case RemovePageEvent_PageManagerEvent(page_name):
-                self.pop_page(page_name)
-            case ReplaceTopPage_PageManagerEvent(page_name):
-                self.replace_top(page_name)
-            case ConfirmStartGame_PageManagerEvent(board):
-                self.push_game_board_page(board)
-            case EndGame_PageManagerEvent():
-                self.end_game_return_to_menu()
 
   # endregion
 

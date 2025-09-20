@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 import pygame
 import pygame_gui
 from ratroyale.input.dispatch_management.action_name import ActionName
-from ratroyale.input.gesture_management.gesture_type import GestureType
+from ratroyale.input.gesture_management.gesture_data import GestureType
 from ratroyale.input.page_management.page_name import PageName
 from ratroyale.input.page_management.interactable import Hitbox, RectangleHitbox  
 from ratroyale.visual.visual_component import VisualComponent, UIVisual
