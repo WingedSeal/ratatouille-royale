@@ -21,9 +21,10 @@ class Page:
     def __init__(self, page_name: PageName, screen_size: tuple[int, int], coordination_manager: CoordinationManager) -> None:
         self.config: PageConfig = PAGES[page_name]
         self.name: PageName = self.config.name
+        self.screen_size: tuple[int, int] = screen_size
 
-        self.canvas = pygame.Surface(screen_size, pygame.SRCALPHA)
-        """ Canvas for blitting visual objects onto (transparent by default) """
+        # self.canvas = pygame.Surface(screen_size, pygame.SRCALPHA)
+        # """ Canvas for blitting visual objects onto (transparent by default) """
 
         # self.gui_manager = pygame_gui.UIManager(screen_size, self.config.theme_path)
         # """ Each page has its own UIManager """
