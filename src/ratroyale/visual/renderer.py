@@ -22,6 +22,8 @@ class PageRenderer:
       for visuals in visual_list:
         visuals.render(self.canvas)
 
+    self.render_hitbox()
+
     self.ui_manager.draw_ui(self.canvas)
 
   def register_component(self, interactable: Interactable, visual: list[VisualComponent]) -> None:
@@ -30,6 +32,14 @@ class PageRenderer:
   def unregister_component(self, interactable: Interactable) -> None:
     self.interactable_visuals.pop(interactable, None)
 
+  def render_hitbox(self) -> None:
+    for interactable in self.interactable_visuals:
+        interactable.hitbox.draw(self.canvas)
+
+
+# TODO: Revise the draw order to align with the isometric style.
+# TODO: implement unit selection & path preview highlight.
+# TODO: implement SHOW HITBOX trigger
 class GameBoardPageRenderer(PageRenderer):
   def __init__(self, screen_size: tuple[int,int], ui_manager: UIManager) -> None:
       super().__init__(screen_size, ui_manager)

@@ -109,18 +109,6 @@ class Interactable:
             return None
         return self.gesture_action_mapping.get(gesture.gesture_key)
 
-    # def get_ui_element(self) -> list[VisualComponent]:
-    #     """Return the visual element if any."""
-    #     return self.visuals
-
-    # def show(self):
-    #     if self.visuals:
-    #         self.visuals.show()
-
-    # def hide(self):
-    #     if self.visuals:
-    #         self.visuals.hide()
-
 # endregion
 
 class TileInteractable(Interactable):

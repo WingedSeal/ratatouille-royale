@@ -55,13 +55,13 @@ class PageManager:
     if page_option is None:
         # Remove the topmost page
         rmvd_page = self.page_stack.pop()
-        self.coordination_manager.put_message(UnregisterPage_VisualManagerEvent(rmvd_page))
+        rmvd_page.unregister_self()
     else:
         # Remove the first page that matches the name
         for i, page in enumerate(self.page_stack):
             if page.name == page_option:
                 rmvd_page = self.page_stack.pop(i)
-                self.coordination_manager.put_message(UnregisterPage_VisualManagerEvent(rmvd_page))
+                rmvd_page.unregister_self()
                 break
 
   def replace_top(self, page_option: PageName) -> None:
@@ -121,21 +121,6 @@ class PageManager:
         if page.blocking:
             break
         
-  # endregion
-
-  # region Drawing
-
-  # def update(self, dt: float) -> None:
-  #   for page in self.page_stack:
-  #     page.gui_manager.update(dt)
-
-  # def draw(self) -> None:
-  #   for page in self.page_stack:
-  #     page.draw()
-  #     self.screen.blit(page.canvas, (0, 0))  
-
-  #     page.draw_ui()   
-
   # endregion
 
   # region Message Processing

@@ -24,21 +24,15 @@ class Page:
         self.name: PageName = self.config.name
         self.screen_size: tuple[int, int] = screen_size
 
-        # self.canvas = pygame.Surface(screen_size, pygame.SRCALPHA)
-        # """ Canvas for blitting visual objects onto (transparent by default) """
-
         gui_manager = pygame_gui.UIManager(screen_size, self.config.theme_path)
         """ Each page has its own UIManager """
 
         self.coordination_manager = coordination_manager
 
-        self.coordination_manager.put_message(RegisterPage_VisualManagerEvent(self, gui_manager))
+        self.register_self(gui_manager)
 
         self.interactables: list[Interactable] = []
         """ Registry for interactables (UI elements, tiles, cards, etc.) """
-
-        # self.visuals: list[VisualComponent] = []
-        """ Registry for visual elements """
 
         for widget_config in self.config.widgets:
             visual_instances: list[VisualComponent] = []
@@ -47,7 +41,6 @@ class Page:
             interactable_instance = Interactable(
                 hitbox=widget_config.hitbox,
                 gesture_action_mapping=widget_config.gesture_action_mapping,
-                # visuals=visual_instances, # REMOVE THIS ONCE VISUAL IS HOOKED UP
                 blocks_input=widget_config.blocks_input,
                 z_order=widget_config.z_order
             )
@@ -60,7 +53,6 @@ class Page:
                     # Otherwise, if it is of type SpriteVisual, the passed in gui_manager does nothing.
                     visual_config.create(manager=gui_manager)
                     visual_instances.append(visual_config)
-                    # self.visuals.append(visual_config) # REMOVE THIS ONCE VISUAL IS HOOKED UP
                     coordination_manager.put_message(
                         RegisterVisualComponent_VisualManagerEvent(
                             visual_instances, 
@@ -72,13 +64,18 @@ class Page:
         # Blocking flag: prevents input from reaching lower pages in the stack
         self.blocking = self.config.blocking
 
+    def register_self(self, ui_manager: pygame_gui.UIManager) -> None:
+        self.coordination_manager.put_message(RegisterPage_VisualManagerEvent(self, ui_manager))
+
+    def unregister_self(self) -> None:
+        self.coordination_manager.put_message(UnregisterPage_VisualManagerEvent(self))
+
     def add_element(self, element: Interactable) -> None:
         self.interactables.append(element)
 
     def remove_element(self, element: Interactable) -> None:
         if element in self.interactables:
             self.interactables.remove(element)
-
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         remaining_gestures: list[GestureData] = []
@@ -103,24 +100,6 @@ class Page:
     def register_visuals(self) -> None:
         pass
 
-    
-
-    # def clear_canvas(self, color: tuple[int, int, int, int]=(0, 0, 0, 0)) -> None:
-    #     """Clear the canvas (default: fully transparent)."""
-    #     self.canvas.fill(color)
-
-    # def update_ui(self, dt: float) -> None:
-    #     """Update UI elements for animations, transitions, etc."""
-    #     self.gui_manager.update(dt)
-
-    # def draw_ui(self) -> None:
-    #     """Draw UI elements onto the page canvas."""
-    #     self.gui_manager.draw_ui(self.canvas)
-
-    # def draw(self) -> None:
-    #     """Draw method for non-UI elements. Used as a base to be extended by special page definitions."""
-    #     pass
-
 # endregion
 
 # ====================================
@@ -134,11 +113,6 @@ class GameBoardPage(Page):
                  board: Board | None) -> None:
         super().__init__(PageName.GAME_BOARD, screen_size, coordination_manager)
 
-        # self.tile_visuals: list[VisualComponent] = []
-        # """ Visual components for tiles """
-        # self.entity_visuals: list[VisualComponent] = []
-        # """ Visual components for entities """
-
         self.selected_unit: Interactable | None = None
         """ Keeps track of which unit is being selected """
         self.path_preview: list[Interactable] = []
@@ -150,9 +124,7 @@ class GameBoardPage(Page):
                     if tile:
                         tile_interactable = TileInteractable(tile)
                         self.add_element(tile_interactable)
-                        # self.tile_visuals.extend(tile_interactable.visuals)
 
-                        # Send visuals to the visual domain
                         coordination_manager.put_message(
                             RegisterVisualComponent_VisualManagerEvent(
                                 visual_component=[TileVisual(tile)],
@@ -172,7 +144,6 @@ class GameBoardPage(Page):
                     )
                     tile_interactable = TileInteractable(tile)
                     self.add_element(tile_interactable)
-                    # self.tile_visuals.extend(tile_interactable.visuals)
 
                     coordination_manager.put_message(
                             RegisterVisualComponent_VisualManagerEvent(
@@ -188,7 +159,6 @@ class GameBoardPage(Page):
         for entity in entities_to_add:
             entity_interactable = EntityInteractable(entity)
             self.add_element(entity_interactable)
-            # self.entity_visuals.extend(entity_interactable.visuals)
 
             coordination_manager.put_message(
                             RegisterVisualComponent_VisualManagerEvent(
@@ -202,34 +172,6 @@ class GameBoardPage(Page):
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
 
 
-    # def draw(self) -> None:
-    #     self.clear_canvas()  
-        
-    #     # TODO: Revise the draw order to align with the isometric style.
-
-    #     for tile in self.tile_visuals:
-    #         tile.render(self.canvas)
-
-    #     for entity in self.entity_visuals:
-    #         entity.render(self.canvas)
-
-    #     # TODO: implement unit selection & path preview highlight.
-    #     # if self.selected_unit:
-    #     #     pass
-    #     # if self.path_preview:
-    #     #     for tile in self.path_preview:
-    #     #         pass
-
-    #     # TODO: implement SHOW HITBOX trigger
-    #     self.render_hitbox()
-
-    #     # Draw UI elements last
-    #     self.draw_ui()
-
-    # # Hitbox debug
-    # def render_hitbox(self) -> None:
-    #     for interactable in self.interactables:
-    #         interactable.hitbox.draw(self.canvas)
 
 class CardOverlayPage(Page):
     pass
