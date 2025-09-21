@@ -145,7 +145,7 @@ class TileInteractable(Interactable):
             GestureType.CLICK: ActionName.SELECT_TILE
         }
 
-        visuals: list[VisualComponent] = [TileVisual(tile)]
+        # visuals: list[VisualComponent] = [TileVisual(tile)]
 
         super().__init__(
             hitbox=hitbox,

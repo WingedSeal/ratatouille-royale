@@ -1,8 +1,13 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from .base import EventToken
-from ratroyale.input.page_management.page_creator import Page
 from ratroyale.visual.asset_management.visual_component import VisualComponent
 from ratroyale.input.page_management.interactable import Interactable
+from pygame_gui.ui_manager import UIManager
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ratroyale.input.page_management.page_creator import Page
 
 __all__ = [
     "VisualManagerEvent",
@@ -19,6 +24,7 @@ class VisualManagerEvent(EventToken):
 @dataclass
 class RegisterPage_VisualManagerEvent(VisualManagerEvent):
   page: Page
+  ui_manager: UIManager
   pass
 
 @dataclass
@@ -27,7 +33,7 @@ class UnregisterPage_VisualManagerEvent(VisualManagerEvent):
 
 @dataclass
 class RegisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
-  visual_component: VisualComponent
+  visual_component: list[VisualComponent]
   interactable: Interactable
   page: Page
 

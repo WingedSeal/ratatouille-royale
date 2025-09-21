@@ -5,6 +5,7 @@ from ratroyale.input.page_management.page_config import PageName
 from ratroyale.input.gesture_management.gesture_reader import GestureReader
 from ratroyale.backend.board import Board
 from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.visual_token import *
 from typing import Callable
 
 class PageManager:
@@ -43,6 +44,7 @@ class PageManager:
     # Otherwise, create it on demand
     page = self.page_factory.create_page(page_option)
     self.page_stack.append(page)
+
     return page
   
   def pop_page(self, page_option: PageName | None = None) -> None:
@@ -52,12 +54,14 @@ class PageManager:
 
     if page_option is None:
         # Remove the topmost page
-        self.page_stack.pop()
+        rmvd_page = self.page_stack.pop()
+        self.coordination_manager.put_message(UnregisterPage_VisualManagerEvent(rmvd_page))
     else:
         # Remove the first page that matches the name
         for i, page in enumerate(self.page_stack):
             if page.name == page_option:
-                self.page_stack.pop(i)
+                rmvd_page = self.page_stack.pop(i)
+                self.coordination_manager.put_message(UnregisterPage_VisualManagerEvent(rmvd_page))
                 break
 
   def replace_top(self, page_option: PageName) -> None:

@@ -1,6 +1,7 @@
 import pygame
 from ratroyale.input.page_management.page_manager import PageManager
 from ratroyale.input.dispatch_management.input_manager import InputManager
+from ratroyale.visual.visual_manager import VisualManager
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.page_management.page_config import PageName
 
@@ -24,6 +25,7 @@ def main():
 
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
     input_manager = InputManager(coordination_manager=coordination_manager)
+    visual_manager = VisualManager(screen=screen,coordination_manager=coordination_manager)
 
     # region GAME MANAGER DOMAIN 
     size_x, size_y = 5, 10
@@ -94,9 +96,12 @@ def main():
             page_manager.execute_callbacks()
             input_manager.execute_callbacks()
             game_manager.execute_callbacks()
+            visual_manager.execute_callbacks()
 
         # page_manager.update(dt)
         # page_manager.draw()
+        visual_manager.update(dt)
+        visual_manager.draw()
 
         pygame.display.flip()
         

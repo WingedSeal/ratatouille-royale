@@ -18,38 +18,48 @@ class VisualManager:
         }
 
         self.event_handlers: dict[type[VisualManagerEvent], Callable] = {
-            RegisterPage_VisualManagerEvent: lambda tkn: self.register_renderer(tkn),
-            UnregisterPage_VisualManagerEvent: lambda tkn: self.unregister_renderer(tkn),
-            RegisterVisualComponent_VisualManagerEvent: lambda tkn: self.register_component(tkn),
+            RegisterPage_VisualManagerEvent: lambda tkn: self._register_renderer(tkn),
+            UnregisterPage_VisualManagerEvent: lambda tkn: self._unregister_renderer(tkn),
+            RegisterVisualComponent_VisualManagerEvent: lambda tkn: self._register_component(tkn),
         }
 
-    def register_renderer(self, tkn: VisualManagerEvent) -> None:
+    # region Registration Methods
+
+    def _register_renderer(self, tkn: VisualManagerEvent) -> None:
       """Associate a page with its renderer."""
       assert isinstance(tkn, RegisterPage_VisualManagerEvent)
+
+      print("Received message: Create", type(tkn.page))
 
       page = tkn.page  
       page_type = type(page)
       renderer_cls = self.page_type_to_renderer.get(page_type, PageRenderer)
-      renderer = renderer_cls(screen_size=tkn.page.screen_size)
+      renderer = renderer_cls(screen_size=tkn.page.screen_size, ui_manager=tkn.ui_manager)
       self.page_to_renderer_registry[page] = renderer
 
-    def unregister_renderer(self, tkn: VisualManagerEvent) -> None:
+    def _unregister_renderer(self, tkn: VisualManagerEvent) -> None:
       """Remove a renderer if a page is closed or destroyed."""
       assert isinstance(tkn, UnregisterPage_VisualManagerEvent)
+
+      print("Received message: Destroy", type(tkn.page))
 
       page = tkn.page
       self.page_to_renderer_registry.pop(page, None)
 
-    def register_component(self, tkn: VisualManagerEvent) -> None:
+    def _register_component(self, tkn: VisualManagerEvent) -> None:
         """Add visual component to the designated page"""
         assert isinstance(tkn, RegisterVisualComponent_VisualManagerEvent)
+
+        print("Received message: Create", type(tkn.interactable))
 
         renderer = self.page_to_renderer_registry.get(tkn.page)
         
         if renderer:
-          renderer.register_component(tkn.interactable ,tkn.visual_component)
+          renderer.register_component(tkn.interactable, tkn.visual_component)
+        else:
+            print("No corresponding renderer found.")
     
-    def unregister_component(self, tkn: VisualManagerEvent) -> None:
+    def _unregister_component(self, tkn: VisualManagerEvent) -> None:
         """Remove targeted visual component from the designated page"""
         assert isinstance(tkn, UnregisterVisualComponent_VisualManagerEvent)
         
@@ -57,12 +67,21 @@ class VisualManager:
 
         if renderer:
            renderer.unregister_component(tkn.interactable)
+    
+    # endregion
 
-    def draw_all(self) -> None:
+    def update(self, dt: float) -> None:
+       """Update visual states based on delta time"""
+       for renderer in reversed(self.page_to_renderer_registry.values()):
+          renderer.update(dt)
+
+    def draw(self) -> None:
         """Delegate draw calls to all registered renderers and blit to screen."""
         for renderer in self.page_to_renderer_registry.values():
             renderer.draw()  
             self.screen.blit(renderer.canvas, (0, 0))  
+
+    # region Callback Execution
 
     def execute_callbacks(self) -> None:
       visual_event_queue = self.coordination_manager.mailboxes[VisualManagerEvent]
@@ -74,3 +93,5 @@ class VisualManager:
               handler(token)
           else:
               print(f"Unhandled page manager event: {token}")
+
+    # endregion
