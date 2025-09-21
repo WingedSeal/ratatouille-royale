@@ -4,6 +4,7 @@ from ratroyale.input.dispatch_management.action_name import ActionName
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.input_token import *
+from ratroyale.event_tokens.visual_token import *
 from ratroyale.input.page_management.interactable import TileInteractable, EntityInteractable
 from typing import Callable
 
@@ -29,7 +30,7 @@ class InputManager:
 
     def on_select_tile(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, TileInteractable)
-        print(f"Tile coord: {tkn.interactable.get_tile_coord()}")
+        self.message(TileInteraction_VisualManagerEvent(TileInteractionType.SELECT, tkn.interactable.tile))
 
     def on_select_entity(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, EntityInteractable)

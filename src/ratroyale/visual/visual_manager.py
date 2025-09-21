@@ -21,6 +21,8 @@ class VisualManager:
             RegisterPage_VisualManagerEvent: lambda tkn: self._register_renderer(tkn),
             UnregisterPage_VisualManagerEvent: lambda tkn: self._unregister_renderer(tkn),
             RegisterVisualComponent_VisualManagerEvent: lambda tkn: self._register_component(tkn),
+            UnregisterVisualComponent_VisualManagerEvent: lambda tkn: print("Placeholder"),
+            TileInteraction_VisualManagerEvent: lambda tkn: self._tile_interaction(tkn)
         }
 
     # region Registration Methods
@@ -68,6 +70,14 @@ class VisualManager:
         if renderer:
            renderer.unregister_component(tkn.interactable)
     
+    def _tile_interaction(self, tkn: VisualManagerEvent) -> None:
+        """ Look for a renderer of type GameBoardPageRenderer among all registered pages,
+          then forward the token to the page """
+        for renderer in self.page_to_renderer_registry.items():
+            if isinstance(renderer, GameBoardPageRenderer):
+                renderer.execute_callback(tkn)
+                break 
+
     # endregion
 
     def update(self, dt: float) -> None:
