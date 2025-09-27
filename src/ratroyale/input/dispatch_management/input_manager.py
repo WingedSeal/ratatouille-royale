@@ -13,14 +13,14 @@ class InputManager:
         self.coordination_manager = coordination_manager
         
         self.callback_registry: dict[ActionName, Callable[[InputManagerEvent], None]] = {
-            ActionName.START_GAME: lambda tkn: self.message(RequestStart_GameManagerEvent()),
+            ActionName.START_GAME: lambda tkn: self.message(RequestStart_GameManagerEvent(tkn.page_name)),
             ActionName.QUIT: lambda tkn: self.exit(),
 
             ActionName.SELECT_TILE: lambda tkn: self.on_select_tile(tkn),
             ActionName.SELECT_UNIT: lambda tkn: self.on_select_entity(tkn),
-            ActionName.PAUSE_GAME: lambda tkn: self.message(PauseGame_PageManagerEvent()),
-            ActionName.RESUME_GAME: lambda tkn: self.message(ResumeGame_PageManagerEvent()),
-            ActionName.BACK_TO_MENU: lambda tkn: self.message(EndGame_PageManagerEvent())
+            ActionName.PAUSE_GAME: lambda tkn: self.message(PauseGame_PageManagerEvent(tkn.page_name)),
+            ActionName.RESUME_GAME: lambda tkn: self.message(ResumeGame_PageManagerEvent(tkn.page_name)),
+            ActionName.BACK_TO_MENU: lambda tkn: self.message(EndGame_PageManagerEvent(tkn.page_name))
         }
 
     # region Callback Definitions
@@ -30,11 +30,12 @@ class InputManager:
 
     def on_select_tile(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, TileInteractable)
-        self.message(TileInteraction_VisualManagerEvent(InteractionType.SELECT, tkn.interactable.tile))
+        self.message(TileInteraction_VisualManagerEvent(tkn.page_name, InteractionType.SELECT, tkn.interactable.tile))
 
     def on_select_entity(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, EntityInteractable)
-        self.message(EntityInteraction_VisualManagerEvent(InteractionType.SELECT, tkn.interactable.entity))
+        self.message(EntityInteraction_VisualManagerEvent(tkn.page_name, InteractionType.SELECT, tkn.interactable.entity))
+        self.message(EntityInteraction_PageManagerEvent(tkn.page_name, tkn.interactable.entity))
 
     # TODO: give coordination_manager its own mailbox to standardize messaging pipeline.
     def exit(self) -> None:

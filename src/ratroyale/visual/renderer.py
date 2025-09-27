@@ -46,7 +46,8 @@ class PageRenderer:
       case UnregisterVisualComponent_VisualManagerEvent(interactable=i):
         self._unregister_component(i)
       case _:
-        print("Unhandled management event on basic renderer")
+        pass
+        # print("Unhandled management event on basic renderer")
     pass
 
 
@@ -73,7 +74,8 @@ class GameBoardPageRenderer(PageRenderer):
       case EntityInteraction_VisualManagerEvent(entity=entity, interaction_type=type):
         self._entity_interaction(entity, type)
       case _:
-        print("Unhandled management event")
+        pass
+        # print("Unhandled management event")
   
   def draw(self) -> None:
     self.canvas.fill((0,0,0,0))
@@ -107,7 +109,8 @@ class GameBoardPageRenderer(PageRenderer):
       case InteractionType.SELECT:
         self._select_tile(tile)
       case _:
-        print("Unhandled tile interaction type")
+        pass
+        # print("Unhandled tile interaction type")
 
   def _entity_interaction(self, entity: Entity, interaction_type: InteractionType) -> None:
     match interaction_type:
@@ -116,7 +119,8 @@ class GameBoardPageRenderer(PageRenderer):
       case InteractionType.SELECT:
         self._select_entity(entity)
       case _:
-        print("Unhandled entity interaction type")
+        pass
+        # print("Unhandled entity interaction type")
 
   def _select_tile(self, tile: Tile) -> None:
     self.selected_tile = tile.coord if tile.coord is not self.selected_tile else None

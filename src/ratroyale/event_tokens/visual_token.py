@@ -7,6 +7,7 @@ from pygame_gui.ui_manager import UIManager
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from enum import Enum, auto
+from ratroyale.input.page_management.page_name import PageName
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -29,28 +30,24 @@ class InteractionType(Enum):
 
 @dataclass
 class VisualManagerEvent(EventToken):
-  pass
+  page_name: PageName
 
 @dataclass
 class RegisterPage_VisualManagerEvent(VisualManagerEvent):
-  page: Page
   ui_manager: UIManager
-  pass
 
 @dataclass
 class UnregisterPage_VisualManagerEvent(VisualManagerEvent):
-  page: Page
+  pass
 
 @dataclass
 class RegisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
   visual_component: list[VisualComponent]
   interactable: Interactable
-  page: Page
 
 @dataclass
 class UnregisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
   interactable: Interactable
-  page: Page
 
 @dataclass
 class TileInteraction_VisualManagerEvent(VisualManagerEvent):

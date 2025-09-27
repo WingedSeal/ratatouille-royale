@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from .base import EventToken
+from ratroyale.input.page_management.page_name import PageName
 
 __all__ = [
   "GameManagerEvent",
@@ -9,6 +10,7 @@ __all__ = [
 
 @dataclass
 class GameManagerEvent(EventToken):
+  page_name: PageName
   pass
 
 @dataclass

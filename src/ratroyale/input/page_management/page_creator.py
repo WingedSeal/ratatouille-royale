@@ -10,7 +10,10 @@ from ratroyale.backend.tile import Tile
 from ratroyale.backend.board import Board
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.event_tokens.visual_token import *
+from ratroyale.event_tokens.page_token import *
 from ratroyale.visual.asset_management.visual_component import EntityVisual, TileVisual
+from ratroyale.backend.entity import Entity
+from ratroyale.visual.screen_constants import SCREEN_SIZE
 
 
 # ============================================
@@ -19,17 +22,17 @@ from ratroyale.visual.asset_management.visual_component import EntityVisual, Til
 
 class Page:
     """Base class for a page in the application."""
-    def __init__(self, page_name: PageName, screen_size: tuple[int, int], coordination_manager: CoordinationManager) -> None:
+    def __init__(self, page_name: PageName, coordination_manager: CoordinationManager) -> None:
         self.config: PageConfig = PAGES[page_name]
         self.name: PageName = self.config.name
-        self.screen_size: tuple[int, int] = screen_size
+        self.screen_size: tuple[int, int] = SCREEN_SIZE
 
-        gui_manager = pygame_gui.UIManager(screen_size, self.config.theme_path)
+        gui_manager = pygame_gui.UIManager(SCREEN_SIZE, self.config.theme_path)
         """ Each page has its own UIManager """
 
         self.coordination_manager = coordination_manager
 
-        self.register_self(gui_manager)
+        self._register_self(gui_manager)
 
         self.interactables: list[Interactable] = []
         """ Registry for interactables (UI elements, tiles, cards, etc.) """
@@ -55,20 +58,21 @@ class Page:
                     visual_instances.append(visual_config)
                     coordination_manager.put_message(
                         RegisterVisualComponent_VisualManagerEvent(
+                            self.name,
                             visual_instances, 
                             interactable_instance,
-                            self))
+                            ))
 
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
 
         # Blocking flag: prevents input from reaching lower pages in the stack
         self.blocking = self.config.blocking
 
-    def register_self(self, ui_manager: pygame_gui.UIManager) -> None:
-        self.coordination_manager.put_message(RegisterPage_VisualManagerEvent(self, ui_manager))
+    def _register_self(self, ui_manager: pygame_gui.UIManager) -> None:
+        self.coordination_manager.put_message(RegisterPage_VisualManagerEvent(self.name, ui_manager))
 
-    def unregister_self(self) -> None:
-        self.coordination_manager.put_message(UnregisterPage_VisualManagerEvent(self))
+    def _unregister_self(self) -> None:
+        self.coordination_manager.put_message(UnregisterPage_VisualManagerEvent(self.name))
 
     def add_element(self, element: Interactable) -> None:
         self.interactables.append(element)
@@ -87,7 +91,8 @@ class Page:
                     self.coordination_manager.put_message(InputManagerEvent(
                         gesture_data=gesture,
                         action_key=action_key,
-                        interactable=interactable
+                        interactable=interactable,
+                        page_name=self.name
                     ))
 
                     if interactable.blocks_input:
@@ -97,7 +102,7 @@ class Page:
 
         return remaining_gestures
     
-    def register_visuals(self) -> None:
+    def execute_callback(self, tkn: PageManagerEvent) -> None:
         pass
 
 # endregion
@@ -108,15 +113,14 @@ class Page:
 
 # TODO: delegate visual component creation to a factory
 class GameBoardPage(Page):
-    def __init__(self, screen_size: tuple[int,int],
+    def __init__(self,
                  coordination_manager: CoordinationManager, 
                  board: Board | None) -> None:
-        super().__init__(PageName.GAME_BOARD, screen_size, coordination_manager)
+        super().__init__(PageName.GAME_BOARD, coordination_manager)
 
-        self.selected_unit: Interactable | None = None
-        """ Keeps track of which unit is being selected """
         self.path_preview: list[Interactable] = []
         """ Keeps track of tiles included in path dragging """
+        self.selected_entity: Entity | None = None
 
         if board:
             for tile_list in board.tiles:
@@ -129,7 +133,7 @@ class GameBoardPage(Page):
                             RegisterVisualComponent_VisualManagerEvent(
                                 visual_component=[TileVisual(tile)],
                                 interactable=tile_interactable,
-                                page=self
+                                page_name=self.name
                             )
                         )
         else:
@@ -149,7 +153,7 @@ class GameBoardPage(Page):
                             RegisterVisualComponent_VisualManagerEvent(
                                 visual_component=[TileVisual(tile)],
                                 interactable=tile_interactable,
-                                page=self
+                                page_name=self.name
                             )
                         )
 
@@ -162,14 +166,28 @@ class GameBoardPage(Page):
 
             coordination_manager.put_message(
                             RegisterVisualComponent_VisualManagerEvent(
+                                page_name=self.name,
                                 visual_component=[EntityVisual(entity)],
-                                interactable=entity_interactable,
-                                page=self
+                                interactable=entity_interactable
                             )
                         )
 
         # Sort all interactables by Z-order (highest first)
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
+
+    def execute_callback(self, tkn: PageManagerEvent) -> None:
+        super().execute_callback(tkn)
+
+        match tkn:
+            case EntityInteraction_PageManagerEvent(entity=e):
+                self._select_entity(e)
+            case _:
+                pass
+
+    def _select_entity(self, entity: Entity) -> None:
+        self.selected_entity = entity if entity is not self.selected_entity else None
+
+        print("Selected entity" if self.selected_entity else "Deselected entity")
 
 
 

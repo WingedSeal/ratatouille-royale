@@ -4,6 +4,7 @@ from ratroyale.input.dispatch_management.input_manager import InputManager
 from ratroyale.visual.visual_manager import VisualManager
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.page_management.page_config import PageName
+from ratroyale.visual.screen_constants import SCREEN_SIZE
 
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.map import Map
@@ -18,7 +19,7 @@ from ratroyale.backend.player_info.squeak import Squeak, SqueakType, SqueakOnPla
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))
+    screen = pygame.display.set_mode(SCREEN_SIZE)
     clock = pygame.time.Clock()
 
     coordination_manager = CoordinationManager()

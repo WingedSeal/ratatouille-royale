@@ -21,7 +21,7 @@ class PageManager:
     self.page_factory = PageFactory(self, self.screen.get_size(), coordination_manager)
     """Dictionary of pages, each page is a list of interactables and visuals"""
 
-    self.page_stack: list[Page] = []
+    self.page_stack: dict[PageName, Page] = {}
     """Active page stack"""
 
     self.event_handlers: dict[type[PageManagerEvent], Callable] = {
@@ -33,53 +33,35 @@ class PageManager:
 
   # region Basic Page Management Methods
 
-  def push_page(self, page_option: PageName) -> Page:
-    """ Push page by name, create if it doesn’t exist yet """
-    # Check if the page already exists in stack
-    for page in self.page_stack:
-      if page.name == page_option:
-        self.page_stack.append(page)
-        return page
-
-    # Otherwise, create it on demand
-    page = self.page_factory.create_page(page_option)
-    self.page_stack.append(page)
-
-    return page
+  def push_page(self, page_name: PageName, page: Page | None = None) -> None:
+    """ Push page by name or by the given page object, create if it doesn’t exist yet """
+    if self.get_page(page_name):
+      return
+    else: 
+      self.page_stack[page_name] = self.page_factory.create_page(page_name) if not page else page
   
-  def pop_page(self, page_option: PageName | None = None) -> None:
-    """ Remove topmost page """
-    if not self.page_stack:
-        return  # nothing to remove
-
-    if page_option is None:
-        # Remove the topmost page
-        rmvd_page = self.page_stack.pop()
-        rmvd_page.unregister_self()
+  def pop_page(self, page_name: PageName | None = None) -> None:
+    """ Remove topmost page, or first page that matches the given name"""
+    if page_name is None:
+        self.page_stack.popitem()[1]._unregister_self()
     else:
-        # Remove the first page that matches the name
-        for i, page in enumerate(self.page_stack):
-            if page.name == page_option:
-                rmvd_page = self.page_stack.pop(i)
-                rmvd_page.unregister_self()
-                break
+        self.page_stack.pop(page_name)._unregister_self()
+  
+  def get_page(self, page_name: PageName) -> Page | None:
+    return self.page_stack.get(page_name)
 
-  def replace_top(self, page_option: PageName) -> None:
+  def replace_top(self, page_option: PageName, page: Page | None) -> None:
     """ Switch topmost page for a different one """
     if self.page_stack:
-      self.page_stack.pop()
-    self.push_page(page_option)
+      self.pop_page()
+    self.push_page(page_option, page)
 
   # endregion
 
   # region Composite Page Management Methods
 
   def push_game_board_page(self, board: Board | None) -> None:
-     self.pop_page(None)
-
-     page = self.page_factory.create_game_board_page(board)
-     self.page_stack.append(page)
-
+     self.replace_top(PageName.GAME_BOARD, self.page_factory.create_game_board_page(board))
      self.push_page(PageName.PAUSE_BUTTON)
      
   def end_game_return_to_menu(self) -> None:
@@ -108,11 +90,7 @@ class PageManager:
     raw_events = pygame.event.get()
     gestures = self.gesture_reader.read_events(raw_events) 
 
-    if gestures:
-       for gesture in gestures:
-          print(gesture.gesture_key)
-
-    for page in reversed(self.page_stack):
+    for page in reversed(self.page_stack.values()):
         if not gestures:
             break  
 
@@ -134,7 +112,14 @@ class PageManager:
         if handler:
             handler(token)
         else:
-            print(f"Unhandled page manager event: {token}")
+            self._delegate(token)
+
+  def _delegate(self, token: PageManagerEvent) -> None:
+    page = self.get_page(token.page_name)
+    if page:
+       page.execute_callback(token)
+    else:
+       print("No pages to handle this callback")
 
 
   # endregion
@@ -151,9 +136,9 @@ class PageFactory:
 
     # Used for creating non-specialized page classes.
     def create_page(self, page_option: PageName) -> Page:
-        return Page(page_option, self.screen_size, self.coordination_manager)
+        return Page(page_option, self.coordination_manager)
     
     def create_game_board_page(self, board: Board | None) -> GameBoardPage:
-        return GameBoardPage(self.screen_size, self.coordination_manager, board)
+        return GameBoardPage(self.coordination_manager, board)
     
 # endregion
