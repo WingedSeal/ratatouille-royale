@@ -25,7 +25,7 @@ class PageManager:
     """Active page stack"""
 
     self.event_handlers: dict[type[PageManagerEvent], Callable] = {
-       ConfirmStartGame_PageManagerEvent: lambda tkn: self.push_game_board_page(tkn.board),
+       StartGameConfirmation_PageManagerEvent: lambda tkn: self.push_game_board_page(tkn.board),
        EndGame_PageManagerEvent: lambda tkn: self.end_game_return_to_menu(),
        PauseGame_PageManagerEvent: lambda tkn: self.pause_game(),
        ResumeGame_PageManagerEvent: lambda tkn: self.resume_game()

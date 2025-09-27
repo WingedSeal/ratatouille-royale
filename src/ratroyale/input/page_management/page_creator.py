@@ -12,7 +12,7 @@ from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-from ratroyale.visual.asset_management.visual_component import EntityVisual, TileVisual
+from ratroyale.visual.asset_management.visual_component import EntityVisual, TileVisual, TYPICAL_TILE_SIZE
 from ratroyale.backend.entity import Entity
 from ratroyale.visual.screen_constants import SCREEN_SIZE
 
@@ -119,9 +119,11 @@ class GameBoardPage(Page):
                  board: Board | None) -> None:
         super().__init__(PageName.GAME_BOARD, coordination_manager)
 
-        self.path_preview: list[Interactable] = []
-        """ Keeps track of tiles included in path dragging """
+        self.tile_interactables: dict[OddRCoord, TileInteractable] = {}
+        self.entity_interactables: dict[Entity, EntityInteractable] = {}
+
         self.selected_entity: Entity | None = None
+        self.selected_tile: OddRCoord | None = None
 
         if board:
             for tile_list in board.tiles:
@@ -176,6 +178,17 @@ class GameBoardPage(Page):
         # Sort all interactables by Z-order (highest first)
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
 
+        print(len(self.tile_interactables.values()))
+
+    def add_element(self, element: Interactable) -> None:
+        super().add_element(element)
+
+        match element:
+            case TileInteractable():
+                self.tile_interactables[element.tile.coord] = element
+            case EntityInteractable():
+                self.entity_interactables[element.entity] = element
+
     def execute_callback(self, tkn: PageManagerEvent) -> None:
         super().execute_callback(tkn)
 
@@ -183,16 +196,36 @@ class GameBoardPage(Page):
             case EntityInteraction_PageManagerEvent(entity=e):
                 self._select_entity(e)
             case TileInteraction_PageManagerEvent(tile=t):
+                self._select_tile(t)
                 self._try_entity_movement(t)
+            case EntityMovementConfirmation_PageManagerEvent(success=s, error_msg=e):
+                self._move_entity(s, e)
             case _:
                 pass
 
     def _select_entity(self, entity: Entity) -> None:
         self.selected_entity = entity if entity is not self.selected_entity else None
 
+    def _select_tile(self, tile: Tile) -> None:
+        self.selected_tile = tile.coord if tile.coord is not self.selected_tile else None
+
     def _try_entity_movement(self, tile: Tile) -> None:
         if self.selected_entity:
-            self.coordination_manager.put_message(TryEntityMovement_GameManagerEvent(self.name, self.selected_entity, tile))
+            self.coordination_manager.put_message(RequestEntityMovement_GameManagerEvent(self.name, self.selected_entity, tile))
+
+    def _move_entity(self, success: bool, error_msg: str | None) -> None:
+        if success and self.selected_entity is not None and self.selected_tile is not None:
+            entity = self.entity_interactables.get(self.selected_entity)
+            if entity:
+                tile_x, tile_y = self.selected_tile.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
+                coord = (tile_x, tile_y)
+                entity.hitbox.move_to(coord)
+                self.coordination_manager.put_message(EntityMovementConfirmation_VisualManagerEvent(self.name, success, error_msg, coord))
+
+                self.selected_tile = None
+                self.selected_entity = None
+        else:
+            print(error_msg)
 
 class CardOverlayPage(Page):
     pass

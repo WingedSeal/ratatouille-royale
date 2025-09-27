@@ -74,6 +74,8 @@ class GameBoardPageRenderer(PageRenderer):
         self._tile_interaction(tile, type)
       case EntityInteraction_VisualManagerEvent(entity=entity, interaction_type=type):
         self._entity_interaction(entity, type)
+      case EntityMovementConfirmation_VisualManagerEvent(success=s, error_msg=e, new_coord=c):
+        self._move_entity(s, e, c)
       case _:
         pass
         # print("Unhandled management event")
@@ -124,9 +126,19 @@ class GameBoardPageRenderer(PageRenderer):
         # print("Unhandled entity interaction type")
 
   def _select_tile(self, tile: Tile) -> None:
-    self.selected_tile = tile.coord if tile.coord is not self.selected_tile else None
-    self.selected_entity = None
+    if not self.selected_entity:
+      self.selected_tile = tile.coord if tile.coord is not self.selected_tile else None
 
   def _select_entity(self, entity: Entity) -> None:
     self.selected_entity = entity.pos if entity.pos is not self.selected_entity else None
     self.selected_tile = None
+
+  def _move_entity(self, success: bool, error_msg: str | None, coord: tuple[float, float]):
+    if self.selected_entity is not None:
+      entity_visuals = self.entity_visuals.get(self.selected_entity)
+      if entity_visuals:
+        for v in entity_visuals:
+          v.moveto(coord)
+
+          self.selected_tile = None
+          self.selected_entity = None

@@ -2,7 +2,7 @@ import pygame
 
 from ratroyale.input.dispatch_management.action_name import ActionName
 from ratroyale.input.gesture_management.gesture_data import GestureData, GestureType
-from ratroyale.visual.asset_management.visual_component import VisualComponent, TileVisual, EntityVisual, TYPICAL_TILE_SIZE
+from ratroyale.visual.asset_management.visual_component import EntityVisual, TYPICAL_TILE_SIZE
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from abc import ABC, abstractmethod
@@ -13,11 +13,15 @@ class Hitbox(ABC):
     @abstractmethod
     def contains_point(self, point: tuple[float, float]) -> bool:
         """Return True if the point is inside the hitbox."""
-        pass
+        ...
     @abstractmethod
     def draw(self, surface: pygame.Surface, color: tuple[int, int, int] = (255, 0, 0)) -> None:
         """Draw the hitbox for debugging purposes."""
-        pass
+        ...
+    @abstractmethod
+    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+        """Move the hitbox to a new topleft coordinate"""
+        ...
 
 class RectangleHitbox(Hitbox):
     def __init__(self, rect: pygame.Rect) -> None:
@@ -29,6 +33,8 @@ class RectangleHitbox(Hitbox):
     def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 0, 255)) -> None:
         pygame.draw.rect(surface, color, self.rect, 1)
 
+    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+        self.rect.topleft = topleft_coord
 
 class CircleHitbox(Hitbox):
     def __init__(self, center: tuple[float, float], radius: int) -> None:
@@ -43,41 +49,61 @@ class CircleHitbox(Hitbox):
     def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 255, 0)) -> None:
         pygame.draw.circle(surface, color, self.center, self.radius, 1)
 
+    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+        ...
+
 class HexHitbox(Hitbox):
-    def __init__(self, center: tuple[float, float], width: float, height: float) -> None:
+    def __init__(self, topleft: tuple[float, float], width: float, height: float) -> None:
         """
-        center: (x, y) of hex center
-        width: distance from flat side to flat side (corner-to-corner horizontally)
-        height: distance from point to opposite point vertically
+        topleft: (x, y) of the top-left bounding box of the hex
+        width: corner-to-corner horizontally
+        height: point-to-point vertically
         """
-        self.cx, self.cy = center
-        w, h = width / 2, height / 2
+        self.width = width
+        self.height = height
+        # Convert top-left to center
+        cx = topleft[0] + width / 2
+        cy = topleft[1] + height / 2
+        self.move_to_center((cx, cy))
 
-        # Precompute vertices (pointy-top, clockwise)
-        self.points = [
-            (self.cx,       self.cy - h),   # top
-            (self.cx + w,   self.cy - h/2), # top-right
-            (self.cx + w,   self.cy + h/2), # bottom-right
-            (self.cx,       self.cy + h),   # bottom
-            (self.cx - w,   self.cy + h/2), # bottom-left
-            (self.cx - w,   self.cy - h/2)  # top-left
+    def _compute_points(self, center: tuple[float, float]) -> list[tuple[float, float]]:
+        cx, cy = center
+        w, h = self.width / 2, self.height / 2
+        return [
+            (cx,     cy - h),    # top
+            (cx + w, cy - h/2),  # top-right
+            (cx + w, cy + h/2),  # bottom-right
+            (cx,     cy + h),    # bottom
+            (cx - w, cy + h/2),  # bottom-left
+            (cx - w, cy - h/2)   # top-left
         ]
-
+    
     def contains_point(self, point: tuple[float, float]) -> bool:
-        # Simple ray-casting algorithm for polygons
+        # Ray-casting algorithm for convex polygon
         x, y = point
         inside = False
         n = len(self.points)
         for i in range(n):
             x1, y1 = self.points[i]
             x2, y2 = self.points[(i + 1) % n]
-            if ((y1 > y) != (y2 > y)):
+            if (y1 > y) != (y2 > y):
                 slope = (x2 - x1) * (y - y1) / (y2 - y1) + x1
                 if x < slope:
                     inside = not inside
         return inside
 
-    def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 0, 255)) -> None:
+    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+        """Move the hitbox so that the top-left of its bounding box is at `topleft`."""
+        cx = topleft_coord[0] + self.width / 2
+        cy = topleft_coord[1] + self.height / 2
+        self.move_to_center((cx, cy))
+
+    def move_to_center(self, center: tuple[float, float]) -> None:
+        """Move the hitbox so that its center is at `center`."""
+        self.cx, self.cy = center
+        self.points = self._compute_points(center)
+
+    def draw(self, surface: pygame.Surface, color: tuple[int, int, int] = (0, 0, 255)) -> None:
         pygame.draw.polygon(surface, color, self.points, 1)
 
 
@@ -91,14 +117,12 @@ class Interactable:
         self,
         hitbox: Hitbox,
         gesture_action_mapping: dict[GestureType, ActionName],
-        # visuals: list[VisualComponent] | None = None,
         blocks_input: bool = True,
         z_order: int = 0
     ) -> None:
         self.hitbox: Hitbox = hitbox
         self.gesture_action_mapping: dict[GestureType, ActionName] = gesture_action_mapping
         self.blocks_input: bool = blocks_input
-        # self.visuals: list[VisualComponent] = visuals or [] 
         self.z_order: int = z_order
 
     def process_gesture(self, gesture: GestureData) -> ActionName | None:
@@ -119,13 +143,12 @@ class TileInteractable(Interactable):
     def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0) -> None:
         self.tile = tile
 
-        # Compute top-left for sprite placement
+        # Compute top-left for hitbox placement
         tile_x, tile_y = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-
-        # Correct hitbox center: shift by half width/height
         width, height = TYPICAL_TILE_SIZE
-        center_x, center_y = tile_x + width // 2, tile_y + height // 2
-        hitbox = HexHitbox(center=(center_x, center_y), width=width, height=height)
+
+        # Create hitbox using top-left directly
+        hitbox = HexHitbox(topleft=(tile_x, tile_y), width=width, height=height)
 
         gesture_action_mapping = {
             GestureType.CLICK: ActionName.SELECT_TILE

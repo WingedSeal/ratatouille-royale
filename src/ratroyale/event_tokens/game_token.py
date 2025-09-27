@@ -8,7 +8,7 @@ __all__ = [
   "GameManagerEvent",
   "RequestStart_GameManagerEvent",
   "CardPlacement_GameManagerEvent",
-  "TryEntityMovement_GameManagerEvent"
+  "RequestEntityMovement_GameManagerEvent"
 ]
 
 @dataclass
@@ -25,6 +25,6 @@ class CardPlacement_GameManagerEvent(GameManagerEvent):
   pass
 
 @dataclass
-class TryEntityMovement_GameManagerEvent(GameManagerEvent):
+class RequestEntityMovement_GameManagerEvent(GameManagerEvent):
   entity: Entity
   tile: Tile

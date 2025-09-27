@@ -21,7 +21,8 @@ __all__ = [
     "RegisterVisualComponent_VisualManagerEvent",
     "UnregisterVisualComponent_VisualManagerEvent",
     "TileInteraction_VisualManagerEvent",
-    "EntityInteraction_VisualManagerEvent"
+    "EntityInteraction_VisualManagerEvent",
+    "EntityMovementConfirmation_VisualManagerEvent"
 ]
 
 @dataclass
@@ -54,3 +55,10 @@ class TileInteraction_VisualManagerEvent(VisualManagerEvent):
 class EntityInteraction_VisualManagerEvent(VisualManagerEvent):
   interaction_type: InteractionType
   entity: Entity
+
+@dataclass
+class EntityMovementConfirmation_VisualManagerEvent(VisualManagerEvent):
+  success: bool
+  error_msg: str | None
+
+  new_coord: tuple[float, float]

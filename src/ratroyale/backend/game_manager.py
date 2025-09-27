@@ -77,10 +77,18 @@ class GameManager:
         while not game_event_queue.empty():
             token: GameManagerEvent = game_event_queue.get()
 
-            if isinstance(token, RequestStart_GameManagerEvent):
-                self.coordination_manager.put_message(ConfirmStartGame_PageManagerEvent(token.page_name, self.board))
-                # In actual implementation, replace the sample map in render test with an actual loaded map
-
+            match token:
+                case RequestStart_GameManagerEvent(page_name=pn):
+                    self.coordination_manager.put_message(StartGameConfirmation_PageManagerEvent(pn, self.board))
+                    # In actual implementation, replace the sample map in render test with an actual loaded map
+                case RequestEntityMovement_GameManagerEvent(page_name=pn, entity=e, tile=t):
+                    if isinstance(e, Rodent):
+                        # try:
+                        #     self.move_entity_uncheck(e, t.coord) # replace this with move_rodent later
+                            self.coordination_manager.put_message(EntityMovementConfirmation_PageManagerEvent(pn, True))
+                        # except (NotEnoughCrumbError, ValueError, InvalidMoveTargetError) as ex:
+                        #     self.coordination_manager.put_message(EntityMovementConfirmation_PageManagerEvent(pn, False, str(ex)))
+                            
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
         skill = entity.skills[skill_index]
         if self.crumbs < skill.crumb_cost:

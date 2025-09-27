@@ -22,6 +22,12 @@ class VisualComponent(ABC):
     def render(self, surface: pygame.Surface) -> None:
         """Draw this visual onto the given surface."""
         ...
+
+    @abstractmethod
+    def moveto(self, topleft_coord: tuple[float, float]) -> None:
+        """Move this visual component to the specified topleft coord"""
+        print("abstract")
+        ...
     
 @dataclass
 class UIVisual(VisualComponent):
@@ -41,6 +47,9 @@ class UIVisual(VisualComponent):
     def render(self, surface: pygame.Surface) -> None:
         # No-op, since pygame_gui handles rendering the UI components under its care.
         pass
+
+    def moveto(self, topleft_coord: tuple[float, float]) -> None:
+        pass
     
 class SpriteVisual(VisualComponent):
     def __init__(self, sprite_enum: SpriteRegistryKey, position: tuple[float, float]) -> None:
@@ -56,6 +65,9 @@ class SpriteVisual(VisualComponent):
 
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.image, self.position)
+
+    def moveto(self, topleft_coord: tuple[float, float]) -> None:
+        self.position = topleft_coord
 
 class TileVisual(SpriteVisual):
     def __init__(self, tile: Tile) -> None:
