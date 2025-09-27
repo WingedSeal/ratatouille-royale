@@ -126,8 +126,7 @@ class GameBoardPageRenderer(PageRenderer):
         # print("Unhandled entity interaction type")
 
   def _select_tile(self, tile: Tile) -> None:
-    if not self.selected_entity:
-      self.selected_tile = tile.coord if tile.coord is not self.selected_tile else None
+    self.selected_tile = tile.coord if tile.coord is not self.selected_tile and not self.selected_entity else None
 
   def _select_entity(self, entity: Entity) -> None:
     self.selected_entity = entity.pos if entity.pos is not self.selected_entity else None

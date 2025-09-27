@@ -217,15 +217,22 @@ class GameBoardPage(Page):
         if success and self.selected_entity is not None and self.selected_tile is not None:
             entity = self.entity_interactables.get(self.selected_entity)
             if entity:
-                tile_x, tile_y = self.selected_tile.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-                coord = (tile_x, tile_y)
+                coord = self._calculate_new_position(self.selected_tile)
+
                 entity.hitbox.move_to(coord)
                 self.coordination_manager.put_message(EntityMovementConfirmation_VisualManagerEvent(self.name, success, error_msg, coord))
 
-                self.selected_tile = None
-                self.selected_entity = None
+                self._clear_selection()
         else:
             print(error_msg)
+
+    def _calculate_new_position(self, coord: OddRCoord) -> tuple[float, float]:
+        x, y = coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
+        return (x, y)
+    
+    def _clear_selection(self):
+        self.selected_tile = None
+        self.selected_entity = None
 
 class CardOverlayPage(Page):
     pass
