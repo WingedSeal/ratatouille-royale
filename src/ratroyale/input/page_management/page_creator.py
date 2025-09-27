@@ -113,6 +113,7 @@ class Page:
 # ====================================
 
 # TODO: delegate visual component creation to a factory
+# TODO: create method to delete element
 class GameBoardPage(Page):
     def __init__(self,
                  coordination_manager: CoordinationManager, 
