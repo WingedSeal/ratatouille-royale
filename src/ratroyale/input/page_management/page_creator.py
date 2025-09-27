@@ -179,8 +179,6 @@ class GameBoardPage(Page):
         # Sort all interactables by Z-order (highest first)
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
 
-        print(len(self.tile_interactables.values()))
-
     def add_element(self, element: Interactable) -> None:
         super().add_element(element)
 
