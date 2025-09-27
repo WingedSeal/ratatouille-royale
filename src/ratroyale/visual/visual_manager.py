@@ -20,7 +20,7 @@ class VisualManager:
         self.event_handlers: dict[type[VisualManagerEvent], Callable] = {
             RegisterPage_VisualManagerEvent: lambda tkn: self._register_renderer(tkn),
             UnregisterPage_VisualManagerEvent: lambda tkn: self._unregister_renderer(tkn),
-            RegisterVisualComponent_VisualManagerEvent: lambda tkn: self._register_component(tkn),
+            RegisterVisualComponent_VisualManagerEvent: lambda tkn: self._pass_to_renderer(tkn),
             UnregisterVisualComponent_VisualManagerEvent: lambda tkn: print("Placeholder"),
             TileInteraction_VisualManagerEvent: lambda tkn: self._tile_interaction(tkn)
         }
@@ -48,27 +48,13 @@ class VisualManager:
       page = tkn.page
       self.page_to_renderer_registry.pop(page, None)
 
-    def _register_component(self, tkn: VisualManagerEvent) -> None:
-        """Add visual component to the designated page"""
+    def _pass_to_renderer(self, tkn: VisualManagerEvent) -> None:
+        # TODO: change the type in comparison to something that guarantee it has visual components
         assert isinstance(tkn, RegisterVisualComponent_VisualManagerEvent)
 
-        print("Received message: Create", type(tkn.interactable))
-
         renderer = self.page_to_renderer_registry.get(tkn.page)
-        
         if renderer:
-          renderer.register_component(tkn.interactable, tkn.visual_component)
-        else:
-            print("No corresponding renderer found.")
-    
-    def _unregister_component(self, tkn: VisualManagerEvent) -> None:
-        """Remove targeted visual component from the designated page"""
-        assert isinstance(tkn, UnregisterVisualComponent_VisualManagerEvent)
-        
-        renderer = self.page_to_renderer_registry.get(tkn.page)
-
-        if renderer:
-           renderer.unregister_component(tkn.interactable)
+            renderer.execute_callback(tkn)
     
     def _tile_interaction(self, tkn: VisualManagerEvent) -> None:
         """ Look for a renderer of type GameBoardPageRenderer among all registered pages,

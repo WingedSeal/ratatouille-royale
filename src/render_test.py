@@ -98,8 +98,6 @@ def main():
             game_manager.execute_callbacks()
             visual_manager.execute_callbacks()
 
-        # page_manager.update(dt)
-        # page_manager.draw()
         visual_manager.update(dt)
         visual_manager.draw()
 
