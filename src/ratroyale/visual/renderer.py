@@ -133,8 +133,8 @@ class GameBoardPageRenderer(PageRenderer):
     self.selected_entity = entity.pos if entity.pos is not self.selected_entity else None
     self.selected_tile = None
 
-  def _move_entity(self, success: bool, error_msg: str | None, coord: tuple[float, float]):
-    if self.selected_entity is not None:
+  def _move_entity(self, success: bool, error_msg: str | None, coord: tuple[float, float] | None):
+    if self.selected_entity is not None and coord is not None:
       entity_visuals = self.entity_visuals.get(self.selected_entity)
       if entity_visuals:
         for v in entity_visuals:

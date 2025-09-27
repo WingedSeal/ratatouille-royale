@@ -61,4 +61,4 @@ class EntityMovementConfirmation_VisualManagerEvent(VisualManagerEvent):
   success: bool
   error_msg: str | None
 
-  new_coord: tuple[float, float]
+  new_coord: tuple[float, float] | None
