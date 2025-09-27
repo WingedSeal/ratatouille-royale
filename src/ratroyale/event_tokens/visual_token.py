@@ -5,6 +5,7 @@ from ratroyale.visual.asset_management.visual_component import VisualComponent
 from ratroyale.input.page_management.interactable import Interactable
 from pygame_gui.ui_manager import UIManager
 from ratroyale.backend.tile import Tile
+from ratroyale.backend.entity import Entity
 from enum import Enum, auto
 
 from typing import TYPE_CHECKING
@@ -12,16 +13,17 @@ if TYPE_CHECKING:
     from ratroyale.input.page_management.page_creator import Page
 
 __all__ = [
-    "TileInteractionType",
+    "InteractionType",
     "VisualManagerEvent",
     "RegisterPage_VisualManagerEvent",
     "UnregisterPage_VisualManagerEvent",
     "RegisterVisualComponent_VisualManagerEvent",
     "UnregisterVisualComponent_VisualManagerEvent",
-    "TileInteraction_VisualManagerEvent"
+    "TileInteraction_VisualManagerEvent",
+    "EntityInteraction_VisualManagerEvent"
 ]
 
-class TileInteractionType(Enum):
+class InteractionType(Enum):
   HOVER = auto()
   SELECT = auto()
 
@@ -52,6 +54,10 @@ class UnregisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
 
 @dataclass
 class TileInteraction_VisualManagerEvent(VisualManagerEvent):
-  tile_interaction_type: TileInteractionType
+  interaction_type: InteractionType
   tile: Tile
-  pass
+
+@dataclass
+class EntityInteraction_VisualManagerEvent(VisualManagerEvent):
+  interaction_type: InteractionType
+  entity: Entity

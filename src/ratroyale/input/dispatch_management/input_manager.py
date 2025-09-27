@@ -30,11 +30,11 @@ class InputManager:
 
     def on_select_tile(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, TileInteractable)
-        self.message(TileInteraction_VisualManagerEvent(TileInteractionType.SELECT, tkn.interactable.tile))
+        self.message(TileInteraction_VisualManagerEvent(InteractionType.SELECT, tkn.interactable.tile))
 
     def on_select_entity(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, EntityInteractable)
-        print("Unit clicked")
+        self.message(EntityInteraction_VisualManagerEvent(InteractionType.SELECT, tkn.interactable.entity))
 
     # TODO: give coordination_manager its own mailbox to standardize messaging pipeline.
     def exit(self) -> None:

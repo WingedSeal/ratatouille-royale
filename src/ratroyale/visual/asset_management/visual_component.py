@@ -61,14 +61,20 @@ class TileVisual(SpriteVisual):
     def __init__(self, tile: Tile) -> None:
         self.tile = tile
 
-        sprite_key = TILE_TO_SPRITE_REGISTRY.get(type(tile), SpriteRegistryKey.DEFAULT_TILE)
-
-        pos = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-
         super().__init__(
-            sprite_enum=sprite_key,
-            position=pos
+            sprite_enum=TILE_TO_SPRITE_REGISTRY.get(type(tile), SpriteRegistryKey.DEFAULT_TILE),
+            position=tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         )
+
+
+    def render(self, surface: pygame.Surface, highlighted: bool) -> None:
+        surface.blit(self.image, self.position)
+
+        if highlighted:
+            overlay = pygame.Surface(self.image.get_size(), pygame.SRCALPHA)
+            overlay.fill((255, 255, 0, 100))  # yellow with alpha
+            surface.blit(overlay, self.position)
+
 
 # TODO: re-implement entity visual offsets
 class EntityVisual(SpriteVisual):
@@ -83,3 +89,11 @@ class EntityVisual(SpriteVisual):
             sprite_enum=sprite_key,
             position=pos
         )
+
+    def render(self, surface: pygame.Surface, highlighted: bool) -> None:
+        surface.blit(self.image, self.position)
+
+        if highlighted:
+            overlay = pygame.Surface(self.image.get_size(), pygame.SRCALPHA)
+            overlay.fill((255, 255, 0, 100))  # yellow with alpha
+            surface.blit(overlay, self.position)

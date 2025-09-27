@@ -147,6 +147,7 @@ class EntityInteractable(Interactable):
     Handles hitbox, entity-specific visuals, and any entity-specific input logic.
     """
     def __init__(self, entity: Entity, blocks_input: bool = True, z_order: int = 1) -> None:
+        self.entity = entity
         entity_visual = EntityVisual(entity)
         hitbox = RectangleHitbox(pygame.Rect(
             *entity_visual.position,

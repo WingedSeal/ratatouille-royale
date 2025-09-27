@@ -4,6 +4,7 @@ from ratroyale.input.page_management.page_creator import Page, GameBoardPage
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from typing import Callable
+from ratroyale.input.page_management.page_name import PageName
 
 class VisualManager:
     def __init__(self, screen: pygame.Surface, coordination_manager: CoordinationManager) -> None:
@@ -12,9 +13,8 @@ class VisualManager:
 
         self.page_to_renderer_registry: dict[Page, PageRenderer] = {}
 
-        self.page_type_to_renderer: dict[type[Page], type[PageRenderer]] = {
-            Page: PageRenderer,
-            GameBoardPage: GameBoardPageRenderer
+        self.page_type_to_renderer: dict[PageName, type[PageRenderer]] = {
+            PageName.GAME_BOARD: GameBoardPageRenderer
         }
 
         self.event_handlers: dict[type[VisualManagerEvent], Callable] = {
@@ -22,7 +22,8 @@ class VisualManager:
             UnregisterPage_VisualManagerEvent: lambda tkn: self._unregister_renderer(tkn),
             RegisterVisualComponent_VisualManagerEvent: lambda tkn: self._pass_to_renderer(tkn),
             UnregisterVisualComponent_VisualManagerEvent: lambda tkn: print("Placeholder"),
-            TileInteraction_VisualManagerEvent: lambda tkn: self._tile_interaction(tkn)
+            TileInteraction_VisualManagerEvent: lambda tkn: self._board_interaction(tkn),
+            EntityInteraction_VisualManagerEvent: lambda tkn: self._board_interaction(tkn)
         }
 
     # region Registration Methods
@@ -31,11 +32,8 @@ class VisualManager:
       """Associate a page with its renderer."""
       assert isinstance(tkn, RegisterPage_VisualManagerEvent)
 
-      print("Received message: Create", type(tkn.page))
-
       page = tkn.page  
-      page_type = type(page)
-      renderer_cls = self.page_type_to_renderer.get(page_type, PageRenderer)
+      renderer_cls = self.page_type_to_renderer.get(page.name, PageRenderer)
       renderer = renderer_cls(screen_size=tkn.page.screen_size, ui_manager=tkn.ui_manager)
       self.page_to_renderer_registry[page] = renderer
 
@@ -56,10 +54,10 @@ class VisualManager:
         if renderer:
             renderer.execute_callback(tkn)
     
-    def _tile_interaction(self, tkn: VisualManagerEvent) -> None:
+    def _board_interaction(self, tkn: VisualManagerEvent) -> None:
         """ Look for a renderer of type GameBoardPageRenderer among all registered pages,
           then forward the token to the page """
-        for renderer in self.page_to_renderer_registry.items():
+        for renderer in self.page_to_renderer_registry.values():
             if isinstance(renderer, GameBoardPageRenderer):
                 renderer.execute_callback(tkn)
                 break 
@@ -88,6 +86,6 @@ class VisualManager:
           if handler:
               handler(token)
           else:
-              print(f"Unhandled page manager event: {token}")
+              print(f"Unhandled visual manager event: {token}")
 
     # endregion
