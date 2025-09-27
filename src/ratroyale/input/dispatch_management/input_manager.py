@@ -5,8 +5,9 @@ from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.input_token import *
 from ratroyale.event_tokens.visual_token import *
-from ratroyale.input.page_management.interactable import TileInteractable, EntityInteractable
+from ratroyale.input.interactables_management.interactable import TileInteractable, EntityInteractable
 from typing import Callable
+from ratroyale.input.interactables_management.interaction_type import InteractionType
 
 class InputManager:
     def __init__(self, coordination_manager: CoordinationManager) -> None:
@@ -31,6 +32,7 @@ class InputManager:
     def on_select_tile(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, TileInteractable)
         self.message(TileInteraction_VisualManagerEvent(tkn.page_name, InteractionType.SELECT, tkn.interactable.tile))
+        self.message(TileInteraction_PageManagerEvent(tkn.page_name, tkn.interactable.tile))
 
     def on_select_entity(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, EntityInteractable)

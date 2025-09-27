@@ -1,6 +1,6 @@
 import pygame
 from ratroyale.visual.asset_management.visual_component import VisualComponent
-from ratroyale.input.page_management.interactable import Interactable
+from ratroyale.input.interactables_management.interactable import Interactable
 from pygame_gui.ui_manager import UIManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.backend.tile import Tile
@@ -8,6 +8,7 @@ from ratroyale.backend.entity import Entity
 from ratroyale.visual.asset_management.visual_component import TileVisual, EntityVisual
 from typing import cast
 from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.input.interactables_management.interaction_type import InteractionType
 
 class PageRenderer:
   def __init__(self, screen_size: tuple[int, int], ui_manager: UIManager) -> None:

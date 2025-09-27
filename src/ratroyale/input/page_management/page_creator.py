@@ -4,13 +4,14 @@ from .page_config import PAGES, PageConfig
 from ratroyale.event_tokens.input_token import InputManagerEvent, GestureData
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.page_management.page_name import PageName
-from ratroyale.input.page_management.interactable import Interactable, TileInteractable, EntityInteractable
+from ratroyale.input.interactables_management.interactable import Interactable, TileInteractable, EntityInteractable
 from ratroyale.visual.asset_management.visual_component import VisualComponent
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.board import Board
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.game_token import *
 from ratroyale.visual.asset_management.visual_component import EntityVisual, TileVisual
 from ratroyale.backend.entity import Entity
 from ratroyale.visual.screen_constants import SCREEN_SIZE
@@ -181,15 +182,17 @@ class GameBoardPage(Page):
         match tkn:
             case EntityInteraction_PageManagerEvent(entity=e):
                 self._select_entity(e)
+            case TileInteraction_PageManagerEvent(tile=t):
+                self._try_entity_movement(t)
             case _:
                 pass
 
     def _select_entity(self, entity: Entity) -> None:
         self.selected_entity = entity if entity is not self.selected_entity else None
 
-        print("Selected entity" if self.selected_entity else "Deselected entity")
-
-
+    def _try_entity_movement(self, tile: Tile) -> None:
+        if self.selected_entity:
+            self.coordination_manager.put_message(TryEntityMovement_GameManagerEvent(self.name, self.selected_entity, tile))
 
 class CardOverlayPage(Page):
     pass
