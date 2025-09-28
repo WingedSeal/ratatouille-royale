@@ -1,4 +1,7 @@
-from typing import TYPE_CHECKING, Any, Final, TypeVar
+from pprint import pformat
+from _typeshed import DataclassInstance
+from dataclasses import fields
+from typing import TypeVar, TYPE_CHECKING, Any, Final, TypeVar
 from .hexagon import OddRCoord
 from .side import Side
 from .entity import Entity
@@ -279,6 +282,32 @@ class Map:
         assert pointer.verify_end()
 
         return cls(name, size_x, size_y, tiles, entities, features)
+      
+    def __repr__(self) -> str:
+        return f"""Map(
+    name={self.name!r},
+    size_x={self.size_x},
+    size_y={self.size_y},
+    features={pformat(self.features)},
+    tiles={pformat(self.tiles)},
+    entities={pformat(self.entities)},
+)"""
+
+    def __str__(self) -> str:
+        simple_tiles = [
+            [str(tile) if tile else None for tile in row]
+            for row in self.tiles
+        ]
+        simple_features = [str(f) for f in self.features]
+        simple_entities = [str(e) for e in self.entities]
+        return f"""Map(
+    name={self.name!r},
+    size_x={self.size_x},
+    size_y={self.size_y},
+    features={pformat(simple_features)},
+    tiles={pformat(simple_tiles)},
+    entities={pformat(simple_entities)},
+)"""
 
 
 # def _get_unique_feature_arguments(feature: Feature) -> tuple[int]:

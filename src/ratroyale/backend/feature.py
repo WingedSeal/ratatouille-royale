@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from pprint import pformat
 from typing import ClassVar, Iterable
 from .side import Side
 from .hexagon import OddRCoord
@@ -61,3 +62,11 @@ class Feature(ABC):
             return True, damage_taken
         self.on_hp_loss(damage_taken)
         return False, damage_taken
+
+    def __repr__(self) -> str:
+        return f"""Feature(
+    shape={pformat(self.shape)},
+    health={self.health},
+    defense={self.defense},
+    side={self.side},
+)"""

@@ -199,6 +199,9 @@ class OddRCoord:
         path.reverse()
         return path
 
+    def __str__(self) -> str:
+        return f"({self.x}, {self.y})"
+
 
 @dataclass(frozen=True)
 class _AxialCoord:
