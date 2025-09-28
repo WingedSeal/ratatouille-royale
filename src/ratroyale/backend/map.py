@@ -30,6 +30,9 @@ class _DataPointer:
         self.pointer += size
         return value
 
+    def verify_end(self) -> bool:
+        return self.pointer + 1 == len(self.data)
+
 
 class Map:
     name: str
@@ -119,10 +122,13 @@ class Map:
             tile.features.remove(feature)
 
     @classmethod
-    def from_file(cls, file_path: Path) -> "Map":
+    def from_file(cls, file_path: Path) -> "Map" | None:
         with file_path.open('rb') as file:
             data = file.read()
-        return cls.load(data)
+        try:
+            return cls.load(data)
+        except:
+            return None
 
     def to_file(self, file_path: Path) -> None:
         data = self.save()
@@ -267,6 +273,8 @@ class Map:
                     entity_unique_parameters.append(data_pointer.get_byte())
             entities.append(entity_class(
                 OddRCoord(x, y), side, *entity_unique_parameters))
+
+        assert pointer.verify_end()
 
         return cls(name, size_x, size_y, tiles, entities, features)
 
