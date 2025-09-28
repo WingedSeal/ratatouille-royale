@@ -1,7 +1,7 @@
 from pprint import pformat
 from _typeshed import DataclassInstance
 from dataclasses import fields
-from typing import TypeVar
+from typing import TypeVar, TYPE_CHECKING, Any, Final, TypeVar
 from .hexagon import OddRCoord
 from .side import Side
 from .entity import Entity
@@ -10,9 +10,13 @@ from .tile import Tile
 from pathlib import Path
 import inspect
 
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
+
+
 MAP_FILE_EXTENSION = "rrmap"
 
-ENDIAN = "big"
+ENDIAN: Final = "big"
 
 
 class _DataPointer:
@@ -30,6 +34,9 @@ class _DataPointer:
         value = self.data[self.pointer:self.pointer + size]
         self.pointer += size
         return value
+
+    def verify_end(self) -> bool:
+        return self.pointer + 1 == len(self.data)
 
 
 class Map:
@@ -119,10 +126,14 @@ class Map:
                 continue
             tile.features.remove(feature)
 
-    def from_file(cls, file_path: Path) -> "Map":
+    @classmethod
+    def from_file(cls, file_path: Path) -> "Map" | None:
         with file_path.open('rb') as file:
             data = file.read()
-        return cls.load(data)
+        try:
+            return cls.load(data)
+        except:
+            return None
 
     def to_file(self, file_path: Path) -> None:
         data = self.save()
@@ -268,6 +279,8 @@ class Map:
             entities.append(entity_class(
                 OddRCoord(x, y), side, *entity_unique_parameters))
 
+        assert pointer.verify_end()
+
         return cls(name, size_x, size_y, tiles, entities, features)
       
     def __repr__(self) -> str:
@@ -309,10 +322,11 @@ class Map:
 #             raise ValueError(
 #                 f"A Feature contains a field that is too large")
 #     return unique_arguments
-T = TypeVar("T")
 
 
-def _get_unique_init_arguments(obj: T, basecls: type[T]) -> tuple[int]:
+def _get_unique_init_arguments(obj: Any, basecls: type) -> tuple[int]:
+    if not issubclass(type(obj), basecls):
+        raise TypeError(f"{basecls} is not a base class of {type(obj)}")
     derived_signatures = inspect.signature(type(obj).__init__)
     base_signatures = inspect.signature(basecls.__init__)
 

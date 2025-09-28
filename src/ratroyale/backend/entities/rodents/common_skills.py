@@ -1,12 +1,14 @@
 from typing import TYPE_CHECKING
 
-from ...skill_callback import SkillCallback, skill_callback_check
+from ratroyale.backend.entity_effect import EntityEffect
 
+from ...skill_callback import SkillCallback, skill_callback_check
+from ...entity import SkillResult
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
     from ...entities.rodent import Rodent
-    from ...entity import EntitySkill, SkillResult
+    from ...entity import EntitySkill
     from ...board import Board
     from ...hexagon import OddRCoord
 
@@ -19,7 +21,7 @@ def select_any_tile(board: "Board", rodent: "Rodent", skill: "EntitySkill", call
 
 def select_targetable(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1, *, is_feature_targetable: bool = True, can_cancel: bool = True):
     coords = board.get_attackable_coords(rodent, skill)
-    targets = []
+    targets: list[OddRCoord] = []
     for coord in coords:
         tile = board.get_tile(coord)
         if tile is None:
@@ -52,6 +54,25 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
             if feature is None:
                 raise ValueError("Trying to damage nothing")
             game_manager.board.damage_feature(feature, damage)
+    return callback
+
+
+def apply_effect(effect: type[EntityEffect], *, duration: int | None, intensity: float, is_ally_instead: bool = False) -> SkillCallback:
+    """
+    Apply effect on enemy (or ally if `is_ally_instead`) rodent
+    :param effect: EntityEffect to apply to enemy
+    :is_ally_instead: Target ally instead of enemy
+    """
+    @skill_callback_check
+    def callback(game_manager: "GameManager", selected_targets: list["OddRCoord"]) -> None:
+        for target in selected_targets:
+            if is_ally_instead:
+                entity = game_manager.get_ally_on_pos(target)
+            else:
+                entity = game_manager.get_enemy_on_pos(target)
+            assert entity is not None
+            game_manager.apply_effect(entity, effect(
+                entity, duration=duration, intensity=intensity))
     return callback
 
 
