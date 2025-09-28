@@ -1,5 +1,5 @@
 from queue import PriorityQueue
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Iterator, Protocol, Self, overload
 from ..utils import lerp
 from math import sqrt
@@ -65,7 +65,8 @@ class OddRCoord:
         return (axial.to_odd_r() for axial in self.to_axial().all_in_range(N))
 
     @overload
-    def to_pixel(self, hex_size: float, is_bounding_box: bool = False) -> tuple[float, float]: ...
+    def to_pixel(self, hex_size: float,
+                 is_bounding_box: bool = False) -> tuple[float, float]: ...
 
     @overload
     def to_pixel(self, hex_width: float,
@@ -89,7 +90,7 @@ class OddRCoord:
         # Origin is not on the center of odd-r (0,0)
         x += 1
         y += sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics
-        
+
         return x * hex_width, y * hex_height
 
     def get_neighbor(self, direction: int) -> "OddRCoord":
@@ -162,8 +163,8 @@ class OddRCoord:
         :param get_cost: A callback function to evaluate cost to travel from first coord to second coord, defaults to `lambda: a, b: 1.0`
         :returns: Path calculated or None if goal is not reachable
         """
-        frontier: PriorityQueue[tuple[float, OddRCoord]] = PriorityQueue()
-        frontier.put((0, self))
+        frontier: PriorityQueue[_AStarCoord] = PriorityQueue()
+        frontier.put(_AStarCoord(0, self))
         came_from: dict[OddRCoord, OddRCoord | None] = {
             self: None
         }
@@ -172,7 +173,7 @@ class OddRCoord:
         }
 
         while not frontier.empty():
-            _, current = frontier.get()
+            current = frontier.get().coord
             if current == goal:
                 break
             for next_coord in current.get_neighbors():
@@ -184,7 +185,7 @@ class OddRCoord:
                 if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:
                     cost_so_far[next_coord] = new_cost
                     priority = new_cost + goal.get_distance(next_coord)
-                    frontier.put((priority, next_coord))
+                    frontier.put(_AStarCoord(priority, next_coord))
                     came_from[next_coord] = current
 
         if goal not in came_from:
@@ -356,3 +357,9 @@ class _CubeCoordFloat:
             lerp(self.r, other.r, t),
             lerp(self.s, other.s, t),
         )
+
+
+@dataclass(order=True)
+class _AStarCoord:
+    priority: float
+    coord: OddRCoord = field(compare=False)
