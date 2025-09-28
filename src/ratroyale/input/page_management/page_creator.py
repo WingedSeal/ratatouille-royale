@@ -4,7 +4,7 @@ from .page_config import PAGES, PageConfig
 from ratroyale.event_tokens.input_token import InputManagerEvent, GestureData
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.page_management.page_name import PageName
-from ratroyale.input.interactables_management.interactable import Interactable, TileInteractable, EntityInteractable
+from ratroyale.input.interactables_management.interactable import Interactable, TileInteractable, EntityInteractable, AbilityMenuInteractable
 from ratroyale.visual.asset_management.visual_component import VisualComponent
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.board import Board
@@ -12,9 +12,10 @@ from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-from ratroyale.visual.asset_management.visual_component import EntityVisual, TileVisual, TYPICAL_TILE_SIZE
+from ratroyale.visual.asset_management.visual_component import EntityVisual, TileVisual, TYPICAL_TILE_SIZE, AbilityMenuVisual
 from ratroyale.backend.entity import Entity
 from ratroyale.visual.screen_constants import SCREEN_SIZE
+from typing import cast
 
 
 # ============================================
@@ -188,6 +189,15 @@ class GameBoardPage(Page):
             case EntityInteractable():
                 self.entity_interactables[element.entity] = element
 
+    def remove_element(self, element: Interactable) -> None:
+        super().remove_element(element)
+
+        match element:
+            case TileInteractable():
+                self.tile_interactables.pop(element.tile.coord)
+            case EntityInteractable():
+                self.entity_interactables.pop(element.entity)
+
     def execute_callback(self, tkn: PageManagerEvent) -> None:
         super().execute_callback(tkn)
 
@@ -199,6 +209,8 @@ class GameBoardPage(Page):
                 self._try_entity_movement(t)
             case EntityMovementConfirmation_PageManagerEvent(success=s, error_msg=e):
                 self._move_entity(s, e)
+            case EntityAbilityDisplay_PageManagerEvent(entity=e):
+                self._display_ability_menu(e)
             case _:
                 pass
 
@@ -229,9 +241,43 @@ class GameBoardPage(Page):
         x, y = coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         return (x, y)
     
-    def _clear_selection(self):
+    def _clear_selection(self) -> None:
         self.selected_tile = None
         self.selected_entity = None
+
+    # TODO: why are skill names and descriptions in separate places?
+    def _display_ability_menu(self, entity: Entity) -> None:
+        """Display the ability menu for the given entity."""
+
+        # Determine the starting position of the menu
+        entity_interactable = self.entity_interactables.get(entity)
+        if entity_interactable:
+            topleft = entity_interactable.get_topleft()
+        menu_x, menu_y = topleft[0] + 50, topleft[1]
+
+        # Spacing between buttons
+        button_spacing = 10
+        button_width, button_height = 100, 40
+
+        for i, skill in enumerate(entity.skills):
+            # Compute the top-left position of this button
+            topleft_per_btn = (menu_x, menu_y + i * (button_height + button_spacing))
+
+            # Create visual component
+            ability_visual = AbilityMenuVisual(skill_name=skill.name, topleft_pos=topleft_per_btn)
+
+            interactable = AbilityMenuInteractable(rect=ability_visual.rect)
+
+            self.interactables.append(interactable)
+
+            # Register with visual manager
+            self.coordination_manager.put_message(
+                RegisterVisualComponent_VisualManagerEvent(
+                    page_name=self.name,
+                    visual_component=[ability_visual],
+                    interactable=interactable
+                )
+            )
 
 class CardOverlayPage(Page):
     pass

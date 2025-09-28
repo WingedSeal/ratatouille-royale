@@ -14,30 +14,35 @@ class InputManager:
         self.coordination_manager = coordination_manager
         
         self.callback_registry: dict[ActionName, Callable[[InputManagerEvent], None]] = {
-            ActionName.START_GAME: lambda tkn: self.message(RequestStart_GameManagerEvent(tkn.page_name)),
+            ActionName.START_GAME: lambda tkn: self._message(RequestStart_GameManagerEvent(tkn.page_name)),
             ActionName.QUIT: lambda tkn: self.exit(),
+            ActionName.PAUSE_GAME: lambda tkn: self._message(PauseGame_PageManagerEvent(tkn.page_name)),
+            ActionName.RESUME_GAME: lambda tkn: self._message(ResumeGame_PageManagerEvent(tkn.page_name)),
+            ActionName.BACK_TO_MENU: lambda tkn: self._message(EndGame_PageManagerEvent(tkn.page_name)),
 
-            ActionName.SELECT_TILE: lambda tkn: self.on_select_tile(tkn),
-            ActionName.SELECT_UNIT: lambda tkn: self.on_select_entity(tkn),
-            ActionName.PAUSE_GAME: lambda tkn: self.message(PauseGame_PageManagerEvent(tkn.page_name)),
-            ActionName.RESUME_GAME: lambda tkn: self.message(ResumeGame_PageManagerEvent(tkn.page_name)),
-            ActionName.BACK_TO_MENU: lambda tkn: self.message(EndGame_PageManagerEvent(tkn.page_name))
+            ActionName.SELECT_TILE: lambda tkn: self._on_select_tile(tkn),
+            ActionName.SELECT_UNIT: lambda tkn: self._on_select_entity(tkn),
+            ActionName.DISPLAY_ABILITY_MENU: lambda tkn: self._on_display_ability_menu(tkn)
         }
 
     # region Callback Definitions
 
-    def message(self, event_token: EventToken) -> None:
+    def _message(self, event_token: EventToken) -> None:
         self.coordination_manager.put_message(event_token)
 
-    def on_select_tile(self, tkn: InputManagerEvent) -> None:
+    def _on_select_tile(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, TileInteractable)
-        self.message(TileInteraction_VisualManagerEvent(tkn.page_name, InteractionType.SELECT, tkn.interactable.tile))
-        self.message(TileInteraction_PageManagerEvent(tkn.page_name, tkn.interactable.tile))
+        self._message(TileInteraction_VisualManagerEvent(tkn.page_name, InteractionType.SELECT, tkn.interactable.tile))
+        self._message(TileInteraction_PageManagerEvent(tkn.page_name, tkn.interactable.tile))
 
-    def on_select_entity(self, tkn: InputManagerEvent) -> None:
+    def _on_select_entity(self, tkn: InputManagerEvent) -> None:
         assert isinstance(tkn.interactable, EntityInteractable)
-        self.message(EntityInteraction_VisualManagerEvent(tkn.page_name, InteractionType.SELECT, tkn.interactable.entity))
-        self.message(EntityInteraction_PageManagerEvent(tkn.page_name, tkn.interactable.entity))
+        self._message(EntityInteraction_VisualManagerEvent(tkn.page_name, InteractionType.SELECT, tkn.interactable.entity))
+        self._message(EntityInteraction_PageManagerEvent(tkn.page_name, tkn.interactable.entity))
+
+    def _on_display_ability_menu(self, tkn: InputManagerEvent) -> None:
+        assert isinstance(tkn.interactable, EntityInteractable)
+        self._message(EntityAbilityDisplay_PageManagerEvent(tkn.page_name, tkn.interactable.entity))
 
     # TODO: give coordination_manager its own mailbox to standardize messaging pipeline.
     def exit(self) -> None:

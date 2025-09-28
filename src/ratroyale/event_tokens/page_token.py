@@ -13,7 +13,8 @@ __all__ = [
     "ResumeGame_PageManagerEvent",
     "EntityInteraction_PageManagerEvent",
     "TileInteraction_PageManagerEvent",
-    "EntityMovementConfirmation_PageManagerEvent"
+    "EntityMovementConfirmation_PageManagerEvent",
+    "EntityAbilityDisplay_PageManagerEvent"
 ]
 
 @dataclass
@@ -52,4 +53,9 @@ class EntityMovementConfirmation_PageManagerEvent(PageManagerEvent):
    error_msg: str | None = None
 
    
+   pass
+
+@dataclass
+class EntityAbilityDisplay_PageManagerEvent(PageManagerEvent):
+   entity: Entity
    pass

@@ -109,3 +109,40 @@ class EntityVisual(SpriteVisual):
             overlay = pygame.Surface(self.image.get_size(), pygame.SRCALPHA)
             overlay.fill((255, 255, 0, 100))  # yellow with alpha
             surface.blit(overlay, self.position)
+
+class AbilityMenuVisual(SpriteVisual):
+    def __init__(self, skill_name: str, topleft_pos: tuple[float, float], font: pygame.font.Font | None = None) -> None:
+        self.skill_name = skill_name
+        self.topleft_pos = topleft_pos
+
+        self.width = 100
+        self.height = 40
+
+        self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        self.rect = self.surface.get_rect(topleft=topleft_pos)
+
+        self.font = font or pygame.font.SysFont("Arial", 16)
+
+        self.highlighted = False
+
+        self._render_surface()
+
+    def _render_surface(self) -> None:
+        # Clear the surface
+        self.surface.fill((0, 0, 0, 0))  # transparent background
+
+        # Draw button background
+        bg_color = (200, 200, 200) if not self.highlighted else (255, 255, 100)
+        pygame.draw.rect(self.surface, bg_color, (0, 0, self.width, self.height), border_radius=5)
+
+        # Draw text
+        text_surf = self.font.render(self.skill_name, True, (0, 0, 0))
+        text_rect = text_surf.get_rect(center=(self.width // 2, self.height // 2))
+        self.surface.blit(text_surf, text_rect)
+
+    def set_highlight(self, highlighted: bool) -> None:
+        self.highlighted = highlighted
+        self._render_surface()
+
+    def render(self, target_surface: pygame.Surface) -> None:
+        target_surface.blit(self.surface, self.rect)

@@ -22,6 +22,9 @@ class Hitbox(ABC):
     def move_to(self, topleft_coord: tuple[float, float]) -> None:
         """Move the hitbox to a new topleft coordinate"""
         ...
+    @abstractmethod
+    def get_topleft(self) -> tuple[float, float]:
+        ...
 
 class RectangleHitbox(Hitbox):
     def __init__(self, rect: pygame.Rect) -> None:
@@ -35,6 +38,9 @@ class RectangleHitbox(Hitbox):
 
     def move_to(self, topleft_coord: tuple[float, float]) -> None:
         self.rect.topleft = topleft_coord
+
+    def get_topleft(self) -> tuple[float, float]:
+        return self.rect.topleft
 
 class CircleHitbox(Hitbox):
     def __init__(self, center: tuple[float, float], radius: int) -> None:
@@ -52,6 +58,10 @@ class CircleHitbox(Hitbox):
     def move_to(self, topleft_coord: tuple[float, float]) -> None:
         ...
 
+    def get_topleft(self) -> tuple[float, float]:
+        return (self.center[0] - self.radius, self.center[1] + self.radius)
+
+# TODO: could change this to polygonal hitbox and move all hex related functions to hexagon.py
 class HexHitbox(Hitbox):
     def __init__(self, topleft: tuple[float, float], width: float, height: float) -> None:
         """
@@ -59,6 +69,7 @@ class HexHitbox(Hitbox):
         width: corner-to-corner horizontally
         height: point-to-point vertically
         """
+        self.topleft = topleft
         self.width = width
         self.height = height
         # Convert top-left to center
@@ -106,6 +117,9 @@ class HexHitbox(Hitbox):
     def draw(self, surface: pygame.Surface, color: tuple[int, int, int] = (0, 0, 255)) -> None:
         pygame.draw.polygon(surface, color, self.points, 1)
 
+    def get_topleft(self) -> tuple[float, float]:
+        return self.topleft
+
 
 class Interactable:
     """
@@ -132,6 +146,9 @@ class Interactable:
         if not self.hitbox.contains_point(gesture_pos):
             return None
         return self.gesture_action_mapping.get(gesture.gesture_key)
+    
+    def get_topleft(self) -> tuple[float, float]:
+        return self.hitbox.get_topleft()
 
 # endregion
 
@@ -178,13 +195,33 @@ class EntityInteractable(Interactable):
             entity_visual.image.get_height()
         ))
 
-        self.gesture_action_mapping = {
-            GestureType.CLICK: ActionName.SELECT_UNIT
+        gesture_action_mapping = {
+            GestureType.CLICK: ActionName.SELECT_UNIT,
+            GestureType.DOUBLE_CLICK: ActionName.DISPLAY_ABILITY_MENU
         }
 
         super().__init__(
             hitbox=hitbox,
-            gesture_action_mapping=self.gesture_action_mapping,
+            gesture_action_mapping=gesture_action_mapping,
+            blocks_input=blocks_input,
+            z_order=z_order
+        )
+
+class AbilityMenuInteractable(Interactable):
+    """
+    Interactable specialized for ability menu selections
+    """
+
+    def __init__(self, rect: pygame.Rect, blocks_input: bool = True, z_order: int = 1) -> None:
+        hitbox = RectangleHitbox(rect)
+
+        gesture_action_mapping = {
+            GestureType.CLICK: ActionName.SELECT_ABILITY
+        }
+
+        super().__init__(
+            hitbox=hitbox,
+            gesture_action_mapping=gesture_action_mapping,
             blocks_input=blocks_input,
             z_order=z_order
         )
