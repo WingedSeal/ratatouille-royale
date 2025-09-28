@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from ratroyale.backend.entity_effect import EntityEffect
+
 from ...skill_callback import SkillCallback, skill_callback_check
 from ...entity import SkillResult
 
@@ -52,6 +54,24 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
             if feature is None:
                 raise ValueError("Trying to damage nothing")
             game_manager.board.damage_feature(feature, damage)
+    return callback
+
+
+def apply_effect(effect: EntityEffect, is_ally_instead: bool = False) -> SkillCallback:
+    """
+    Apply effect on enemy (or ally if `is_ally_instead`) rodent
+    :param effect: EntityEffect to apply to enemy
+    :is_ally_instead: Target ally instead of enemy
+    """
+    @skill_callback_check
+    def callback(game_manager: "GameManager", selected_targets: list["OddRCoord"]) -> None:
+        for target in selected_targets:
+            if is_ally_instead:
+                entity = game_manager.get_ally_on_pos(target)
+            else:
+                entity = game_manager.get_enemy_on_pos(target)
+            assert entity is not None
+            game_manager.apply_effect(entity, effect)
     return callback
 
 

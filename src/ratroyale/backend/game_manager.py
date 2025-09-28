@@ -78,7 +78,8 @@ class GameManager:
             token: GameManagerEvent = game_event_queue.get()
 
             if isinstance(token, RequestStart_GameManagerEvent):
-                self.coordination_manager.put_message(ConfirmStartGame_PageManagerEvent(self.board))
+                self.coordination_manager.put_message(
+                    ConfirmStartGame_PageManagerEvent(self.board))
                 # In actual implementation, replace the sample map in render test with an actual loaded map
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
@@ -99,6 +100,21 @@ class GameManager:
             if entity.health is None:
                 continue
             if entity.side == self.turn:
+                continue
+            return entity
+        return None
+
+    def get_ally_on_pos(self, pos: OddRCoord) -> Entity | None:
+        """
+        Get ally at the end of the list (top) at position or None if there's nothing there
+        """
+        tile = self.board.get_tile(pos)
+        if tile is None:
+            raise ValueError("There is no tile on the coord")
+        for entity in reversed(tile.entities):
+            if entity.health is None:
+                continue
+            if entity.side != self.turn:
                 continue
             return entity
         return None
