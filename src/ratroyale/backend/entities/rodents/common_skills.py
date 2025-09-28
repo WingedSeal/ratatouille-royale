@@ -19,7 +19,7 @@ def select_any_tile(board: "Board", rodent: "Rodent", skill: "EntitySkill", call
 
 def select_targetable(board: "Board", rodent: "Rodent", skill: "EntitySkill", callback: "SkillCallback", target_count: int = 1, *, is_feature_targetable: bool = True, can_cancel: bool = True):
     coords = board.get_attackable_coords(rodent, skill)
-    targets = []
+    targets: list[OddRCoord] = []
     for coord in coords:
         tile = board.get_tile(coord)
         if tile is None:
