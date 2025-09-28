@@ -30,10 +30,10 @@ class EntityEffect(metaclass=EffectMeta):
     entity: "Entity"
     duration: int | None
     effect_clear_side: EffectClearSide
-    intensity: int
+    intensity: float
     overridden_effects: list["EntityEffect"]
 
-    def __init__(self, entity: "Entity", *, duration: int | None, intensity: int = 0) -> None:
+    def __init__(self, entity: "Entity", *, duration: int | None, intensity: float = 0) -> None:
         self.entity = entity
         self.duration = duration
         self.intensity = intensity

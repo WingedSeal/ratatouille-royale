@@ -57,7 +57,7 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
     return callback
 
 
-def apply_effect(effect: EntityEffect, is_ally_instead: bool = False) -> SkillCallback:
+def apply_effect(effect: type[EntityEffect], *, duration: int | None, intensity: float, is_ally_instead: bool = False) -> SkillCallback:
     """
     Apply effect on enemy (or ally if `is_ally_instead`) rodent
     :param effect: EntityEffect to apply to enemy
@@ -71,7 +71,8 @@ def apply_effect(effect: EntityEffect, is_ally_instead: bool = False) -> SkillCa
             else:
                 entity = game_manager.get_enemy_on_pos(target)
             assert entity is not None
-            game_manager.apply_effect(entity, effect)
+            game_manager.apply_effect(entity, effect(
+                entity, duration=duration, intensity=intensity))
     return callback
 
 
