@@ -14,16 +14,42 @@ dependencies = [
     "pytweening (==1.2.0)"
 ]
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["ratroyale*"]
-
-[tool.setuptools.package-dir]
-"" = "src"
-
 [project.scripts]
 ratroyale = "main:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "numpy (>=2.3.3,<3.0.0)",
+    "poethepoet (>=0.37.0,<0.38.0)",
+    "mypy (>=1.18.2,<2.0.0)",
+    "black (>=25.9.0,<26.0.0)"
+]
+
+[tool.poetry]
+packages = [
+    {include = "ratroyale", from = "src"},
+    {include = "main.py", from = "src"}
+]
+
+[tool.poe.tasks]
+render-test = "python ./src/render_test.py"
+format = "black ./src"
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+files = ["./src/ratroyale/", "./src/main.py"]
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+include = "\\.pyi?$"
