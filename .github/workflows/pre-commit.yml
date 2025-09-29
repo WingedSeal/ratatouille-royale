@@ -3,7 +3,7 @@ on:
   pull_request:
       branches: [develop]
 jobs:
-  ci:
+  pre-commit-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
