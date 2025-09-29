@@ -1,7 +1,5 @@
 from pprint import pformat
-from _typeshed import DataclassInstance
-from dataclasses import fields
-from typing import TypeVar, TYPE_CHECKING, Any, Final, TypeVar
+from typing import Any, Final
 from .hexagon import OddRCoord
 from .side import Side
 from .entity import Entity
@@ -9,9 +7,6 @@ from .feature import Feature
 from .tile import Tile
 from pathlib import Path
 import inspect
-
-if TYPE_CHECKING:
-    from _typeshed import DataclassInstance
 
 
 MAP_FILE_EXTENSION = "rrmap"
@@ -127,7 +122,7 @@ class Map:
             tile.features.remove(feature)
 
     @classmethod
-    def from_file(cls, file_path: Path) -> "Map" | None:
+    def from_file(cls, file_path: Path) -> "Map | None":
         with file_path.open('rb') as file:
             data = file.read()
         try:
@@ -279,10 +274,10 @@ class Map:
             entities.append(entity_class(
                 OddRCoord(x, y), side, *entity_unique_parameters))
 
-        assert pointer.verify_end()
+        assert data_pointer.verify_end()
 
         return cls(name, size_x, size_y, tiles, entities, features)
-      
+
     def __repr__(self) -> str:
         return f"""Map(
     name={self.name!r},

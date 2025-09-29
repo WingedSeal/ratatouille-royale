@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from pprint import pformat()
+from pprint import pformat
 
 from .side import Side
 from .feature import Feature
