@@ -1,3 +1,4 @@
+from typing import cast
 import pygame
 
 from ratroyale.input.constants import GestureKey, ActionKey
@@ -6,8 +7,8 @@ from ratroyale.visual.visual_component import (
     VisualComponent,
     TileVisual,
     EntityVisual,
-    TYPICAL_TILE_SIZE,
 )
+from ratroyale.visual.sprite_registry import TYPICAL_TILE_SIZE
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from abc import ABC, abstractmethod
@@ -32,7 +33,7 @@ class RectangleHitbox(Hitbox):
         self.rect = rect
 
     def contains_point(self, point: tuple[float, float]) -> bool:
-        return self.rect.collidepoint(point)
+        return cast(bool, self.rect.collidepoint(point))
 
     def draw(
         self, surface: pygame.Surface, color: tuple[int, int, int] = (0, 0, 255)

@@ -2,12 +2,12 @@ from abc import ABCMeta, abstractmethod
 from ..entity import Entity, entity_data
 from ..hexagon import OddRCoord
 from ..entity import _EntitySkill
-from typing import TYPE_CHECKING, TypeVar
+from typing import Any, Callable, TypeVar
 from ..side import Side
 
 
 class RodentMeta(ABCMeta):
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls: "RodentMeta", *args: Any, **kwargs: Any) -> Any:
         if not getattr(cls, "_has_rodent_data", False):
             raise TypeError(
                 f"'{cls.__name__}' must be decorated with @rodent_data(...)"
@@ -50,7 +50,7 @@ def rodent_data(
     skills: list[_EntitySkill],
     movable: bool = True,
     collision: bool = True,
-):
+) -> Callable[[type[T]], type[T]]:
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, Rodent)
         entity_data(

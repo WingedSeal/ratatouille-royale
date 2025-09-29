@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from ratroyale.input.page.page_config import PageName
-from ratroyale.input.constants import ActionKey, GestureKey
+from ratroyale.input.constants import ActionKey, GestureKey, PageName
 import pygame
 from .base import EventToken
 

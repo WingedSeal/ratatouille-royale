@@ -129,7 +129,7 @@ def entity_data(
     description: str = "",
     skills: list[_EntitySkill] = [],
     name: str = "",
-):
+) -> Callable[[type[Entity_T]], type[Entity_T]]:
     def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
         assert issubclass(cls, Entity)
         cls.health = health
@@ -167,7 +167,9 @@ def entity_data(
 _entity_skill_type = Callable[[Entity_T, "GameManager"], SkillResult | None]
 
 
-def entity_skill_check(method: _entity_skill_type) -> _entity_skill_type:
+def entity_skill_check(
+    method: _entity_skill_type[Entity_T],
+) -> _entity_skill_type[Entity_T]:
     """
     Decorator for validating skill method signature
     """

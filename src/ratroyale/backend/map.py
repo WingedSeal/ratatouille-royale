@@ -111,7 +111,7 @@ class Map:
         for feature in features:
             self.add_feature(feature)
 
-    def add_feature(self, feature: Feature):
+    def add_feature(self, feature: Feature) -> None:
         if feature in self.features:
             raise ValueError("This feature already exist in this position")
         self.features.append(feature)
@@ -121,7 +121,7 @@ class Map:
                 continue
             tile.features.append(feature)
 
-    def remove_feature(self, feature: Feature):
+    def remove_feature(self, feature: Feature) -> None:
         self.features.remove(feature)
         for pos in feature.shape:
             tile = self.tiles[pos.y][pos.x]
@@ -342,10 +342,11 @@ class Map:
 
 
 def _get_unique_init_arguments(obj: Any, basecls: type) -> tuple[int]:
-    if not issubclass(type(obj), basecls):
-        raise TypeError(f"{basecls} is not a base class of {type(obj)}")
-    derived_signatures = inspect.signature(type(obj).__init__)
-    base_signatures = inspect.signature(basecls.__init__)
+    obj_class = type(obj)
+    if not issubclass(obj_class, basecls):
+        raise TypeError(f"{basecls} is not a base class of {obj_class}")
+    derived_signatures = inspect.signature(obj_class.__init__)
+    base_signatures = inspect.signature(basecls.__init__)  # type: ignore[misc]
 
     derived_params = set(derived_signatures.parameters.keys()) - {"self"}
     base_params = set(base_signatures.parameters.keys()) - {"self"}

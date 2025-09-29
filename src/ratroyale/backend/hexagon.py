@@ -35,11 +35,11 @@ class OddRCoord:
     )
 
     @property
-    def row(self):
+    def row(self) -> int:
         return self.y
 
     @property
-    def col(self):
+    def col(self) -> int:
         return self.x
 
     def to_axial(self) -> "_AxialCoord":

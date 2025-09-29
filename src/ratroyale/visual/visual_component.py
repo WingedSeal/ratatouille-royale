@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from dataclasses import dataclass, field
+from typing import Any
 from pygame_gui.core.ui_element import UIElement
 from pygame_gui.ui_manager import UIManager
 import pygame
@@ -34,7 +35,7 @@ class UIVisual(VisualComponent):
     type: type[UIElement]
     relative_rect: pygame.Rect
     text: str = ""
-    kwargs: dict = field(default_factory=dict)
+    kwargs: dict[Any, Any] = field(default_factory=dict)
     instance: UIElement | None = None
 
     def create(self, manager: UIManager) -> None:

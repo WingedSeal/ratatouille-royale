@@ -35,7 +35,7 @@ def select_targetable(
     *,
     is_feature_targetable: bool = True,
     can_cancel: bool = True,
-):
+) -> SkillResult:
     coords = board.get_attackable_coords(rodent, skill)
     targets: list[OddRCoord] = []
     for coord in coords:

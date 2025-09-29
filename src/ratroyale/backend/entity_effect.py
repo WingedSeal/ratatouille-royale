@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Self, TypeVar
 
 from .side import Side
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class EffectMeta(ABCMeta):
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls: "EffectMeta", *args: Any, **kwargs: Any) -> Any:
         if not getattr(cls, "_has_effect_data", False):
             raise TypeError(f"'{cls.__name__}' must be decorated with @effect_subclass")
         return super().__call__(*args, **kwargs)
@@ -80,7 +80,9 @@ class EntityEffect(metaclass=EffectMeta):
 T = TypeVar("T", bound=EntityEffect)
 
 
-def effect_data(effect_clear_side: EffectClearSide, *, name: str):
+def effect_data(
+    effect_clear_side: EffectClearSide, *, name: str
+) -> Callable[[type[T]], type[T]]:
     def wrapper(cls: type[T]) -> type[T]:
         assert issubclass(cls, EntityEffect)
         cls._has_effect_data = True

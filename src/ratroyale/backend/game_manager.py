@@ -23,7 +23,7 @@ from ratroyale.event_tokens.page_token import *
 HAND_LENGTH = 5
 
 
-def crumb_per_turn(turn_count: int):
+def crumb_per_turn(turn_count: int) -> int:
     return min(math.ceil(turn_count / 4) * 10, 50)
 
 
@@ -205,7 +205,7 @@ class GameManager:
         shuffle(self.decks[side])
         return self.decks[side].pop()
 
-    def place_squeak(self, hand_index: int, coord: OddRCoord):
+    def place_squeak(self, hand_index: int, coord: OddRCoord) -> None:
         """
         Place squeak based on hand_index on the board
         """
@@ -216,7 +216,7 @@ class GameManager:
         self.crumbs -= squeak.crumb_cost
         self.hands[self.turn][hand_index] = self.draw_squeak(self.turn)
 
-    def end_turn(self):
+    def end_turn(self) -> None:
         for effect in self.board.cache.effects:
             effect.on_turn_change(self)
             if effect.duration == 1 and effect._should_clear(self.turn):
@@ -233,7 +233,7 @@ class GameManager:
             self.turn_count += 1
         self.crumbs = crumb_per_turn(self.turn_count)
 
-    def apply_effect(self, entity: Entity, effect: EntityEffect):
+    def apply_effect(self, entity: Entity, effect: EntityEffect) -> None:
         old_effect = entity.effects.get(effect.name)
         if old_effect is None:
             entity.effects[effect.name] = effect
@@ -261,7 +261,7 @@ class GameManager:
             old_effect.overridden_effects.append(effect)
             self.board.cache.effects.append(effect)
 
-    def effect_duration_over(self, effect: EntityEffect):
+    def effect_duration_over(self, effect: EntityEffect) -> None:
         self.board.cache.effects.remove(effect)
         if not effect.overridden_effects:
             effect.on_cleared(self, is_overridden=False)
@@ -278,7 +278,7 @@ class GameManager:
         new_effect.overridden_effects = effect.overridden_effects
         effect.entity.effects[effect.name] = new_effect
 
-    def force_clear_effect(self, effect: EntityEffect):
+    def force_clear_effect(self, effect: EntityEffect) -> None:
         self.board.cache.effects.remove(effect)
         del effect.entity.effects[effect.name]
         for _effect in effect.overridden_effects:

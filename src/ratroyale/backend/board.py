@@ -103,7 +103,7 @@ class Board:
 
         return is_coord_blocked
 
-    def damage_entity(self, entity: Entity, damage: int):
+    def damage_entity(self, entity: Entity, damage: int) -> None:
         """
         Damage an entity. Doesn't work on entity with no health.
         """
@@ -120,7 +120,7 @@ class Board:
         tile.entities.remove(entity)
         self.event_queue.put(EntityDieEvent(entity))
 
-    def damage_feature(self, feature: Feature, damage: int):
+    def damage_feature(self, feature: Feature, damage: int) -> None:
         """
         Damage a feature. Doesn't work on feature with no health.
         """
@@ -208,7 +208,7 @@ class Board:
             is_include_self=is_include_self,
         )
 
-    def path_find(self, entity: Entity, goal: OddRCoord):
+    def path_find(self, entity: Entity, goal: OddRCoord) -> list[OddRCoord] | None:
         return entity.pos.path_find(goal, self._is_coord_blocked(entity))
 
     def get_attackable_coords(

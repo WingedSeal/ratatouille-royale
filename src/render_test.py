@@ -1,3 +1,4 @@
+# type: ignore
 import pygame
 from ratroyale.input.page.page_manager import PageManager
 from ratroyale.input.input_manager import InputManager
