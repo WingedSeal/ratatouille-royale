@@ -6,7 +6,14 @@ from .features.commmon import DeploymentZone, Lair
 from .feature import Feature
 from .entity_effect import EntityEffect
 from ..utils import EventQueue
-from .game_event import EntityDamagedEvent, EntitySpawnEvent, FeatureDamagedEvent, FeatureDieEvent, GameEvent, EntityDieEvent
+from .game_event import (
+    EntityDamagedEvent,
+    EntitySpawnEvent,
+    FeatureDamagedEvent,
+    FeatureDieEvent,
+    GameEvent,
+    EntityDieEvent,
+)
 from .error import EntityInvalidPosError
 from .side import Side
 from .entity import Entity, EntitySkill
@@ -24,8 +31,9 @@ class Cache:
         self.entities_with_hp: list[Entity] = []
         self.sides_with_hp: dict[Side | None, list[Entity]] = defaultdict(list)
         self.features: list[Feature] = []
-        self.deployment_zones: dict[Side | None,
-                                    list[DeploymentZone]] = defaultdict(list)
+        self.deployment_zones: dict[Side | None, list[DeploymentZone]] = defaultdict(
+            list
+        )
         self.lairs: dict[Side, list[Lair]] = defaultdict(list)
         self.effects: list[EntityEffect] = []
 
@@ -80,12 +88,19 @@ class Board:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
                 return True
-            if entity.collision and any(_entity.collision for _entity in target_tile.entities):
+            if entity.collision and any(
+                _entity.collision for _entity in target_tile.entities
+            ):
                 return True
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return True
-            return target_tile.get_total_height(entity.side) - previous_tile.get_total_height(entity.side) > ENTITY_JUMP_HEIGHT
+            return (
+                target_tile.get_total_height(entity.side)
+                - previous_tile.get_total_height(entity.side)
+                > ENTITY_JUMP_HEIGHT
+            )
+
         return is_coord_blocked
 
     def damage_entity(self, entity: Entity, damage: int):
@@ -110,8 +125,7 @@ class Board:
         Damage a feature. Doesn't work on feature with no health.
         """
         is_dead, damage_taken = feature._take_damage(damage)
-        self.event_queue.put(FeatureDamagedEvent(
-            feature, damage, damage_taken))
+        self.event_queue.put(FeatureDamagedEvent(feature, damage, damage_taken))
         if not is_dead:
             return
         is_dead = feature.on_death()
@@ -132,7 +146,14 @@ class Board:
             self.cache.lairs[feature.side].remove(feature)
         self.event_queue.put(FeatureDieEvent(feature))
 
-    def line_of_sight_check(self, start_coord: OddRCoord, end_coord: OddRCoord, altitude: int, turn: Side | None, max_range: int | None = None) -> bool:
+    def line_of_sight_check(
+        self,
+        start_coord: OddRCoord,
+        end_coord: OddRCoord,
+        altitude: int,
+        turn: Side | None,
+        max_range: int | None = None,
+    ) -> bool:
         if max_range is not None and start_coord.get_distance(end_coord) > max_range:
             return False
         start_tile = self.get_tile(start_coord)
@@ -171,7 +192,9 @@ class Board:
         entity.pos = target
         return True
 
-    def get_reachable_coords(self, rodent: Rodent, *, is_include_self: bool = False) -> set[OddRCoord]:
+    def get_reachable_coords(
+        self, rodent: Rodent, *, is_include_self: bool = False
+    ) -> set[OddRCoord]:
         """
         Get every coords a rodent can reach within its movement limit
 
@@ -180,12 +203,17 @@ class Board:
         :returns: Set of reachable coords
         """
         return rodent.pos.get_reachable_coords(
-            rodent.speed, self._is_coord_blocked(rodent), is_include_self=is_include_self)
+            rodent.speed,
+            self._is_coord_blocked(rodent),
+            is_include_self=is_include_self,
+        )
 
     def path_find(self, entity: Entity, goal: OddRCoord):
         return entity.pos.path_find(goal, self._is_coord_blocked(entity))
 
-    def get_attackable_coords(self, rodent: Rodent, skill: EntitySkill) -> Iterator[OddRCoord]:
+    def get_attackable_coords(
+        self, rodent: Rodent, skill: EntitySkill
+    ) -> Iterator[OddRCoord]:
         """
         Get every coords a rodent can attack with its skill altitude
 
@@ -196,12 +224,10 @@ class Board:
         rodent_tile = self.get_tile(rodent.pos)
         if rodent_tile is None:
             raise ValueError("Rodent has invalid pos")
-        max_altitude = rodent_tile.get_total_height(rodent.side
-                                                    ) + (skill.altitude or 0)
+        max_altitude = rodent_tile.get_total_height(rodent.side) + (skill.altitude or 0)
         reach = skill.reach
         if reach is None:
-            raise ValueError(
-                "'get_attackable_coords is called on skill without reach")
+            raise ValueError("'get_attackable_coords is called on skill without reach")
         for target_coord in rodent.pos.all_in_range(reach):
             for passed_coord in rodent.pos.line_draw(target_coord):
                 passed_tile = self.get_tile(passed_coord)

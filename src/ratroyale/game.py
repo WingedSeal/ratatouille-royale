@@ -12,7 +12,7 @@ SAVE_FILE = f"idk_where_this_is.{SAVE_FILE_EXTENSION}"
 
 class Game:
     """
-    The entry-point and the controller class 
+    The entry-point and the controller class
     """
 
     def __init__(self) -> None:

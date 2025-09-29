@@ -3,6 +3,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, TypeVar
 
 from .side import Side
+
 if TYPE_CHECKING:
     from .entity import Entity
     from .game_manager import GameManager
@@ -12,8 +13,7 @@ if TYPE_CHECKING:
 class EffectMeta(ABCMeta):
     def __call__(cls, *args, **kwargs):
         if not getattr(cls, "_has_effect_data", False):
-            raise TypeError(
-                f"'{cls.__name__}' must be decorated with @effect_subclass")
+            raise TypeError(f"'{cls.__name__}' must be decorated with @effect_subclass")
         return super().__call__(*args, **kwargs)
 
 
@@ -33,7 +33,9 @@ class EntityEffect(metaclass=EffectMeta):
     intensity: float
     overridden_effects: list["EntityEffect"]
 
-    def __init__(self, entity: "Entity", *, duration: int | None, intensity: float = 0) -> None:
+    def __init__(
+        self, entity: "Entity", *, duration: int | None, intensity: float = 0
+    ) -> None:
         self.entity = entity
         self.duration = duration
         self.intensity = intensity
@@ -45,35 +47,37 @@ class EntityEffect(metaclass=EffectMeta):
                 side = self.entity.side
                 if side is None:
                     raise ValueError(
-                        "Can't clear effect on enemy turn since its entity has no side")
+                        "Can't clear effect on enemy turn since its entity has no side"
+                    )
                 return turn == side.other_side()
             case EffectClearSide.ALLY:
                 side = self.entity.side
                 if side is None:
                     raise ValueError(
-                        "Can't clear effect on ally turn since its entity has no side")
+                        "Can't clear effect on ally turn since its entity has no side"
+                    )
                 return turn == side
             case EffectClearSide.ANY:
                 return True
 
     @abstractmethod
-    def on_turn_change(self, game_manager: "GameManager") -> None:
-        ...
+    def on_turn_change(self, game_manager: "GameManager") -> None: ...
 
     @abstractmethod
-    def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
-        ...
+    def on_applied(
+        self, game_manager: "GameManager", *, is_overriding: bool
+    ) -> None: ...
 
     @abstractmethod
-    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
-        ...
+    def on_cleared(
+        self, game_manager: "GameManager", *, is_overridden: bool
+    ) -> None: ...
 
     @abstractmethod
-    def effect_descriptions(self) -> list[str]:
-        ...
+    def effect_descriptions(self) -> list[str]: ...
 
 
-T = TypeVar('T', bound=EntityEffect)
+T = TypeVar("T", bound=EntityEffect)
 
 
 def effect_data(effect_clear_side: EffectClearSide, *, name: str):
@@ -83,6 +87,7 @@ def effect_data(effect_clear_side: EffectClearSide, *, name: str):
         cls.effect_clear_side = effect_clear_side
         cls.name = name
         return cls
+
     return wrapper
 
 
@@ -96,7 +101,9 @@ def effect_subclass(cls: type[T]) -> type[T]:
 class RodentEffect(EntityEffect):
     rodent: "Rodent"
 
-    def __init__(self, rodent: "Rodent", *, duration: int | None, intensity: int) -> None:
+    def __init__(
+        self, rodent: "Rodent", *, duration: int | None, intensity: int
+    ) -> None:
         self.intensity = intensity
         self.rodent = rodent
         super().__init__(rodent, duration=duration, intensity=intensity)

@@ -5,7 +5,11 @@ from .page_config import PAGES, PageConfig
 from ratroyale.event_tokens.input_token import InputManagerEvent, GestureData
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.constants import PageName
-from ratroyale.input.page.interactable import Interactable, TileInteractable, EntityInteractable
+from ratroyale.input.page.interactable import (
+    Interactable,
+    TileInteractable,
+    EntityInteractable,
+)
 from ratroyale.visual.visual_component import VisualComponent
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.board import Board
@@ -16,9 +20,16 @@ from ratroyale.backend.hexagon import OddRCoord
 # region Base Page Class
 # ============================================
 
+
 class Page:
     """Base class for a page in the application."""
-    def __init__(self, page_name: PageName, screen_size: tuple[int, int], coordination_manager: CoordinationManager) -> None:
+
+    def __init__(
+        self,
+        page_name: PageName,
+        screen_size: tuple[int, int],
+        coordination_manager: CoordinationManager,
+    ) -> None:
         self.config: PageConfig = PAGES[page_name]
         self.name: PageName = self.config.name
 
@@ -56,7 +67,7 @@ class Page:
                 gesture_action_mapping=widget_config.gesture_action_mapping,
                 visuals=visual_instances,
                 blocks_input=widget_config.blocks_input,
-                z_order=getattr(widget_config, "z_order", 0)
+                z_order=getattr(widget_config, "z_order", 0),
             )
 
             self.add_element(interactable_instance)
@@ -73,7 +84,6 @@ class Page:
         if element in self.interactables:
             self.interactables.remove(element)
 
-
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         remaining_gestures: list[GestureData] = []
 
@@ -81,11 +91,13 @@ class Page:
             for widget in self.interactables:
                 action_key = widget.process_gesture(gesture)
                 if action_key:
-                    self.emit_input_event(InputManagerEvent(
-                        gesture_data=gesture,
-                        action_key=action_key,
-                        page_name=self.name
-                    ))
+                    self.emit_input_event(
+                        InputManagerEvent(
+                            gesture_data=gesture,
+                            action_key=action_key,
+                            page_name=self.name,
+                        )
+                    )
 
                     if widget.blocks_input:
                         break
@@ -94,12 +106,10 @@ class Page:
 
         return remaining_gestures
 
-        
     def emit_input_event(self, input_event: InputManagerEvent) -> None:
         self.coordination_manager.put_message(input_event)
 
-
-    def clear_canvas(self, color: tuple[int, int, int, int]=(0, 0, 0, 0)) -> None:
+    def clear_canvas(self, color: tuple[int, int, int, int] = (0, 0, 0, 0)) -> None:
         """Clear the canvas (default: fully transparent)."""
         self.canvas.fill(color)
 
@@ -115,16 +125,21 @@ class Page:
         """Draw method for non-UI elements. Used as a base to be extended by special page definitions."""
         pass
 
+
 # endregion
 
 # ====================================
 # region Special Page Definitions
 # ====================================
 
+
 class GameBoardPage(Page):
-    def __init__(self, screen_size: tuple[int,int],
-                 coordination_manager: CoordinationManager, 
-                 board: Board | None) -> None:
+    def __init__(
+        self,
+        screen_size: tuple[int, int],
+        coordination_manager: CoordinationManager,
+        board: Board | None,
+    ) -> None:
         super().__init__(PageName.GAME_BOARD, screen_size, coordination_manager)
 
         self.tile_visuals: list[VisualComponent] = []
@@ -149,10 +164,7 @@ class GameBoardPage(Page):
             for q in range(5):
                 for r in range(5):
                     tile = Tile(
-                        coord=OddRCoord(q, r),
-                        entities=[],
-                        height=0,
-                        features=[]
+                        coord=OddRCoord(q, r), entities=[], height=0, features=[]
                     )
                     tile_interactable = TileInteractable(tile)
                     self.add_element(tile_interactable)
@@ -169,10 +181,9 @@ class GameBoardPage(Page):
         # Sort all interactables by Z-order (highest first)
         self.interactables.sort(key=lambda e: e.z_order, reverse=True)
 
-
     def draw(self) -> None:
-        self.clear_canvas()  
-        
+        self.clear_canvas()
+
         # TODO: Revise the draw order to align with the isometric style.
 
         for tile in self.tile_visuals:
@@ -199,6 +210,6 @@ class GameBoardPage(Page):
         for interactable in self.interactables:
             interactable.hitbox.draw(self.canvas)
 
+
 class CardOverlayPage(Page):
     pass
-

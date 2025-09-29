@@ -12,26 +12,32 @@ __all__ = [
     "EndGame_PageManagerEvent",
 ]
 
+
 @dataclass
 class PageManagerEvent(EventToken):
-  pass
+    pass
+
 
 @dataclass
 class AddPageEvent_PageManagerEvent(PageManagerEvent):
     page_name: PageName
 
+
 @dataclass
 class RemovePageEvent_PageManagerEvent(PageManagerEvent):
     page_name: PageName | None = None
+
 
 @dataclass
 class ReplaceTopPage_PageManagerEvent(PageManagerEvent):
     page_name: PageName
 
+
 @dataclass
 class ConfirmStartGame_PageManagerEvent(PageManagerEvent):
-   board: Board | None
+    board: Board | None
 
-@dataclass 
+
+@dataclass
 class EndGame_PageManagerEvent(PageManagerEvent):
-   pass
+    pass

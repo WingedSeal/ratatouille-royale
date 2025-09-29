@@ -4,10 +4,8 @@ from ratroyale.input.constants import ActionKey, GestureKey
 import pygame
 from .base import EventToken
 
-__all__ = [
-   "GestureData",
-   "InputManagerEvent"
-   ]
+__all__ = ["GestureData", "InputManagerEvent"]
+
 
 @dataclass
 class GestureData:
@@ -24,10 +22,11 @@ class GestureData:
     scroll_amount: int | None = None
     raw_event: pygame.event.Event | None = None
 
+
 @dataclass
 class InputManagerEvent(EventToken):
-  gesture_data: GestureData
+    gesture_data: GestureData
 
-  # To be decorated via the input consumption pipeline
-  action_key: ActionKey 
-  page_name: PageName
+    # To be decorated via the input consumption pipeline
+    action_key: ActionKey
+    page_name: PageName

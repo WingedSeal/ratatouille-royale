@@ -26,7 +26,7 @@ class _DataPointer:
         return int.from_bytes(self.get_raw_bytes(size), ENDIAN)
 
     def get_raw_bytes(self, size: int = 1) -> bytes:
-        value = self.data[self.pointer:self.pointer + size]
+        value = self.data[self.pointer : self.pointer + size]
         self.pointer += size
         return value
 
@@ -93,7 +93,15 @@ class Map:
         """
     """Binary format specification"""
 
-    def __init__(self, name: str, size_x: int, size_y: int, tiles: list[list[Tile | None]], entities: list[Entity] = [], features: list[Feature] = []) -> None:
+    def __init__(
+        self,
+        name: str,
+        size_x: int,
+        size_y: int,
+        tiles: list[list[Tile | None]],
+        entities: list[Entity] = [],
+        features: list[Feature] = [],
+    ) -> None:
         self.name = name
         self.size_x = size_x
         self.size_y = size_y
@@ -123,7 +131,7 @@ class Map:
 
     @classmethod
     def from_file(cls, file_path: Path) -> "Map | None":
-        with file_path.open('rb') as file:
+        with file_path.open("rb") as file:
             data = file.read()
         try:
             return cls.load(data)
@@ -132,7 +140,7 @@ class Map:
 
     def to_file(self, file_path: Path) -> None:
         data = self.save()
-        with file_path.open('wb') as file:
+        with file_path.open("wb") as file:
             file.write(data)
 
     def save(self) -> bytes:
@@ -157,14 +165,20 @@ class Map:
             for tile in row
         )
 
-        data.extend(len(self.features).to_bytes(
-            1 + many_features_flag, ENDIAN))
+        data.extend(len(self.features).to_bytes(1 + many_features_flag, ENDIAN))
         for feature in self.features:
-            feature_unique_constructor_flag = 1 if inspect.signature(type(
-                feature).__init__).parameters != inspect.signature(Feature.__init__).parameters else 0
+            feature_unique_constructor_flag = (
+                1
+                if inspect.signature(type(feature).__init__).parameters
+                != inspect.signature(Feature.__init__).parameters
+                else 0
+            )
             feature_id = feature.FEATURE_ID()
             data.extend(
-                (feature_id & (feature_unique_constructor_flag << 15)).to_bytes(2, ENDIAN))
+                (feature_id & (feature_unique_constructor_flag << 15)).to_bytes(
+                    2, ENDIAN
+                )
+            )
             data.append(feature.health if feature.health is not None else 0)
             data.append(feature.defense)
             data.append(Side.to_int(feature.side))
@@ -177,17 +191,22 @@ class Map:
                 data.append(len(unique_arguments))
                 data.extend(unique_arguments)
 
-        data.extend(len(self.entities).to_bytes(
-            (1 + many_entities_flag), ENDIAN))
+        data.extend(len(self.entities).to_bytes((1 + many_entities_flag), ENDIAN))
         for entity in self.entities:
-            entity_unique_constructor_flag = 1 if inspect.signature(type(
-                entity).__init__).parameters != inspect.signature(Entity.__init__).parameters else 0
+            entity_unique_constructor_flag = (
+                1
+                if inspect.signature(type(entity).__init__).parameters
+                != inspect.signature(Entity.__init__).parameters
+                else 0
+            )
             entity_id = entity.PRE_PLACED_ENTITY_ID()
             if entity_id is None:
                 raise ValueError(
-                    f"Entity of type {type(entity_id)} cannot be pre placed since it has no PRE_PLACED_ENTITY_ID")
+                    f"Entity of type {type(entity_id)} cannot be pre placed since it has no PRE_PLACED_ENTITY_ID"
+                )
             data.extend(
-                (entity_id & (entity_unique_constructor_flag << 15)).to_bytes(2, ENDIAN))
+                (entity_id & (entity_unique_constructor_flag << 15)).to_bytes(2, ENDIAN)
+            )
             data.extend(entity.pos.x.to_bytes(1 + large_map_flag, ENDIAN))
             data.extend(entity.pos.y.to_bytes(1 + large_map_flag, ENDIAN))
             if entity_unique_constructor_flag:
@@ -226,12 +245,13 @@ class Map:
         features: list[Feature] = []
 
         for _ in range(feature_count):
-            feature_class_and_unique_constructor_flag = data_pointer.get_byte(
-                2)
-            feature_class = Feature.ALL_FEATURES[feature_class_and_unique_constructor_flag & ~(
-                1 << 15)]
-            unique_constructor_flag = bool(feature_class_and_unique_constructor_flag & (
-                1 << 15))
+            feature_class_and_unique_constructor_flag = data_pointer.get_byte(2)
+            feature_class = Feature.ALL_FEATURES[
+                feature_class_and_unique_constructor_flag & ~(1 << 15)
+            ]
+            unique_constructor_flag = bool(
+                feature_class_and_unique_constructor_flag & (1 << 15)
+            )
             health_byte = data_pointer.get_byte()
             health = None if health_byte == 0 else health_byte
             defense = data_pointer.get_byte()
@@ -250,19 +270,21 @@ class Map:
                 for _ in range(unique_parameter_count):
                     feature_unique_parameters.append(data_pointer.get_byte())
 
-            features.append(feature_class(
-                shape, health, defense, side, *feature_unique_parameters))
+            features.append(
+                feature_class(shape, health, defense, side, *feature_unique_parameters)
+            )
 
         entity_count = data_pointer.get_byte(1 + many_entities_flag)
         entities: list[Entity] = []
 
         for _ in range(entity_count):
-            entity_class_and_unique_constructor_flag = data_pointer.get_byte(
-                2)
-            entity_class = Entity.PRE_PLACED_ENTITIES[entity_class_and_unique_constructor_flag & ~(
-                1 << 15)]
-            unique_constructor_flag = bool(entity_class_and_unique_constructor_flag & (
-                1 << 15))
+            entity_class_and_unique_constructor_flag = data_pointer.get_byte(2)
+            entity_class = Entity.PRE_PLACED_ENTITIES[
+                entity_class_and_unique_constructor_flag & ~(1 << 15)
+            ]
+            unique_constructor_flag = bool(
+                entity_class_and_unique_constructor_flag & (1 << 15)
+            )
             side = Side.from_int(data_pointer.get_byte())
             x = data_pointer.get_byte(coord_size)
             y = data_pointer.get_byte(coord_size)
@@ -271,8 +293,9 @@ class Map:
                 unique_parameter_count = data_pointer.get_byte()
                 for _ in range(unique_parameter_count):
                     entity_unique_parameters.append(data_pointer.get_byte())
-            entities.append(entity_class(
-                OddRCoord(x, y), side, *entity_unique_parameters))
+            entities.append(
+                entity_class(OddRCoord(x, y), side, *entity_unique_parameters)
+            )
 
         assert data_pointer.verify_end()
 
@@ -290,8 +313,7 @@ class Map:
 
     def __str__(self) -> str:
         simple_tiles = [
-            [str(tile) if tile else None for tile in row]
-            for row in self.tiles
+            [str(tile) if tile else None for tile in row] for row in self.tiles
         ]
         simple_features = [str(f) for f in self.features]
         simple_entities = [str(e) for e in self.entities]

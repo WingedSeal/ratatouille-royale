@@ -11,7 +11,7 @@ from ratroyale.event_tokens.visual_token import VisualManagerEvent
 class CoordinationManager:
     def __init__(self) -> None:
         self.game_running: bool = True
-    
+
         self.mailboxes: dict[Type[EventToken], EventQueue] = {
             PageManagerEvent: EventQueue[PageManagerEvent](),
             InputManagerEvent: EventQueue[InputManagerEvent](),
@@ -29,6 +29,6 @@ class CoordinationManager:
 
     def all_mailboxes_empty(self) -> bool:
         return all(q.empty() for q in self.mailboxes.values())
-    
+
     def stop_game(self) -> None:
         self.game_running = False

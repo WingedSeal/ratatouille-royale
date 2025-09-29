@@ -48,18 +48,23 @@ class GameManager:
     """Crumbs of the current side"""
     first_turn: Side
 
-    def __init__(self, map: Map, players_info: tuple[PlayerInfo, PlayerInfo], first_turn: Side, coordination_manager: CoordinationManager) -> None:
+    def __init__(
+        self,
+        map: Map,
+        players_info: tuple[PlayerInfo, PlayerInfo],
+        first_turn: Side,
+        coordination_manager: CoordinationManager,
+    ) -> None:
         self.turn = first_turn
         self.turn_count = 1
         self.board = Board(map)
         self.players_info = {
             first_turn: players_info[0],
-            first_turn.other_side(): players_info[1]
+            first_turn.other_side(): players_info[1],
         }
         self.decks = {
             Side.RAT: self.players_info[Side.RAT].get_squeak_set().get_new_deck(),
-            Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set(
-            ).get_new_deck()
+            Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set().get_new_deck(),
         }
         self.hands = {
             Side.RAT: [self.draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
@@ -79,7 +84,8 @@ class GameManager:
 
             if isinstance(token, RequestStart_GameManagerEvent):
                 self.coordination_manager.put_message(
-                    ConfirmStartGame_PageManagerEvent(self.board))
+                    ConfirmStartGame_PageManagerEvent(self.board)
+                )
                 # In actual implementation, replace the sample map in render test with an actual loaded map
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
@@ -261,7 +267,10 @@ class GameManager:
             effect.on_cleared(self, is_overridden=False)
             del effect.entity.effects[effect.name]
         effect.entity.effects = {
-            name: e for name, e in effect.entity.effects.items() if (e.duration is None) or (e.duration > 1)}
+            name: e
+            for name, e in effect.entity.effects.items()
+            if (e.duration is None) or (e.duration > 1)
+        }
         new_effect = max(effect.overridden_effects, key=lambda e: e.intensity)
         new_effect.on_applied(self, is_overriding=True)
         effect.on_cleared(self, is_overridden=True)
