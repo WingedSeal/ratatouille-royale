@@ -15,7 +15,10 @@ class Tile:
     features: list[Feature] = field(default_factory=list)
 
     def get_total_height(self, turn: Side | None) -> int:
-        return self.height + max((entity.height for entity in self.entities if entity.side != turn), default=0)
+        return self.height + max(
+            (entity.height for entity in self.entities if entity.side != turn),
+            default=0,
+        )
 
     def __repr__(self) -> str:
         return f"""Tile(

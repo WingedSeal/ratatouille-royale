@@ -1,3 +1,4 @@
+# type: ignore
 import pygame
 from ratroyale.input.page.page_manager import PageManager
 from ratroyale.input.input_manager import InputManager
@@ -12,8 +13,12 @@ from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.side import Side
-from ratroyale.backend.player_info.squeak import Squeak, SqueakType, SqueakOnPlace, SqueakGetPlacableTiles
-
+from ratroyale.backend.player_info.squeak import (
+    Squeak,
+    SqueakType,
+    SqueakOnPlace,
+    SqueakGetPlacableTiles,
+)
 
 
 def main():
@@ -26,21 +31,16 @@ def main():
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
     input_manager = InputManager(coordination_manager=coordination_manager)
 
-    # region GAME MANAGER DOMAIN 
+    # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
     tiles: list[list[Tile | None]] = []
     for q in range(size_x):
         row = []
         for r in range(size_y):
-            tile = Tile(
-                coord=OddRCoord(q, r),
-                entities=[],
-                height=0,
-                features=[]
-            )
+            tile = Tile(coord=OddRCoord(q, r), entities=[], height=0, features=[])
             row.append(tile)
         tiles.append(row)
-    entities: list[Entity] = [TailBlazer(OddRCoord(1,3))]
+    entities: list[Entity] = [TailBlazer(OddRCoord(1, 3))]
 
     # Dummy callables
     dummy_on_place: SqueakOnPlace = lambda game_manager, coord: None
@@ -52,7 +52,7 @@ def main():
             crumb_cost=1,
             squeak_type=SqueakType.RODENT,
             on_place=dummy_on_place,
-            get_placable_tiles=dummy_get_placable
+            get_placable_tiles=dummy_get_placable,
         )
         for i in range(5)
     ]
@@ -65,22 +65,29 @@ def main():
     player_info_1 = PlayerInfo(
         all_squeaks=dummy_squeaks,
         squeak_sets=dummy_squeak_sets,
-        selected_squeak_set_index=selected_index
+        selected_squeak_set_index=selected_index,
     )
 
     player_info_2 = PlayerInfo(
         all_squeaks=dummy_squeaks,
         squeak_sets=dummy_squeak_sets,
-        selected_squeak_set_index=selected_index
-)
-    
-    map = Map(name="", size_x=size_x, size_y=size_y, tiles=tiles, entities=entities, features=[])
-    game_manager = GameManager(map=map, 
-                               players_info=(
-                                   player_info_1, 
-                                   player_info_2),
-                                first_turn=Side.MOUSE,
-                                coordination_manager=coordination_manager)
+        selected_squeak_set_index=selected_index,
+    )
+
+    map = Map(
+        name="",
+        size_x=size_x,
+        size_y=size_y,
+        tiles=tiles,
+        entities=entities,
+        features=[],
+    )
+    game_manager = GameManager(
+        map=map,
+        players_info=(player_info_1, player_info_2),
+        first_turn=Side.MOUSE,
+        coordination_manager=coordination_manager,
+    )
     # endregion
 
     page_manager.push_page(PageName.MAIN_MENU)
@@ -99,9 +106,10 @@ def main():
         page_manager.draw()
 
         pygame.display.flip()
-        
+
     # Cleanup process
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()

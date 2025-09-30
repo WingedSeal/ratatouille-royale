@@ -19,32 +19,32 @@ if TYPE_CHECKING:
     height=0,
     skills=[
         _EntitySkill(
-            name="Stab",
-            method_name="stab",
-            reach=2,
-            altitude=0,
-            crumb_cost=3
+            name="Stab", method_name="stab", reach=2, altitude=0, crumb_cost=3
         ),
         _EntitySkill(
             name="Spear Launching",
             method_name="spear_launching",
             reach=5,
             altitude=0,
-            crumb_cost=7
-        )
-    ]
+            crumb_cost=7,
+        ),
+    ],
 )
 class TailBlazer(Rodent):
     @entity_skill_check
     def stab(self, game_manager: "GameManager") -> SkillResult:
-        return select_targetable(game_manager.board, self, self.skills[0], normal_damage(self.attack + 1))
+        return select_targetable(
+            game_manager.board, self, self.skills[0], normal_damage(self.attack + 1)
+        )
 
     @entity_skill_check
     def spear_launching(self, game_manager: "GameManager") -> SkillResult:
-        return select_targetable(game_manager.board, self, self.skills[1], normal_damage(self.attack))
+        return select_targetable(
+            game_manager.board, self, self.skills[1], normal_damage(self.attack)
+        )
 
     def skill_descriptions(self) -> list[str]:
         return [
             f"Stab an enemy with a toothpick dealing {self.attack + 1}(ATK+1) damage.",
-            f"Throw a toothpick at an enemy dealing {self.attack}(ATK) damage."
+            f"Throw a toothpick at an enemy dealing {self.attack}(ATK) damage.",
         ]

@@ -26,7 +26,8 @@ dev = [
     "numpy (>=2.3.3,<3.0.0)",
     "poethepoet (>=0.37.0,<0.38.0)",
     "mypy (>=1.18.2,<2.0.0)",
-    "black (>=25.9.0,<26.0.0)"
+    "black (>=25.9.0,<26.0.0)",
+    "pre-commit (>=4.3.0,<5.0.0)"
 ]
 
 [tool.poetry]
@@ -38,6 +39,7 @@ packages = [
 [tool.poe.tasks]
 render-test = "python ./src/render_test.py"
 format = "black ./src"
+check = "pre-commit run --all-files"
 
 [tool.mypy]
 python_version = "3.12"

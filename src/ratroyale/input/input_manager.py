@@ -9,7 +9,7 @@ from ratroyale.input.input_bindings import create_callback_registry
 class InputManager:
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         self.coordination_manager = coordination_manager
-        self.callback_registry = create_callback_registry(self) 
+        self.callback_registry = create_callback_registry(self)
 
     def message(self, event_token: EventToken) -> None:
         self.coordination_manager.put_message(event_token)
@@ -26,4 +26,3 @@ class InputManager:
             callback = self.callback_registry.get(token.action_key)
             if callback:
                 callback(token)
-    
