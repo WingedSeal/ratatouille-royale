@@ -23,7 +23,7 @@ from ratroyale.event_tokens.page_token import *
 HAND_LENGTH = 5
 
 
-def crumb_per_turn(turn_count: int):
+def crumb_per_turn(turn_count: int) -> int:
     return min(math.ceil(turn_count / 4) * 10, 50)
 
 
@@ -48,18 +48,23 @@ class GameManager:
     """Crumbs of the current side"""
     first_turn: Side
 
-    def __init__(self, map: Map, players_info: tuple[PlayerInfo, PlayerInfo], first_turn: Side, coordination_manager: CoordinationManager) -> None:
+    def __init__(
+        self,
+        map: Map,
+        players_info: tuple[PlayerInfo, PlayerInfo],
+        first_turn: Side,
+        coordination_manager: CoordinationManager,
+    ) -> None:
         self.turn = first_turn
         self.turn_count = 1
         self.board = Board(map)
         self.players_info = {
             first_turn: players_info[0],
-            first_turn.other_side(): players_info[1]
+            first_turn.other_side(): players_info[1],
         }
         self.decks = {
             Side.RAT: self.players_info[Side.RAT].get_squeak_set().get_new_deck(),
-            Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set(
-            ).get_new_deck()
+            Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set().get_new_deck(),
         }
         self.hands = {
             Side.RAT: [self.draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
@@ -107,6 +112,21 @@ class GameManager:
             if entity.health is None:
                 continue
             if entity.side == self.turn:
+                continue
+            return entity
+        return None
+
+    def get_ally_on_pos(self, pos: OddRCoord) -> Entity | None:
+        """
+        Get ally at the end of the list (top) at position or None if there's nothing there
+        """
+        tile = self.board.get_tile(pos)
+        if tile is None:
+            raise ValueError("There is no tile on the coord")
+        for entity in reversed(tile.entities):
+            if entity.health is None:
+                continue
+            if entity.side != self.turn:
                 continue
             return entity
         return None
@@ -191,7 +211,7 @@ class GameManager:
         shuffle(self.decks[side])
         return self.decks[side].pop()
 
-    def place_squeak(self, hand_index: int, coord: OddRCoord):
+    def place_squeak(self, hand_index: int, coord: OddRCoord) -> None:
         """
         Place squeak based on hand_index on the board
         """
@@ -202,7 +222,7 @@ class GameManager:
         self.crumbs -= squeak.crumb_cost
         self.hands[self.turn][hand_index] = self.draw_squeak(self.turn)
 
-    def end_turn(self):
+    def end_turn(self) -> None:
         for effect in self.board.cache.effects:
             effect.on_turn_change(self)
             if effect.duration == 1 and effect._should_clear(self.turn):
@@ -219,7 +239,7 @@ class GameManager:
             self.turn_count += 1
         self.crumbs = crumb_per_turn(self.turn_count)
 
-    def apply_effect(self, entity: Entity, effect: EntityEffect):
+    def apply_effect(self, entity: Entity, effect: EntityEffect) -> None:
         old_effect = entity.effects.get(effect.name)
         if old_effect is None:
             entity.effects[effect.name] = effect
@@ -247,13 +267,16 @@ class GameManager:
             old_effect.overridden_effects.append(effect)
             self.board.cache.effects.append(effect)
 
-    def effect_duration_over(self, effect: EntityEffect):
+    def effect_duration_over(self, effect: EntityEffect) -> None:
         self.board.cache.effects.remove(effect)
         if not effect.overridden_effects:
             effect.on_cleared(self, is_overridden=False)
             del effect.entity.effects[effect.name]
         effect.entity.effects = {
-            name: e for name, e in effect.entity.effects.items() if (e.duration is None) or (e.duration > 1)}
+            name: e
+            for name, e in effect.entity.effects.items()
+            if (e.duration is None) or (e.duration > 1)
+        }
         new_effect = max(effect.overridden_effects, key=lambda e: e.intensity)
         new_effect.on_applied(self, is_overriding=True)
         effect.on_cleared(self, is_overridden=True)
@@ -261,7 +284,7 @@ class GameManager:
         new_effect.overridden_effects = effect.overridden_effects
         effect.entity.effects[effect.name] = new_effect
 
-    def force_clear_effect(self, effect: EntityEffect):
+    def force_clear_effect(self, effect: EntityEffect) -> None:
         self.board.cache.effects.remove(effect)
         del effect.entity.effects[effect.name]
         for _effect in effect.overridden_effects:

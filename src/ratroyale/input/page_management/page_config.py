@@ -17,7 +17,8 @@ class InteractableConfig:
     """
     visuals: list[VisualComponent] | None = None
     z_order: int = 0
-    
+
+
 @dataclass
 class PageConfig:
     name: PageName
@@ -27,6 +28,7 @@ class PageConfig:
     If this is true, this page stops inputs from reaching any other interactables or pages below it.
     """
     widgets: list[InteractableConfig] = field(default_factory=list)
+
 
 # ================================
 # region PAGE CONFIGURATIONS
@@ -65,7 +67,7 @@ MAIN_MENU = PageConfig(
 PAUSE_BUTTON_PAGE = PageConfig(
     name=PageName.PAUSE_BUTTON,
     theme_path="",
-    blocking=False,  
+    blocking=False,
     widgets=[
         InteractableConfig(
             hitbox=RectangleHitbox(pygame.Rect(700, 20, 80, 40)),  
@@ -78,13 +80,13 @@ PAUSE_BUTTON_PAGE = PageConfig(
                 kwargs={"text": "Pause"}
             )]
         )
-    ]
+    ],
 )
 
 PAUSE_MENU_PAGE = PageConfig(
     name=PageName.PAUSE_MENU,
     theme_path="",
-    blocking=True,  
+    blocking=True,
     widgets=[
         InteractableConfig(
             hitbox=RectangleHitbox(pygame.Rect(300, 200, 200, 50)),
@@ -116,7 +118,7 @@ GAME_BOARD = PageConfig(
     name=PageName.GAME_BOARD,
     theme_path="",
     blocking=True,
-    widgets=[],  
+    widgets=[],
 )
 
 # ================================
@@ -127,5 +129,5 @@ PAGES: dict[PageName, PageConfig] = {
     PageName.MAIN_MENU: MAIN_MENU,
     PageName.GAME_BOARD: GAME_BOARD,
     PageName.PAUSE_BUTTON: PAUSE_BUTTON_PAGE,
-    PageName.PAUSE_MENU: PAUSE_MENU_PAGE
+    PageName.PAUSE_MENU: PAUSE_MENU_PAGE,
 }

@@ -11,14 +11,19 @@ __all__ = [
   "RequestEntityMovement_GameManagerEvent"
 ]
 
+
 @dataclass
 class GameManagerEvent(EventToken):
-  pass
+    pass
+
 
 @dataclass
 class RequestStart_GameManagerEvent(GameManagerEvent):
-  map_path: str | None = None # Could change to enums that represents different premade stages later.
-  pass
+    map_path: str | None = (
+        None  # Could change to enums that represents different premade stages later.
+    )
+    pass
+
 
 @dataclass
 class CardPlacement_GameManagerEvent(GameManagerEvent):

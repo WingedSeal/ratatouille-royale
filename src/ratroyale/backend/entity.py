@@ -41,6 +41,7 @@ class Entity:
     """
     Any entity on the tile system.
     """
+
     pos: OddRCoord
     effects: dict[str, EntityEffect]
     name: str = ""
@@ -65,7 +66,8 @@ class Entity:
             return
         if entity_id in Entity.PRE_PLACED_ENTITIES:
             raise Exception(
-                f"{cls.__name__} and {Entity.PRE_PLACED_ENTITIES[entity_id]} both have the same preplaced entity ID ({entity_id})")
+                f"{cls.__name__} and {Entity.PRE_PLACED_ENTITIES[entity_id]} both have the same preplaced entity ID ({entity_id})"
+            )
         Entity.PRE_PLACED_ENTITIES[entity_id] = cls
 
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
@@ -107,20 +109,27 @@ class Entity:
         self.on_hp_loss(damage_taken)
         return False, damage_taken
 
+    def __repr__(self) -> str:
+        return f"Entity({self.pos!r}, {self.side!r})"
 
-Entity_T = TypeVar('Entity_T', bound=Entity)
+    def __str__(self) -> str:
+        return self.name
 
 
-def entity_data(*,
-                health: int | None = None,
-                defense: int = 0,
-                movable: bool = False,
-                collision: bool = False,
-                height: int = 0,
-                description: str = "",
-                skills: list[_EntitySkill] = [],
-                name: str = ""
-                ):
+Entity_T = TypeVar("Entity_T", bound=Entity)
+
+
+def entity_data(
+    *,
+    health: int | None = None,
+    defense: int = 0,
+    movable: bool = False,
+    collision: bool = False,
+    height: int = 0,
+    description: str = "",
+    skills: list[_EntitySkill] = [],
+    name: str = "",
+) -> Callable[[type[Entity_T]], type[Entity_T]]:
     def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
         assert issubclass(cls, Entity)
         cls.health = health
@@ -133,27 +142,34 @@ def entity_data(*,
         cls.name = name
         for skill in skills:
             if not hasattr(cls, skill.method_name):
-                raise ValueError(
-                    f"{skill} is not an attribute of {cls.__name__}")
+                raise ValueError(f"{skill} is not an attribute of {cls.__name__}")
             skill_function = getattr(cls, skill.method_name)
             if not callable(skill_function):
-                raise ValueError(
-                    f"{skill} is not callable")
+                raise ValueError(f"{skill} is not callable")
             arg_count = len(inspect.signature(skill_function).parameters)
             if arg_count != 2:
                 raise ValueError(
                     f"Expected {skill} method to take 1 arguments (got {arg_count - 1})"
                 )
-            cls.skills.append(EntitySkill(
-                **asdict(skill), func=cast(Callable[["GameManager"], SkillResult | None], skill_function)))
+            cls.skills.append(
+                EntitySkill(
+                    **asdict(skill),
+                    func=cast(
+                        Callable[["GameManager"], SkillResult | None], skill_function
+                    ),
+                )
+            )
         return cls
+
     return wrapper
 
 
 _entity_skill_type = Callable[[Entity_T, "GameManager"], SkillResult | None]
 
 
-def entity_skill_check(method: _entity_skill_type) -> _entity_skill_type:
+def entity_skill_check(
+    method: _entity_skill_type[Entity_T],
+) -> _entity_skill_type[Entity_T]:
     """
     Decorator for validating skill method signature
     """

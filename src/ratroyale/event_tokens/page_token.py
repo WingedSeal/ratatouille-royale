@@ -17,15 +17,18 @@ __all__ = [
     "EntityAbilityDisplay_PageManagerEvent"
 ]
 
+
 @dataclass
 class PageManagerEvent(EventToken):
-  pass
+    pass
+
 
 @dataclass
 class StartGameConfirmation_PageManagerEvent(PageManagerEvent):
    board: Board | None
 
-@dataclass 
+
+@dataclass
 class EndGame_PageManagerEvent(PageManagerEvent):
    pass
 

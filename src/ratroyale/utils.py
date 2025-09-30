@@ -1,7 +1,7 @@
 from queue import Queue, Empty
 from typing import TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def lerp(a: float, b: float, t: float) -> float:

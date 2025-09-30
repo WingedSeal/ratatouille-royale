@@ -11,8 +11,8 @@ __all__ = [
 
 @dataclass
 class InputManagerEvent(EventToken):
-  gesture_data: GestureData
+    gesture_data: GestureData
 
-  # To be decorated via the input consumption pipeline
-  action_key: ActionName 
-  interactable: Interactable
+    # To be decorated via the input consumption pipeline
+    action_key: ActionName 
+    interactable: Interactable
