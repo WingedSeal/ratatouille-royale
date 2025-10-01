@@ -1,6 +1,10 @@
-from types import ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, cast, get_args
 from itertools import count
+from .entity import Entity
+from .feature import Feature
+from .hexagon import OddRCoord
+from .side import Side
+from .tile import Tile
 from .map import Map
 
 try:
@@ -10,17 +14,114 @@ except ImportError:
         import numpy as np
 
 
-def _get_data_int(
-    layers_data: dict[str, np.typing.NDArray[np.uint8]], layer_name: str
+LayerName = Literal[
+    "tile_id",
+    "height",
+    "feature_group",
+    "feature_class",
+    "feature_health",
+    "feature_defense",
+    "feature_side",
+    "feature_extra_count",
+    "entity_class",
+    "entity_side",
+    "entity_extra_count",
+]
+
+LAYER_NAMES: dict[LayerName, int] = {
+    value: index for index, value in enumerate(get_args(LayerName))
+}
+
+
+def _get_tile_data_value(
+    tile_data: np.typing.NDArray[np.uint32], layer_name: LayerName
+) -> np.int32:
+    return tile_data[LAYER_NAMES[layer_name]]
+
+
+def _reconstruct_layer_data(
+    layers_data: dict[str, np.typing.NDArray[np.uint8]], layer_name: LayerName
 ) -> np.typing.NDArray[np.uint32]:
     """Supports _e2, _e4, ... suffix"""
     data = layers_data[layer_name]
-    big_data: np.typing.NDArray[np.uint32] = data.astype("uint32")
+    base_data: np.typing.NDArray[np.uint32] = data.astype("uint32")
     for i in count(start=2, step=2):
         if f"{layer_name}_e{i}" not in layers_data:
             break
-        big_data += layers_data[f"{layer_name}_e{i}"].astype("uint32") * (10**i)
-    return big_data
+        base_data += layers_data[f"{layer_name}_e{i}"].astype("uint32") * (10**i)
+    return base_data
+
+
+def _process_tile(
+    tile_data: np.typing.NDArray[np.uint32],
+    tiles: list[list[Tile | None]],
+    coord: OddRCoord,
+) -> None:
+    tile_id = _get_tile_data_value(tile_data, "tile_id")
+    if tile_id == 0:
+        tiles[-1].append(None)
+        return
+    tile = Tile(
+        tile_id.item(),
+        coord,
+        _get_tile_data_value(tile_data, "height").item(),
+    )
+
+    tiles[-1].append(tile)
+
+
+def _process_feature(
+    tile_data: np.typing.NDArray[np.uint32],
+    features_from_group: dict[int, Feature | list[OddRCoord]],
+    layers_data: dict[str, np.typing.NDArray[np.uint8]],
+    coord: OddRCoord,
+) -> None:
+    feature_group = _get_tile_data_value(tile_data, "feature_group")
+    if feature_group == 0:
+        return
+    feature_class = _get_tile_data_value(tile_data, "feature_class")
+    if feature_group not in features_from_group:
+        features_from_group[feature_group.item()] = []
+    feature_or_shape = features_from_group[feature_group.item()]
+    if isinstance(feature_or_shape, list):
+        feature_or_shape.append(coord)
+        if feature_class == 0:
+            return
+        extra_params = (
+            layers_data[f"feature_extra{i}"].item()
+            for i in range(_get_tile_data_value(tile_data, "feature_extra_count"))
+        )
+        new_feature = Feature.ALL_FEATURES[feature_class.item()](
+            feature_or_shape,
+            _get_tile_data_value(tile_data, "feature_health").item(),
+            _get_tile_data_value(tile_data, "feature_defense").item(),
+            Side.from_int(_get_tile_data_value(tile_data, "feature_side").item()),
+            *extra_params,
+        )
+        features_from_group[feature_group.item()] = new_feature
+    elif isinstance(feature_or_shape, Feature):
+        feature_or_shape.shape.append(coord)
+
+
+def _process_entity(
+    tile_data: np.typing.NDArray[np.uint32],
+    entities: list[Entity],
+    layers_data: dict[str, np.typing.NDArray[np.uint8]],
+    coord: OddRCoord,
+) -> None:
+    entity_class = _get_tile_data_value(tile_data, "entity_class")
+    if entity_class == 0:
+        return
+    extra_params = (
+        layers_data[f"entity_extra{i}"].item()
+        for i in range(_get_tile_data_value(tile_data, "entity_extra_count"))
+    )
+    entity = Entity.PRE_PLACED_ENTITIES[entity_class.item()](
+        coord,
+        Side.from_int(_get_tile_data_value(tile_data, "entity_side").item()),
+        *extra_params,
+    )
+    entities.append(entity)
 
 
 def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
@@ -32,7 +133,30 @@ def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
         with np.errstate(over="raise"):
             layers_data[layer["name"]] = np.array(layer["data"], dtype="uint8")
     tiles_data = np.hstack(
-        [_get_data_int(layers_data, "id"), _get_data_int(layers_data, "height")]
+        [_reconstruct_layer_data(layers_data, layer_name) for layer_name in LAYER_NAMES]
     )
+    tiles: list[list[Tile | None]] = [[] for _ in range(size_y)]
+    features_from_group: dict[int, Feature | list[OddRCoord]] = {}
+    entities: list[Entity] = []
+    for i, tile_data in enumerate(tiles_data):
+        tile_data = cast(np.typing.NDArray[np.uint32], tile_data)
+        row, col = divmod(i, size_x)
+        coord = OddRCoord(col, row)
 
-    return Map(map_name, size_x, size_y, [])
+        _process_tile(tile_data, tiles, coord)
+        _process_feature(tile_data, features_from_group, layers_data, coord)
+        _process_entity(tile_data, entities, layers_data, coord)
+
+    features = [
+        feature
+        for feature in features_from_group.values()
+        if isinstance(feature, Feature)
+    ]
+
+    if len(features) != len(features_from_group):
+        for group, feature in features_from_group.items():
+            if isinstance(feature, list):
+                raise ValueError(
+                    f"Feature group {group} doesn't have metadata anywhere"
+                )
+    return Map(map_name, size_x, size_y, tiles, entities, features)
