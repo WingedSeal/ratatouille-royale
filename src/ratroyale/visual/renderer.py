@@ -144,7 +144,7 @@ class GameBoardPageRenderer(PageRenderer):
       entity_visuals = self.entity_visuals.get(self.selected_entity)
       if entity_visuals:
         for v in entity_visuals:
-          v.moveto(coord)
+          v.move_to(coord)
 
           self.selected_tile = None
           self.selected_entity = None

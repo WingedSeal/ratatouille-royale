@@ -1,18 +1,16 @@
 from dataclasses import dataclass
-from ratroyale.input.dispatch_management.action_name import ActionName
 from .base import EventToken
-from ratroyale.input.interactables_management.interactable import Interactable
 from ratroyale.input.gesture_management.gesture_data import GestureData
-from ratroyale.input.page_management.page_name import PageName
+from typing import TypeVar, Generic
 
 __all__ = [
    "InputManagerEvent"
 ]
 
-@dataclass
-class InputManagerEvent(EventToken):
-    gesture_data: GestureData
+T = TypeVar('T')
 
-    # To be decorated via the input consumption pipeline
-    action_key: ActionName 
-    interactable: Interactable
+@dataclass
+class InputManagerEvent(Generic[T], EventToken):
+    interactable_id: str
+    gesture_data: GestureData
+    payload: T | None = None

@@ -1,13 +1,10 @@
 import pygame
 
-from ratroyale.input.dispatch_management.action_name import ActionName
 from ratroyale.input.gesture_management.gesture_data import GestureData, GestureType
-from ratroyale.visual.asset_management.visual_component import EntityVisual, TYPICAL_TILE_SIZE
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.entity import Entity
+from ratroyale.visual.asset_management.visual_component import VisualComponent
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
-from dataclasses import dataclass
+from ratroyale.event_tokens.input_token import InputManagerEvent
 
 # region Base Hitbox Classes
 
@@ -124,12 +121,6 @@ class HexHitbox(Hitbox):
 
 T = TypeVar("T")
 
-@dataclass
-class InteractableMessage(Generic[T]):
-    interactable_id: str
-    gesture_data: GestureData
-    payload: T | None = None
-
 class Interactable(Generic[T]):
     """
     Base class for a logical UI element.
@@ -149,21 +140,26 @@ class Interactable(Generic[T]):
         self.gestures_to_listen: list[GestureType] = gestures_to_listen
         self.payload: T | None = payload
         self.blocks_input: bool = blocks_input
-        self.z_order: int = z_order
 
-    def process_gesture(self, gesture: GestureData) -> InteractableMessage | None:
+        self.z_order: int = z_order
+        self.visuals: list[VisualComponent] = []
+
+    def process_gesture(self, gesture: GestureData) -> InputManagerEvent | None:
         gesture_pos = gesture.start_pos
         if gesture_pos is None:
             return None
         if not self.hitbox.contains_point(gesture_pos):
             return None
-        return InteractableMessage(
+        return InputManagerEvent(
             interactable_id=self.interactable_id,
             gesture_data=gesture,
             payload=self.payload)
     
     def get_topleft(self) -> tuple[float, float]:
         return self.hitbox.get_topleft()
+
+    def attach_visuals(self, visuals: VisualComponent) -> None:
+        self.visuals.append(visuals)
 
 # endregion
 

@@ -24,9 +24,8 @@ class VisualComponent(ABC):
         ...
 
     @abstractmethod
-    def moveto(self, topleft_coord: tuple[float, float]) -> None:
+    def move_to(self, topleft_coord: tuple[float, float]) -> None:
         """Move this visual component to the specified topleft coord"""
-        print("abstract")
         ...
     
 @dataclass
@@ -48,7 +47,7 @@ class UIVisual(VisualComponent):
         # No-op, since pygame_gui handles rendering the UI components under its care.
         pass
 
-    def moveto(self, topleft_coord: tuple[float, float]) -> None:
+    def move_to(self, topleft_coord: tuple[float, float]) -> None:
         pass
     
 class SpriteVisual(VisualComponent):
@@ -66,18 +65,15 @@ class SpriteVisual(VisualComponent):
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.image, self.position)
 
-    def moveto(self, topleft_coord: tuple[float, float]) -> None:
+    def move_to(self, topleft_coord: tuple[float, float]) -> None:
         self.position = topleft_coord
 
 class TileVisual(SpriteVisual):
     def __init__(self, tile: Tile) -> None:
-        self.tile = tile
-
         super().__init__(
             sprite_enum=TILE_TO_SPRITE_REGISTRY.get(type(tile), SpriteRegistryKey.DEFAULT_TILE),
             position=tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         )
-
 
     def render(self, surface: pygame.Surface, highlighted: bool) -> None:
         surface.blit(self.image, self.position)
@@ -91,8 +87,6 @@ class TileVisual(SpriteVisual):
 # TODO: re-implement entity visual offsets
 class EntityVisual(SpriteVisual):
     def __init__(self, entity: Entity) -> None:
-        self.entity = entity
-
         sprite_key = ENTITY_TO_SPRITE_REGISTRY.get(type(entity), SpriteRegistryKey.DEFAULT_ENTITY)
 
         pos = entity.pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
@@ -109,6 +103,7 @@ class EntityVisual(SpriteVisual):
             overlay = pygame.Surface(self.image.get_size(), pygame.SRCALPHA)
             overlay.fill((255, 255, 0, 100))  # yellow with alpha
             surface.blit(overlay, self.position)
+            
 
 class AbilityMenuVisual(SpriteVisual):
     def __init__(self, skill_name: str, topleft_pos: tuple[float, float], font: pygame.font.Font | None = None) -> None:

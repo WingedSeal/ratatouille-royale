@@ -3,10 +3,15 @@ from .base import EventToken
 from ratroyale.backend.board import Board
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.tile import Tile
-from ratroyale.input.page_management.page_name import PageName
+from enum import Enum as enum, auto
+from ratroyale.input.pages.page_definitions.base_page import Page
 
 __all__ = [
     "PageManagerEvent",
+    "PageNavigation",
+    "PageNavigationEvent",
+    "PageTargetedEvent",
+
     "StartGameConfirmation_PageManagerEvent",
     "EndGame_PageManagerEvent",
     "PauseGame_PageManagerEvent",
@@ -17,14 +22,28 @@ __all__ = [
     "EntityAbilityDisplay_PageManagerEvent"
 ]
 
+class PageNavigation(enum):
+    PUSH = auto()
+    POP = auto()
+    REMOVE = auto()
+    REPLACE = auto()
+    HIDE = auto()
+    SHOW = auto()
 
 @dataclass
 class PageManagerEvent(EventToken):
-    pass
-
+    ...
 
 @dataclass
-class StartGameConfirmation_PageManagerEvent(PageManagerEvent):
+class PageNavigationEvent(PageManagerEvent):
+    action_list: list[tuple[PageNavigation, type[Page]]]  # List of (action, page_name) tuples
+
+@dataclass
+class PageTargetedEvent(PageManagerEvent):
+    page_type: type[Page]
+
+@dataclass
+class StartGameConfirmation_PageManagerEvent(PageTargetedEvent):
    board: Board | None
 
 

@@ -1,12 +1,10 @@
 import pygame
 from ratroyale.input.pages.page_definitions.base_page import Page
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.page_management.page_config import PageName
 from ratroyale.input.gesture_management.gesture_reader import GestureReader
-from ratroyale.backend.board import Board
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
-from typing import Callable
+from ratroyale.event_tokens.input_token import InputManagerEvent
 
 class PageManager:
     def __init__(
@@ -19,10 +17,6 @@ class PageManager:
         self.gesture_reader = GestureReader()
         """Highest level gesture reader. Outputs a gesture to be decorated by the pipeline."""
 
-        self.page_factory = PageFactory(
-            self, self.screen.get_size(), coordination_manager
-        )
-
         self.page_stack: list[Page] = []
         """Active page stack"""
 
@@ -34,20 +28,22 @@ class PageManager:
         if self.get_page(page_type) is not None:
             return
 
-        new_page = page if page else self.page_factory.create_page(page_type)
+        new_page = page if page else page_type(self.coordination_manager)
         self.page_stack.append(new_page)
+        new_page.on_create()
 
-    def pop_page(self, page_type: type[Page] | None = None) -> None:
+    def pop_page(self) -> None:
         """Remove the topmost page, or the first page of the given type."""
         if not self.page_stack:
             return
+        removed = self.page_stack.pop()
+        removed.on_destroy()
 
-        if page_type is None:
-            page = self.page_stack.pop()
-        else:
-            for i, page in enumerate(self.page_stack):
+    def remove_page(self, page_type: type[Page]) -> None:
+        for i, page in enumerate(self.page_stack):
                 if isinstance(page, page_type):
-                    self.page_stack.pop(i)
+                    removed = self.page_stack.pop(i)
+                    removed.on_destroy()
                     break
 
     def get_page(self, page_type: type[Page]) -> Page | None:
@@ -62,6 +58,91 @@ class PageManager:
         if self.page_stack:
             self.pop_page()
             self.push_page(page_type, page)
+
+    # endregion
+
+    # region Event Handling
+
+    def handle_events(self) -> None:
+        """This method propagates gestures downwards through the page stack, until all
+        events are consumed, or no pages remain.
+        Additionally, this function stops propagating an event if it hits a page
+        with a 'blocking' flag set to true."""
+        raw_events = pygame.event.get()
+        gestures = self.gesture_reader.read_events(raw_events)
+
+        for page in reversed(self.page_stack):
+            if not gestures:
+                break  
+
+            gestures = page.handle_gestures(gestures)
+
+            if page.is_blocking:
+                break
+
+        self._dispatch_input_messages()
+
+    def _dispatch_input_messages(self) -> None:
+        """Pull all InputManagerEvents from the coordination manager and send them to pages."""
+        msg_queue = self.coordination_manager.mailboxes.get(InputManagerEvent, None)
+        if not msg_queue:
+            return
+
+        while not msg_queue.empty():
+            event: InputManagerEvent = msg_queue.get()
+            # Broadcast to all pages that have a handler for this event
+            for page in reversed(self.page_stack):
+                page.execute_input_callback(event)
+
+    def execute_page_callback(self, msg: PageManagerEvent) -> None:
+        if isinstance(msg, PageNavigationEvent):
+            self._navigate(msg)
+        elif isinstance(msg, PageTargetedEvent):
+            self._delegate(msg)
+    
+    def _navigate(self, msg: PageNavigationEvent) -> None:
+        """ Handle page navigation actions such as PUSH, POP, REPLACE, HIDE, and SHOW."""
+        for action, page_type in msg.action_list:
+            match action:
+                case PageNavigation.PUSH:
+                    self.push_page(page_type)
+                case PageNavigation.POP:
+                    self.pop_page()
+                case PageNavigation.REMOVE:
+                    self.remove_page(page_type)
+                case PageNavigation.REPLACE:
+                    self.replace_top(page_type, None)
+                case PageNavigation.HIDE:
+                    page = self.get_page(page_type)
+                    if page:
+                        page.hide()
+                case PageNavigation.SHOW:
+                    page = self.get_page(page_type)
+                    if page:
+                        page.show()
+
+    def _delegate(self, msg: PageTargetedEvent) -> None:
+        """Delegate a PageManagerEvent to the appropriate page."""
+        page = self.get_page(msg.page_type)
+        if page:
+            page.execute_page_callback(msg)    
+        else:
+            print(f"No page of type {msg.page_type.__name__} to handle {msg}")
+
+    # TODO: implement visual callback delegation in full.
+    def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
+        for page in reversed(self.page_stack):
+            page.execute_visual_callback(msg)
+
+    # endregion
+
+    # region Rendering
+
+    def render(self, delta: float) -> None:
+        """Render pages bottom-up. Stops if a page is blocking."""
+        for page in self.page_stack:
+            page.render(delta)
+
 
     # endregion
 
@@ -85,68 +166,3 @@ class PageManager:
     #     self.pop_page(PageName.PAUSE_MENU)
     
     # endregion
-
-    # region Event Handling
-
-    def handle_events(self) -> None:
-        """This method propagates gestures downwards through the page stack, until all
-        events are consumed, or no pages remain.
-        Additionally, this function stops propagating an event if it hits a page
-        with a 'blocking' flag set to true."""
-        raw_events = pygame.event.get()
-        gestures = self.gesture_reader.read_events(raw_events)
-
-        for page in reversed(self.page_stack):
-            if not gestures:
-                break  
-
-            gestures = page.handle_gestures(gestures)
-
-            if page.is_blocking:
-                break
-        
-  # endregion
-
-    # region Message Processing
-
-    # def execute_callbacks(self) -> None:
-    #     page_event_queue = self.coordination_manager.mailboxes[PageManagerEvent]
-
-    #     while not page_event_queue.empty():
-    #         token = page_event_queue.get()
-    #         handler = self.event_handlers.get(type(token))
-    #         if handler:
-    #             handler(token)
-    #         else:
-    #             self._delegate(token)
-
-    # def _delegate(self, token: PageManagerEvent) -> None:
-    #     page = self.get_page(token.page_name)
-    #     if page:
-    #         page.execute_callback(token)    
-    #     else:
-    #         print("No pages to handle this callback")
-
-
-    # endregion
-
-
-# ====================================
-# region Page Factory
-# ====================================
-
-class PageFactory:
-    def __init__(
-        self,
-        page_manager: PageManager,
-        screen_size: tuple[int, int],
-        coordination_manager: CoordinationManager,
-    ) -> None:
-        self.page_manager = page_manager
-        self.screen_size = screen_size
-        self.coordination_manager = coordination_manager
-
-    def create_page(self, page_type: type[Page]) -> Page:
-        return page_type(self.coordination_manager)
-    
-# endregion
