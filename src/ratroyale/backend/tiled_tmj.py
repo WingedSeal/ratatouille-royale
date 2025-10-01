@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any, Literal, cast, get_args
 from itertools import count
-
-from numpy import dtype
+from pathlib import Path
 from .entity import Entity
 from .feature import Feature
 from .hexagon import OddRCoord
@@ -11,10 +10,11 @@ from .map import Map
 
 try:
     import numpy as np
+    from PIL import Image
 except ImportError:
     if TYPE_CHECKING:
         import numpy as np
-
+        from PIL import Image
 
 LayerName = Literal[
     "tile_id",
@@ -169,3 +169,18 @@ def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
                     f"Feature group {group} doesn't have metadata anywhere"
                 )
     return Map(map_name, size_x, size_y, tiles, entities, features)
+
+
+def gen_tileset_tsx(
+    row: int, col: int, old_tileset_image: str = "./tileset.png"
+) -> None:
+    tsx = f"""<?xml version="1.0" encoding="UTF-8"?>
+<tileset version="1.10" tiledversion="1.11.2" name="tileset" tilewidth="50" tileheight="50" tilecount="{row*col}" columns="{col}">
+ <image source="tileset.png" width="{50*col}" height="{50*row}"/>
+</tileset>
+"""
+    img = Image.open(old_tileset_image)
+    img = img.resize((50 * col, 50 * row), Image.Resampling.LANCZOS)
+    img.save("tileset.png")
+    with Path("./tileset.tsx").open("w+") as f:
+        f.write(tsx)
