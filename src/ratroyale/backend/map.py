@@ -63,7 +63,7 @@ class Map:
         (1 + many_features_flag) byte for feature_count
         loop feature_count times {
             1 bit for feature_unique_constructor_flag
-            15 bits for feature's class
+            15 bits for feature's class (Non-zero)
             1 byte for feature's `health` (`None if byte == 0 else byte`)
             1 byte for feature's `defense`
             1 byte for feature's `side`
@@ -83,7 +83,7 @@ class Map:
         (1 + many_entities_flag) byte for entity_count
         loop entity_count times {
             1 bit for entity_unique_constructor_flag
-            15 bits for entity's class
+            15 bits for entity's class (Non-zero)
             1 byte for entity's `side`
             (1 + large_map_flag) bytes for entity's `OddRCoord.x`
             (1 + large_map_flag) bytes for entity's `OddRCoord.y`

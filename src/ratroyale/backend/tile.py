@@ -10,9 +10,10 @@ from .entity import Entity
 @dataclass
 class Tile:
     tile_id: int
-    """ID for visual rendering of that tile"""
+    """Non-Zero positive integer ID for visual rendering of that tile"""
     coord: OddRCoord
     height: int
+    """Zero or positive integer representing tile height"""
     entities: list[Entity] = field(default_factory=list)
     features: list[Feature] = field(default_factory=list)
 
