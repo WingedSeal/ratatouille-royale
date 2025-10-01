@@ -176,7 +176,7 @@ def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
 
 def _get_tsx(row: int, col: int) -> str:
     return f"""<?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.2" name="tileset" tilewidth="TILED_TILE_PIXEL" tileheight="TILED_TILE_PIXEL" tilecount="{row*col}" columns="{col}">
+<tileset version="1.10" tiledversion="1.11.2" name="tileset" tilewidth="{TILED_TILE_PIXEL}" tileheight="{TILED_TILE_PIXEL}" tilecount="{row*col}" columns="{col}">
  <image source="tileset.png" width="{TILED_TILE_PIXEL*col}" height="{TILED_TILE_PIXEL*row}"/>
 </tileset>
 """
@@ -188,12 +188,12 @@ def create_hex_mask(width: int, height: int) -> Image.Image:
     draw = ImageDraw.Draw(mask)
     w, h = width, height
     points = [
-        (w * 0.25, 0),  # Top left
-        (w * 0.75, 0),  # Top right
-        (w, h * 0.5),  # Right
-        (w * 0.75, h),  # Bottom right
-        (w * 0.25, h),  # Bottom left
-        (0, h * 0.5),  # Left
+        (w * 0.5, 0),  # Top
+        (w, h * 0.25),  # Top right
+        (w, h * 0.75),  # Bottom right
+        (w * 0.5, h),  # Bottom
+        (0, h * 0.75),  # Bottom left
+        (0, h * 0.25),  # Top left
     ]
 
     draw.polygon(points, fill=255)
@@ -211,10 +211,10 @@ def gen_tileset_tsx(
         img = img.convert("RGBA")
     alpha = img.getchannel("A")
     hex_mask = create_hex_mask(TILED_TILE_PIXEL, TILED_TILE_PIXEL)
-    for row in range(row):
-        for col in range(col):
-            left = col * TILED_TILE_PIXEL
-            top = row * TILED_TILE_PIXEL
+    for y in range(row):
+        for x in range(col):
+            left = x * TILED_TILE_PIXEL
+            top = y * TILED_TILE_PIXEL
             tile_alpha = alpha.crop(
                 (left, top, left + TILED_TILE_PIXEL, top + TILED_TILE_PIXEL)
             )
