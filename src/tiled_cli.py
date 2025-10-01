@@ -33,9 +33,9 @@ def main() -> None:
             print("Usage: tiled-cli to-rrmap <map_name>")
             sys.exit(1)
         tiled_to_rrmap(args[0])
-    elif cmd == "gen_tileset":
+    elif cmd == "gen-tileset":
         if len(args) not in (1, 2):
-            print("Usage: tiled-cli gen_tileset <row>x<col> [old_tileset_image]")
+            print("Usage: tiled-cli gen-tileset <row>x<col> [old_tileset_image]")
             sys.exit(1)
         gen_tileset(*args)
     elif cmd == "reset":

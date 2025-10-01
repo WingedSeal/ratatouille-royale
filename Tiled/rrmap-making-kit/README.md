@@ -5,7 +5,7 @@ Install `poetry` using `pip` and run `poetry install`
 1. Make sure your current directory is `Tiled/rrmap-making-kit`.
 2. Download a tileset for visual reference and name it `tileset.png`.
    2.1 Backup the original tileset image somewhere else.
-3. Run `poetry run poe tiled-cli gen_tileset <ROW>x<COL>` when
+3. Run `poetry run poe tiled-cli gen-tileset <ROW>x<COL>` when
    `<ROW>` is how many rows the image contain and `<COL>` is how many columns the image contain.
    This'll process the image to correct size and generate `tileset.tsx`.
 4. Open Tiled and press `<Ctrl+O>` then select `rrmap-making-kit.tiled-project`.
