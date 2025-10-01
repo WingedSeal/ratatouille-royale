@@ -32,6 +32,64 @@ Install `poetry` using `pip` and run `poetry install`
 
 Tile's ID for visual rendering
 
+### \_hex_visual
+
+Serves no purpose but to make hexagone edge easier to look at.
+You can either enable or disable the visbility.
+Use `hex` tileset to fill it if you change the map size.
+
 ### height
 
 Tile's height
+
+### feature_group
+
+Arbitrary numbers for grouping a feature together. Same group number means same feature object.
+Only one tile in the group need other metadata. If there is more than 1, others will be ignored.
+If there is none, the converter will throw error.
+
+### feature_class
+
+ID for determining feature class. `0` means there is no feature here.
+
+### feature_healh
+
+Feature's health
+
+### feature_defense
+
+Feature's defense
+
+### feature_side
+
+Feature's side
+
+- 0 means `None`
+- 1 means `Rat`
+- 2 means `Mouse`
+
+Refers to `./src/ratroyale/backend/side.py`
+
+### feature_extra_count
+
+How many unique(extra) parameter(s) this feature class need
+
+### feature_extraN
+
+Unique parameter(s)
+
+Example: If a feature need new parameters called thickness and depth
+which is 10 and 23 respectively. `feature_extra_count` will be 2, `feature_extra1` will be `10`
+and `feature_extra2` will be `23`
+
+### entity_class
+
+ID for determining entity class. `0` means there's no entity here
+
+### entity_extra_count
+
+Same behavior feature_extra_count
+
+### entity_extraN
+
+Same behavior as feature_extraN
