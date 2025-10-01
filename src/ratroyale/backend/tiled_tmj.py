@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any, Literal, cast, get_args
 from itertools import count
+
+from numpy import dtype
 from .entity import Entity
 from .feature import Feature
 from .hexagon import OddRCoord
@@ -40,9 +42,13 @@ def _get_tile_data_value(
 
 
 def _reconstruct_layer_data(
-    layers_data: dict[str, np.typing.NDArray[np.uint8]], layer_name: LayerName
+    layers_data: dict[str, np.typing.NDArray[np.uint8]],
+    layer_name: LayerName,
+    fallback_length: int,
 ) -> np.typing.NDArray[np.uint32]:
     """Supports _e2, _e4, ... suffix"""
+    if layer_name not in layers_data:
+        return np.zeros(fallback_length, dtype=np.uint32)
     data = layers_data[layer_name]
     base_data: np.typing.NDArray[np.uint32] = data.astype("uint32")
     for i in count(start=2, step=2):
@@ -133,7 +139,10 @@ def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
         with np.errstate(over="raise"):
             layers_data[layer["name"]] = np.array(layer["data"], dtype="uint8")
     tiles_data = np.hstack(
-        [_reconstruct_layer_data(layers_data, layer_name) for layer_name in LAYER_NAMES]
+        [
+            _reconstruct_layer_data(layers_data, layer_name, size_x * size_y)
+            for layer_name in LAYER_NAMES
+        ]
     )
     tiles: list[list[Tile | None]] = [[] for _ in range(size_y)]
     features_from_group: dict[int, Feature | list[OddRCoord]] = {}
