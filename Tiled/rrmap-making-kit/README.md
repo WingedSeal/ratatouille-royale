@@ -14,6 +14,7 @@ Install `poetry` using `pip` and run `poetry install`
 7. Edit the layers to create a map and save with `<Ctrl+S>`.
    - Input value by using `number-grid` tileset.
    - Input `tile_id` by using `tileset` tileset.
+   - Mixing layers and tileset will result in a diaster.
 8. Run `poetry run poe tiled-cli to-rrmap <MAP_NAME>` to convert it to `.rrmap`
    8.1 Backup `rrmap.tmj` somewhere else.
 9. Run `poetry run poe tiled-cli reset` to reset the toolkit.
