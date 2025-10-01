@@ -191,5 +191,10 @@ def gen_tileset_tsx(
 
 def reset_toolkit() -> None:
     Path("./tileset.png").unlink(missing_ok=True)
+    Path("./rrmap.tsx").unlink(missing_ok=True)
+    Path("./rrmap-making-kit.tiled-session").unlink(missing_ok=True)
+    with Path("./rrmap.tsx.original").open("r") as original_file:
+        with Path("./rrmap.tsx").open("w+") as f:
+            f.write(original_file.read())
     with Path("./tileset.tsx").open("w+") as f:
         f.write(_get_tsx(10, 10))

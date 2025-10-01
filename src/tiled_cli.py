@@ -28,14 +28,14 @@ def reset() -> None:
 
 def main() -> None:
     cmd, *args = sys.argv[1:]
-    if cmd == "tiled_to_rrmap":
+    if cmd == "to-rrmap":
         if len(args) != 1:
-            print("Usage: poe tiled_to_rrmap <map_name>")
+            print("Usage: tiled-cli to-rrmap <map_name>")
             sys.exit(1)
         tiled_to_rrmap(args[0])
     elif cmd == "gen_tileset":
         if len(args) not in (1, 2):
-            print("Usage: poe gen_tileset <row>x<col> [old_tileset_image]")
+            print("Usage: tiled-cli gen_tileset <row>x<col> [old_tileset_image]")
             sys.exit(1)
         gen_tileset(*args)
     elif cmd == "reset":

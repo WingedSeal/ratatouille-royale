@@ -41,8 +41,7 @@ packages = [
 render-test = "python ./src/render_test.py"
 format = "black ./src"
 check = "pre-commit run --all-files"
-tiled_to_rrmap = { cmd = "python ${POE_ROOT}/src/tiled_cli.py tiled_to_rrmap", cwd = "${POE_PWD}" }
-gen_tileset = { cmd = "python ${POE_ROOT}/src/tiled_cli.py gen_tileset", cwd = "${POE_PWD}" }
+tiled-cli = { cmd = "python ${POE_ROOT}/src/tiled_cli.py", cwd = "${POE_PWD}" }
 
 [tool.mypy]
 python_version = "3.12"
