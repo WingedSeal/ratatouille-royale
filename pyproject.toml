@@ -41,6 +41,8 @@ packages = [
 render-test = "python ./src/render_test.py"
 format = "black ./src"
 check = "pre-commit run --all-files"
+tiled_to_rrmap = "python ./src/rrmap.py tiled_to_rrmap"
+gen_tileset = "python ./src/rrmap.py gen_tileset"
 
 [tool.mypy]
 python_version = "3.12"
