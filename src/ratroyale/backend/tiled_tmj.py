@@ -220,6 +220,8 @@ def gen_tileset_tsx(
             )
             tile_alpha = ImageChops.multiply(tile_alpha, hex_mask)
             alpha.paste(tile_alpha, (left, top))
+
+    img.putalpha(alpha)
     img.save("tileset.png")
     with Path("./tileset.tsx").open("w+") as f:
         f.write(_get_tsx(row, col))
