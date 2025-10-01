@@ -9,13 +9,13 @@ Install `poetry` using `pip` and run `poetry install`
    `<ROW>` is how many rows the image contain and `<COL>` is how many columns the image contain.
    This'll process the image to correct size and generate `tileset.tsx`.
 4. Open Tiled and press `<Ctrl+O>` then select `rrmap-making-kit.tiled-project`.
-5. Click on `rrmap.tmx` on Project Window.
+5. Click on `rrmap.tmj` on Project Window.
 6. Press `<Alt+MR>` to resize the map.
 7. Edit the layers to create a map and save with `<Ctrl+S>`.
    - Input value by using `number-grid` tileset.
    - Input `tile_id` by using `tileset` tileset.
 8. Run `poetry run poe tiled-cli to-rrmap <MAP_NAME>` to convert it to `.rrmap`
-   8.1 Backup `rrmap.tmx` somewhere else.
+   8.1 Backup `rrmap.tmj` somewhere else.
 9. Run `poetry run poe tiled-cli reset` to reset the toolkit.
 
 ## Layers
