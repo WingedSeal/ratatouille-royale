@@ -1,7 +1,7 @@
-from ratroyale import Game
+from ratroyale.game import Game
 
 
-def main():
+def main() -> None:
     game = Game()
     game.run()
 

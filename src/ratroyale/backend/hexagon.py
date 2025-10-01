@@ -1,18 +1,18 @@
 from queue import PriorityQueue
-from dataclasses import dataclass
-from typing import Callable, Iterator, Protocol, Self
+from dataclasses import dataclass, field
+from typing import Callable, Iterator, Protocol, Self, overload
 from ..utils import lerp
 from math import sqrt
 
 
 class IsCoordBlocked(Protocol):
     """
-    A callback function that evaluate whether target coord is accessible from source coord 
+    A callback function that evaluate whether target coord is accessible from source coord
     """
 
     def __call__(self, target_coord: "OddRCoord", source_coord: "OddRCoord") -> bool:
         """
-        A callback function that evaluate whether target coord is accessible from source coord 
+        A callback function that evaluate whether target coord is accessible from source coord
         """
         ...
 
@@ -23,24 +23,23 @@ class OddRCoord:
     Odd-Row Coordinate for pointy-top hexagon tile. Top left is (0, 0),
     https://www.redblobgames.com/grids/hexagons/#coordinates-offset
     """
+
     x: int
     y: int
 
     DIRECTION_DIFFERENCES = (
         # Even Rows
-        ((+1,  0), (0, -1), (-1, -1),
-         (-1,  0), (-1, +1), (0, +1)),
+        ((+1, 0), (0, -1), (-1, -1), (-1, 0), (-1, +1), (0, +1)),
         # Odd Rows
-        ((+1,  0), (+1, -1), (0, -1),
-         (-1,  0), (0, +1), (+1, +1)),
+        ((+1, 0), (+1, -1), (0, -1), (-1, 0), (0, +1), (+1, +1)),
     )
 
     @property
-    def row(self):
+    def row(self) -> int:
         return self.y
 
     @property
-    def col(self):
+    def col(self) -> int:
         return self.x
 
     def to_axial(self) -> "_AxialCoord":
@@ -64,17 +63,39 @@ class OddRCoord:
     def all_in_range(self, N: int) -> Iterator["OddRCoord"]:
         return (axial.to_odd_r() for axial in self.to_axial().all_in_range(N))
 
-    def to_pixel(self, hex_size: float) -> tuple[float, float]:
+    @overload
+    def to_pixel(
+        self, hex_size: float, is_bounding_box: bool = False
+    ) -> tuple[float, float]: ...
+
+    @overload
+    def to_pixel(
+        self, hex_width: float, hex_height: float, is_bounding_box: bool = False
+    ) -> tuple[float, float]: ...
+
+    def to_pixel(  # type: ignore
+        self,
+        hex_width: float,
+        hex_height: float | None = None,
+        is_bounding_box: bool = False,
+    ) -> tuple[float, float]:
         """
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-offset
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-mod-origin
+        is_bounding_box: Whether hex_width and hex_height specify the hexagon's bounding box instead of its radius.
         """
+        if hex_height is None:
+            hex_height = hex_width
+        if is_bounding_box:
+            hex_width /= sqrt(3)
+            hex_height *= 0.5
         x = sqrt(3) * (self.col + 0.5 * (self.row & 1))
         y = 1.5 * self.row
         # Origin is not on the center of odd-r (0,0)
         x += 1
         y += sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics
-        return x * hex_size, y * hex_size
+
+        return x * hex_width, y * hex_height
 
     def get_neighbor(self, direction: int) -> "OddRCoord":
         """
@@ -95,13 +116,19 @@ class OddRCoord:
         for i in range(6):
             yield self.get_neighbor(i)
 
-    def get_reachable_coords(self, reach: int, is_coord_blocked: IsCoordBlocked, *, is_include_self: bool = False) -> set["OddRCoord"]:
+    def get_reachable_coords(
+        self,
+        reach: int,
+        is_coord_blocked: IsCoordBlocked,
+        *,
+        is_include_self: bool = False,
+    ) -> set["OddRCoord"]:
         """
         Get every reachable coords within reach
         https://www.redblobgames.com/grids/hexagons/#range-obstacles
 
         :param reach: Movement from original coord
-        :param is_coord_blocked: A callback function that evaluate whether target coord is accessible from source coord 
+        :param is_coord_blocked: A callback function that evaluate whether target coord is accessible from source coord
         :returns: Reachable coords
         """
         visited: set[OddRCoord] = set()
@@ -113,7 +140,9 @@ class OddRCoord:
             fringes.append([])
             for coord in fringes[k]:
                 for neighbor in coord.get_neighbors():
-                    if neighbor not in visited and not is_coord_blocked(neighbor, coord):
+                    if neighbor not in visited and not is_coord_blocked(
+                        neighbor, coord
+                    ):
                         visited.add(neighbor)
                         fringes[k + 1].append(neighbor)
 
@@ -132,31 +161,29 @@ class OddRCoord:
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.x - other.x, self.y - other.y)
 
-    def path_find(self,
-                  goal: "OddRCoord",
-                  is_coord_blocked: IsCoordBlocked,
-                  get_cost: Callable[["OddRCoord", "OddRCoord"], float] = lambda a, b: 1.0) -> list["OddRCoord"] | None:
+    def path_find(
+        self,
+        goal: "OddRCoord",
+        is_coord_blocked: IsCoordBlocked,
+        get_cost: Callable[["OddRCoord", "OddRCoord"], float] = lambda a, b: 1.0,
+    ) -> list["OddRCoord"] | None:
         """
         https://www.redblobgames.com/pathfinding/a-star/introduction.html#astar
 
         Using A-star method to path find to a goal
 
         :param goal: Goal coord
-        :param is_coord_blocked: A callback function that evaluate whether target coord is accessible from source coord 
+        :param is_coord_blocked: A callback function that evaluate whether target coord is accessible from source coord
         :param get_cost: A callback function to evaluate cost to travel from first coord to second coord, defaults to `lambda: a, b: 1.0`
         :returns: Path calculated or None if goal is not reachable
         """
-        frontier: PriorityQueue[tuple[float, OddRCoord]] = PriorityQueue()
-        frontier.put((0, self))
-        came_from: dict[OddRCoord, OddRCoord | None] = {
-            self: None
-        }
-        cost_so_far: dict[OddRCoord, float] = {
-            self: 0
-        }
+        frontier: PriorityQueue[_AStarCoord] = PriorityQueue()
+        frontier.put(_AStarCoord(0, self))
+        came_from: dict[OddRCoord, OddRCoord | None] = {self: None}
+        cost_so_far: dict[OddRCoord, float] = {self: 0}
 
         while not frontier.empty():
-            _, current = frontier.get()
+            current = frontier.get().coord
             if current == goal:
                 break
             for next_coord in current.get_neighbors():
@@ -168,7 +195,7 @@ class OddRCoord:
                 if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:
                     cost_so_far[next_coord] = new_cost
                     priority = new_cost + goal.get_distance(next_coord)
-                    frontier.put((priority, next_coord))
+                    frontier.put(_AStarCoord(priority, next_coord))
                     came_from[next_coord] = current
 
         if goal not in came_from:
@@ -182,6 +209,9 @@ class OddRCoord:
         path.reverse()
         return path
 
+    def __str__(self) -> str:
+        return f"({self.x}, {self.y})"
+
 
 @dataclass(frozen=True)
 class _AxialCoord:
@@ -192,7 +222,7 @@ class _AxialCoord:
         """
         https://www.redblobgames.com/grids/hexagons/#conversions-axial
         """
-        return _CubeCoord(self.q, self.r, -self.q-self.r)
+        return _CubeCoord(self.q, self.r, -self.q - self.r)
 
     def to_odd_r(self) -> "OddRCoord":
         """
@@ -213,8 +243,8 @@ class _AxialCoord:
         """
         https://www.redblobgames.com/grids/hexagons/#range-coordinate
         """
-        for q in range(-N, N+1):
-            for r in range(max(-N, -q-N), min(N, -q+N) + 1):
+        for q in range(-N, N + 1):
+            for r in range(max(-N, -q - N), min(N, -q + N) + 1):
                 yield self + _AxialCoord(q, r)
 
     @classmethod
@@ -229,8 +259,8 @@ class _AxialCoord:
         x -= 1
         y -= sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics
 
-        q = sqrt(3)/3 * x - 1/3 * y
-        r = 2/3 * y
+        q = sqrt(3) / 3 * x - 1 / 3 * y
+        r = 2 / 3 * y
         return _AxialCoordFloat(q, r).round()
 
 
@@ -262,8 +292,9 @@ class _CubeCoord:
         """
         N = self.get_distance(other)
         for i in range(N):
-            yield self.to_cube_float(add_epsilon=(
-                1e-6, 2e-6, -3e-6)).lerp(other.to_cube_float(), 1/N * i).round()
+            yield self.to_cube_float(add_epsilon=(1e-6, 2e-6, -3e-6)).lerp(
+                other.to_cube_float(), 1 / N * i
+            ).round()
 
     def __add__(self, other: Self) -> Self:
         return self.__class__(self.q + other.q, self.r + other.r, self.s + other.s)
@@ -271,7 +302,9 @@ class _CubeCoord:
     def __sub__(self, other: Self) -> Self:
         return self.__class__(self.q - other.q, self.r - other.r, self.s - other.s)
 
-    def to_cube_float(self, add_epsilon: tuple[float, float, float] | None = None) -> "_CubeCoordFloat":
+    def to_cube_float(
+        self, add_epsilon: tuple[float, float, float] | None = None
+    ) -> "_CubeCoordFloat":
         """
         There are times when cube_lerp will return a point that's exactly on
         the side between two hexes. Then cube_round will push it one way or the
@@ -286,7 +319,11 @@ class _CubeCoord:
         if add_epsilon is None:
             return _CubeCoordFloat(self.q, self.r, self.s)
         else:
-            return _CubeCoordFloat(self.q + add_epsilon[0], self.r + add_epsilon[1], self.s + add_epsilon[2])
+            return _CubeCoordFloat(
+                self.q + add_epsilon[0],
+                self.r + add_epsilon[1],
+                self.s + add_epsilon[2],
+            )
 
 
 @dataclass(frozen=True)
@@ -298,7 +335,7 @@ class _AxialCoordFloat:
         """
         https://www.redblobgames.com/grids/hexagons/#conversions-axial
         """
-        return _CubeCoordFloat(self.q, self.r, -self.q-self.r)
+        return _CubeCoordFloat(self.q, self.r, -self.q - self.r)
 
     def round(self) -> "_AxialCoord":
         return self.to_cube_float().round().to_axial()
@@ -323,11 +360,11 @@ class _CubeCoordFloat:
         s_diff = abs(s - self.s)
 
         if q_diff > r_diff and q_diff > s_diff:
-            q = -r-s
+            q = -r - s
         elif r_diff > s_diff:
-            r = -q-s
+            r = -q - s
         else:
-            s = -q-r
+            s = -q - r
 
         return _CubeCoord(q, r, s)
 
@@ -340,3 +377,9 @@ class _CubeCoordFloat:
             lerp(self.r, other.r, t),
             lerp(self.s, other.s, t),
         )
+
+
+@dataclass(order=True)
+class _AStarCoord:
+    priority: float
+    coord: OddRCoord = field(compare=False)

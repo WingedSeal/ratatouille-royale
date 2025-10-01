@@ -1,4 +1,3 @@
-
 from enum import Enum, auto
 
 
@@ -20,7 +19,7 @@ class Side(Enum):
         return cls(value)
 
     @classmethod
-    def to_int(cls, value: "Side | None"):
+    def to_int(cls, value: "Side | None") -> int:
         if value is None:
             return 0
         return value.value

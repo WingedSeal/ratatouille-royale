@@ -18,13 +18,11 @@ class SqueakType(Enum):
 
 
 class SqueakOnPlace(Protocol):
-    def __call__(self, game_manager: "GameManager", coord: OddRCoord) -> None:
-        ...
+    def __call__(self, game_manager: "GameManager", coord: OddRCoord) -> None: ...
 
 
 class SqueakGetPlacableTiles(Protocol):
-    def __call__(self, game_manager: "GameManager") -> Iterable[OddRCoord]:
-        ...
+    def __call__(self, game_manager: "GameManager") -> Iterable[OddRCoord]: ...
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -54,10 +52,13 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
 def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
     def on_place(game_manager: "GameManager", coord: OddRCoord) -> None:
         return summon(game_manager, coord, rodent_type)
+
     return on_place
 
 
-def summon(game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]) -> None:
+def summon(
+    game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]
+) -> None:
     tile = game_manager.board.get_tile(coord)
     if tile is None:
         raise ValueError("Trying to summon rodent on None tile")
