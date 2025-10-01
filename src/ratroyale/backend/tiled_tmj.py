@@ -62,21 +62,21 @@ def _reconstruct_layer_data(
 
 
 def _process_tile(
-    tile_data: np.typing.NDArray[np.uint32],
+    tile_data: "np.typing.NDArray[np.uint32]",
     tiles: list[list[Tile | None]],
     coord: OddRCoord,
 ) -> None:
     tile_id = _get_tile_data_value(tile_data, "tile_id")
     if tile_id == 0:
-        tiles[-1].append(None)
+        tiles[coord.y].append(None)
         return
+    tile_id -= TILE_ID_STARTING_NUMBER
     tile = Tile(
         tile_id.item(),
         coord,
         _get_tile_data_value(tile_data, "height").item(),
     )
-
-    tiles[-1].append(tile)
+    tiles[coord.y].append(tile)
 
 
 def _process_feature(
@@ -133,6 +133,10 @@ def _process_entity(
     entities.append(entity)
 
 
+TILE_ID_STARTING_NUMBER = 102
+"""First 100 numbers are used for number_grid and 101th number is used for hex.png"""
+
+
 def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
     layers: list[dict[str, Any]] = tmj_data["layers"]
     size_y: int = tmj_data["height"]
@@ -141,12 +145,12 @@ def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
     for layer in layers:
         with np.errstate(over="raise"):
             layers_data[layer["name"]] = np.array(layer["data"], dtype="uint8")
-    tiles_data = np.hstack(
+    tiles_data = np.vstack(
         [
             _reconstruct_layer_data(layers_data, layer_name, size_x * size_y)
             for layer_name in LAYER_NAMES
         ]
-    )
+    ).T
     tiles: list[list[Tile | None]] = [[] for _ in range(size_y)]
     features_from_group: dict[int, Feature | list[OddRCoord]] = {}
     entities: list[Entity] = []
@@ -229,10 +233,10 @@ def gen_tileset_tsx(
 
 def reset_toolkit() -> None:
     Path("./tileset.png").unlink(missing_ok=True)
-    Path("./rrmap.tmx").unlink(missing_ok=True)
+    Path("./rrmap.tmj").unlink(missing_ok=True)
     Path("./rrmap-making-kit.tiled-session").unlink(missing_ok=True)
-    with Path("./rrmap.tmx.original").open("r") as original_file:
-        with Path("./rrmap.tmx").open("w+") as f:
+    with Path("./rrmap.tmj.original").open("r") as original_file:
+        with Path("./rrmap.tmj").open("w+") as f:
             f.write(original_file.read())
     with Path("./tileset.tsx").open("w+") as f:
         f.write(_get_tsx(10, 10))

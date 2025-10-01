@@ -5,9 +5,10 @@ import sys
 
 
 def tiled_to_rrmap(map_name: str) -> None:
-    with Path("rrmap.tmx").open("r") as f:
+    with Path("rrmap.tmj").open("r") as f:
         map = tiled_tmj.tmj_to_map(load(f), map_name)
     map.to_file(Path(f"{map_name.lower().replace(' ', '-')}.rrmap"))
+    print(repr(map))
 
 
 def gen_tileset(size: str, old_tileset_image: str | None = None) -> None:
