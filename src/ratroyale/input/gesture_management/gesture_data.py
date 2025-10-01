@@ -19,7 +19,7 @@ class GestureType(Enum):
 
 @dataclass
 class GestureData:
-    gesture_key: GestureType
+    gesture_type: GestureType
 
     start_pos: tuple[int, int] | None = None
     end_pos: tuple[int, int] | None = None

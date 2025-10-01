@@ -6,6 +6,8 @@ from ratroyale.visual.asset_management.visual_component import EntityVisual, TYP
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
+from dataclasses import dataclass
 
 # region Base Hitbox Classes
 
@@ -120,109 +122,123 @@ class HexHitbox(Hitbox):
     def get_topleft(self) -> tuple[float, float]:
         return self.topleft
 
+T = TypeVar("T")
 
-class Interactable:
+@dataclass
+class InteractableMessage(Generic[T]):
+    interactable_id: str
+    gesture_data: GestureData
+    payload: T | None = None
+
+class Interactable(Generic[T]):
     """
     Base class for a logical UI element.
     Handles hitbox-based input detection and optional visual component.
     """
     def __init__(
         self,
+        interactable_id: str,
         hitbox: Hitbox,
-        gesture_action_mapping: dict[GestureType, ActionName],
+        gestures_to_listen: list[GestureType],
+        payload: T | None = None,
         blocks_input: bool = True,
         z_order: int = 0
     ) -> None:
+        self.interactable_id: str = interactable_id
         self.hitbox: Hitbox = hitbox
-        self.gesture_action_mapping: dict[GestureType, ActionName] = gesture_action_mapping
+        self.gestures_to_listen: list[GestureType] = gestures_to_listen
+        self.payload: T | None = payload
         self.blocks_input: bool = blocks_input
         self.z_order: int = z_order
 
-    def process_gesture(self, gesture: GestureData) -> ActionName | None:
+    def process_gesture(self, gesture: GestureData) -> InteractableMessage | None:
         gesture_pos = gesture.start_pos
         if gesture_pos is None:
             return None
         if not self.hitbox.contains_point(gesture_pos):
             return None
-        return self.gesture_action_mapping.get(gesture.gesture_type)
+        return InteractableMessage(
+            interactable_id=self.interactable_id,
+            gesture_data=gesture,
+            payload=self.payload)
     
     def get_topleft(self) -> tuple[float, float]:
         return self.hitbox.get_topleft()
 
 # endregion
 
-class TileInteractable(Interactable):
-    """
-    Interactable specialized for tiles.
-    Handles hitbox, tile-specific visuals, and any tile-specific input logic.
-    """
-    def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0) -> None:
-        self.tile = tile
+# class TileInteractable(Interactable):
+#     """
+#     Interactable specialized for tiles.
+#     Handles hitbox, tile-specific visuals, and any tile-specific input logic.
+#     """
+#     def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0) -> None:
+#         self.tile = tile
 
-        # Compute top-left for hitbox placement
-        tile_x, tile_y = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-        width, height = TYPICAL_TILE_SIZE
+#         # Compute top-left for hitbox placement
+#         tile_x, tile_y = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
+#         width, height = TYPICAL_TILE_SIZE
 
-        # Create hitbox using top-left directly
-        hitbox = HexHitbox(topleft=(tile_x, tile_y), width=width, height=height)
+#         # Create hitbox using top-left directly
+#         hitbox = HexHitbox(topleft=(tile_x, tile_y), width=width, height=height)
 
-        gesture_action_mapping = {
-            GestureType.CLICK: ActionName.SELECT_TILE
-        }
+#         gesture_action_mapping = {
+#             GestureType.CLICK: ActionName.SELECT_TILE
+#         }
 
-        super().__init__(
-            hitbox=hitbox,
-            gesture_action_mapping=gesture_action_mapping,
-            blocks_input=blocks_input,
-            z_order=z_order
-        )
+#         super().__init__(
+#             hitbox=hitbox,
+#             gesture_action_mapping=gesture_action_mapping,
+#             blocks_input=blocks_input,
+#             z_order=z_order
+#         )
 
-    def get_tile_coord(self) -> tuple[int, int]:
-        return (self.tile.coord.row, self.tile.coord.col)
+#     def get_tile_coord(self) -> tuple[int, int]:
+#         return (self.tile.coord.row, self.tile.coord.col)
 
-class EntityInteractable(Interactable):
-    """
-    Interactable specialized for entities.
-    Handles hitbox, entity-specific visuals, and any entity-specific input logic.
-    """
-    def __init__(self, entity: Entity, blocks_input: bool = True, z_order: int = 1) -> None:
-        self.entity = entity
-        entity_visual = EntityVisual(entity)
-        hitbox = RectangleHitbox(pygame.Rect(
-            *entity_visual.position,
-            entity_visual.image.get_width(),
-            entity_visual.image.get_height()
-        ))
+# class EntityInteractable(Interactable):
+#     """
+#     Interactable specialized for entities.
+#     Handles hitbox, entity-specific visuals, and any entity-specific input logic.
+#     """
+#     def __init__(self, entity: Entity, blocks_input: bool = True, z_order: int = 1) -> None:
+#         self.entity = entity
+#         entity_visual = EntityVisual(entity)
+#         hitbox = RectangleHitbox(pygame.Rect(
+#             *entity_visual.position,
+#             entity_visual.image.get_width(),
+#             entity_visual.image.get_height()
+#         ))
 
-        gesture_action_mapping = {
-            GestureType.CLICK: ActionName.SELECT_UNIT,
-            GestureType.DOUBLE_CLICK: ActionName.DISPLAY_ABILITY_MENU
-        }
+#         gesture_action_mapping = {
+#             GestureType.CLICK: ActionName.SELECT_UNIT,
+#             GestureType.DOUBLE_CLICK: ActionName.DISPLAY_ABILITY_MENU
+#         }
 
-        super().__init__(
-            hitbox=hitbox,
-            gesture_action_mapping=gesture_action_mapping,
-            blocks_input=blocks_input,
-            z_order=z_order
-        )
+#         super().__init__(
+#             hitbox=hitbox,
+#             gesture_action_mapping=gesture_action_mapping,
+#             blocks_input=blocks_input,
+#             z_order=z_order
+#         )
 
-class AbilityMenuInteractable(Interactable):
-    """
-    Interactable specialized for ability menu selections
-    """
+# class AbilityMenuInteractable(Interactable):
+#     """
+#     Interactable specialized for ability menu selections
+#     """
 
-    def __init__(self, rect: pygame.Rect, blocks_input: bool = True, z_order: int = 1) -> None:
-        hitbox = RectangleHitbox(rect)
+#     def __init__(self, rect: pygame.Rect, blocks_input: bool = True, z_order: int = 1) -> None:
+#         hitbox = RectangleHitbox(rect)
 
-        gesture_action_mapping = {
-            GestureType.CLICK: ActionName.SELECT_ABILITY
-        }
+#         gesture_action_mapping = {
+#             GestureType.CLICK: ActionName.SELECT_ABILITY
+#         }
 
-        super().__init__(
-            hitbox=hitbox,
-            gesture_action_mapping=gesture_action_mapping,
-            blocks_input=blocks_input,
-            z_order=z_order
-        )
+#         super().__init__(
+#             hitbox=hitbox,
+#             gesture_action_mapping=gesture_action_mapping,
+#             blocks_input=blocks_input,
+#             z_order=z_order
+#         )
 
 
