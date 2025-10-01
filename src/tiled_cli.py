@@ -22,6 +22,10 @@ def gen_tileset(size: str, old_tileset_image: str | None = None) -> None:
         tiled_tmj.gen_tileset_tsx(row, col, old_tileset_image)
 
 
+def reset() -> None:
+    tiled_tmj.reset_toolkit()
+
+
 def main() -> None:
     cmd, *args = sys.argv[1:]
     if cmd == "tiled_to_rrmap":
@@ -34,6 +38,8 @@ def main() -> None:
             print("Usage: poe gen_tileset <row>x<col> [old_tileset_image]")
             sys.exit(1)
         gen_tileset(*args)
+    elif cmd == "reset":
+        reset()
     else:
         print(f"Unknown command: {cmd}")
         sys.exit(1)

@@ -171,16 +171,25 @@ def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
     return Map(map_name, size_x, size_y, tiles, entities, features)
 
 
-def gen_tileset_tsx(
-    row: int, col: int, old_tileset_image: str = "./tileset.png"
-) -> None:
-    tsx = f"""<?xml version="1.0" encoding="UTF-8"?>
+def _get_tsx(row: int, col: int) -> str:
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.11.2" name="tileset" tilewidth="50" tileheight="50" tilecount="{row*col}" columns="{col}">
  <image source="tileset.png" width="{50*col}" height="{50*row}"/>
 </tileset>
 """
+
+
+def gen_tileset_tsx(
+    row: int, col: int, old_tileset_image: str = "./tileset.png"
+) -> None:
     img = Image.open(old_tileset_image)
     img = img.resize((50 * col, 50 * row), Image.Resampling.LANCZOS)
     img.save("tileset.png")
     with Path("./tileset.tsx").open("w+") as f:
-        f.write(tsx)
+        f.write(_get_tsx(row, col))
+
+
+def reset_toolkit() -> None:
+    Path("./tileset.png").unlink(missing_ok=True)
+    with Path("./tileset.tsx").open("w+") as f:
+        f.write(_get_tsx(10, 10))
