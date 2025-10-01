@@ -10,13 +10,12 @@ def tiled_to_rrmap(map_name: str) -> None:
     map.to_file(Path(f"{map_name.lower().replace(' ', '-')}.rrmap"))
 
 
-def gen_tileset(size: str) -> None:
+def gen_tileset(size: str, old_tileset_image: str | None = None) -> None:
     if "x" not in size:
         print("Size must be in format ROWxCOL, e.g., 10x10")
         sys.exit(1)
 
     row, col = map(int, size.lower().split("x"))
-    old_tileset_image = sys.argv[2] if len(sys.argv) > 2 else None
     if old_tileset_image is None:
         tiled_tmj.gen_tileset_tsx(row, col)
     else:
