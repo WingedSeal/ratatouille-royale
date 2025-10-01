@@ -10,11 +10,14 @@ from .map import Map
 
 try:
     import numpy as np
-    from PIL import Image
+    from PIL import Image, ImageDraw, ImageChops
 except ImportError:
     if TYPE_CHECKING:
         import numpy as np
-        from PIL import Image
+        from PIL import Image, ImageDraw, ImageChops
+
+TILED_TILE_PIXEL = 50
+
 
 LayerName = Literal[
     "tile_id",
@@ -173,17 +176,50 @@ def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
 
 def _get_tsx(row: int, col: int) -> str:
     return f"""<?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.2" name="tileset" tilewidth="50" tileheight="50" tilecount="{row*col}" columns="{col}">
- <image source="tileset.png" width="{50*col}" height="{50*row}"/>
+<tileset version="1.10" tiledversion="1.11.2" name="tileset" tilewidth="TILED_TILE_PIXEL" tileheight="TILED_TILE_PIXEL" tilecount="{row*col}" columns="{col}">
+ <image source="tileset.png" width="{TILED_TILE_PIXEL*col}" height="{TILED_TILE_PIXEL*row}"/>
 </tileset>
 """
+
+
+def create_hex_mask(width: int, height: int) -> Image.Image:
+    """Create a hexagonal mask for a rectangular tile."""
+    mask = Image.new("L", (width, height), 0)
+    draw = ImageDraw.Draw(mask)
+    w, h = width, height
+    points = [
+        (w * 0.25, 0),  # Top left
+        (w * 0.75, 0),  # Top right
+        (w, h * 0.5),  # Right
+        (w * 0.75, h),  # Bottom right
+        (w * 0.25, h),  # Bottom left
+        (0, h * 0.5),  # Left
+    ]
+
+    draw.polygon(points, fill=255)
+    return mask
 
 
 def gen_tileset_tsx(
     row: int, col: int, old_tileset_image: str = "./tileset.png"
 ) -> None:
     img = Image.open(old_tileset_image)
-    img = img.resize((50 * col, 50 * row), Image.Resampling.LANCZOS)
+    img = img.resize(
+        (TILED_TILE_PIXEL * col, TILED_TILE_PIXEL * row), Image.Resampling.LANCZOS
+    )
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
+    alpha = img.getchannel("A")
+    hex_mask = create_hex_mask(TILED_TILE_PIXEL, TILED_TILE_PIXEL)
+    for row in range(row):
+        for col in range(col):
+            left = col * TILED_TILE_PIXEL
+            top = row * TILED_TILE_PIXEL
+            tile_alpha = alpha.crop(
+                (left, top, left + TILED_TILE_PIXEL, top + TILED_TILE_PIXEL)
+            )
+            tile_alpha = ImageChops.multiply(tile_alpha, hex_mask)
+            alpha.paste(tile_alpha, (left, top))
     img.save("tileset.png")
     with Path("./tileset.tsx").open("w+") as f:
         f.write(_get_tsx(row, col))
