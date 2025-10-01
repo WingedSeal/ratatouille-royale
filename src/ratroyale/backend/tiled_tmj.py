@@ -39,16 +39,16 @@ LAYER_NAMES: dict[LayerName, int] = {
 
 
 def _get_tile_data_value(
-    tile_data: np.typing.NDArray[np.uint32], layer_name: LayerName
+    tile_data: "np.typing.NDArray[np.uint32]", layer_name: LayerName
 ) -> np.int32:
     return tile_data[LAYER_NAMES[layer_name]]
 
 
 def _reconstruct_layer_data(
-    layers_data: dict[str, np.typing.NDArray[np.uint8]],
+    layers_data: "dict[str, np.typing.NDArray[np.uint8]]",
     layer_name: LayerName,
     fallback_length: int,
-) -> np.typing.NDArray[np.uint32]:
+) -> "np.typing.NDArray[np.uint32]":
     """Supports _e2, _e4, ... suffix"""
     if layer_name not in layers_data:
         return np.zeros(fallback_length, dtype=np.uint32)
@@ -80,9 +80,9 @@ def _process_tile(
 
 
 def _process_feature(
-    tile_data: np.typing.NDArray[np.uint32],
+    tile_data: "np.typing.NDArray[np.uint32]",
     features_from_group: dict[int, Feature | list[OddRCoord]],
-    layers_data: dict[str, np.typing.NDArray[np.uint8]],
+    layers_data: "dict[str, np.typing.NDArray[np.uint8]]",
     coord: OddRCoord,
 ) -> None:
     feature_group = _get_tile_data_value(tile_data, "feature_group")
@@ -113,9 +113,9 @@ def _process_feature(
 
 
 def _process_entity(
-    tile_data: np.typing.NDArray[np.uint32],
+    tile_data: "np.typing.NDArray[np.uint32]",
     entities: list[Entity],
-    layers_data: dict[str, np.typing.NDArray[np.uint8]],
+    layers_data: "dict[str, np.typing.NDArray[np.uint8]]",
     coord: OddRCoord,
 ) -> None:
     entity_class = _get_tile_data_value(tile_data, "entity_class")
