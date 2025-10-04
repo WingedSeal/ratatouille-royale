@@ -1,11 +1,9 @@
 # type: ignore
 import pygame
-from ratroyale.input.page_management.page_manager import PageManager
-from ratroyale.input.dispatch_management.input_manager import InputManager
-from ratroyale.visual.visual_manager import VisualManager
+from ratroyale.input.pages.page_managers.page_manager import PageManager
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.page_management.page_config import PageName
 from ratroyale.visual.screen_constants import SCREEN_SIZE
+import ratroyale.input.pages.page_definitions as pages
 
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.map import Map
@@ -30,8 +28,6 @@ def main():
     coordination_manager = CoordinationManager()
 
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
-    input_manager = InputManager(coordination_manager=coordination_manager)
-    visual_manager = VisualManager(screen=screen,coordination_manager=coordination_manager)
 
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
@@ -92,7 +88,7 @@ def main():
     )
     # endregion
 
-    page_manager.push_page(PageName.MAIN_MENU)
+    page_manager.push_page(pages.MainMenu)
 
     while coordination_manager.game_running:
         dt = clock.tick(60) / 1000.0  # delta time in seconds
@@ -101,13 +97,10 @@ def main():
         page_manager.handle_events()
 
         while not coordination_manager.all_mailboxes_empty():
-            page_manager.execute_callbacks()
-            input_manager.execute_callbacks()
-            game_manager.execute_callbacks()
-            visual_manager.execute_callbacks()
+            page_manager.execute_page_callback()
+            page_manager.execute_visual_callback()
 
-        visual_manager.update(dt)
-        visual_manager.draw()
+        page_manager.render(dt)
 
         pygame.display.flip()
 

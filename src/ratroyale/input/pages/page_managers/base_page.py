@@ -4,17 +4,17 @@ import pygame
 from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.pages.interactables.interactable import Interactable
+from ratroyale.input.pages.interactables.interactable_builder import InteractableConfig
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.visual.screen_constants import SCREEN_SIZE, THEME_PATH
 from typing import Callable
-from typing import Generic, TypeVar
 from ratroyale.input.gesture_management.gesture_data import GestureData, GestureType
+from ratroyale.input.pages.interactables.interactable_builder import create_interactable, InteractableConfig
 
-T = TypeVar('T')
 
-class Page(Generic[T]):
+class Page():
     """Base class for a page in the application."""
     def __init__(self, coordination_manager: CoordinationManager, is_blocking: bool = True) -> None:
         self.gui_manager = pygame_gui.UIManager(SCREEN_SIZE, THEME_PATH)
@@ -27,9 +27,11 @@ class Page(Generic[T]):
         self.canvas = pygame.Surface(SCREEN_SIZE)
         self.is_visible: bool = True
 
-        self._setup_bindings()
+    def setup_interactables(self, configs: list[InteractableConfig]) -> None:
+        self._interactables = [create_interactable(cfg, self.gui_manager) for cfg in configs]
+        self._sort_interactables_by_z_order()
 
-    def _setup_bindings(self):
+    def setup_bindings(self) -> None:
         """
         Scan all methods of the page instance for `_bindings` metadata
         and populate _gesture_handlers.
@@ -64,7 +66,7 @@ class Page(Generic[T]):
         
         for gesture in gestures:
             for interactable in self._interactables:
-                input_message: InputManagerEvent[T] | None = interactable.process_gesture(gesture)
+                input_message: InputManagerEvent | None = interactable.process_gesture(gesture)
                 if input_message:
                     self.coordination_manager.put_message(input_message)
 
@@ -75,13 +77,13 @@ class Page(Generic[T]):
 
         return remaining_gestures
 
-    def execute_input_callback(self, msg: InputManagerEvent[T]) -> None:
+    def execute_input_callback(self, msg: InputManagerEvent) -> None:
         """
         Executes the callback associated with the given InputManagerEvent.
         """
         handler = self._interactable_bindings.get((msg.interactable_id, msg.gesture_data.gesture_type))
         if handler:
-            handler(self, msg)
+            handler(msg)
     
     def execute_page_callback(self, msg: PageManagerEvent) -> None:
         pass

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from .base import EventToken
-from ratroyale.input.page_management.page_name import PageName
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 

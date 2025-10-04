@@ -1,10 +1,14 @@
 import pygame
+import pygame_gui
 
-from ratroyale.input.gesture_management.gesture_data import GestureData, GestureType
+from pygame_gui import UIManager
+from ratroyale.input.gesture_management.gesture_data import GestureData
 from ratroyale.visual.asset_management.visual_component import VisualComponent
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Callable
 from ratroyale.event_tokens.input_token import InputManagerEvent
+from enum import Enum, auto
+from ratroyale.visual.asset_management.visual_component import UIVisual, TileVisual
 
 # region Base Hitbox Classes
 
@@ -119,6 +123,10 @@ class HexHitbox(Hitbox):
     def get_topleft(self) -> tuple[float, float]:
         return self.topleft
 
+ # endregion
+
+# region Base Interactable
+
 T = TypeVar("T")
 
 class Interactable(Generic[T]):
@@ -130,19 +138,18 @@ class Interactable(Generic[T]):
         self,
         interactable_id: str,
         hitbox: Hitbox,
-        gestures_to_listen: list[GestureType],
         payload: T | None = None,
         blocks_input: bool = True,
-        z_order: int = 0
+        z_order: int = 0,
+        visuals: list[VisualComponent] | None = None
     ) -> None:
         self.interactable_id: str = interactable_id
         self.hitbox: Hitbox = hitbox
-        self.gestures_to_listen: list[GestureType] = gestures_to_listen
         self.payload: T | None = payload
         self.blocks_input: bool = blocks_input
 
         self.z_order: int = z_order
-        self.visuals: list[VisualComponent] = []
+        self.visuals: list[VisualComponent] = visuals if visuals else []
 
     def process_gesture(self, gesture: GestureData) -> InputManagerEvent | None:
         gesture_pos = gesture.start_pos
@@ -162,6 +169,7 @@ class Interactable(Generic[T]):
         self.visuals.append(visuals)
 
 # endregion
+
 
 # class TileInteractable(Interactable):
 #     """

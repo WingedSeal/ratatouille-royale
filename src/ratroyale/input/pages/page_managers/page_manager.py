@@ -1,17 +1,18 @@
 import pygame
-from ratroyale.input.pages.page_definitions.base_page import Page
+import pygame_gui
+from ratroyale.input.pages.page_managers.base_page import Page
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.input.gesture_management.gesture_reader import GestureReader
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.input_token import InputManagerEvent
+from ratroyale.input.pages.page_managers.page_registry import resolve_page
 
 class PageManager:
     def __init__(
         self, screen: pygame.surface.Surface, coordination_manager: CoordinationManager
     ) -> None:
         self.screen = screen
-
         self.coordination_manager = coordination_manager
 
         self.gesture_reader = GestureReader()
@@ -19,6 +20,7 @@ class PageManager:
 
         self.page_stack: list[Page] = []
         """Active page stack"""
+
 
     # region Basic Page Management Methods
 
@@ -59,6 +61,11 @@ class PageManager:
             self.pop_page()
             self.push_page(page_type, page)
 
+    def remove_all_pages(self) -> None:
+        """ Remove all pages from the stack """
+        while self.page_stack:
+            self.pop_page()
+
     # endregion
 
     # region Event Handling
@@ -94,75 +101,73 @@ class PageManager:
             for page in reversed(self.page_stack):
                 page.execute_input_callback(event)
 
-    def execute_page_callback(self, msg: PageManagerEvent) -> None:
-        if isinstance(msg, PageNavigationEvent):
-            self._navigate(msg)
-        elif isinstance(msg, PageTargetedEvent):
-            self._delegate(msg)
+    def execute_page_callback(self) -> None:
+        msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)
+        if not msg_queue:
+            return 
+        
+        while not msg_queue.empty():
+            msg = msg_queue.get()
+            if isinstance(msg, PageNavigationEvent):
+                self._navigate(msg)
+            elif isinstance(msg, PageTargetedEvent):
+                self._delegate(msg)
     
     def _navigate(self, msg: PageNavigationEvent) -> None:
         """ Handle page navigation actions such as PUSH, POP, REPLACE, HIDE, and SHOW."""
-        for action, page_type in msg.action_list:
-            match action:
-                case PageNavigation.PUSH:
-                    self.push_page(page_type)
-                case PageNavigation.POP:
-                    self.pop_page()
-                case PageNavigation.REMOVE:
-                    self.remove_page(page_type)
-                case PageNavigation.REPLACE:
-                    self.replace_top(page_type, None)
-                case PageNavigation.HIDE:
-                    page = self.get_page(page_type)
-                    if page:
-                        page.hide()
-                case PageNavigation.SHOW:
-                    page = self.get_page(page_type)
-                    if page:
-                        page.show()
+        print(f"Navigating pages with actions: {msg.action_list}")
+        for action, page_name in msg.action_list:
+            page_type = resolve_page(page_name) if page_name else None
+
+            if page_type:
+                match action:
+                    case PageNavigation.PUSH:
+                        self.push_page(page_type)
+                    case PageNavigation.REMOVE:
+                        self.remove_page(page_type)
+                    case PageNavigation.REPLACE:
+                        self.replace_top(page_type, None)
+                    case PageNavigation.HIDE:
+                        page = self.get_page(page_type)
+                        if page:
+                            page.hide()
+                    case PageNavigation.SHOW:
+                        page = self.get_page(page_type)
+                        if page:
+                            page.show()
+            else:
+                match action:
+                    case PageNavigation.REMOVE_ALL:
+                        self.remove_all_pages()
+                    case PageNavigation.POP:
+                        self.pop_page()
 
     def _delegate(self, msg: PageTargetedEvent) -> None:
         """Delegate a PageManagerEvent to the appropriate page."""
-        page = self.get_page(msg.page_type)
+        page = self.get_page(resolve_page(msg.page_name))
         if page:
             page.execute_page_callback(msg)    
         else:
-            print(f"No page of type {msg.page_type.__name__} to handle {msg}")
+            print(f"No page of type {msg.page_name} to handle {msg}")
 
-    # TODO: implement visual callback delegation in full.
-    def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
-        for page in reversed(self.page_stack):
-            page.execute_visual_callback(msg)
+    def execute_visual_callback(self) -> None:
+        msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
+        if not msg_queue:
+            return 
+        
+        while not msg_queue.empty():
+            msg = msg_queue.get()
+            if isinstance(msg, PageNavigationEvent):
+                self._navigate(msg)
+            elif isinstance(msg, PageTargetedEvent):
+                self._delegate(msg)
 
     # endregion
 
     # region Rendering
-
-    def render(self, delta: float) -> None:
-        """Render pages bottom-up. Stops if a page is blocking."""
-        for page in self.page_stack:
-            page.render(delta)
-
-
-    # endregion
-
-    # region Composite Page Management Methods
-
-    # def push_game_board_page(self, board: Board | None) -> None:
-    #     self.replace_top(PageName.GAME_BOARD, self.page_factory.create_game_board_page(board))
-    #     self.push_page(PageName.PAUSE_BUTTON)
-        
-    # def end_game_return_to_menu(self) -> None:
-    #     self.pop_page(PageName.PAUSE_BUTTON)
-    #     self.pop_page(PageName.PAUSE_MENU)
-    #     self.pop_page(PageName.GAME_BOARD)
-
-    #     self.push_page(PageName.MAIN_MENU)
-
-    # def pause_game(self) -> None:
-    #     self.push_page(PageName.PAUSE_MENU)
-
-    # def resume_game(self) -> None:
-    #     self.pop_page(PageName.PAUSE_MENU)
     
-    # endregion
+    def render(self, delta: float) -> None:
+        """Render pages bottom-up."""
+        for page in self.page_stack:
+            if page.is_visible:
+                self.screen.blit(page.render(delta), (0, 0))

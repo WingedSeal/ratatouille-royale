@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from .base import EventToken
 from ratroyale.visual.asset_management.visual_component import VisualComponent
-from ratroyale.input.interactables_management.interactable import Interactable
+from ratroyale.input.pages.interactables.interactable import Interactable
 from pygame_gui.ui_manager import UIManager
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
-from ratroyale.input.interactables_management.interaction_type import InteractionType
 
 
 __all__ = [
@@ -14,8 +13,6 @@ __all__ = [
     "UnregisterPage_VisualManagerEvent",
     "RegisterVisualComponent_VisualManagerEvent",
     "UnregisterVisualComponent_VisualManagerEvent",
-    "TileInteraction_VisualManagerEvent",
-    "EntityInteraction_VisualManagerEvent",
     "EntityMovementConfirmation_VisualManagerEvent"
 ]
 
@@ -40,15 +37,15 @@ class RegisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
 class UnregisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
   interactable: Interactable
 
-@dataclass
-class TileInteraction_VisualManagerEvent(VisualManagerEvent):
-  interaction_type: InteractionType
-  tile: Tile
+# @dataclass
+# class TileInteraction_VisualManagerEvent(VisualManagerEvent):
+#   interaction_type: InteractionType
+#   tile: Tile
 
-@dataclass
-class EntityInteraction_VisualManagerEvent(VisualManagerEvent):
-  interaction_type: InteractionType
-  entity: Entity
+# @dataclass
+# class EntityInteraction_VisualManagerEvent(VisualManagerEvent):
+#   interaction_type: InteractionType
+#   entity: Entity
 
 @dataclass
 class EntityMovementConfirmation_VisualManagerEvent(VisualManagerEvent):

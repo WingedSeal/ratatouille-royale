@@ -1,17 +1,16 @@
-from .page_config import PageConfig
-from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.page_management.page_name import PageName
-from ratroyale.input.interactables_management.interactable import Interactable, TileInteractable, EntityInteractable, AbilityMenuInteractable
-from ratroyale.visual.asset_management.visual_component import VisualComponent
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.board import Board
-from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-from ratroyale.visual.screen_constants import SCREEN_SIZE
-from .base_page import Page
+
+from ratroyale.input.gesture_management.gesture_data import GestureType
+
+from ..page_managers.base_page import Page
+from ratroyale.input.pages.page_managers.input_binder import bind_to
+from ratroyale.input.pages.page_managers.page_registry import register_page
+
+from ratroyale.input.pages.interactables.interactable_builder import InteractableConfig, InteractableType
 
 class GameBoard(Page):
   def __init__(self):
