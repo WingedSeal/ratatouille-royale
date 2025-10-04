@@ -48,7 +48,8 @@ class UIVisual(VisualComponent):
         pass
 
     def set_position(self, topleft_coord: tuple[float, float]) -> None:
-        pass
+        if self.instance:
+            self.instance.set_relative_position(pygame.Vector2(topleft_coord))
     
 class SpriteVisual(VisualComponent):
     def __init__(self, sprite_enum: SpriteRegistryKey, position: tuple[float, float]) -> None:

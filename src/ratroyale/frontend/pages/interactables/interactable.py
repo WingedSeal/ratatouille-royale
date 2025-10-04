@@ -147,7 +147,7 @@ class Interactable(Generic[T]):
         self.hitbox: Hitbox = hitbox
         self.payload: T | None = payload
         self.blocks_input: bool = is_blocking
-        self._relative_offset: tuple[float, float] = (0, 0)
+        self._relative_offset: tuple[float, float] = (0, 0)  # Offset from parent if any
 
         self.z_order: int = z_order
         self.visuals: list[VisualComponent] = visuals if visuals else []
@@ -173,6 +173,7 @@ class Interactable(Generic[T]):
     def set_position(self, topleft: tuple[float, float]) -> None:
         """Move this interactable and reposition all children accordingly."""
         self.hitbox.move_to(topleft)
+        self.move_visuals(topleft)
 
         # Move children based on stored relative offsets
         for child in self.children:
@@ -182,6 +183,11 @@ class Interactable(Generic[T]):
 
     def attach_visuals(self, visuals: VisualComponent) -> None:
         self.visuals.append(visuals)
+
+    def move_visuals(self, topleft: tuple[float, float]) -> None:
+        """Move all attached visuals to the new top-left position."""
+        for visual in self.visuals:
+            visual.set_position(topleft)
 
     def add_child(self, child: "Interactable", offset: tuple[float, float] | None = None) -> None:
         """
@@ -217,6 +223,13 @@ class Interactable(Generic[T]):
         offset_x, offset_y = child._relative_offset
         child.set_position((parent_x + offset_x, parent_y + offset_y))
 
+    def move_by(self, delta: tuple[float, float]) -> None:
+        new_pos = (
+            self.get_topleft()[0] + delta[0],
+            self.get_topleft()[1] + delta[1]
+        )
+        self.set_position(new_pos)
+
     # --- Debug Utility ---
     def draw_hitbox(self, surface, color=(255, 0, 0)) -> None:
         """Draw this interactable's hitbox and its children's recursively."""
@@ -225,80 +238,5 @@ class Interactable(Generic[T]):
             child.draw_hitbox(surface, color)
 
 # endregion
-
-
-# class TileInteractable(Interactable):
-#     """
-#     Interactable specialized for tiles.
-#     Handles hitbox, tile-specific visuals, and any tile-specific input logic.
-#     """
-#     def __init__(self, tile: Tile, blocks_input: bool = True, z_order: int = 0) -> None:
-#         self.tile = tile
-
-#         # Compute top-left for hitbox placement
-#         tile_x, tile_y = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-#         width, height = TYPICAL_TILE_SIZE
-
-#         # Create hitbox using top-left directly
-#         hitbox = HexHitbox(topleft=(tile_x, tile_y), width=width, height=height)
-
-#         gesture_action_mapping = {
-#             GestureType.CLICK: ActionName.SELECT_TILE
-#         }
-
-#         super().__init__(
-#             hitbox=hitbox,
-#             gesture_action_mapping=gesture_action_mapping,
-#             blocks_input=blocks_input,
-#             z_order=z_order
-#         )
-
-#     def get_tile_coord(self) -> tuple[int, int]:
-#         return (self.tile.coord.row, self.tile.coord.col)
-
-# class EntityInteractable(Interactable):
-#     """
-#     Interactable specialized for entities.
-#     Handles hitbox, entity-specific visuals, and any entity-specific input logic.
-#     """
-#     def __init__(self, entity: Entity, blocks_input: bool = True, z_order: int = 1) -> None:
-#         self.entity = entity
-#         entity_visual = EntityVisual(entity)
-#         hitbox = RectangleHitbox(pygame.Rect(
-#             *entity_visual.position,
-#             entity_visual.image.get_width(),
-#             entity_visual.image.get_height()
-#         ))
-
-#         gesture_action_mapping = {
-#             GestureType.CLICK: ActionName.SELECT_UNIT,
-#             GestureType.DOUBLE_CLICK: ActionName.DISPLAY_ABILITY_MENU
-#         }
-
-#         super().__init__(
-#             hitbox=hitbox,
-#             gesture_action_mapping=gesture_action_mapping,
-#             blocks_input=blocks_input,
-#             z_order=z_order
-#         )
-
-# class AbilityMenuInteractable(Interactable):
-#     """
-#     Interactable specialized for ability menu selections
-#     """
-
-#     def __init__(self, rect: pygame.Rect, blocks_input: bool = True, z_order: int = 1) -> None:
-#         hitbox = RectangleHitbox(rect)
-
-#         gesture_action_mapping = {
-#             GestureType.CLICK: ActionName.SELECT_ABILITY
-#         }
-
-#         super().__init__(
-#             hitbox=hitbox,
-#             gesture_action_mapping=gesture_action_mapping,
-#             blocks_input=blocks_input,
-#             z_order=z_order
-#         )
 
 

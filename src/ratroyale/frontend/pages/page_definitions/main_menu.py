@@ -18,8 +18,26 @@ class MainMenu(Page):
     super().__init__(coordination_manager)
 
     configs = [
-      InteractableConfig(type_key=InteractableType.BUTTON, id="start_button", rect=(100,100,200,50), text="Start"),
-      InteractableConfig(type_key=InteractableType.BUTTON, id="quit_button", rect=(100,200,200,50), text="Quit")
+      InteractableConfig(
+          type_key=InteractableType.BUTTON, 
+          id="start_button", 
+          rect=(100,100,200,50), 
+          text="Start"
+          ),
+      InteractableConfig(
+          type_key=InteractableType.BUTTON, 
+          id="quit_button", 
+          rect=(100,200,200,50), 
+          text="Quit"
+          ),
+      InteractableConfig(
+          type_key=InteractableType.BUTTON,
+          id="child_button",
+          rect=(0, 0, 100, 40),
+          text="Child",
+          parent_id="start_button",
+          offset=(210, 0)
+          )
     ]
 
     self.setup_interactables(configs)
@@ -39,6 +57,10 @@ class MainMenu(Page):
   @input_event_bind("quit_button", GestureType.CLICK)
   def on_quit_click(self, msg: InputManagerEvent):
       self.coordination_manager.stop_game()
+
+  @input_event_bind("child_button", GestureType.CLICK)
+  def test(self, msg: InputManagerEvent):
+      print("Test function called")
 
   # endregion
 
