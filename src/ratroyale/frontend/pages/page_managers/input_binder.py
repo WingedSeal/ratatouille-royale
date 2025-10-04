@@ -1,5 +1,5 @@
 from functools import wraps
-from ratroyale.frontend.gesture_management.gesture_data import GestureType
+from ratroyale.frontend.gesture.gesture_data import GestureType
 
 def bind_to(widget_id: str, gesture_type: GestureType):
   """

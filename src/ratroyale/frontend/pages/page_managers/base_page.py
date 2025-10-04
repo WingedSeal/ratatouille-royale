@@ -8,9 +8,9 @@ from ratroyale.frontend.pages.interactables.interactable_builder import Interact
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-from ratroyale.visual.screen_constants import SCREEN_SIZE, THEME_PATH
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE, THEME_PATH
 from typing import Callable
-from ratroyale.frontend.gesture_management.gesture_data import GestureData, GestureType
+from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 from ratroyale.frontend.pages.interactables.interactable_builder import create_interactable, InteractableConfig
 
 

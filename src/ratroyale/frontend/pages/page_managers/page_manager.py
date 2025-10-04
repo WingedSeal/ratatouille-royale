@@ -2,7 +2,7 @@ import pygame
 import pygame_gui
 from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.gesture_management.gesture_reader import GestureReader
+from ratroyale.frontend.gesture.gesture_reader import GestureReader
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.input_token import InputManagerEvent

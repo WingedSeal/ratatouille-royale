@@ -1,6 +1,6 @@
 import pygame
 import time
-from ratroyale.frontend.gesture_management.gesture_data import GestureType, GestureData
+from ratroyale.frontend.gesture.gesture_data import GestureType, GestureData
 from enum import Enum, auto
 
 
@@ -10,7 +10,6 @@ class GestureState(Enum):
     STATE_PRESSED = auto()
     STATE_DRAGGING = auto()
     STATE_HOLD_TRIGGERED = auto()
-
 
 class GestureReader:
     # region Threshold Variables
