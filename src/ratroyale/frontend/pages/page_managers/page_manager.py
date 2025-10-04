@@ -144,11 +144,13 @@ class PageManager:
 
     def _delegate(self, msg: PageTargetedEvent) -> None:
         """Delegate a PageManagerEvent to the appropriate page."""
-        page = self.get_page(resolve_page(msg.page_name))
-        if page:
-            page.execute_page_callback(msg)    
-        else:
-            print(f"No page of type {msg.page_name} to handle {msg}")
+        for name in msg.page_list:
+
+            page = self.get_page(resolve_page(name))
+            if page:
+                page.execute_page_callback(msg)    
+            else:
+                print(f"No page of type {name} to handle {msg}")
 
     def execute_visual_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)

@@ -38,7 +38,7 @@ class PageNavigationEvent(PageManagerEvent):
 
 @dataclass
 class PageTargetedEvent(PageManagerEvent):
-    page_name: str
+    page_list: list[str]
 
 @dataclass
 class StartGameConfirmation(PageTargetedEvent):

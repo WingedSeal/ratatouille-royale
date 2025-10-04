@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from .base import EventToken
-from ratroyale.visual.asset_management.visual_component import VisualComponent
+from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from ratroyale.frontend.pages.interactables.interactable import Interactable
 from pygame_gui.ui_manager import UIManager
 from ratroyale.backend.tile import Tile
