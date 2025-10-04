@@ -5,7 +5,7 @@ from ratroyale.backend.entity import Entity
 
 __all__ = [
   "GameManagerEvent",
-  "RequestStart_GameManagerEvent",
+  "RequestStartGame",
   "CardPlacement_GameManagerEvent",
   "RequestEntityMovement_GameManagerEvent"
 ]
@@ -17,7 +17,7 @@ class GameManagerEvent(EventToken):
 
 
 @dataclass
-class RequestStart_GameManagerEvent(GameManagerEvent):
+class RequestStartGame(GameManagerEvent):
     map_path: str | None = (
         None  # Could change to enums that represents different premade stages later.
     )

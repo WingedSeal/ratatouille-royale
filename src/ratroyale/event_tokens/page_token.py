@@ -4,13 +4,15 @@ from ratroyale.backend.board import Board
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.tile import Tile
 from enum import Enum as enum, auto
-from typing import TYPE_CHECKING
+from typing import TypeVar
+
+T = TypeVar("T", bound=EventToken)
 
 __all__ = [
     "PageManagerEvent",
     "PageNavigation",
     "PageNavigationEvent",
-    "PageTargetedEvent",
+    "PageQueryResponseEvent",
 
     "StartGameConfirmation",
     "EntityInteraction_PageManagerEvent",
@@ -37,12 +39,16 @@ class PageNavigationEvent(PageManagerEvent):
     action_list: list[tuple[PageNavigation, str | None]]  # List of (action, page_name) tuples
 
 @dataclass
-class PageTargetedEvent(PageManagerEvent):
+class PageQueryResponseEvent[T](PageManagerEvent):
     page_list: list[str]
+    action_name: str
+    success: bool = True
+    error_msg: str | None = None
+    payload: T | None = None
 
 @dataclass
-class StartGameConfirmation(PageTargetedEvent):
-   board: Board | None
+class StartGameConfirmation(PageQueryResponseEvent):
+   board: Board | None = None
 
 @dataclass
 class EntityInteraction_PageManagerEvent(PageManagerEvent):

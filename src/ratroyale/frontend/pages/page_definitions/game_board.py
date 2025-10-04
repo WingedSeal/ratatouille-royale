@@ -7,11 +7,21 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureType
 
 from ..page_managers.base_page import Page
-from ratroyale.frontend.pages.page_managers.input_binder import bind_to
+from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind, page_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.frontend.pages.interactables.interactable_builder import InteractableConfig, InteractableType
 
+@register_page
 class GameBoard(Page):
-  def __init__(self):
-    pass
+  def __init__(self, coordination_manager: CoordinationManager) -> None:
+    super().__init__(coordination_manager)
+    self.setup_interactables([])
+    self.setup_input_bindings()
+
+  @page_event_bind("start_game_response")
+  def _start_game(self, msg: PageQueryResponseEvent) -> None:
+    if msg.success:
+      print("GameBoard received board data:", msg.payload)
+    else:
+      print("Failed to receive board data:", msg.error_msg)

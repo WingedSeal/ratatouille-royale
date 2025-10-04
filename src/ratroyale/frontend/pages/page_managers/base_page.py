@@ -22,25 +22,33 @@ class Page():
         self.coordination_manager = coordination_manager
         self.is_blocking: bool = is_blocking
         self._interactables: list[Interactable] = []
-        self._interactable_bindings: dict[tuple[str, GestureType], Callable] = {}
-        """ Maps (interactable_id, gesture_type) to handler functions """
-        self.canvas = pygame.Surface(SCREEN_SIZE)
+        self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
         self.is_visible: bool = True
+
+        self._input_bindings: dict[tuple[str, GestureType], Callable] = {}
+        """ Maps (interactable_id, gesture_type) to handler functions """
+        self._page_bindings: dict[str, Callable] = {}
+        """ Maps (interactable_id, gesture_type) to handler functions """
 
     def setup_interactables(self, configs: list[InteractableConfig]) -> None:
         self._interactables = [create_interactable(cfg, self.gui_manager) for cfg in configs]
         self._sort_interactables_by_z_order()
 
-    def setup_bindings(self) -> None:
+    def setup_input_bindings(self) -> None:
         """
-        Scan all methods of the page instance for `_bindings` metadata
-        and populate _gesture_handlers.
+        Scan all methods of the page instance for `x_bindings` metadata
+        and populate x_bindings dict.
         """
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
-            if callable(attr) and hasattr(attr, "_bindings"):
-                for widget_id, gesture_type in attr._bindings:
-                    self._interactable_bindings[(widget_id, gesture_type)] = attr
+            if callable(attr):
+                if hasattr(attr, "input_bindings"):
+                    for widget_id, gesture_type in attr.input_bindings:
+                        self._input_bindings[(widget_id, gesture_type)] = attr
+                if hasattr(attr, "page_bindings"):
+                    print(attr.page_bindings)
+                    for page_event in attr.page_bindings:
+                        self._page_bindings[page_event] = attr
 
     def _sort_interactables_by_z_order(self) -> None:
         self._interactables.sort(key=lambda x: x.z_order, reverse=True)
@@ -81,12 +89,17 @@ class Page():
         """
         Executes the callback associated with the given InputManagerEvent.
         """
-        handler = self._interactable_bindings.get((msg.interactable_id, msg.gesture_data.gesture_type))
+        handler = self._input_bindings.get((msg.interactable_id, msg.gesture_data.gesture_type))
         if handler:
             handler(msg)
     
-    def execute_page_callback(self, msg: PageManagerEvent) -> None:
-        pass
+    def execute_page_callback(self, msg: PageQueryResponseEvent) -> None:
+        """
+        Executes the callback associated with the given PageQueryResponseEvent.
+        """
+        handler = self._page_bindings.get(msg.action_name)
+        if handler:
+            handler(msg)
     
     def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
         pass

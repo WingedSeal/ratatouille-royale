@@ -1,6 +1,7 @@
 # type: ignore
 import pygame
 from ratroyale.frontend.pages.page_managers.page_manager import PageManager
+from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 import ratroyale.frontend.pages.page_definitions as pages
@@ -27,7 +28,9 @@ def main():
 
     coordination_manager = CoordinationManager()
 
-    page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
+    page_manager = PageManager(
+        screen=screen, coordination_manager=coordination_manager
+    )
 
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
@@ -88,6 +91,10 @@ def main():
     )
     # endregion
 
+    backend_adapter = BackendAdapter(
+        game_manager=game_manager, coordination_manager=coordination_manager
+    )
+
     page_manager.push_page(pages.MainMenu)
 
     while coordination_manager.game_running:
@@ -99,6 +106,7 @@ def main():
         while not coordination_manager.all_mailboxes_empty():
             page_manager.execute_page_callback()
             page_manager.execute_visual_callback()
+            backend_adapter.execute_backend_callback()
 
         page_manager.render(dt)
 

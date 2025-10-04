@@ -7,7 +7,7 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureType
 
 from ..page_managers.base_page import Page
-from ratroyale.frontend.pages.page_managers.input_binder import bind_to
+from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.frontend.pages.interactables.interactable_builder import InteractableConfig, InteractableType
@@ -34,16 +34,16 @@ class PauseMenu(Page):
         ]
 
         self.setup_interactables(configs)
-        self.setup_bindings()
+        self.setup_input_bindings()
     # region Input Handlers
-    @bind_to("resume_button", GestureType.CLICK)
+    @input_event_bind("resume_button", GestureType.CLICK)
     def on_resume_click(self, msg: InputManagerEvent):
         print("Resume clicked!")
         self.coordination_manager.put_message(
             PageNavigationEvent(action_list=[(PageNavigation.POP, None)])
         )
 
-    @bind_to("quit_button", GestureType.CLICK)
+    @input_event_bind("quit_button", GestureType.CLICK)
     def on_quit_click(self, msg: InputManagerEvent):
         print("Quit to menu clicked!")
         self.coordination_manager.put_message(

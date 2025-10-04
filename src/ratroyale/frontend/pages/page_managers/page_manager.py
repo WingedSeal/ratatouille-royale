@@ -98,7 +98,7 @@ class PageManager:
         while not msg_queue.empty():
             event: InputManagerEvent = msg_queue.get()
             # Broadcast to all pages that have a handler for this event
-            for page in reversed(self.page_stack):
+            for page in self.page_stack:
                 page.execute_input_callback(event)
 
     def execute_page_callback(self) -> None:
@@ -110,12 +110,11 @@ class PageManager:
             msg = msg_queue.get()
             if isinstance(msg, PageNavigationEvent):
                 self._navigate(msg)
-            elif isinstance(msg, PageTargetedEvent):
+            elif isinstance(msg, PageQueryResponseEvent):
                 self._delegate(msg)
     
     def _navigate(self, msg: PageNavigationEvent) -> None:
         """ Handle page navigation actions such as PUSH, POP, REPLACE, HIDE, and SHOW."""
-        print(f"Navigating pages with actions: {msg.action_list}")
         for action, page_name in msg.action_list:
             page_type = resolve_page(page_name) if page_name else None
 
@@ -142,7 +141,7 @@ class PageManager:
                     case PageNavigation.POP:
                         self.pop_page()
 
-    def _delegate(self, msg: PageTargetedEvent) -> None:
+    def _delegate(self, msg: PageQueryResponseEvent) -> None:
         """Delegate a PageManagerEvent to the appropriate page."""
         for name in msg.page_list:
 
@@ -161,7 +160,7 @@ class PageManager:
             msg = msg_queue.get()
             if isinstance(msg, PageNavigationEvent):
                 self._navigate(msg)
-            elif isinstance(msg, PageTargetedEvent):
+            elif isinstance(msg, PageQueryResponseEvent):
                 self._delegate(msg)
 
     # endregion
