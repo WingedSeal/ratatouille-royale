@@ -18,12 +18,17 @@ _INTERACTABLE_BUILDERS: dict[InteractableType, Callable] = {}
 
 @dataclass
 class InteractableConfig:
-    type_key: InteractableType      # What kind of interactable this is
-    id: str                         # Unique identifier for this interactable
-    rect: tuple[int, int, int, int] # Rectangle for hitbox / UI element
-    text: str = ""                  # Optional, for buttons
-    # tile: Tile | None = None        # Optional, for tile visuals
-    # entity: Entity | None = None    # Optional, for entity visuals
+    type_key: InteractableType          # What kind of interactable this is
+    id: str                             # Unique identifier for this interactable
+    rect: tuple[int, int, int, int]     # Rectangle for hitbox / UI element
+    text: str = ""                      # Optional, for buttons
+    z_order: int = 0                    # Rendering order, higher is on top
+    is_blocking: bool = True            # Whether this interactable blocks input to those below it
+
+    parent_id: str | None = None        # Optional, for hierarchical interactable
+    offset: tuple[int, int] = (0, 0)    # Optional, for hierarchical interactable
+    # tile: Tile | None = None          # Optional, for tile visuals
+    # entity: Entity | None = None      # Optional, for entity visuals
 
 def _register_interactable(type_key: InteractableType):
     def decorator(fn: Callable):
@@ -35,7 +40,7 @@ def create_interactable(cfg: InteractableConfig, manager: UIManager) -> Interact
   return _INTERACTABLE_BUILDERS[cfg.type_key](cfg, manager)
 
 @_register_interactable(InteractableType.BUTTON)
-def build_button(cfg: InteractableConfig, manager: UIManager) -> Interactable:
+def create_button(cfg: InteractableConfig, manager: UIManager) -> Interactable:
     visual = UIVisual(
         type=pygame_gui.elements.UIButton,
         relative_rect=pygame.Rect(cfg.rect),
@@ -45,7 +50,9 @@ def build_button(cfg: InteractableConfig, manager: UIManager) -> Interactable:
     return Interactable(
         interactable_id=cfg.id,
         hitbox=RectangleHitbox(pygame.Rect(cfg.rect)),
-        visuals=[visual]
+        visuals=[visual],
+        z_order=cfg.z_order,
+        is_blocking=cfg.is_blocking
     )
 
 # TODO: NOT FINISHED YET.

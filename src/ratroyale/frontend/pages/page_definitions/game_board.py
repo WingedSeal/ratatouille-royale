@@ -17,7 +17,6 @@ class GameBoard(Page):
   def __init__(self, coordination_manager: CoordinationManager) -> None:
     super().__init__(coordination_manager)
     self.setup_interactables([])
-    self.setup_input_bindings()
 
   @page_event_bind("start_game_response")
   def _start_game(self, msg: PageQueryResponseEvent) -> None:

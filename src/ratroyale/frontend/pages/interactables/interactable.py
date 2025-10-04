@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, Callable
 from ratroyale.event_tokens.input_token import InputManagerEvent
 from enum import Enum, auto
-from ratroyale.frontend.visual.asset_management.visual_component import UIVisual, TileVisual
+from ratroyale.frontend.visual.asset_management.visual_component import UIVisual, SpriteVisual
 
 # region Base Hitbox Classes
 
@@ -139,17 +139,21 @@ class Interactable(Generic[T]):
         interactable_id: str,
         hitbox: Hitbox,
         payload: T | None = None,
-        blocks_input: bool = True,
+        is_blocking: bool = True,
         z_order: int = 0,
         visuals: list[VisualComponent] | None = None
     ) -> None:
         self.interactable_id: str = interactable_id
         self.hitbox: Hitbox = hitbox
         self.payload: T | None = payload
-        self.blocks_input: bool = blocks_input
+        self.blocks_input: bool = is_blocking
+        self._relative_offset: tuple[float, float] = (0, 0)
 
         self.z_order: int = z_order
         self.visuals: list[VisualComponent] = visuals if visuals else []
+
+        self.parent: Interactable | None = None
+        self.children: list[Interactable] = []
 
     def process_gesture(self, gesture: GestureData) -> InputManagerEvent | None:
         gesture_pos = gesture.start_pos
@@ -163,10 +167,62 @@ class Interactable(Generic[T]):
             payload=self.payload)
     
     def get_topleft(self) -> tuple[float, float]:
+        """Return the current top-left position of this interactable."""
         return self.hitbox.get_topleft()
+
+    def set_position(self, topleft: tuple[float, float]) -> None:
+        """Move this interactable and reposition all children accordingly."""
+        self.hitbox.move_to(topleft)
+
+        # Move children based on stored relative offsets
+        for child in self.children:
+            child_x = topleft[0] + child._relative_offset[0]
+            child_y = topleft[1] + child._relative_offset[1]
+            child.set_position((child_x, child_y))
 
     def attach_visuals(self, visuals: VisualComponent) -> None:
         self.visuals.append(visuals)
+
+    def add_child(self, child: "Interactable", offset: tuple[float, float] | None = None) -> None:
+        """
+        Attach a child interactable.
+        If offset is None, compute it from current absolute positions.
+        """
+        if child in self.children:
+            raise ValueError(f"Child '{child.interactable_id}' already attached to '{self.interactable_id}'")
+
+        self.children.append(child)
+        child.parent = self
+
+        if offset is None:
+            # Infer offset based on current positions
+            px, py = self.get_topleft()
+            cx, cy = child.get_topleft()
+            offset = (cx - px, cy - py)
+
+        child._relative_offset = offset
+        self._update_child_position(child)
+
+    def remove_child(self, child: "Interactable") -> None:
+        """Detach a child interactable."""
+        if child not in self.children:
+            raise ValueError(f"Child '{child.interactable_id}' not found in '{self.interactable_id}'")
+        self.children.remove(child)
+        child.parent = None
+        child._relative_offset = (0, 0)
+
+    def _update_child_position(self, child: "Interactable") -> None:
+        """Reposition a specific child based on its stored offset."""
+        parent_x, parent_y = self.get_topleft()
+        offset_x, offset_y = child._relative_offset
+        child.set_position((parent_x + offset_x, parent_y + offset_y))
+
+    # --- Debug Utility ---
+    def draw_hitbox(self, surface, color=(255, 0, 0)) -> None:
+        """Draw this interactable's hitbox and its children's recursively."""
+        self.hitbox.draw(surface, color)
+        for child in self.children:
+            child.draw_hitbox(surface, color)
 
 # endregion
 

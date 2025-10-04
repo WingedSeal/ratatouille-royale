@@ -23,7 +23,6 @@ class MainMenu(Page):
     ]
 
     self.setup_interactables(configs)
-    self.setup_input_bindings()
 
   # region Input Responses
 

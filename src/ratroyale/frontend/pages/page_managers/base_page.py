@@ -30,9 +30,27 @@ class Page():
         self._page_bindings: dict[str, Callable] = {}
         """ Maps (interactable_id, gesture_type) to handler functions """
 
+        self.setup_input_bindings()
+
     def setup_interactables(self, configs: list[InteractableConfig]) -> None:
-        self._interactables = [create_interactable(cfg, self.gui_manager) for cfg in configs]
-        self._sort_interactables_by_z_order()
+        interactables: dict[str, Interactable] = {}
+
+        # Pass 1 — build all interactables
+        for cfg in configs:
+            interactable = create_interactable(cfg, self.gui_manager)
+            interactables[cfg.id] = interactable
+
+        # Pass 2 — attach children if needed
+        for cfg in configs:
+            if cfg.parent_id:
+                parent = interactables.get(cfg.parent_id)
+                child = interactables[cfg.id]
+                if parent is None:
+                    raise ValueError(f"Parent interactable '{cfg.parent_id}' not found for child '{cfg.id}'")
+
+                parent.add_child(child, cfg.offset)
+
+        self._interactables = list(interactables.values())
 
     def setup_input_bindings(self) -> None:
         """

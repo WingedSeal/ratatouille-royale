@@ -24,7 +24,7 @@ class VisualComponent(ABC):
         ...
 
     @abstractmethod
-    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+    def set_position(self, topleft_coord: tuple[float, float]) -> None:
         """Move this visual component to the specified topleft coord"""
         ...
     
@@ -47,7 +47,7 @@ class UIVisual(VisualComponent):
         # No-op, since pygame_gui handles rendering the UI components under its care.
         pass
 
-    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+    def set_position(self, topleft_coord: tuple[float, float]) -> None:
         pass
     
 class SpriteVisual(VisualComponent):
@@ -65,7 +65,7 @@ class SpriteVisual(VisualComponent):
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.image, self.position)
 
-    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+    def set_position(self, topleft_coord: tuple[float, float]) -> None:
         self.position = topleft_coord
 
 class TileVisual(SpriteVisual):

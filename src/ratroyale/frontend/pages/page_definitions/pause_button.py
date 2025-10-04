@@ -27,7 +27,6 @@ class PauseButton(Page):
         ]
 
         self.setup_interactables(configs)
-        self.setup_input_bindings()
 
     # region Input Responses
     @input_event_bind("pause_button", GestureType.CLICK)

@@ -34,7 +34,7 @@ class PauseMenu(Page):
         ]
 
         self.setup_interactables(configs)
-        self.setup_input_bindings()
+
     # region Input Handlers
     @input_event_bind("resume_button", GestureType.CLICK)
     def on_resume_click(self, msg: InputManagerEvent):
