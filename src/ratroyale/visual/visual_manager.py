@@ -1,10 +1,10 @@
 import pygame
 from ratroyale.visual.renderer import PageRenderer, GameBoardPageRenderer
-from ratroyale.input.page_management.page_creator import Page, GameBoardPage
+from ratroyale.frontend.pages.page_definitions.page_creator import Page, GameBoardPage
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from typing import Callable
-from ratroyale.input.page_management.page_name import PageName
+from ratroyale.frontend.page_management.page_name import PageName
 from ratroyale.visual.screen_constants import SCREEN_SIZE
 
 class VisualManager:

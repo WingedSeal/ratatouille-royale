@@ -84,7 +84,7 @@ class GameManager:
 
             match token:
                 case RequestStart_GameManagerEvent(page_name=pn):
-                    self.coordination_manager.put_message(StartGameConfirmation(pn, self.board))
+                    self.coordination_manager.put_message(StartGameConfirmation_PageManagerEvent(pn, self.board))
                     # In actual implementation, replace the sample map in render test with an actual loaded map
                 case RequestEntityMovement_GameManagerEvent(page_name=pn, entity=e, tile=t):
                     if isinstance(e, Rodent):

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from .base import EventToken
-from ratroyale.input.gesture_management.gesture_data import GestureData
+from ratroyale.frontend.gesture_management.gesture_data import GestureData
 from typing import TypeVar, Generic
 
 __all__ = [

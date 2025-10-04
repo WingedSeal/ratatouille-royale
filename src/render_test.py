@@ -1,9 +1,9 @@
 # type: ignore
 import pygame
-from ratroyale.input.pages.page_managers.page_manager import PageManager
+from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.visual.screen_constants import SCREEN_SIZE
-import ratroyale.input.pages.page_definitions as pages
+import ratroyale.frontend.pages.page_definitions as pages
 
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.map import Map
