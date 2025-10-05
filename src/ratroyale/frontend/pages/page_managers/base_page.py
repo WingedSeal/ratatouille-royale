@@ -4,14 +4,14 @@ import pygame
 
 from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.pages.interactables.interactable import Interactable
+from ratroyale.frontend.pages.page_elements.element import Element
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE, THEME_PATH
 from typing import Callable
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
-from ratroyale.frontend.pages.interactables.interactable_builder import create_interactable, InteractableConfig
+from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig
 from ratroyale.event_tokens.game_action import GameAction
 
 
@@ -22,7 +22,7 @@ class Page():
         """ Each page has its own UIManager """
         self.coordination_manager = coordination_manager
         self.is_blocking: bool = is_blocking
-        self._interactables: list[Interactable] = []
+        self._interactables: list[Element] = []
         self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
         self.is_visible: bool = True
 
@@ -33,12 +33,12 @@ class Page():
 
         self.setup_input_bindings()
 
-    def setup_interactables(self, configs: list[InteractableConfig]) -> None:
-        interactables: dict[str, Interactable] = {}
+    def setup_interactables(self, configs: list[ElementConfig]) -> None:
+        interactables: dict[str, Element] = {}
 
         # Pass 1 — build all interactables
         for cfg in configs:
-            interactable = create_interactable(cfg, self.gui_manager)
+            interactable = create_element(cfg, self.gui_manager)
             interactables[cfg.id] = interactable
 
         # Pass 2 — attach children if needed
@@ -72,10 +72,10 @@ class Page():
     def _sort_interactables_by_z_order(self) -> None:
         self._interactables.sort(key=lambda x: x.z_order, reverse=True)
 
-    def add_element(self, element: Interactable) -> None:
+    def add_element(self, element: Element) -> None:
         self._interactables.append(element)
 
-    def remove_element(self, element: Interactable) -> None:
+    def remove_element(self, element: Element) -> None:
         if element in self._interactables:
             self._interactables.remove(element)
 
@@ -97,7 +97,7 @@ class Page():
                 if input_message:
                     self.coordination_manager.put_message(input_message)
 
-                    if interactable.blocks_input:
+                    if interactable.is_blocking:
                         break
             else:
                 remaining_gestures.append(gesture)

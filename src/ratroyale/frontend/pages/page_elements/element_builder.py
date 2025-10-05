@@ -5,49 +5,53 @@ from pygame_gui import UIManager
 from typing import Callable
 from enum import Enum, auto
 from ratroyale.frontend.visual.asset_management.visual_component import UIVisual, TileVisual
-from ratroyale.frontend.pages.interactables.interactable import Interactable, RectangleHitbox, HexHitbox
+from ratroyale.frontend.pages.page_elements.element import Element, RectangleHitbox, HexHitbox
 from dataclasses import dataclass
+from typing import TypeVar, Generic
 
-class InteractableType(Enum):
+class ElementType(Enum):
     BUTTON = auto()
     TILE = auto()
     ENTITY = auto()
     ABILITY = auto()
 
-_INTERACTABLE_BUILDERS: dict[InteractableType, Callable] = {}
+_INTERACTABLE_BUILDERS: dict[ElementType, Callable] = {}
+
+T = TypeVar('T')
 
 @dataclass
-class InteractableConfig:
-    type_key: InteractableType          # What kind of interactable this is
-    id: str                             # Unique identifier for this interactable
+class ElementConfig(Generic[T]):
+    type_key: ElementType               # What kind of element this is
+    id: str                             # Unique identifier for this element
     rect: tuple[int, int, int, int]     # Rectangle for hitbox / UI element
-    text: str = ""                      # Optional, for buttons
+    text: str = ""                      # Optional text field (for buttons, labels, etc.)
     z_order: int = 0                    # Rendering order, higher is on top
-    is_blocking: bool = True            # Whether this interactable blocks input to those below it
+    is_interactable: bool = True        # Whether this element can receive input. If off, it is just visual.
+    is_blocking: bool = True            # Whether this element blocks input to those below it
 
-    parent_id: str | None = None        # Optional, for hierarchical interactable
-    offset: tuple[int, int] = (0, 0)    # Optional, for hierarchical interactable
-    # tile: Tile | None = None          # Optional, for tile visuals
-    # entity: Entity | None = None      # Optional, for entity visuals
+    parent_id: str | None = None        # Optional, for hierarchical element
+    offset: tuple[int, int] = (0, 0)    # Optional, for hierarchical element
 
-def _register_interactable(type_key: InteractableType):
+    payload: T | None = None            # Optional, for any extra data (e.g. Tiles, Entities, Abilities, etc.)
+
+def _register_element_creator(type_key: ElementType):
     def decorator(fn: Callable):
         _INTERACTABLE_BUILDERS[type_key] = fn
         return fn
     return decorator
 
-def create_interactable(cfg: InteractableConfig, manager: UIManager) -> Interactable:
+def create_element(cfg: ElementConfig, manager: UIManager) -> Element:
   return _INTERACTABLE_BUILDERS[cfg.type_key](cfg, manager)
 
-@_register_interactable(InteractableType.BUTTON)
-def create_button(cfg: InteractableConfig, manager: UIManager) -> Interactable:
+@_register_element_creator(ElementType.BUTTON)
+def create_button(cfg: ElementConfig, manager: UIManager) -> Element:
     visual = UIVisual(
         type=pygame_gui.elements.UIButton,
         relative_rect=pygame.Rect(cfg.rect),
         kwargs={"text": cfg.text}
     )
     visual.create(manager)
-    return Interactable(
+    return Element(
         interactable_id=cfg.id,
         hitbox=RectangleHitbox(pygame.Rect(cfg.rect)),
         visuals=[visual],

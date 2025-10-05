@@ -10,7 +10,7 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.interactables.interactable_builder import InteractableConfig, InteractableType
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType
 
 @register_page
 class MainMenu(Page):
@@ -18,20 +18,20 @@ class MainMenu(Page):
     super().__init__(coordination_manager)
 
     configs = [
-      InteractableConfig(
-          type_key=InteractableType.BUTTON, 
+      ElementConfig(
+          type_key=ElementType.BUTTON, 
           id="start_button", 
           rect=(100,100,200,50), 
           text="Start"
           ),
-      InteractableConfig(
-          type_key=InteractableType.BUTTON, 
+      ElementConfig(
+          type_key=ElementType.BUTTON, 
           id="quit_button", 
           rect=(100,200,200,50), 
           text="Quit"
           ),
-      InteractableConfig(
-          type_key=InteractableType.BUTTON,
+      ElementConfig(
+          type_key=ElementType.BUTTON,
           id="child_button",
           rect=(0, 0, 100, 40),
           text="Child",

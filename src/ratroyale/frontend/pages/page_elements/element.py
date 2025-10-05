@@ -125,13 +125,13 @@ class HexHitbox(Hitbox):
 
  # endregion
 
-# region Base Interactable
+# region Base Element Class
 
 T = TypeVar("T")
 
-class Interactable(Generic[T]):
+class Element(Generic[T]):
     """
-    Base class for a logical UI element.
+    Base class for a logical page element.
     Handles hitbox-based input detection and optional visual component.
     """
     def __init__(
@@ -139,6 +139,7 @@ class Interactable(Generic[T]):
         interactable_id: str,
         hitbox: Hitbox,
         payload: T | None = None,
+        is_interactable: bool = True,
         is_blocking: bool = True,
         z_order: int = 0,
         visuals: list[VisualComponent] | None = None
@@ -146,14 +147,15 @@ class Interactable(Generic[T]):
         self.interactable_id: str = interactable_id
         self.hitbox: Hitbox = hitbox
         self.payload: T | None = payload
-        self.blocks_input: bool = is_blocking
+        self.is_interactable: bool = is_interactable
+        self.is_blocking: bool = is_blocking
         self._relative_offset: tuple[float, float] = (0, 0)  # Offset from parent if any
 
         self.z_order: int = z_order
         self.visuals: list[VisualComponent] = visuals if visuals else []
 
-        self.parent: Interactable | None = None
-        self.children: list[Interactable] = []
+        self.parent: Element | None = None
+        self.children: list[Element] = []
 
     def process_gesture(self, gesture: GestureData) -> InputManagerEvent | None:
         gesture_pos = gesture.start_pos
@@ -189,7 +191,7 @@ class Interactable(Generic[T]):
         for visual in self.visuals:
             visual.set_position(topleft)
 
-    def add_child(self, child: "Interactable", offset: tuple[float, float] | None = None) -> None:
+    def add_child(self, child: "Element", offset: tuple[float, float] | None = None) -> None:
         """
         Attach a child interactable.
         If offset is None, compute it from current absolute positions.
@@ -209,7 +211,7 @@ class Interactable(Generic[T]):
         child._relative_offset = offset
         self._update_child_position(child)
 
-    def remove_child(self, child: "Interactable") -> None:
+    def remove_child(self, child: "Element") -> None:
         """Detach a child interactable."""
         if child not in self.children:
             raise ValueError(f"Child '{child.interactable_id}' not found in '{self.interactable_id}'")
@@ -217,7 +219,7 @@ class Interactable(Generic[T]):
         child.parent = None
         child._relative_offset = (0, 0)
 
-    def _update_child_position(self, child: "Interactable") -> None:
+    def _update_child_position(self, child: "Element") -> None:
         """Reposition a specific child based on its stored offset."""
         parent_x, parent_y = self.get_topleft()
         offset_x, offset_y = child._relative_offset

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from .base import EventToken
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
-from ratroyale.frontend.pages.interactables.interactable import Interactable
+from ratroyale.frontend.pages.page_elements.element import Element
 from pygame_gui.ui_manager import UIManager
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
@@ -31,11 +31,11 @@ class UnregisterPage_VisualManagerEvent(VisualManagerEvent):
 @dataclass
 class RegisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
   visual_component: list[VisualComponent]
-  interactable: Interactable
+  interactable: Element
 
 @dataclass
 class UnregisterVisualComponent_VisualManagerEvent(VisualManagerEvent):
-  interactable: Interactable
+  interactable: Element
 
 # @dataclass
 # class TileInteraction_VisualManagerEvent(VisualManagerEvent):

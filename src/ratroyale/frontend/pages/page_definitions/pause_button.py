@@ -10,7 +10,7 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.interactables.interactable_builder import InteractableConfig, InteractableType
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType
 
 @register_page
 class PauseButton(Page):
@@ -18,8 +18,8 @@ class PauseButton(Page):
         super().__init__(coordination_manager)
 
         configs = [
-            InteractableConfig(
-                type_key=InteractableType.BUTTON,
+            ElementConfig(
+                type_key=ElementType.BUTTON,
                 id="pause_button",
                 rect=(700, 20, 80, 40),
                 text="Pause"

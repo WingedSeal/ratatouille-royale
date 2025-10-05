@@ -31,7 +31,6 @@ def resolve_page(page_name: str) -> Type[Page]:
             "Make sure it's imported and registered."
         )
 
-
 def all_pages() -> list[str]:
     """Return a list of all registered page names (for debugging or introspection)."""
     return list(_PAGE_REGISTRY.keys())

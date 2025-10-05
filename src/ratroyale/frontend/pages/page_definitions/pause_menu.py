@@ -10,7 +10,7 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.interactables.interactable_builder import InteractableConfig, InteractableType
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType
 
 @register_page
 class PauseMenu(Page):
@@ -19,14 +19,14 @@ class PauseMenu(Page):
 
         # Config list for all buttons
         configs = [
-            InteractableConfig(
-                type_key=InteractableType.BUTTON,
+            ElementConfig(
+                type_key=ElementType.BUTTON,
                 id="resume_button",
                 rect=(300, 200, 200, 50),
                 text="Continue"
             ),
-            InteractableConfig(
-                type_key=InteractableType.BUTTON,
+            ElementConfig(
+                type_key=ElementType.BUTTON,
                 id="quit_button",
                 rect=(300, 300, 200, 50),
                 text="Quit Game"
