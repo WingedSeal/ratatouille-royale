@@ -82,7 +82,7 @@ class PageManager:
             if not gestures:
                 break  
 
-            gestures = page.handle_gestures(gestures)
+            gestures = page.handle_inputs(gestures)
 
             if page.is_blocking:
                 break

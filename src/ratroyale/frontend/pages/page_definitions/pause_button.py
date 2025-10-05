@@ -19,7 +19,7 @@ class PauseButton(Page):
 
         configs = [
             ElementConfig(
-                type_key=ElementType.BUTTON,
+                element_type=ElementType.BUTTON,
                 id="pause_button",
                 rect=(700, 20, 80, 40),
                 text="Pause"

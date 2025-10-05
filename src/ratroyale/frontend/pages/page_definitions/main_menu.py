@@ -19,19 +19,19 @@ class MainMenu(Page):
 
     configs = [
       ElementConfig(
-          type_key=ElementType.BUTTON, 
+          element_type=ElementType.BUTTON, 
           id="start_button", 
           rect=(100,100,200,50), 
           text="Start"
           ),
       ElementConfig(
-          type_key=ElementType.BUTTON, 
+          element_type=ElementType.BUTTON, 
           id="quit_button", 
           rect=(100,200,200,50), 
           text="Quit"
           ),
       ElementConfig(
-          type_key=ElementType.BUTTON,
+          element_type=ElementType.BUTTON,
           id="child_button",
           rect=(0, 0, 100, 40),
           text="Child",

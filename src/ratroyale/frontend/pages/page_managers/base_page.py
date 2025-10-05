@@ -2,6 +2,7 @@ from __future__ import annotations
 import pygame_gui
 import pygame
 
+
 from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.frontend.pages.page_elements.element import Element
@@ -12,6 +13,7 @@ from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE, THEME_PATH
 from typing import Callable
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig
+from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.event_tokens.game_action import GameAction
 
 
@@ -22,7 +24,7 @@ class Page():
         """ Each page has its own UIManager """
         self.coordination_manager = coordination_manager
         self.is_blocking: bool = is_blocking
-        self._elements: list[Element] = []
+        self._element_manager: ElementManager = ElementManager(self.gui_manager, self.coordination_manager)
         self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
         self.is_visible: bool = True
 
@@ -34,24 +36,7 @@ class Page():
         self.setup_input_bindings()
 
     def setup_elements(self, configs: list[ElementConfig]) -> None:
-        interactables: dict[str, Element] = {}
-
-        # Pass 1 — build all interactables
-        for cfg in configs:
-            element = create_element(cfg, self.gui_manager)
-            interactables[cfg.id] = element
-
-        # Pass 2 — attach children if needed
-        for cfg in configs:
-            if cfg.parent_id:
-                parent = interactables.get(cfg.parent_id)
-                child = interactables[cfg.id]
-                if parent is None:
-                    raise ValueError(f"Parent element '{cfg.parent_id}' not found for child '{cfg.id}'")
-
-                parent.add_child(child, cfg.offset)
-
-        self._elements = list(interactables.values())
+        self._element_manager.create_elements(configs)
 
     def setup_input_bindings(self) -> None:
         """
@@ -69,41 +54,17 @@ class Page():
                     for page_event in attr.page_bindings:
                         self._page_bindings[page_event] = attr
 
-    def _sort_interactables_by_z_order(self) -> None:
-        self._elements.sort(key=lambda x: x.z_order, reverse=True)
-
-    def add_element(self, element: Element) -> None:
-        self._elements.append(element)
-
-    def remove_element(self, element: Element) -> None:
-        if element in self._elements:
-            self._elements.remove(element)
-
-    def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
+    def handle_inputs(self, gestures: list[GestureData]) -> list[GestureData]:
         """
         Dispatch a GestureData object to the appropriate Interactable(s).
         Interactable then produces the corresponding InputManagerEvent, which is
         handled by the page.
-        Additionally, if the page is hidden, it will not process any gestures.
+        If the page is hidden, it will not process any gestures.
         """
         if not self.is_visible:
             return gestures
 
-        remaining_gestures: list[GestureData] = []
-        
-        for gesture in gestures:
-            for element in self._elements:
-                if element.is_interactable:
-                    input_message: InputManagerEvent | None = element.process_gesture(gesture)
-                    if input_message:
-                        self.coordination_manager.put_message(input_message)
-
-                        if element.is_blocking:
-                            break
-            else:
-                remaining_gestures.append(gesture)
-
-        return remaining_gestures
+        return self._element_manager.handle_inputs(gestures)
 
     def execute_input_callback(self, msg: InputManagerEvent) -> None:
         """
@@ -125,28 +86,25 @@ class Page():
         pass
     
     def hide(self) -> None:
-      pass
+        self.is_visible = False
 
     def show(self) -> None:
-      pass
+        self.is_visible = True
 
     def on_create(self) -> None:
-      pass
+        """ Called when the page is created. Override in subclasses if needed. """
+        pass
 
     def on_destroy(self) -> None:
-      pass
+        """ Called when the page is destroyed. Override in subclasses if needed. """
+        pass
 
     def render(self, time_delta: float) -> pygame.Surface:
-      self.gui_manager.update(time_delta)
-      self.canvas.fill((0, 0, 0, 0))  # Clear with transparent
-
-      # Draw UI components
-      self.gui_manager.draw_ui(self.canvas)
-
-      # Draw elements
-      for element in self._elements:
-          if element.visuals:
-              for visual in element.visuals:
-                visual.render(self.canvas)
-
-      return self.canvas
+        if self.is_visible:
+            self.gui_manager.update(time_delta)
+            self.canvas.fill((0, 0, 0, 0))  # Clear with transparent
+            self._element_manager.render_all(self.canvas)
+            self.gui_manager.draw_ui(self.canvas)
+            return self.canvas
+        else:
+            return pygame.Surface((0, 0))  

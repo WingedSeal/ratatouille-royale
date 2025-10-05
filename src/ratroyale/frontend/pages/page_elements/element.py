@@ -232,6 +232,10 @@ class Element(Generic[T]):
         )
         self.set_position(new_pos)
 
+    def render(self, surface: pygame.Surface) -> None:
+        for visual in self.visuals:
+            visual.render(surface)
+
     # --- Debug Utility ---
     def draw_hitbox(self, surface, color=(255, 0, 0)) -> None:
         """Draw this interactable's hitbox and its children's recursively."""

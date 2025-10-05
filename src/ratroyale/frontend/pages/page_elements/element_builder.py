@@ -15,13 +15,13 @@ class ElementType(Enum):
     ENTITY = auto()
     ABILITY = auto()
 
-_INTERACTABLE_BUILDERS: dict[ElementType, Callable] = {}
+_ELEMENT_BUILDERS: dict[ElementType, Callable] = {}
 
 T = TypeVar('T')
 
 @dataclass
 class ElementConfig(Generic[T]):
-    type_key: ElementType               # What kind of element this is
+    element_type: ElementType           # What kind of element this is
     id: str                             # Unique identifier for this element
     rect: tuple[int, int, int, int]     # Rectangle for hitbox / UI element
     text: str = ""                      # Optional text field (for buttons, labels, etc.)
@@ -36,12 +36,12 @@ class ElementConfig(Generic[T]):
 
 def _register_element_creator(type_key: ElementType):
     def decorator(fn: Callable):
-        _INTERACTABLE_BUILDERS[type_key] = fn
+        _ELEMENT_BUILDERS[type_key] = fn
         return fn
     return decorator
 
 def create_element(cfg: ElementConfig, manager: UIManager) -> Element:
-  return _INTERACTABLE_BUILDERS[cfg.type_key](cfg, manager)
+  return _ELEMENT_BUILDERS[cfg.element_type](cfg, manager)
 
 @_register_element_creator(ElementType.BUTTON)
 def create_button(cfg: ElementConfig, manager: UIManager) -> Element:

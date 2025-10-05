@@ -20,13 +20,13 @@ class PauseMenu(Page):
         # Config list for all buttons
         configs = [
             ElementConfig(
-                type_key=ElementType.BUTTON,
+                element_type=ElementType.BUTTON,
                 id="resume_button",
                 rect=(300, 200, 200, 50),
                 text="Continue"
             ),
             ElementConfig(
-                type_key=ElementType.BUTTON,
+                element_type=ElementType.BUTTON,
                 id="quit_button",
                 rect=(300, 300, 200, 50),
                 text="Quit Game"
