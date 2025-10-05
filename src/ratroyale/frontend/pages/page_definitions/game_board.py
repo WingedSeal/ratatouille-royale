@@ -10,7 +10,7 @@ from ratroyale.frontend.gesture.gesture_data import GestureType
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind, callback_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-from ratroyale.frontend.pages.page_managers.backend_adapter import get_entity_from_name, get_name_from_entity
+from ratroyale.frontend.pages.page_managers.backend_adapter import get_name_from_entity, get_name_from_tile
 
 from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType
 
@@ -52,7 +52,7 @@ class GameBoard(Page):
           if tile:
             tile_element = ElementConfig[Tile](
               element_type=ElementType.TILE,
-              id=f"tile_{tile.coord.x}_{tile.coord.y}",
+              id=get_name_from_tile(tile),
               rect=self._define_tile_rect(tile),
               payload=tile
             )
@@ -74,13 +74,16 @@ class GameBoard(Page):
     
   @input_event_bind("tile", GestureType.CLICK)
   @input_event_bind("tile", GestureType.DOUBLE_CLICK)
+  @input_event_bind("tile", GestureType.HOLD)
   def _on_tile_click(self, msg: InputManagerEvent[Tile]) -> None:
     self._select_element(ElementType.TILE, msg.element_id)
+    self._close_ability_menu()
 
   @input_event_bind("entity", GestureType.CLICK)
   @input_event_bind("entity", GestureType.DOUBLE_CLICK)
   def _on_entity_click(self, msg: InputManagerEvent[Entity]) -> None:
     self._select_element(ElementType.ENTITY, msg.element_id)
+    self._close_ability_menu()
 
   @input_event_bind("entity", GestureType.HOLD)
   def _display_ability_menu(self, msg: InputManagerEvent[Entity]) -> None:
@@ -110,11 +113,14 @@ class GameBoard(Page):
         )
 
     self.setup_elements(ability_menu_elements)
+    self._select_element(ElementType.ENTITY, msg.element_id, False)
 
   @input_event_bind("ability", GestureType.CLICK)
   def _activate_ability(self, msg: InputManagerEvent) -> None:
     """ Activate selected ability. """
+    print(f"Activated ability: {msg.element_id}")
     self._close_ability_menu()
+    self._select_element(ElementType.ENTITY, msg.element_id)
 
   # endregion
 
@@ -125,7 +131,7 @@ class GameBoard(Page):
     for ability_menu_element in self.ability_menu_elements_id:
       self._element_manager.remove_element(ElementType.BUTTON, ability_menu_element)
 
-  def _select_element(self, element_type: ElementType, element_id: str) -> None:
+  def _select_element(self, element_type: ElementType, element_id: str, toggle: bool = True) -> None:
     """
     Handles single-selection logic for both tiles and entities.
     Only one element can be selected at a time.
@@ -138,7 +144,7 @@ class GameBoard(Page):
             prev_element.visual.set_highlighted(False)
 
     # Deselect if same element clicked
-    if self.selected_element_id == (element_type, element_id):
+    if self.selected_element_id == (element_type, element_id) and toggle:
         self.selected_element_id = None
         return
 
