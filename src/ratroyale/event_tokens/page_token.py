@@ -13,17 +13,17 @@ __all__ = [
     "PageManagerEvent",
     "PageNavigation",
     "PageNavigationEvent",
-    "PageQueryResponseEvent"
+    "PageCallbackEvent"
 ]
 
 class PageNavigation(Enum):
-    PUSH = auto()
-    POP = auto()
-    REMOVE = auto()
-    REPLACE = auto()
+    OPEN = auto()
+    CLOSE = auto()
+    CLOSE_TOP = auto()
+    REPLACE_TOP = auto()
+    CLOSE_ALL = auto()
     HIDE = auto()
     SHOW = auto()
-    REMOVE_ALL = auto()
 
 @dataclass
 class PageManagerEvent(EventToken):
@@ -34,7 +34,7 @@ class PageNavigationEvent(PageManagerEvent):
     action_list: list[tuple[PageNavigation, str | None]]  # List of (action, page_name) tuples
 
 @dataclass
-class PageQueryResponseEvent(Generic[T], PageManagerEvent):
+class PageCallbackEvent(Generic[T], PageManagerEvent):
     page_list: list[str]
     game_action: GameAction
     success: bool = True

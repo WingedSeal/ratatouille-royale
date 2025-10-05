@@ -30,8 +30,8 @@ class Hitbox(ABC):
         ...
 
 class RectangleHitbox(Hitbox):
-    def __init__(self, rect: pygame.Rect) -> None:
-        self.rect = rect
+    def __init__(self, rect: tuple[float, float, float, float]) -> None:
+        self.rect = pygame.Rect(rect)
 
     def contains_point(self, point: tuple[float, float]) -> bool:
         return self.rect.collidepoint(point)
@@ -66,18 +66,18 @@ class CircleHitbox(Hitbox):
 
 # TODO: could change this to polygonal hitbox and move all hex related functions to hexagon.py
 class HexHitbox(Hitbox):
-    def __init__(self, topleft: tuple[float, float], width: float, height: float) -> None:
+    def __init__(self, rect: tuple[float, float, float, float]) -> None:
         """
         topleft: (x, y) of the top-left bounding box of the hex
         width: corner-to-corner horizontally
         height: point-to-point vertically
         """
-        self.topleft = topleft
-        self.width = width
-        self.height = height
+        self.topleft = (rect[0], rect[1])
+        self.width = rect[2]
+        self.height = rect[3]
         # Convert top-left to center
-        cx = topleft[0] + width / 2
-        cy = topleft[1] + height / 2
+        cx = self.topleft[0] + self.width / 2
+        cy = self.topleft[1] + self.height / 2
         self.move_to_center((cx, cy))
 
     def _compute_points(self, center: tuple[float, float]) -> list[tuple[float, float]]:
@@ -142,7 +142,7 @@ class Element(Generic[T]):
         is_interactable: bool = True,
         is_blocking: bool = True,
         z_order: int = 0,
-        visuals: list[VisualComponent] | None = None
+        visual: VisualComponent | None = None
     ) -> None:
         self.interactable_id: str = interactable_id
         self.hitbox: Hitbox = hitbox
@@ -152,21 +152,24 @@ class Element(Generic[T]):
         self._relative_offset: tuple[float, float] = (0, 0)  # Offset from parent if any
 
         self.z_order: int = z_order
-        self.visuals: list[VisualComponent] = visuals if visuals else []
+        self.visual: VisualComponent | None = visual
 
         self.parent: Element | None = None
         self.children: list[Element] = []
 
     def process_gesture(self, gesture: GestureData) -> InputManagerEvent | None:
         gesture_pos = gesture.start_pos
-        if gesture_pos is None:
-            return None
-        if not self.hitbox.contains_point(gesture_pos):
+        if gesture_pos is None or not self.is_interactable or not self.hitbox.contains_point(gesture_pos):
             return None
         return InputManagerEvent(
-            interactable_id=self.interactable_id,
+            element_id=self.interactable_id,
             gesture_data=gesture,
-            payload=self.payload)
+            payload=self.payload
+            )
+    
+    def destroy_visual(self) -> None:
+        if self.visual:
+            self.visual.destroy()
     
     def get_topleft(self) -> tuple[float, float]:
         """Return the current top-left position of this interactable."""
@@ -175,7 +178,7 @@ class Element(Generic[T]):
     def set_position(self, topleft: tuple[float, float]) -> None:
         """Move this interactable and reposition all children accordingly."""
         self.hitbox.move_to(topleft)
-        self.move_visuals(topleft)
+        self.move_visual(topleft)
 
         # Move children based on stored relative offsets
         for child in self.children:
@@ -183,13 +186,10 @@ class Element(Generic[T]):
             child_y = topleft[1] + child._relative_offset[1]
             child.set_position((child_x, child_y))
 
-    def attach_visuals(self, visuals: VisualComponent) -> None:
-        self.visuals.append(visuals)
-
-    def move_visuals(self, topleft: tuple[float, float]) -> None:
+    def move_visual(self, topleft: tuple[float, float]) -> None:
         """Move all attached visuals to the new top-left position."""
-        for visual in self.visuals:
-            visual.set_position(topleft)
+        if self.visual:
+            self.visual.set_position(topleft)
 
     def add_child(self, child: "Element", offset: tuple[float, float] | None = None) -> None:
         """
@@ -233,9 +233,9 @@ class Element(Generic[T]):
         self.set_position(new_pos)
 
     def render(self, surface: pygame.Surface) -> None:
-        for visual in self.visuals:
-            visual.render(surface)
-
+        if self.visual:
+            self.visual.render(surface)
+    
     # --- Debug Utility ---
     def draw_hitbox(self, surface, color=(255, 0, 0)) -> None:
         """Draw this interactable's hitbox and its children's recursively."""

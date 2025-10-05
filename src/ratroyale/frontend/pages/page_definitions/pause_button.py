@@ -15,7 +15,7 @@ from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig
 @register_page
 class PauseButton(Page):
     def __init__(self, coordination_manager: CoordinationManager):
-        super().__init__(coordination_manager)
+        super().__init__(coordination_manager, is_blocking=False)
 
         configs = [
             ElementConfig(
@@ -33,7 +33,7 @@ class PauseButton(Page):
     def on_pause_click(self, msg: InputManagerEvent):
         self.coordination_manager.put_message(
             PageNavigationEvent(action_list=[
-                (PageNavigation.PUSH, "PauseMenu")
+                (PageNavigation.OPEN, "PauseMenu")
             ])
         )
     # endregion

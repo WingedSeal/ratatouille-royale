@@ -4,7 +4,10 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from typing import Callable
 from ratroyale.backend.board import Board
+from ratroyale.backend.tile import Tile
+from ratroyale.backend.entity import Entity
 from ratroyale.event_tokens.game_action import GameAction
+from ratroyale.backend.hexagon import OddRCoord
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
 class BackendAdapter:
@@ -31,16 +34,58 @@ class BackendAdapter:
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
         if board:
-            self.coordination_manager.put_message(PageQueryResponseEvent[Board](
+            self.coordination_manager.put_message(PageCallbackEvent[Board](
                 page_list=["GameBoard"],
                 game_action=GameAction.START_GAME,
                 payload=board
             ))
         else:
-            self.coordination_manager.put_message(PageQueryResponseEvent(
+            self.coordination_manager.put_message(PageCallbackEvent(
                 page_list=["GameBoard"],
                 game_action=GameAction.START_GAME,
                 success=False,
                 error_msg="Failed to start game: Board not initialized",
                 payload=None
             ))
+
+def get_name_from_entity(entity: Entity) -> str:
+    """Translate an Entity instance to a representative string name"""
+    return f"entity_{entity.name}_{entity.pos.x}_{entity.pos.y}"
+
+def get_name_from_tile(tile: Tile) -> str:
+    """Translate a Tile instance to a representative string name"""
+    return f"tile_{tile.coord.x}_{tile.coord.y}"
+
+def get_entity_from_name(board: Board, name: str) -> Entity | None:
+    """Translate a string name to an Entity instance. \n
+    Format: entity_{entity.name}_{entity.pos.x}_{entity.pos.y}"""
+    name_parts = name.split("_")
+    entity_name = name_parts[1]
+    pos_x = int(name_parts[-2])
+    pos_y = int(name_parts[-1])
+    coord = OddRCoord(pos_x, pos_y)
+
+    tile = board.get_tile(coord)
+    if tile is not None:
+        entities_here = tile.entities
+        for entity in entities_here:
+            if entity.name == entity_name and entity.pos == coord:
+                return entity
+            else:
+                raise ValueError(f"Entity with name {name} not found on board.")
+            
+def get_tile_from_name(board: Board, name: str) -> Tile:
+    """Translate a string name to an Tile instance. \n
+    Format: tile_{tile.coord.x}_{tile.coord.y}"""
+    name_parts = name.split("_")
+    pos_x = int(name_parts[-2])
+    pos_y = int(name_parts[-1])
+    coord = OddRCoord(pos_x, pos_y)
+
+    tile = board.get_tile(coord)
+
+    if tile:
+        return tile
+    else:
+        raise ValueError(f"No tile found at {coord}")
+        

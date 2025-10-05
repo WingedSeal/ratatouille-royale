@@ -3,7 +3,7 @@ from ratroyale.frontend.gesture.gesture_data import GestureType
 from ratroyale.event_tokens.game_action import GameAction
 from ratroyale.event_tokens.page_token import *
 
-def input_event_bind(widget_id: str, gesture_type: GestureType):
+def input_event_bind(element_id: str, gesture_type: GestureType):
   """
   Decorator used for attaching input bindings to methods.
   Multiple bindings can be attached to a single method by stacking these decorators.\n
@@ -18,13 +18,13 @@ def input_event_bind(widget_id: str, gesture_type: GestureType):
       return func(self, msg)
 
     bindings = getattr(wrapper, "input_bindings", [])
-    bindings.append((widget_id, gesture_type))
+    bindings.append((element_id, gesture_type))
     setattr(wrapper, "input_bindings", bindings)  
     return wrapper
 
   return decorator
 
-def page_event_bind(game_action: GameAction):
+def callback_event_bind(game_action: GameAction):
   """
   Decorator used for attaching input bindings to methods.
   Multiple bindings can be attached to a single method by stacking these decorators.\n

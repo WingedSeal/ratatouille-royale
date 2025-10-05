@@ -36,7 +36,7 @@ class ElementManager:
             element_type: ElementType, 
             key: str, 
             element: Element, 
-            parent_id: str | None, 
+            parent_id: tuple[str, ElementType] | None, 
             offset: tuple[int, int] | None = None
             ) -> None:
         """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
@@ -47,12 +47,14 @@ class ElementManager:
         print(f"Added element '{key}' to collection '{element_type}'")
 
         if parent_id:
-            if parent_id in collection:
-                parent: Element = collection[parent_id]
+            parent_name, parent_type = parent_id
+            parent_collection = self.get_collection(parent_type)
+            if parent_name in parent_collection:
+                parent: Element = parent_collection[parent_name]
                 parent.add_child(element, offset)
-                print(f"Set parent of element '{key}' to '{parent_id}'")
+                print(f"Set parent of element '{key}' to '{parent_name}'")
             else:
-                raise ValueError(f"Parent with id '{parent_id}' not found in collection '{element_type}'")
+                raise ValueError(f"Parent with id '{parent_name}' not found in collection '{parent_type}'")
         self._flattened_collection.append(element)
         self._sort_flattened_by_z_order()
 
@@ -60,8 +62,9 @@ class ElementManager:
         """ Removes an element from the specified collection and updates the flattened list."""
         collection = self.get_collection(element_type)
         if key in collection:
-            element = collection[key]
+            element: Element = collection[key]
             if element in self._flattened_collection:
+                element.destroy_visual()
                 self._flattened_collection.remove(element)
             del collection[key]
             self._sort_flattened_by_z_order()
@@ -112,7 +115,7 @@ class ElementManager:
 
     def render_all(self, surface: Surface) -> None:
         """Default rendering: renders all elements in z-order."""
-        for element in self._flattened_collection:
+        for element in reversed(self._flattened_collection):
             element.render(surface)
 
     def render_collection(self, surface: Surface, element_type: ElementType) -> None:

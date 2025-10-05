@@ -2,7 +2,6 @@ from __future__ import annotations
 import pygame_gui
 import pygame
 
-
 from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.frontend.pages.page_elements.element import Element
@@ -12,7 +11,7 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE, THEME_PATH
 from typing import Callable
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
-from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig
+from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig, ElementType
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.event_tokens.game_action import GameAction
 
@@ -37,6 +36,9 @@ class Page():
 
     def setup_elements(self, configs: list[ElementConfig]) -> None:
         self._element_manager.create_elements(configs)
+
+    def get_element(self, element_type: ElementType, element_id: str) -> Element | None:
+        return self._element_manager.get_element(element_type, element_id)
 
     def setup_input_bindings(self) -> None:
         """
@@ -66,19 +68,25 @@ class Page():
 
         return self._element_manager.handle_inputs(gestures)
 
-    def execute_input_callback(self, msg: InputManagerEvent) -> None:
+    def execute_input_callback(self, msg: InputManagerEvent) -> bool:
         """
         Executes the callback associated with the given InputManagerEvent.
+        Supports prefix matching for element IDs.
         """
-        handler = self._input_bindings.get((msg.interactable_id, msg.gesture_data.gesture_type))
-        if handler:
-            handler(msg)
+        for (prefix, gesture_type), handler in self._input_bindings.items():
+            if gesture_type == msg.gesture_data.gesture_type and (
+                msg.element_id == prefix or msg.element_id.startswith(prefix)
+            ):
+                handler(msg)
+                return True
+        else:
+            return False
     
-    def execute_page_callback(self, msg: PageQueryResponseEvent) -> None:
+    def execute_page_callback(self, msg: PageCallbackEvent) -> None:
         """
         Executes the callback associated with the given PageQueryResponseEvent.
         """
-        handler = self._page_bindings.get(msg.game_action)
+        handler = self._page_bindings[msg.game_action]
         if handler:
             handler(msg)
     

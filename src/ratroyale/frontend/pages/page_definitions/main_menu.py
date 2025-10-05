@@ -35,7 +35,7 @@ class MainMenu(Page):
           id="child_button",
           rect=(0, 0, 100, 40),
           text="Child",
-          parent_id="start_button",
+          parent_id=("start_button", ElementType.BUTTON),
           offset=(210, 0)
           )
     ]
@@ -48,9 +48,9 @@ class MainMenu(Page):
   def on_start_click(self, msg: InputManagerEvent):
       self.coordination_manager.put_message(
         PageNavigationEvent(action_list=[
-          (PageNavigation.REMOVE_ALL, None),
-          (PageNavigation.PUSH, "GameBoard"),
-          (PageNavigation.PUSH, "PauseButton")])
+          (PageNavigation.CLOSE_ALL, None),
+          (PageNavigation.OPEN, "GameBoard"),
+          (PageNavigation.OPEN, "PauseButton")])
       )
 
   @input_event_bind("quit_button", GestureType.CLICK)

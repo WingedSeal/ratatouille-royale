@@ -17,7 +17,6 @@ class PauseMenu(Page):
     def __init__(self, coordination_manager: "CoordinationManager"):
         super().__init__(coordination_manager)
 
-        # Config list for all buttons
         configs = [
             ElementConfig(
                 element_type=ElementType.BUTTON,
@@ -40,7 +39,7 @@ class PauseMenu(Page):
     def on_resume_click(self, msg: InputManagerEvent):
         print("Resume clicked!")
         self.coordination_manager.put_message(
-            PageNavigationEvent(action_list=[(PageNavigation.POP, None)])
+            PageNavigationEvent(action_list=[(PageNavigation.CLOSE_TOP, None)])
         )
 
     @input_event_bind("quit_button", GestureType.CLICK)
@@ -48,8 +47,8 @@ class PauseMenu(Page):
         print("Quit to menu clicked!")
         self.coordination_manager.put_message(
             PageNavigationEvent(action_list=[
-                (PageNavigation.REMOVE_ALL, None),
-                (PageNavigation.PUSH, "MainMenu")
+                (PageNavigation.CLOSE_ALL, None),
+                (PageNavigation.OPEN, "MainMenu")
             ])
         )
     # endregion

@@ -18,6 +18,10 @@ class VisualComponent(ABC):
         For UI, this might need the gui_manager; for sprites, maybe not."""
         ...
 
+    def destroy(self) -> None:
+        """Optional. Used for triggering the .kill() on pygame_gui elements"""
+        ...
+
     @abstractmethod
     def render(self, surface: pygame.Surface) -> None:
         """Draw this visual onto the given surface."""
@@ -26,6 +30,11 @@ class VisualComponent(ABC):
     @abstractmethod
     def set_position(self, topleft_coord: tuple[float, float]) -> None:
         """Move this visual component to the specified topleft coord"""
+        ...
+
+    @abstractmethod
+    def set_highlighted(self, highlighted: bool) -> None:
+        """Set whether this visual is highlighted (e.g. selected)"""
         ...
     
 @dataclass
@@ -43,6 +52,10 @@ class UIVisual(VisualComponent):
             **(self.kwargs or {})
         )
 
+    def destroy(self) -> None:
+        if self.instance:
+            self.instance.kill()
+
     def render(self, surface: pygame.Surface) -> None:
         # No-op, since pygame_gui handles rendering the UI components under its care.
         pass
@@ -50,6 +63,10 @@ class UIVisual(VisualComponent):
     def set_position(self, topleft_coord: tuple[float, float]) -> None:
         if self.instance:
             self.instance.set_relative_position(pygame.Vector2(topleft_coord))
+    
+    def set_highlighted(self, highlighted: bool) -> None:
+        # No-op, since pygame_gui handles rendering the UI components under its care.
+        pass
     
 class SpriteVisual(VisualComponent):
     def __init__(self, sprite_enum: SpriteRegistryKey, position: tuple[float, float]) -> None:
@@ -59,6 +76,7 @@ class SpriteVisual(VisualComponent):
             SPRITE_REGISTRY[SpriteRegistryKey.DEFAULT_ENTITY]
         )
         self.position = position
+        self.highlighted = False
 
     def create(self, manager: UIManager) -> None:
         pass
@@ -66,8 +84,14 @@ class SpriteVisual(VisualComponent):
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.image, self.position)
 
+    def destroy(self) -> None:
+        return super().destroy()
+
     def set_position(self, topleft_coord: tuple[float, float]) -> None:
         self.position = topleft_coord
+    
+    def set_highlighted(self, highlighted: bool) -> None:
+        self.highlighted = highlighted
 
 class TileVisual(SpriteVisual):
     def __init__(self, tile: Tile) -> None:
@@ -76,10 +100,10 @@ class TileVisual(SpriteVisual):
             position=tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         )
 
-    def render(self, surface: pygame.Surface, highlighted: bool) -> None:
+    def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.image, self.position)
 
-        if highlighted:
+        if self.highlighted:
             overlay = pygame.Surface(self.image.get_size(), pygame.SRCALPHA)
             overlay.fill((255, 255, 0, 100))  # yellow with alpha
             surface.blit(overlay, self.position)
@@ -97,10 +121,10 @@ class EntityVisual(SpriteVisual):
             position=pos
         )
 
-    def render(self, surface: pygame.Surface, highlighted: bool) -> None:
+    def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.image, self.position)
 
-        if highlighted:
+        if self.highlighted:
             overlay = pygame.Surface(self.image.get_size(), pygame.SRCALPHA)
             overlay.fill((255, 255, 0, 100))  # yellow with alpha
             surface.blit(overlay, self.position)
