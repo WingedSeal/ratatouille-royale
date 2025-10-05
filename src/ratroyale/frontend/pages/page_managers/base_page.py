@@ -1,10 +1,10 @@
+from __future__ import annotations
 import pygame_gui
 import pygame
 
 from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.frontend.pages.interactables.interactable import Interactable
-from ratroyale.frontend.pages.interactables.interactable_builder import InteractableConfig
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
@@ -12,6 +12,7 @@ from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE, THEME_PATH
 from typing import Callable
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 from ratroyale.frontend.pages.interactables.interactable_builder import create_interactable, InteractableConfig
+from ratroyale.event_tokens.game_action import GameAction
 
 
 class Page():
@@ -27,8 +28,8 @@ class Page():
 
         self._input_bindings: dict[tuple[str, GestureType], Callable] = {}
         """ Maps (interactable_id, gesture_type) to handler functions """
-        self._page_bindings: dict[str, Callable] = {}
-        """ Maps (interactable_id, gesture_type) to handler functions """
+        self._page_bindings: dict[GameAction, Callable] = {}
+        """ Maps (game_action) to handler functions """
 
         self.setup_input_bindings()
 
@@ -115,7 +116,7 @@ class Page():
         """
         Executes the callback associated with the given PageQueryResponseEvent.
         """
-        handler = self._page_bindings.get(msg.action_name)
+        handler = self._page_bindings.get(msg.game_action)
         if handler:
             handler(msg)
     

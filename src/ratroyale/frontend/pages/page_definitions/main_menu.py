@@ -52,7 +52,6 @@ class MainMenu(Page):
           (PageNavigation.PUSH, "GameBoard"),
           (PageNavigation.PUSH, "PauseButton")])
       )
-      self.coordination_manager.put_message(RequestStartGame())
 
   @input_event_bind("quit_button", GestureType.CLICK)
   def on_quit_click(self, msg: InputManagerEvent):

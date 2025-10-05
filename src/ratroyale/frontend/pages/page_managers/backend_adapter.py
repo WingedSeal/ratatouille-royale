@@ -4,13 +4,15 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from typing import Callable
 from ratroyale.backend.board import Board
+from ratroyale.event_tokens.game_action import GameAction
 
+# TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
 class BackendAdapter:
     def __init__(self, game_manager: GameManager, coordination_manager: CoordinationManager) -> None:
         self.game_manager = game_manager
         self.coordination_manager = coordination_manager
-        self.event_to_action_map: dict[type[GameManagerEvent], Callable] = {
-              RequestStartGame: self.handle_game_start
+        self.event_to_action_map: dict[GameAction, Callable] = {
+              GameAction.START_GAME: self.handle_game_start
           }
         
     def execute_backend_callback(self) -> None:
@@ -20,25 +22,24 @@ class BackendAdapter:
         
         while not msg_queue.empty():
             msg = msg_queue.get()
-            handler = self.event_to_action_map.get(type(msg), None)
+            handler = self.event_to_action_map.get(msg.game_action, None)
             if handler:
                 handler(msg)
             else:
                 print(f"No handler for event type {type(msg)}")
 
-    def handle_game_start(self, event: RequestStartGame):
-        print("Game started!")
+    def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
         if board:
             self.coordination_manager.put_message(PageQueryResponseEvent[Board](
                 page_list=["GameBoard"],
-                action_name="start_game_response",
+                game_action=GameAction.START_GAME,
                 payload=board
             ))
         else:
-            self.coordination_manager.put_message(PageQueryResponseEvent[Board](
+            self.coordination_manager.put_message(PageQueryResponseEvent(
                 page_list=["GameBoard"],
-                action_name="start_game_response",
+                game_action=GameAction.START_GAME,
                 success=False,
                 error_msg="Failed to start game: Board not initialized",
                 payload=None

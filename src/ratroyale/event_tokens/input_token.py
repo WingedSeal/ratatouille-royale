@@ -7,7 +7,7 @@ __all__ = [
    "InputManagerEvent"
 ]
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 @dataclass
 class InputManagerEvent(Generic[T], EventToken):

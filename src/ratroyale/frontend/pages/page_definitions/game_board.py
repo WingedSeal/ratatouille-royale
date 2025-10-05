@@ -3,6 +3,7 @@ from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
+from ratroyale.event_tokens.game_action import GameAction
 
 from ratroyale.frontend.gesture.gesture_data import GestureType
 
@@ -18,7 +19,12 @@ class GameBoard(Page):
     super().__init__(coordination_manager)
     self.setup_interactables([])
 
-  @page_event_bind("start_game_response")
+  def on_create(self) -> None:
+    self.coordination_manager.put_message(GameManagerEvent(
+        game_action=GameAction.START_GAME
+    ))
+
+  @page_event_bind(GameAction.START_GAME)
   def _start_game(self, msg: PageQueryResponseEvent) -> None:
     if msg.success:
       print("GameBoard received board data:", msg.payload)
