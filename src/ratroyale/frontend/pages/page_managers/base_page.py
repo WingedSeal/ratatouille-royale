@@ -22,7 +22,7 @@ class Page():
         """ Each page has its own UIManager """
         self.coordination_manager = coordination_manager
         self.is_blocking: bool = is_blocking
-        self._interactables: list[Element] = []
+        self._elements: list[Element] = []
         self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
         self.is_visible: bool = True
 
@@ -33,13 +33,13 @@ class Page():
 
         self.setup_input_bindings()
 
-    def setup_interactables(self, configs: list[ElementConfig]) -> None:
+    def setup_elements(self, configs: list[ElementConfig]) -> None:
         interactables: dict[str, Element] = {}
 
         # Pass 1 — build all interactables
         for cfg in configs:
-            interactable = create_element(cfg, self.gui_manager)
-            interactables[cfg.id] = interactable
+            element = create_element(cfg, self.gui_manager)
+            interactables[cfg.id] = element
 
         # Pass 2 — attach children if needed
         for cfg in configs:
@@ -47,11 +47,11 @@ class Page():
                 parent = interactables.get(cfg.parent_id)
                 child = interactables[cfg.id]
                 if parent is None:
-                    raise ValueError(f"Parent interactable '{cfg.parent_id}' not found for child '{cfg.id}'")
+                    raise ValueError(f"Parent element '{cfg.parent_id}' not found for child '{cfg.id}'")
 
                 parent.add_child(child, cfg.offset)
 
-        self._interactables = list(interactables.values())
+        self._elements = list(interactables.values())
 
     def setup_input_bindings(self) -> None:
         """
@@ -70,14 +70,14 @@ class Page():
                         self._page_bindings[page_event] = attr
 
     def _sort_interactables_by_z_order(self) -> None:
-        self._interactables.sort(key=lambda x: x.z_order, reverse=True)
+        self._elements.sort(key=lambda x: x.z_order, reverse=True)
 
     def add_element(self, element: Element) -> None:
-        self._interactables.append(element)
+        self._elements.append(element)
 
     def remove_element(self, element: Element) -> None:
-        if element in self._interactables:
-            self._interactables.remove(element)
+        if element in self._elements:
+            self._elements.remove(element)
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
@@ -92,13 +92,14 @@ class Page():
         remaining_gestures: list[GestureData] = []
         
         for gesture in gestures:
-            for interactable in self._interactables:
-                input_message: InputManagerEvent | None = interactable.process_gesture(gesture)
-                if input_message:
-                    self.coordination_manager.put_message(input_message)
+            for element in self._elements:
+                if element.is_interactable:
+                    input_message: InputManagerEvent | None = element.process_gesture(gesture)
+                    if input_message:
+                        self.coordination_manager.put_message(input_message)
 
-                    if interactable.is_blocking:
-                        break
+                        if element.is_blocking:
+                            break
             else:
                 remaining_gestures.append(gesture)
 
@@ -142,10 +143,10 @@ class Page():
       # Draw UI components
       self.gui_manager.draw_ui(self.canvas)
 
-      # Draw interactables
-      for interactable in self._interactables:
-          if interactable.visuals:
-              for visual in interactable.visuals:
+      # Draw elements
+      for element in self._elements:
+          if element.visuals:
+              for visual in element.visuals:
                 visual.render(self.canvas)
 
       return self.canvas

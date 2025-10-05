@@ -18,7 +18,7 @@ from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig
 class GameBoard(Page):
   def __init__(self, coordination_manager: CoordinationManager) -> None:
     super().__init__(coordination_manager)
-    self.setup_interactables([])
+    self.setup_elements([])
 
   def on_create(self) -> None:
     self.coordination_manager.put_message(GameManagerEvent(

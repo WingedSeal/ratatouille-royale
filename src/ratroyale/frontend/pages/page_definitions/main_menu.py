@@ -40,7 +40,7 @@ class MainMenu(Page):
           )
     ]
 
-    self.setup_interactables(configs)
+    self.setup_elements(configs)
 
   # region Input Responses
 
