@@ -12,7 +12,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_managers.backend_adapter import get_name_from_entity, get_name_from_tile
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType, ParentIdentity
 
 from ratroyale.backend.board import Board
 from ratroyale.backend.tile import Tile
@@ -104,11 +104,14 @@ class GameBoard(Page):
             ElementConfig(
                 element_type=ElementType.BUTTON,
                 id=element_id,
-                rect=(entity.pos.x, entity.pos.y, 150, 20),
+                rect=(0, 0, 150, 20),
                 text=skill.name,
                 z_order=2,
-                parent_id=(msg.element_id, ElementType.ENTITY),
-                offset=(50, i * 20)
+                parent_identity=ParentIdentity(
+                  parent_id=msg.element_id,
+                  parent_type=ElementType.ENTITY,
+                  offset=(50, i * 20)
+                )
             )
         )
 

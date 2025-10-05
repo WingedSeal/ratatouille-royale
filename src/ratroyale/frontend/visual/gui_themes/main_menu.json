@@ -1,0 +1,148 @@
+{
+  "defaults": {
+    "font": {
+        "name": "Arial",
+        "size": 18,
+        "bold": false,
+        "italic": false
+    },
+    "text_color": "#FFFFFF",
+    "bg_color": "#444444",
+    "border_width": 2,
+    "border_color": "#222222",
+    "shadow_width": 1
+  },
+
+  "button":
+    {
+        "colours":
+        {
+            "normal_bg": "#25292e",
+            "hovered_bg": "#35393e",
+            "disabled_bg": "#25292e",
+            "selected_bg": "#25292e",
+            "active_bg": "#193784",
+            "normal_text": "#c5cbd8",
+            "hovered_text": "#FFFFFF",
+            "selected_text": "#FFFFFF",
+            "disabled_text": "#6d736f",
+            "active_text": "#6d736f",
+            "normal_border": "#AAAAAA",
+            "hovered_border": "#B0B0B0",
+            "disabled_border": "#808080",
+            "selected_border": "#8080B0",
+            "active_border": "#8080B0",
+            "normal_text_shadow": "#10101070",
+            "hovered_text_shadow": "#10101070",
+            "disabled_text_shadow": "#10101070",
+            "selected_text_shadow": "#10101070",
+            "active_text_shadow": "#10101070"
+        },
+        "font":
+        {
+            "name": "montserrat",
+            "size": "12",
+            "bold": "0",
+            "italic": "1",
+            "regular_path": "C:/Windows/fonts/comic.ttf",
+        "bold_path": "C:/Windows/fonts/comicbd.ttf",
+        "italic_path": "C:/Windows/fonts/comici.ttf" 
+        },
+        "misc":
+        {
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "10,0,0,0",
+            "border_width": "1",
+            "shadow_width": "1",
+            "tool_tip_delay": "1.0",
+            "text_horiz_alignment": "left",
+            "text_vert_alignment": "top",
+            "text_horiz_alignment_padding": "10",
+            "text_vert_alignment_padding": "5",
+            "text_shadow_size": "1",
+            "text_shadow_offset": "0,0",
+            "auto_scale_images": "1",
+            "state_transitions":
+            {
+                "normal_hovered": "0.5",
+                "hovered_normal": "0.5"
+            }
+        }
+    },
+  
+  "@MainMenuButton": {
+    "colours":
+      {
+        "normal_bg": "#A8DADC",
+        "hovered_bg": "#F1FAEE",
+        "disabled_bg": "#CAD2C5",
+        "selected_bg": "#FFE5D9",
+        "active_bg": "#FFCAD4",
+        "normal_text": "#1D3557",
+        "hovered_text": "#457B9D",
+        "selected_text": "#E63946",
+        "disabled_text": "#6D6875",
+        "active_text": "#F77F00",
+        "normal_border": "#457B9D",
+        "hovered_border": "#1D3557",
+        "disabled_border": "#6D6875",
+        "selected_border": "#E63946",
+        "active_border": "#F77F00",
+        "normal_text_shadow": "#00000070",
+        "hovered_text_shadow": "#00000070",
+        "disabled_text_shadow": "#00000070",
+        "selected_text_shadow": "#00000070",
+        "active_text_shadow": "#00000070"
+      }
+  },
+
+  "#start_button": {
+      "colours": {
+      "normal_bg": "#F4A261",
+      "hovered_bg": "#E76F51",
+      "disabled_bg": "#DDBEA9",
+      "selected_bg": "#FFE8D6",
+      "active_bg": "#F2CC8F",
+      "normal_text": "#264653",
+      "hovered_text": "#2A9D8F",
+      "selected_text": "#E76F51",
+      "disabled_text": "#6D6875",
+      "active_text": "#F4A261",
+      "normal_border": "#264653",
+      "hovered_border": "#2A9D8F",
+      "disabled_border": "#6D6875",
+      "selected_border": "#E76F51",
+      "active_border": "#F4A261",
+      "normal_text_shadow": "#00000070",
+      "hovered_text_shadow": "#00000070",
+      "disabled_text_shadow": "#00000070",
+      "selected_text_shadow": "#00000070",
+      "active_text_shadow": "#00000070"
+    }
+  },
+
+  "#quit_button": {
+     "colours": {
+      "normal_bg": "#2A9D8F",
+      "hovered_bg": "#264653",
+      "disabled_bg": "#A8DADC",
+      "selected_bg": "#E0FBFC",
+      "active_bg": "#61C0BF",
+      "normal_text": "#E9C46A",
+      "hovered_text": "#F4A261",
+      "selected_text": "#E76F51",
+      "disabled_text": "#6D6875",
+      "active_text": "#F7FFF7",
+      "normal_border": "#264653",
+      "hovered_border": "#2A9D8F",
+      "disabled_border": "#6D6875",
+      "selected_border": "#E76F51",
+      "active_border": "#61C0BF",
+      "normal_text_shadow": "#00000070",
+      "hovered_text_shadow": "#00000070",
+      "disabled_text_shadow": "#00000070",
+      "selected_text_shadow": "#00000070",
+      "active_text_shadow": "#00000070"
+      }
+  }
+}

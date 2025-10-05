@@ -1,4 +1,4 @@
-from .element_builder import ElementType, ElementConfig, create_element
+from .element_builder import ElementType, ElementConfig, create_element, ParentIdentity
 from .element import Element
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.event_tokens.input_token import InputManagerEvent
@@ -36,8 +36,7 @@ class ElementManager:
             element_type: ElementType, 
             key: str, 
             element: Element, 
-            parent_id: tuple[str, ElementType] | None, 
-            offset: tuple[int, int] | None = None
+            parent_identity: ParentIdentity | None
             ) -> None:
         """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
         collection = self.get_collection(element_type)
@@ -46,28 +45,41 @@ class ElementManager:
         collection[key] = element
         print(f"Added element '{key}' to collection '{element_type}'")
 
-        if parent_id:
-            parent_name, parent_type = parent_id
-            parent_collection = self.get_collection(parent_type)
-            if parent_name in parent_collection:
-                parent: Element = parent_collection[parent_name]
+        if parent_identity:
+            parent_id = parent_identity.parent_id
+            parent_type = parent_identity.parent_type
+            offset = parent_identity.offset
+
+            parent_collection = self.get_collection(parent_type if parent_type else element_type)
+            if parent_id in parent_collection:
+                parent: Element = parent_collection[parent_id]
                 parent.add_child(element, offset)
-                print(f"Set parent of element '{key}' to '{parent_name}'")
+                print(f"Set parent of element '{key}' to '{parent_id}'")
             else:
-                raise ValueError(f"Parent with id '{parent_name}' not found in collection '{parent_type}'")
+                raise ValueError(f"Parent with id '{parent_id}' not found in collection '{parent_type}'")
         self._flattened_collection.append(element)
         self._sort_flattened_by_z_order()
 
     def remove_element(self, element_type: ElementType, key: str) -> None:
-        """ Removes an element from the specified collection and updates the flattened list."""
+        """Removes an element and all its children from the collection and flattened list."""
         collection = self.get_collection(element_type)
-        if key in collection:
-            element: Element = collection[key]
-            if element in self._flattened_collection:
-                element.destroy_visual()
-                self._flattened_collection.remove(element)
-            del collection[key]
-            self._sort_flattened_by_z_order()
+        if key not in collection:
+            return
+
+        element: Element = collection[key]
+
+        # Remove from parent's children list if applicable
+        if element.parent is not None:
+            element.parent.children.remove(element)
+            element.parent = None
+
+        # Remove the element itself
+        element.destroy_visual()
+        if element in self._flattened_collection:
+            self._flattened_collection.remove(element)
+        collection.pop(key)
+
+        self._sort_flattened_by_z_order()
 
     def clear_collection(self, element_type: ElementType) -> None:
         """ Clears all elements from the specified collection. 
@@ -88,7 +100,12 @@ class ElementManager:
     def create_element(self, cfg: ElementConfig) -> None:
         """Uses an external factory function to build the element from a config."""
         element = create_element(cfg, self.ui_manager)
-        self.add_element(cfg.element_type, cfg.id, element, cfg.parent_id, cfg.offset)
+        self.add_element(
+            cfg.element_type, 
+            cfg.id, 
+            element, 
+            cfg.parent_identity
+            )
 
     def create_elements(self, cfgs: list[ElementConfig]) -> None:
         """ Creates multiple elements from a list of configs."""

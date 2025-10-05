@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from dataclasses import dataclass, field
 from pygame_gui.core.ui_element import UIElement
+from pygame_gui.core.object_id import ObjectID
 from pygame_gui.ui_manager import UIManager
 import pygame
 from ratroyale.backend.tile import Tile
@@ -41,6 +42,7 @@ class VisualComponent(ABC):
 class UIVisual(VisualComponent):
     type: type[UIElement]
     relative_rect: pygame.Rect
+    object_id: ObjectID | None
     text: str = ""
     kwargs: dict = field(default_factory=dict)
     instance: UIElement | None = None
@@ -49,6 +51,7 @@ class UIVisual(VisualComponent):
         self.instance = self.type(
             relative_rect=self.relative_rect,
             manager=manager,
+            object_id=self.object_id,
             **(self.kwargs or {})
         )
 

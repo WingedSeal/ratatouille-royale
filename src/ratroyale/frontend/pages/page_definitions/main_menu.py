@@ -10,33 +10,27 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType, GUITheme
 
 @register_page
 class MainMenu(Page):
   def __init__(self, coordination_manager: CoordinationManager):
-    super().__init__(coordination_manager)
+    super().__init__(coordination_manager, theme_name="main_menu")
 
     configs = [
       ElementConfig(
           element_type=ElementType.BUTTON, 
           id="start_button", 
           rect=(100,100,200,50), 
-          text="Start"
+          text="Start",
+          gui_theme=GUITheme(class_id="MainMenuButton", object_id="start_button")
           ),
       ElementConfig(
           element_type=ElementType.BUTTON, 
           id="quit_button", 
           rect=(100,200,200,50), 
-          text="Quit"
-          ),
-      ElementConfig(
-          element_type=ElementType.BUTTON,
-          id="child_button",
-          rect=(0, 0, 100, 40),
-          text="Child",
-          parent_id=("start_button", ElementType.BUTTON),
-          offset=(210, 0)
+          text="Quit",
+          gui_theme=GUITheme(class_id="smth", object_id="start_button")
           )
     ]
 
