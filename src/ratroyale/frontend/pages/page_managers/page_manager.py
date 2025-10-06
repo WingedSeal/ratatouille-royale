@@ -2,7 +2,7 @@ import pygame
 import pygame_gui
 from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.gesture.gesture_reader import GestureReader
+from ratroyale.frontend.gesture.gesture_reader import GestureReader, GESTURE_READER_CARES
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.input_token import InputManagerEvent
@@ -75,9 +75,24 @@ class PageManager:
         events are consumed, or no pages remain.
         Additionally, this function stops propagating an event if it hits a page
         with a 'blocking' flag set to true."""
+        # Step 0: get pygame events
         raw_events = pygame.event.get()
-        gestures = self.gesture_reader.read_events(raw_events)
 
+        # Step 1: separate them into mouse events (down, motion, up) & other events
+        mouse_events = []
+        other_events = []
+
+        for event in raw_events:
+            if event.type in GESTURE_READER_CARES:
+                mouse_events.append(event)
+            else:
+                other_events.append(event)
+
+        # Step 2: produce gesture data
+        gestures = self.gesture_reader.read_events(mouse_events)
+
+        # Step 3: distribute gesture data to pages, 
+        # where pages will distribute gesture data to its elements for posting events.
         for page in reversed(self.page_stack):
             if not gestures:
                 break  
@@ -87,8 +102,10 @@ class PageManager:
             if page.is_blocking:
                 break
 
+        # Step 4: TODO other_events get dispatched to its correct pages. 
         self._dispatch_input_messages()
 
+    # TODO: to be replaced
     def _dispatch_input_messages(self) -> None:
         """Pull all InputManagerEvents from the coordination manager and send them to pages."""
         msg_queue = self.coordination_manager.mailboxes.get(InputManagerEvent, None)
@@ -104,6 +121,19 @@ class PageManager:
                     break
             else:
                 print(f"No page handled event: {event}")
+
+    def _dispatch_input(self, events: list[pygame.event.Event]) -> None:
+        if not events:
+            return
+        
+        handler_found: bool = False
+        
+        for event in events:
+            for page in self.page_stack:
+                handler_found = handler_found or page.execute_input_callback(event) # TODO: change this to accept pygame Events
+
+        if not handler_found:
+            print(f"No page handled event: {event}")
 
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)

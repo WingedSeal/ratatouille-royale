@@ -29,3 +29,19 @@ class GestureData:
     mouse: str | None = None # Supposed to represent which mouse is held. (left, right, or scrollwheel). Currently unused
 
     original_event: pygame.event.Event | None = None
+
+CLICK_EVENT: int = pygame.USEREVENT + 40000
+DOUBLE_CLICK_EVENT: int = pygame.USEREVENT + 40001
+DRAG_EVENT: int = pygame.USEREVENT + 40002
+DRAG_END_EVENT: int = pygame.USEREVENT + 40003
+SWIPE_EVENT: int = pygame.USEREVENT + 40004
+HOLD_EVENT: int = pygame.USEREVENT + 40005
+
+GESTURE_EVENT_MAP: dict[GestureType, int] = {
+  GestureType.CLICK: CLICK_EVENT,
+  GestureType.DOUBLE_CLICK: DOUBLE_CLICK_EVENT,
+  GestureType.DRAG: DRAG_EVENT,
+  GestureType.DRAG_END: DRAG_END_EVENT,
+  GestureType.SWIPE: SWIPE_EVENT,
+  GestureType.HOLD: HOLD_EVENT
+}

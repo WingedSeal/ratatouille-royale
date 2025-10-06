@@ -3,6 +3,7 @@ import time
 from ratroyale.frontend.gesture.gesture_data import GestureType, GestureData
 from enum import Enum, auto
 
+GESTURE_READER_CARES: list[int] = [pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP]
 
 # TODO: fix strange unresponsive click issues.
 class GestureState(Enum):
