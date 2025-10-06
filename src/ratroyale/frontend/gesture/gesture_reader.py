@@ -78,8 +78,6 @@ class GestureReader:
                 self._on_motion(event.pos, raw_event=event)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self._on_release(event.pos, raw_event=event)
-            elif event.type == pygame.MOUSEWHEEL:
-                self._on_scroll(event.x, event.y, raw_event=event)
 
         self._check_hold()
         self._sync_with_hardware()
@@ -220,9 +218,6 @@ class GestureReader:
                 self.state = GestureState.STATE_HOLD_TRIGGERED
                 self.on_hold(self.start_pos)
 
-    def _on_scroll(self, dx: int, dy: int, raw_event: pygame.event.Event) -> None:
-        if dy != 0:
-            self.on_scroll(dy, raw_event)
 
     def _on_drag_start(self) -> None:
         pass
@@ -241,34 +236,34 @@ class GestureReader:
         self.output_gesture(GestureData(
             gesture_type=GestureType.CLICK, 
             start_pos=pos,
-            raw_event=raw_event
+            original_event=raw_event
         ))
 
     def on_double_click(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_type=GestureType.DOUBLE_CLICK, 
             start_pos=pos,
-            raw_event=raw_event
+            original_event=raw_event
         ))
 
     def on_drag(self, dx: int, dy: int, raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_type=GestureType.DRAG, 
             delta=(dx, dy),
-            raw_event=raw_event
+            original_event=raw_event
         ))
 
     def on_drag_end(self, raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_type=GestureType.DRAG_END,
-            raw_event=raw_event
+            original_event=raw_event
         ))
 
     def on_hold(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
         self.output_gesture(GestureData(
             gesture_type=GestureType.HOLD, 
             start_pos=pos,
-            raw_event=raw_event
+            original_event=raw_event
         ))
 
     def on_swipe(
@@ -284,14 +279,7 @@ class GestureReader:
             start_pos=start_pos, 
             end_pos=end_pos, 
             velocity=(velo_x, velo_y),
-            raw_event=raw_event
-        ))
-
-    def on_scroll(self, amount: int, raw_event: pygame.event.Event | None = None) -> None:
-        self.output_gesture(GestureData(
-            gesture_type=GestureType.SCROLL, 
-            scroll_amount=amount,
-            raw_event=raw_event
+            original_event=raw_event
         ))
 
     def output_gesture(self, gesture_data: GestureData) -> None:

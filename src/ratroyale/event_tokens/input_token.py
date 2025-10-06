@@ -11,6 +11,6 @@ T = TypeVar("T")
 
 @dataclass
 class InputManagerEvent(Generic[T], EventToken):
-    element_id: str
-    gesture_data: GestureData
-    payload: T | None = None
+   element_id: str
+   gesture_data: GestureData
+   payload: T | None = None

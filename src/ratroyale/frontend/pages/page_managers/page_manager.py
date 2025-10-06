@@ -103,7 +103,7 @@ class PageManager:
                 if handler_found:
                     break
             else:
-                raise ValueError(f"No page handled event: {event}")
+                print(f"No page handled event: {event}")
 
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)

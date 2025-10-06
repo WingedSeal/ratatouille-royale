@@ -15,7 +15,6 @@ class GestureType(Enum):
   DRAG_END = auto()
   SWIPE = auto()
   HOLD = auto()
-  SCROLL = auto()
 
 @dataclass
 class GestureData:
@@ -27,7 +26,6 @@ class GestureData:
     delta: tuple[int, int] | None = None
     duration: float | None = None
     velocity: tuple[float, float] | None = None
-    key: str | None = None
-    mouse: str | None = None
-    scroll_amount: int | None = None
-    raw_event: pygame.event.Event | None = None
+    mouse: str | None = None # Supposed to represent which mouse is held. (left, right, or scrollwheel). Currently unused
+
+    original_event: pygame.event.Event | None = None
