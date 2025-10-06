@@ -97,30 +97,13 @@ class PageManager:
             if not gestures:
                 break  
 
-            gestures = page.handle_inputs(gestures)
+            gestures = page.handle_gestures(gestures)
 
             if page.is_blocking:
                 break
 
         # Step 4: TODO other_events get dispatched to its correct pages. 
-        self._dispatch_input_messages()
-
-    # TODO: to be replaced
-    def _dispatch_input_messages(self) -> None:
-        """Pull all InputManagerEvents from the coordination manager and send them to pages."""
-        msg_queue = self.coordination_manager.mailboxes.get(InputManagerEvent, None)
-        if not msg_queue:
-            return
-
-        while not msg_queue.empty():
-            event: InputManagerEvent = msg_queue.get()
-            # Broadcast to all pages that have a handler for this event
-            for page in self.page_stack:
-                handler_found = page.execute_input_callback(event)
-                if handler_found:
-                    break
-            else:
-                print(f"No page handled event: {event}")
+        self._dispatch_input(other_events)
 
     def _dispatch_input(self, events: list[pygame.event.Event]) -> None:
         if not events:
@@ -130,7 +113,7 @@ class PageManager:
         
         for event in events:
             for page in self.page_stack:
-                handler_found = handler_found or page.execute_input_callback(event) # TODO: change this to accept pygame Events
+                handler_found = handler_found or page.execute_input_callback(event) 
 
         if not handler_found:
             print(f"No page handled event: {event}")

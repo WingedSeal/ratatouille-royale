@@ -2,7 +2,7 @@ from __future__ import annotations
 import pygame_gui
 import pygame
 
-from ratroyale.event_tokens.input_token import InputManagerEvent
+from ratroyale.event_tokens.input_token import get_id
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.frontend.pages.page_elements.element import Element
 from ratroyale.event_tokens.visual_token import *
@@ -63,7 +63,7 @@ class Page():
                     for page_event in attr.page_bindings:
                         self._page_bindings[page_event] = attr
 
-    def handle_inputs(self, gestures: list[GestureData]) -> list[GestureData]:
+    def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
         Dispatch a GestureData object to the appropriate Interactable(s).
         Interactable then produces the corresponding InputManagerEvent, which is
@@ -75,19 +75,37 @@ class Page():
 
         return self._element_manager.handle_inputs(gestures)
 
-    def execute_input_callback(self, msg: InputManagerEvent) -> bool:
+    def execute_input_callback(self, msg: pygame.event.Event) -> bool:
         """
-        Executes the callback associated with the given InputManagerEvent.
-        Supports prefix matching for element IDs.
+        Executes all callbacks bound to the given InputManagerEvent.
+        Supports:
+        - Prefix matching for element IDs (e.g. 'inventory' matches 'inventory_slot_1')
+        - Global handlers with prefix=None for non-targeted events
+        Returns True if one or more handlers were executed.
         """
-        for (prefix, gesture_type), handler in self._input_bindings.items():
-            if gesture_type == msg.gesture_data.gesture_type and (
-                msg.element_id == prefix or msg.element_id.startswith(prefix)
+        element_id = get_id(msg)
+        matched = False
+
+        for (prefix, event_type), handler in self._input_bindings.items():
+            # Skip if the event type doesn't match
+            if event_type != msg.type:
+                continue
+
+            # Case 1: global handler (no element ID required)
+            if prefix is None:
+                handler(msg)
+                matched = True
+                continue
+
+            # Case 2: targeted handler (element_id must exist)
+            if element_id is not None and (
+                element_id == prefix or element_id.startswith(prefix)
             ):
                 handler(msg)
-                return True
-        else:
-            return False
+                matched = True
+
+        return matched
+
     
     def execute_page_callback(self, msg: PageCallbackEvent) -> None:
         """

@@ -45,3 +45,6 @@ GESTURE_EVENT_MAP: dict[GestureType, int] = {
   GestureType.SWIPE: SWIPE_EVENT,
   GestureType.HOLD: HOLD_EVENT
 }
+
+def to_event(gesture_type: GestureType) -> int:
+   return GESTURE_EVENT_MAP[gesture_type]

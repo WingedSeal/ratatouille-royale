@@ -5,10 +5,6 @@ from .base import EventToken
 from ratroyale.frontend.gesture.gesture_data import GestureData, GESTURE_EVENT_MAP
 from typing import TypeVar, Generic
 
-__all__ = [
-   "InputManagerEvent"
-]
-
 T = TypeVar("T")
 
 @dataclass
@@ -30,3 +26,26 @@ def post_gesture_event(input_manager_event: InputManagerEvent):
          input_manager_event=input_manager_event
          )
       )
+   
+def get_id(event: pygame.event.Event) -> str | None:
+    """
+    Extracts the element_id or ui_object_id from a pygame or pygame_gui event.
+
+    - pygame_gui events: return ui_object_id
+    - custom gesture events: return element_id from input_manager_event
+    - others: return None
+    """
+    event_type = event.type
+
+    # --- Case 1: pygame_gui events ---
+    if hasattr(event, "ui_object_id"):
+        return getattr(event, "ui_object_id")
+
+    # --- Case 2: our gesture events ---
+    if event_type in GESTURE_EVENT_MAP.values():
+         input_manager_event = getattr(event, "input_manager_event", None)
+         if isinstance(input_manager_event, InputManagerEvent):
+            return input_manager_event.element_id
+
+    # --- Case 3: unrelated event ---
+    return None

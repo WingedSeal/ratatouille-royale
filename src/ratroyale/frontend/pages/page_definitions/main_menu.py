@@ -4,7 +4,7 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 
-from ratroyale.frontend.gesture.gesture_data import GestureType
+from ratroyale.frontend.gesture.gesture_data import GestureType, to_event
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
@@ -38,7 +38,7 @@ class MainMenu(Page):
 
   # region Input Responses
 
-  @input_event_bind("start_button", GestureType.CLICK)
+  @input_event_bind("start_button", to_event(GestureType.CLICK))
   def on_start_click(self, msg: InputManagerEvent):
       self.coordination_manager.put_message(
         PageNavigationEvent(action_list=[
@@ -47,11 +47,11 @@ class MainMenu(Page):
           (PageNavigation.OPEN, "PauseButton")])
       )
 
-  @input_event_bind("quit_button", GestureType.CLICK)
+  @input_event_bind("quit_button", to_event(GestureType.CLICK))
   def on_quit_click(self, msg: InputManagerEvent):
       self.coordination_manager.stop_game()
 
-  @input_event_bind("child_button", GestureType.CLICK)
+  @input_event_bind("child_button", to_event(GestureType.CLICK))
   def test(self, msg: InputManagerEvent):
       print("Test function called")
 

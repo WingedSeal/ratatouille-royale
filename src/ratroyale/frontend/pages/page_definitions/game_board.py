@@ -5,7 +5,7 @@ from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.game_action import GameAction
 
-from ratroyale.frontend.gesture.gesture_data import GestureType
+from ratroyale.frontend.gesture.gesture_data import GestureType, to_event
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind, callback_event_bind
@@ -72,20 +72,20 @@ class GameBoard(Page):
     else:
       raise RuntimeError(f"Failed to start game: {msg.error_msg}")
     
-  @input_event_bind("tile", GestureType.CLICK)
-  @input_event_bind("tile", GestureType.DOUBLE_CLICK)
-  @input_event_bind("tile", GestureType.HOLD)
+  @input_event_bind("tile", to_event(GestureType.CLICK))
+  @input_event_bind("tile", to_event(GestureType.DOUBLE_CLICK))
+  @input_event_bind("tile", to_event(GestureType.HOLD))
   def _on_tile_click(self, msg: InputManagerEvent[Tile]) -> None:
     self._select_element(ElementType.TILE, msg.element_id)
     self._close_ability_menu()
 
-  @input_event_bind("entity", GestureType.CLICK)
-  @input_event_bind("entity", GestureType.DOUBLE_CLICK)
+  @input_event_bind("entity", to_event(GestureType.CLICK))
+  @input_event_bind("entity", to_event(GestureType.DOUBLE_CLICK))
   def _on_entity_click(self, msg: InputManagerEvent[Entity]) -> None:
     self._select_element(ElementType.ENTITY, msg.element_id)
     self._close_ability_menu()
 
-  @input_event_bind("entity", GestureType.HOLD)
+  @input_event_bind("entity", to_event(GestureType.HOLD))
   def _display_ability_menu(self, msg: InputManagerEvent[Entity]) -> None:
     """Display the ability menu for the selected entity."""
     entity = msg.payload
@@ -118,7 +118,7 @@ class GameBoard(Page):
     self.setup_elements(ability_menu_elements)
     self._select_element(ElementType.ENTITY, msg.element_id, False)
 
-  @input_event_bind("ability", GestureType.CLICK)
+  @input_event_bind("ability", to_event(GestureType.CLICK))
   def _activate_ability(self, msg: InputManagerEvent) -> None:
     """ Activate selected ability. """
     print(f"Activated ability: {msg.element_id}")
