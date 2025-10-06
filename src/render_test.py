@@ -86,8 +86,7 @@ def main():
     game_manager = GameManager(
         map=map,
         players_info=(player_info_1, player_info_2),
-        first_turn=Side.MOUSE,
-        coordination_manager=coordination_manager,
+        first_turn=Side.MOUSE
     )
     # endregion
 
