@@ -19,7 +19,11 @@ from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_the
 
 class Page():
     """Base class for a page in the application."""
-    def __init__(self, coordination_manager: CoordinationManager, is_blocking: bool = True, theme_name: str = "") -> None:
+    def __init__(self, 
+                 coordination_manager: CoordinationManager, 
+                 is_blocking: bool = True, 
+                 theme_name: str = "",
+                 base_color: tuple[int, int, int, int]  | None = None) -> None:
         self.theme_path = str(resolve_theme_path(theme_name))
         self.gui_manager = pygame_gui.UIManager(SCREEN_SIZE, self.theme_path)
         """ Each page has its own UIManager """
@@ -27,6 +31,7 @@ class Page():
         self.is_blocking: bool = is_blocking
         self._element_manager: ElementManager = ElementManager(self.gui_manager, self.coordination_manager)
         self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
+        self.base_color: tuple[int, int, int, int] = base_color if base_color else (0, 0, 0, 0)
         self.is_visible: bool = True
 
         self._input_bindings: dict[tuple[str, GestureType], Callable] = {}
@@ -112,7 +117,7 @@ class Page():
     def render(self, time_delta: float) -> pygame.Surface:
         if self.is_visible:
             self.gui_manager.update(time_delta)
-            self.canvas.fill((0, 0, 0, 0))  # Clear with transparent
+            self.canvas.fill(self.base_color)  # Clear with transparent
             self._element_manager.render_all(self.canvas)
             self.gui_manager.draw_ui(self.canvas)
             return self.canvas

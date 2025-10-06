@@ -16,10 +16,6 @@ from .map import Map
 from .board import Board
 from .side import Side
 
-from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.page_token import *
-
 HAND_LENGTH = 5
 
 
@@ -52,8 +48,7 @@ class GameManager:
         self,
         map: Map,
         players_info: tuple[PlayerInfo, PlayerInfo],
-        first_turn: Side,
-        coordination_manager: CoordinationManager,
+        first_turn: Side
     ) -> None:
         self.turn = first_turn
         self.turn_count = 1
@@ -70,7 +65,6 @@ class GameManager:
             Side.RAT: [self.draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
             Side.MOUSE: [self.draw_squeak(Side.MOUSE) for _ in range(HAND_LENGTH)],
         }
-        self.coordination_manager = coordination_manager
 
     @property
     def event_queue(self) -> Queue[GameEvent]:

@@ -45,8 +45,8 @@
             "bold": "0",
             "italic": "1",
             "regular_path": "C:/Windows/fonts/comic.ttf",
-        "bold_path": "C:/Windows/fonts/comicbd.ttf",
-        "italic_path": "C:/Windows/fonts/comici.ttf" 
+            "bold_path": "C:/Windows/fonts/comicbd.ttf",
+            "italic_path": "C:/Windows/fonts/comici.ttf" 
         },
         "misc":
         {
