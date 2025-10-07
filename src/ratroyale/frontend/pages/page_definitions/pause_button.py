@@ -32,7 +32,7 @@ class PauseButton(Page):
                         object_id="pause_button"
                     )
                 )
-            )
+            ),
         ]
 
         self.setup_gui_elements(gui_elements)

@@ -85,6 +85,8 @@ class Page():
                 for page_event in getattr(attr, "_callback_bindings"):
                     self._callback_bindings[page_event] = attr
 
+        print(f"{type(self).__name__} has {self._callback_bindings}")
+
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
         Dispatch a GestureData object to the appropriate Interactable(s).
@@ -129,13 +131,17 @@ class Page():
         """
         return object_id.split('.')[-1] if object_id else None
 
-    def execute_page_callback(self, msg: PageCallbackEvent) -> None:
+    def execute_page_callback(self, msg: PageCallbackEvent) -> bool:
         """
-        Executes the callback associated with the given PageQueryResponseEvent.
+        Executes the callback associated with the given PageCallbackEvent.
         """
-        handler = self._callback_bindings[msg.callback_action]
-        if handler:
+        print(f"{type(self).__name__} has {self._callback_bindings}")
+        # Call handlers that match either the event type and prefix
+        return any(
             handler(msg)
+            for callback_action, handler in self._callback_bindings.items()
+            if callback_action == msg.callback_action
+        )
     
     def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
         pass

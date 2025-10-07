@@ -1,3 +1,4 @@
+from .entity_list import EntityList
 from .main_menu import MainMenu
 from .pause_button import PauseButton
 from .pause_menu import PauseMenu

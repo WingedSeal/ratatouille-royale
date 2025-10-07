@@ -68,7 +68,8 @@ class MainMenu(Page):
         PageNavigationEvent(action_list=[
           (PageNavigation.CLOSE_ALL, None),
           (PageNavigation.OPEN, "GameBoard"),
-          (PageNavigation.OPEN, "PauseButton")])
+          (PageNavigation.OPEN, "PauseButton"),
+          (PageNavigation.OPEN, "EntityList")])
       )
 
   @input_event_bind("quit_button", pygame_gui.UI_BUTTON_PRESSED)

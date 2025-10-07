@@ -161,6 +161,10 @@ class GameBoard(Page):
     if tile_element:
       tile_element.set_position(pygame.mouse.get_pos())
 
+  @callback_event_bind("entity_list")
+  def _print_test(self, msg: pygame.event.Event) -> None:
+    print("Cross page listening")
+
   # endregion
 
   # region Utilities

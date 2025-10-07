@@ -34,7 +34,6 @@ class PageNavigationEvent(PageManagerEvent):
 
 @dataclass
 class PageCallbackEvent(Generic[T], PageManagerEvent):
-    page_list: list[str]
     callback_action: str
     success: bool = True
     error_msg: str | None = None

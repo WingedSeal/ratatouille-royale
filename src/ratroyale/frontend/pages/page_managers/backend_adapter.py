@@ -14,7 +14,8 @@ class BackendAdapter:
         self.game_manager = game_manager
         self.coordination_manager = coordination_manager
         self.event_to_action_map: dict[str, Callable[[GameManagerEvent], None]] = {
-              "start_game": self.handle_game_start
+              "start_game": self.handle_game_start,
+              "entity_list": self.handle_entity_list
           }
         
     def execute_backend_callback(self) -> None:
@@ -34,18 +35,26 @@ class BackendAdapter:
         board = self.game_manager.board
         if board:
             self.coordination_manager.put_message(PageCallbackEvent[Board](
-                page_list=["GameBoard"],
                 callback_action="start_game",
                 payload=board
             ))
         else:
             self.coordination_manager.put_message(PageCallbackEvent(
-                page_list=["GameBoard"],
                 callback_action="start_game",
                 success=False,
                 error_msg="Failed to start game: Board not initialized",
                 payload=None
             ))
+
+    def handle_entity_list(self, event: GameManagerEvent) -> None:
+        board = self.game_manager.board
+        entity_list = board.cache.entities
+
+        self.coordination_manager.put_message(PageCallbackEvent[list[Entity]](
+            callback_action="entity_list",
+            payload=entity_list
+        ))
+
 
 def get_name_from_entity(entity: Entity) -> str:
     """Translate an Entity instance to a representative string name"""
