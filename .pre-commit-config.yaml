@@ -13,3 +13,8 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: pytest
+        name: pytest
+        entry: poetry run pytest
+        language: system
+        pass_filenames: false
