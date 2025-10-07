@@ -86,8 +86,8 @@ class PageManager:
                 break
 
         # Step 1: separate them into mouse events (down, motion, up) & other events
-        mouse_events = []
-        other_events = []
+        mouse_events: list[pygame.event.Event] = []
+        other_events: list[pygame.event.Event] = []
 
         for event in raw_events:
             if event.type in GESTURE_READER_CARES:

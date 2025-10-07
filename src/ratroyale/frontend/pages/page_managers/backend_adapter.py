@@ -13,7 +13,7 @@ class BackendAdapter:
     def __init__(self, game_manager: GameManager, coordination_manager: CoordinationManager) -> None:
         self.game_manager = game_manager
         self.coordination_manager = coordination_manager
-        self.event_to_action_map: dict[str, Callable] = {
+        self.event_to_action_map: dict[str, Callable[[GameManagerEvent], None]] = {
               "start_game": self.handle_game_start
           }
         

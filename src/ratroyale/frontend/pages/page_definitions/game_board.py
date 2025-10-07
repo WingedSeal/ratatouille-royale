@@ -75,6 +75,7 @@ class GameBoard(Page):
     else:
       raise RuntimeError(f"Failed to start game: {msg.error_msg}")
     
+  # TODO: fire normal clicks with double click.
   @input_event_bind("tile", to_event(GestureType.CLICK))
   @input_event_bind("tile", to_event(GestureType.DOUBLE_CLICK))
   def _on_tile_click(self, msg: pygame.event.Event) -> None:

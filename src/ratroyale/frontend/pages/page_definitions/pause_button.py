@@ -20,10 +20,9 @@ class PauseButton(Page):
     def __init__(self, coordination_manager: CoordinationManager):
         super().__init__(coordination_manager, is_blocking=False, theme_name="pause_button")
 
-        # --- Instantiate GUI elements directly ---
         gui_elements = [
             UIRegisterForm(
-                "pause_button",  # Registration name
+                "pause_button", 
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(700, 20, 80, 40),
                     text="Pause",
