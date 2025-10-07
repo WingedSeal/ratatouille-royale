@@ -37,7 +37,9 @@ def main():
     for q in range(size_x):
         row = []
         for r in range(size_y):
-            tile = Tile(coord=OddRCoord(q, r), entities=[], height=0, features=[])
+            tile = Tile(
+                tile_id=1, coord=OddRCoord(q, r), entities=[], height=0, features=[]
+            )
             row.append(tile)
         tiles.append(row)
     entities: list[Entity] = [TailBlazer(OddRCoord(1, 3))]
