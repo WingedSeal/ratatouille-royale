@@ -44,8 +44,8 @@ check = "pre-commit run --all-files"
 
 [tool.mypy]
 python_version = "3.12"
-mypy_path = "src"
-files = ["./src/ratroyale/", "./src/main.py"]
+mypy_path = ["src", "tests"]
+files = ["./src/ratroyale/", "./src/main.py", "./tests/"]
 strict = true
 warn_return_any = true
 warn_unused_configs = true

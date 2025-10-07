@@ -3,17 +3,18 @@ repos:
     hooks:
       - id: black
         name: black
-        entry: poetry run black --check ./src ./tests
+        entry: poetry run black --check
         language: system
-        pass_filenames: false
         files: ^(src/|tests/).*\.py$
+        types: [python]
       
       - id: mypy
         name: mypy
         entry: poetry run mypy
         language: system
-        pass_filenames: false
         files: ^(src/|tests/).*\.py$
+        require_serial: true
+        types: [python]
 
       - id: pytest
         name: pytest
