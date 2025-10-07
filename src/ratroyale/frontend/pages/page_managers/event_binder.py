@@ -1,5 +1,4 @@
 from functools import wraps
-from ratroyale.event_tokens.game_action import GameAction
 from ratroyale.event_tokens.page_token import *
 
 def input_event_bind(element_id: str | None, event_type: int):
@@ -18,7 +17,7 @@ def input_event_bind(element_id: str | None, event_type: int):
       return func  # no wrapper needed
   return decorator
 
-def callback_event_bind(game_action: GameAction):
+def callback_event_bind(game_action: str):
   """
   Decorator used for attaching input bindings to methods.
   Multiple bindings can be attached to a single method by stacking these decorators.\n
@@ -32,9 +31,9 @@ def callback_event_bind(game_action: GameAction):
     def wrapper(self, msg):
       return func(self, msg)
 
-    bindings = getattr(wrapper, "_page_bindings", [])
+    bindings = getattr(wrapper, "_callback_bindings", [])
     bindings.append(game_action)
-    setattr(wrapper, "_page_bindings", bindings)  
+    setattr(wrapper, "_callback_bindings", bindings)  
     return wrapper
 
   return decorator

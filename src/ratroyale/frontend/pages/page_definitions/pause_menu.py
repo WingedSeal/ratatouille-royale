@@ -18,7 +18,7 @@ import pygame
 @register_page
 class PauseMenu(Page):
     def __init__(self, coordination_manager: "CoordinationManager"):
-        super().__init__(coordination_manager, base_color=(0, 0, 0, 128))
+        super().__init__(coordination_manager, base_color=(0, 0, 0, 128), theme_name="pause_menu")
 
         # --- Instantiate GUI elements ---
         gui_elements = [

@@ -13,7 +13,6 @@ from typing import Callable
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, UIRegisterForm
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
-from ratroyale.event_tokens.game_action import GameAction
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
@@ -42,7 +41,7 @@ class Page():
 
         self._input_bindings: dict[tuple[str | None, GestureType], Callable] = {}
         """ Maps (element_id, gesture_type) to handler functions """
-        self._page_bindings: dict[GameAction, Callable] = {}
+        self._callback_bindings: dict[str, Callable] = {}
         """ Maps (game_action) to handler functions """
 
         self.setup_input_bindings()
@@ -69,7 +68,7 @@ class Page():
 
         Supported decorators:
         - @input_event_bind -> stored in _input_bindings
-        - @page_event_bind  -> stored in _page_bindings
+        - @callback_event_bind  -> stored in _callback_bindings
         """
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
@@ -82,9 +81,9 @@ class Page():
                     self._input_bindings[(element_id, event_type)] = attr
 
             # --- Page event bindings ---
-            if hasattr(attr, "_page_bindings"):
-                for page_event in getattr(attr, "_page_bindings"):
-                    self._page_bindings[page_event] = attr
+            if hasattr(attr, "_callback_bindings"):
+                for page_event in getattr(attr, "_callback_bindings"):
+                    self._callback_bindings[page_event] = attr
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
@@ -134,7 +133,7 @@ class Page():
         """
         Executes the callback associated with the given PageQueryResponseEvent.
         """
-        handler = self._page_bindings[msg.game_action]
+        handler = self._callback_bindings[msg.callback_action]
         if handler:
             handler(msg)
     

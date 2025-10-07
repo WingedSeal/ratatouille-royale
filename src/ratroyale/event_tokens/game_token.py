@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from .base import EventToken
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
-from .game_action import GameAction
 from typing import TypeVar, Generic
 
 __all__ = [
@@ -13,7 +12,7 @@ T = TypeVar("T")
 
 @dataclass
 class GameManagerEvent(Generic[T], EventToken):
-    game_action: GameAction
+    game_action: str
     payload: T | None = None
 
 

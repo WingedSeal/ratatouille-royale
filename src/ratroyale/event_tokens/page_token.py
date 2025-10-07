@@ -3,7 +3,6 @@ from .base import EventToken
 from ratroyale.backend.board import Board
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.tile import Tile
-from .game_action import GameAction
 from enum import Enum, auto
 from typing import TypeVar, Generic
 
@@ -36,34 +35,7 @@ class PageNavigationEvent(PageManagerEvent):
 @dataclass
 class PageCallbackEvent(Generic[T], PageManagerEvent):
     page_list: list[str]
-    game_action: GameAction
+    callback_action: str
     success: bool = True
     error_msg: str | None = None
     payload: T | None = None
-
-# @dataclass
-# class StartGameConfirmation(PageQueryResponseEvent):
-#    board: Board | None = None
-
-# @dataclass
-# class EntityInteraction_PageManagerEvent(PageManagerEvent):
-#    entity: Entity
-#    pass
-
-# @dataclass
-# class TileInteraction_PageManagerEvent(PageManagerEvent):
-#    tile: Tile
-#    pass
-
-# @dataclass 
-# class EntityMovementConfirmation_PageManagerEvent(PageManagerEvent):
-#    success: bool
-#    error_msg: str | None = None
-
-   
-#    pass
-
-# @dataclass
-# class EntityAbilityDisplay_PageManagerEvent(PageManagerEvent):
-#    entity: Entity
-#    pass

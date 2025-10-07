@@ -50,6 +50,21 @@ def get_id(event: pygame.event.Event) -> str | None:
     # --- Case 3: unrelated event ---
     return None
 
+def get_gesture_data(event: pygame.event.Event) -> GestureData | None:
+    """Extract GestureData from an event or its input_manager_event wrapper."""
+    gesture_data = getattr(event, "gesture_data", None)
+
+    # Check top level first
+    if isinstance(gesture_data, GestureData):
+        return gesture_data
+
+    # If not found, check nested input_manager_event
+    inner = getattr(event, "input_manager_event", None)
+    if inner and hasattr(inner, "gesture_data") and isinstance(inner.gesture_data, GestureData):
+        return inner.gesture_data
+
+    raise TypeError(f"Event {event} does not contain GestureData.")
+
 def get_payload(event: pygame.event.Event) -> object:
     """Extracts the payload from an InputManagerEvent if present, else returns None."""
     input_mgr_event = getattr(event, "input_manager_event", None)

@@ -1,9 +1,8 @@
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens.input_token import InputManagerEvent, get_payload, get_id
+from ratroyale.event_tokens.input_token import InputManagerEvent, get_id, get_gesture_data, get_payload
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.game_action import GameAction
 
 from ratroyale.frontend.gesture.gesture_data import GestureType, to_event
 
@@ -36,12 +35,12 @@ class GameBoard(Page):
 
   def on_create(self) -> None:
     self.coordination_manager.put_message(GameManagerEvent(
-        game_action=GameAction.START_GAME
+        game_action="start_game"
     ))
 
   # region Input Bindings
 
-  @callback_event_bind(GameAction.START_GAME)
+  @callback_event_bind("start_game")
   def _start_game(self, msg: PageCallbackEvent[Board]) -> None:
     """Handle the response from starting a game."""
     print("GameBoard received START_GAME response")
@@ -77,6 +76,7 @@ class GameBoard(Page):
       raise RuntimeError(f"Failed to start game: {msg.error_msg}")
     
   @input_event_bind("tile", to_event(GestureType.CLICK))
+  @input_event_bind("tile", to_event(GestureType.DOUBLE_CLICK))
   def _on_tile_click(self, msg: pygame.event.Event) -> None:
     tile_element_id = self._get_element_id(msg)
     
@@ -148,6 +148,17 @@ class GameBoard(Page):
         raise ValueError("Wrong event type received. Make sure it is a gesture type event!")
       
     self._select_element("entity", entity_element_id)
+
+  # TODO: drag not working for some reason.
+  # TODO: Movement of elements not supported yet. :(
+  @input_event_bind("tile", to_event(GestureType.HOLD))
+  def _test_drag(self, msg: pygame.event.Event) -> None:
+    print("drag tile triggered")
+    tile_element_id = self._get_element_id(msg)
+    tile_element = self._element_manager.get_element(tile_element_id, "tile")
+
+    if tile_element:
+      tile_element.set_position(pygame.mouse.get_pos())
 
   # endregion
 

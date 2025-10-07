@@ -6,7 +6,6 @@ from typing import Callable
 from ratroyale.backend.board import Board
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity, EntitySkill
-from ratroyale.event_tokens.game_action import GameAction
 from ratroyale.backend.hexagon import OddRCoord
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -14,8 +13,8 @@ class BackendAdapter:
     def __init__(self, game_manager: GameManager, coordination_manager: CoordinationManager) -> None:
         self.game_manager = game_manager
         self.coordination_manager = coordination_manager
-        self.event_to_action_map: dict[GameAction, Callable] = {
-              GameAction.START_GAME: self.handle_game_start
+        self.event_to_action_map: dict[str, Callable] = {
+              "start_game": self.handle_game_start
           }
         
     def execute_backend_callback(self) -> None:
@@ -36,13 +35,13 @@ class BackendAdapter:
         if board:
             self.coordination_manager.put_message(PageCallbackEvent[Board](
                 page_list=["GameBoard"],
-                game_action=GameAction.START_GAME,
+                callback_action="start_game",
                 payload=board
             ))
         else:
             self.coordination_manager.put_message(PageCallbackEvent(
                 page_list=["GameBoard"],
-                game_action=GameAction.START_GAME,
+                callback_action="start_game",
                 success=False,
                 error_msg="Failed to start game: Board not initialized",
                 payload=None

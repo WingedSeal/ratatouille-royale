@@ -91,7 +91,8 @@ def main():
     # endregion
 
     backend_adapter = BackendAdapter(
-        game_manager=game_manager, coordination_manager=coordination_manager
+        game_manager=game_manager, 
+        coordination_manager=coordination_manager
     )
 
     page_manager.push_page(pages.MainMenu)
