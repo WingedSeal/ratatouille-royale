@@ -1,12 +1,15 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 25.9.0
+  - repo: local
     hooks:
       - id: black
-        args: [--check]
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
-    hooks:
+        name: black
+        entry: poetry run black --check ./src ./tests
+        language: system
+        pass_filenames: false
+      
       - id: mypy
+        name: mypy
+        entry: poetry run mypy
+        language: system
+        pass_filenames: false
 
