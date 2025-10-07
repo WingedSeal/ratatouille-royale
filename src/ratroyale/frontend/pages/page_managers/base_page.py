@@ -15,6 +15,7 @@ from ratroyale.frontend.pages.page_elements.element_builder import create_elemen
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.event_tokens.game_action import GameAction
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
+from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 
 class Page():
@@ -33,6 +34,9 @@ class Page():
         self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
         self.base_color: tuple[int, int, int, int] = base_color if base_color else (0, 0, 0, 0)
         self.is_visible: bool = True
+        self.hovered: bool = False 
+        """ Pygame_gui elements will constantly fire hovered events instead of once during entry.
+        Use this variable to keep track of scenarios where you want something to trigger only on beginning of hover. """
 
         self._input_bindings: dict[tuple[str | None, GestureType], Callable] = {}
         """ Maps (element_id, gesture_type) to handler functions """
@@ -40,6 +44,10 @@ class Page():
         """ Maps (game_action) to handler functions """
 
         self.setup_input_bindings()
+
+    @input_event_bind(None, pygame.QUIT)
+    def quit_game(self, msg: pygame.event.Event):
+        self.coordination_manager.stop_game()
 
     def setup_elements(self, configs: list[ElementConfig]) -> None:
         for config in configs:
@@ -61,8 +69,6 @@ class Page():
         - @input_event_bind -> stored in _input_bindings
         - @page_event_bind  -> stored in _page_bindings
         """
-        print("attempting to set up input binding")
-
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
             if not callable(attr):
@@ -77,8 +83,6 @@ class Page():
             if hasattr(attr, "_page_bindings"):
                 for page_event in getattr(attr, "_page_bindings"):
                     self._page_bindings[page_event] = attr
-        
-        print("final:", self._input_bindings)
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
@@ -90,38 +94,39 @@ class Page():
         if not self.is_visible:
             return gestures
 
-        return self._element_manager.handle_inputs(gestures)
+        return self._element_manager.handle_gestures(gestures)
 
     def execute_input_callback(self, msg: pygame.event.Event) -> bool:
         """
         Executes all callbacks bound to the given InputManagerEvent.
+
         Supports:
-        - Prefix matching for element IDs (e.g. 'inventory' matches 'inventory_slot_1')
+        - Prefix matching for element IDs (e.g., 'inventory' matches 'inventory_slot_1')
         - Global handlers with prefix=None for non-targeted events
+
         Returns True if one or more handlers were executed.
         """
-        element_id = get_id(msg)
-        matched = False
+        element_id = self.get_leaf_object_id(get_id(msg))
 
-        for (prefix, event_type), handler in self._input_bindings.items():
-            # Skip if the event type doesn't match
-            if event_type != msg.type:
-                continue
-
-            # Case 1: global handler (no element ID required)
-            if prefix is None:
-                handler(msg)
-                matched = True
-                continue
-
-            # Case 2: targeted handler (element_id must exist)
-            if element_id is not None and (
-                element_id == prefix or element_id.startswith(prefix)
-            ):
-                handler(msg)
-                matched = True
-
-        return matched
+        # Call handlers that match either the event type and prefix
+        return any(
+            handler(msg)
+            for (prefix, event_type), handler in self._input_bindings.items()
+            if event_type == msg.type and (
+                prefix is None or (element_id is not None and (element_id == prefix or element_id.startswith(prefix)))
+            )
+        )
+    
+    def get_leaf_object_id(self, object_id: str | None) -> str | None:
+        """
+        Given a fully-qualified pygame_gui object_id (with panel prefixes),
+        returns only the last segment, which corresponds to the actual element.
+        
+        Example:
+            'ability_panel_for_entity_TailBlazer_1_3.ability_0_from_entity_TailBlazer_1_3'
+            -> 'ability_0_from_entity_TailBlazer_1_3'
+        """
+        return object_id.split('.')[-1] if object_id else None
 
     def execute_page_callback(self, msg: PageCallbackEvent) -> None:
         """

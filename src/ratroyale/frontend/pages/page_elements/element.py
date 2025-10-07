@@ -153,16 +153,17 @@ class Element(Generic[T]):
         self.parent: Element | None = None
         self.children: list[Element] = []
 
-    def process_gesture(self, gesture: GestureData) -> InputManagerEvent | None:
+    def handle_gesture(self, gesture: GestureData) -> bool:
         gesture_pos = gesture.start_pos
         if gesture_pos is None or not self.is_interactable or not self.hitbox.contains_point(gesture_pos):
-            return None
-        return post_gesture_event(InputManagerEvent(
+            return False
+        post_gesture_event(InputManagerEvent(
             element_id=self.element_id,
             gesture_data=gesture,
             payload=self.payload
             )
         )
+        return True
     
     def destroy_visual(self) -> None:
         if self.visual:

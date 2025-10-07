@@ -82,8 +82,8 @@ class PageManager:
             for raw_event in raw_events:
                 page.gui_manager.process_events(raw_event)
 
-                if page.is_blocking:
-                    break
+            if page.is_blocking:
+                break
 
         # Step 1: separate them into mouse events (down, motion, up) & other events
         mouse_events = []
@@ -124,7 +124,8 @@ class PageManager:
                 handler_found = handler_found or page.execute_input_callback(event) 
 
         if not handler_found:
-            print(f"No page handled event: {event}")
+            # print(f"No page handled event: {event}")
+            pass
 
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)
@@ -174,7 +175,8 @@ class PageManager:
             if page:
                 page.execute_page_callback(msg)    
             else:
-                print(f"No page of type {name} to handle {msg}")
+                # print(f"No page of type {name} to handle {msg}")
+                pass
 
     def execute_visual_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)

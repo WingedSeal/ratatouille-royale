@@ -49,3 +49,10 @@ def get_id(event: pygame.event.Event) -> str | None:
 
     # --- Case 3: unrelated event ---
     return None
+
+def get_payload(event: pygame.event.Event) -> object:
+    """Extracts the payload from an InputManagerEvent if present, else returns None."""
+    input_mgr_event = getattr(event, "input_manager_event", None)
+    if isinstance(input_mgr_event, InputManagerEvent):
+        return input_mgr_event.payload
+    return None

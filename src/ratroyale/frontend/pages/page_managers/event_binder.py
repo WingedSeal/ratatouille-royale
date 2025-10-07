@@ -32,9 +32,9 @@ def callback_event_bind(game_action: GameAction):
     def wrapper(self, msg):
       return func(self, msg)
 
-    bindings = getattr(wrapper, "page_bindings", [])
+    bindings = getattr(wrapper, "_page_bindings", [])
     bindings.append(game_action)
-    setattr(wrapper, "page_bindings", bindings)  
+    setattr(wrapper, "_page_bindings", bindings)  
     return wrapper
 
   return decorator

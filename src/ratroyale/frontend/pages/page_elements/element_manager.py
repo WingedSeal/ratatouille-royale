@@ -91,6 +91,7 @@ class ElementManager:
         i.e. the registered name and the event callback name can be different.
         """
         self._gui_element_collection[registered_name] = gui_element
+        print(f"Registered {gui_element} with name: {registered_name}")
 
     def get_gui_element(self, registered_name: str) -> UIElement:
         return self._gui_element_collection[registered_name]
@@ -99,7 +100,9 @@ class ElementManager:
         """
         Remove the gui_element registered by this name.
         """
-        self._gui_element_collection.pop(registered_name)
+        removed = self._gui_element_collection.pop(registered_name)
+        if removed:
+            removed.kill()
 
     def clear_collection_of_type(self, element_type: str) -> None:
         """ Clears all elements from the specified collection. 
@@ -168,22 +171,27 @@ class ElementManager:
 
     # region Processing Input
 
-    def handle_inputs(self, gestures: list[GestureData]) -> list[GestureData]:
+    def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
-        Dispatch a GestureData object to the appropriate Interactable(s).
-        Interactable then produces the corresponding InputManagerEvent, which is
+        Dispatch a GestureData object to all non-gui elements.
+        Elements then produces the corresponding event, which is
         handled by the page.
         """
         remaining_gestures: list[GestureData] = []
-        
-        for gesture in gestures:
-            for element in self._flattened_collection:
-                if element.is_interactable:
-                    element.process_gesture(gesture)
 
+        for gesture in gestures:
+            consumed = False
+
+            for element in self._flattened_collection:
+                if not element.is_interactable:
+                    continue
+
+                if element.handle_gesture(gesture):
                     if element.is_blocking:
+                        consumed = True
                         break
-            else:
+
+            if not consumed:
                 remaining_gestures.append(gesture)
 
         return remaining_gestures

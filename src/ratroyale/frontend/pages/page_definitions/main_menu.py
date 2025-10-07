@@ -10,7 +10,7 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, GUITheme, GUIElement
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, GUIElement
 
 import pygame_gui
 import pygame
@@ -47,23 +47,17 @@ class MainMenu(Page):
   # region Input Responses
 
   @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
-  def on_start_click(self, msg: InputManagerEvent):
+  def on_start_click(self, msg: pygame.event.Event):
       print("start button clicked")
-      pass
-      # self.coordination_manager.put_message(
-      #   PageNavigationEvent(action_list=[
-      #     (PageNavigation.CLOSE_ALL, None),
-      #     (PageNavigation.OPEN, "GameBoard"),
-      #     (PageNavigation.OPEN, "PauseButton")])
-      # )
-
-  @input_event_bind("start_button", pygame_gui.UI_BUTTON_ON_HOVERED)
-  def _test_hover(self, msg: pygame.event.Event):
-    print("hover detected")
-    print(msg)
+      self.coordination_manager.put_message(
+        PageNavigationEvent(action_list=[
+          (PageNavigation.CLOSE_ALL, None),
+          (PageNavigation.OPEN, "GameBoard"),
+          (PageNavigation.OPEN, "PauseButton")])
+      )
 
   @input_event_bind("quit_button", pygame_gui.UI_BUTTON_PRESSED)
-  def _on_quit_click(self, msg: InputManagerEvent):
+  def _on_quit_click(self, msg: pygame.event.Event):
       self.coordination_manager.stop_game()
 
   # endregion

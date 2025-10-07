@@ -30,12 +30,14 @@ class GestureData:
 
     original_event: pygame.event.Event | None = None
 
-CLICK_EVENT: int = pygame.USEREVENT + 40000
-DOUBLE_CLICK_EVENT: int = pygame.USEREVENT + 40001
-DRAG_EVENT: int = pygame.USEREVENT + 40002
-DRAG_END_EVENT: int = pygame.USEREVENT + 40003
-SWIPE_EVENT: int = pygame.USEREVENT + 40004
-HOLD_EVENT: int = pygame.USEREVENT + 40005
+_OFFSET_CONSTANT = 10000
+
+CLICK_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 1
+DOUBLE_CLICK_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 2 
+DRAG_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 3
+DRAG_END_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 4
+SWIPE_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 5
+HOLD_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 6
 
 GESTURE_EVENT_MAP: dict[GestureType, int] = {
   GestureType.CLICK: CLICK_EVENT,

@@ -10,30 +10,40 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, GUIElement
+
+import pygame_gui
+import pygame
 
 @register_page
 class PauseButton(Page):
     def __init__(self, coordination_manager: CoordinationManager):
         super().__init__(coordination_manager, is_blocking=False)
 
-        configs = [
-            ElementConfig(
-                element_type=ElementType.BUTTON,
-                id="pause_button",
-                rect=(700, 20, 80, 40),
-                text="Pause"
+        # --- Instantiate GUI elements directly ---
+        gui_elements = [
+            GUIElement(
+                "pause_button",  # Registration name
+                pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect(700, 20, 80, 40),
+                    text="Pause",
+                    manager=self.gui_manager,
+                    object_id=pygame_gui.core.ObjectID(
+                        class_id="PauseButton",
+                        object_id="pause_button"
+                    )
+                )
             )
         ]
 
-        self.setup_elements(configs)
+        self.setup_gui_elements(gui_elements)
 
-    # region Input Responses
-    @input_event_bind("pause_button", to_event(GestureType.CLICK))
-    def on_pause_click(self, msg: InputManagerEvent):
+    # --- Input Responses ---
+    @input_event_bind("pause_button", pygame_gui.UI_BUTTON_PRESSED)
+    def on_pause_click(self, msg: pygame.event.Event):
+        # Strictly typed pygame event
         self.coordination_manager.put_message(
             PageNavigationEvent(action_list=[
                 (PageNavigation.OPEN, "PauseMenu")
             ])
         )
-    # endregion
