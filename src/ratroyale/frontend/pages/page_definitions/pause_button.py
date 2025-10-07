@@ -10,7 +10,7 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, GUIElement
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, UIRegisterForm
 
 import pygame_gui
 import pygame
@@ -22,7 +22,7 @@ class PauseButton(Page):
 
         # --- Instantiate GUI elements directly ---
         gui_elements = [
-            GUIElement(
+            UIRegisterForm(
                 "pause_button",  # Registration name
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(700, 20, 80, 40),

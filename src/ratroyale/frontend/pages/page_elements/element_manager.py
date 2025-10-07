@@ -7,6 +7,10 @@ from pygame_gui import UIManager
 from pygame_gui.core import UIElement, ObjectID
 from pygame import Surface
 
+from typing import TypeVar, Type, Optional
+
+T = TypeVar("T")
+
 class ElementManager:
     """
     Manages collections of elements grouped by element type string.
@@ -92,9 +96,16 @@ class ElementManager:
         """
         self._gui_element_collection[registered_name] = gui_element
         print(f"Registered {gui_element} with name: {registered_name}")
+    
+    def get_gui_element(self, registered_name: str, cls: type[T]) -> T:
+        element = self._gui_element_collection[registered_name]
+        if not element:
+            raise KeyError("Element with the given registered name does not exist.")
+        if isinstance(element, cls):
+            return element
+        else:
+            raise ValueError("The element type provided is incorrect.")
 
-    def get_gui_element(self, registered_name: str) -> UIElement:
-        return self._gui_element_collection[registered_name]
 
     def remove_gui_element(self, registered_name: str) -> None:
         """

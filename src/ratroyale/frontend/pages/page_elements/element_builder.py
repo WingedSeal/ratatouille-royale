@@ -62,7 +62,7 @@ class ElementConfig(Generic[T]):
     payload: T | None = None                            # Optional, for any extra data (e.g. Tiles, Entities, Abilities, etc.)
 
 @dataclass
-class GUIElement:
+class UIRegisterForm:
     registered_name: str
     ui_element: UIElement
 

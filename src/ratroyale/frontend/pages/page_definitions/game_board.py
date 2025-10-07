@@ -12,7 +12,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_managers.backend_adapter import get_name_from_entity, get_name_from_tile
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ParentIdentity, GUIElement
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ParentIdentity, UIRegisterForm
 from ratroyale.frontend.pages.page_elements.element import Element
 
 from ratroyale.backend.board import Board
@@ -116,7 +116,7 @@ class GameBoard(Page):
               object_id=pygame_gui.core.ObjectID(class_id="AbilityPanel", object_id=panel_id)
           )
       
-      panel_element = GUIElement(
+      panel_element = UIRegisterForm(
           panel_id,
           panel_object
       )
