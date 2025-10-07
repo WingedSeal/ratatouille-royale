@@ -59,6 +59,9 @@ include = "\\.pyi?$"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = [
+  "src"
+]
 markers = [
     "slow: slow running tests",
     "integration: integration tests", 
