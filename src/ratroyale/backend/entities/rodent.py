@@ -22,7 +22,6 @@ class Rodent(Entity, metaclass=RodentMeta):
     _has_rodent_data = False
     speed: int
     move_stamina: int
-    attack_stamina: int
     move_cost: int
     attack: int
     side: Side | None
@@ -42,7 +41,7 @@ def rodent_data(
     name: str,
     speed: int,
     move_stamina: int,
-    attack_stamina: int,
+    skill_stamina: int,
     move_cost: int,
     attack: int,
     height: int,
@@ -71,7 +70,7 @@ def rodent_data(
         cls.description = description
         cls.speed = speed
         cls.move_stamina = move_stamina
-        cls.attack_stamina = attack_stamina
+        cls.skill_stamina = skill_stamina
         cls.move_cost = move_cost
         cls.attack = attack
         cls.height = height

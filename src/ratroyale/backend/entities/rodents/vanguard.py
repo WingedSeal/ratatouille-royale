@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     defense=2,
     speed=8,
     move_stamina=2,
-    attack_stamina=3,
+    skill_stamina=3,
     attack=3,
     move_cost=3,
     height=0,

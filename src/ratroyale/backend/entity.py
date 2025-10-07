@@ -5,7 +5,7 @@ from .skill_callback import SkillCallback
 from .side import Side
 from .hexagon import OddRCoord
 import inspect
-from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar, cast
+from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
 from dataclasses import asdict, dataclass
 
@@ -25,17 +25,28 @@ class EntitySkill:
 @dataclass
 class SkillTargetting:
     target_count: int
+    source_enitity: "Entity"
+    source_skill: "CallableEntitySkill"
     available_targets: list[OddRCoord]
-    callback: SkillCallback
+    _callback: SkillCallback
     can_cancel: bool
 
+    def apply_callback(
+        self, game_manager: "GameManager", selected_targets: list["OddRCoord"]
+    ) -> "SkillResult":
+        skill_result = self._callback(game_manager, selected_targets)
+        if skill_result == SkillCompleted.SUCCESS:
+            game_manager.crumbs -= self.source_skill.crumb_cost
+            self.source_enitity.skill_stamina -= 1
+        return skill_result
 
-class SkillResultEnum(Enum):
+
+class SkillCompleted(Enum):
     SUCCESS = auto()
     CANCELLED = auto()
 
 
-SkillResult = SkillTargetting | SkillResultEnum
+SkillResult: TypeAlias = SkillTargetting | SkillCompleted
 
 
 @dataclass
@@ -58,6 +69,7 @@ class Entity:
     health: int | None = None
     defense: int = 0
     movable: bool = False
+    skill_stamina: int = 0
     collision: bool = False
     description: str = ""
     height: int = 0
@@ -132,6 +144,7 @@ def entity_data(
     *,
     health: int | None = None,
     defense: int = 0,
+    skill_stamina: int = 0,
     movable: bool = False,
     collision: bool = False,
     height: int = 0,
@@ -144,6 +157,7 @@ def entity_data(
         cls.health = health
         cls.max_health = health
         cls.defense = defense
+        cls.skill_stamina = skill_stamina
         cls.movable = movable
         cls.collision = collision
         cls.description = description

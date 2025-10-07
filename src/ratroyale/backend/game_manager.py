@@ -8,7 +8,7 @@ from .entity_effect import EntityEffect
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
 from .error import InvalidMoveTargetError, NotEnoughCrumbError
-from .entity import Entity, SkillResult, SkillTargetting
+from .entity import Entity, SkillResult, SkillCompleted, SkillTargetting
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
@@ -89,11 +89,34 @@ class GameManager:
                 # In actual implementation, replace the sample map in render test with an actual loaded map
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult:
+        """
+        The result may either be a completed skill or require more targetting.
+
+        .. example::
+        ```python
+        # Activate Skill
+        skill_result = game_manager.activate_skill(self, entity, 1)
+        if isinstance(skill_result, Callable):
+            self.skill_targetting = skill_result
+        ```
+        ```python
+        # Main Loop
+        if self.skill_targetting:
+            ...
+            selected_targets = ...
+            if selected_targets is not None:
+                skill_result = self.skill_targetting.apply_callback(game_manager, selected_targets)
+        ```
+
+        """
         skill = entity.skills[skill_index]
         if self.crumbs < skill.crumb_cost:
             raise NotEnoughCrumbError()
-        self.crumbs -= skill.crumb_cost
-        return skill.func(self)
+        skill_result = skill.func(self)
+        if skill_result == SkillCompleted.SUCCESS:
+            self.crumbs -= skill.crumb_cost
+            entity.skill_stamina -= 1
+        return skill_result
 
     def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
         """
