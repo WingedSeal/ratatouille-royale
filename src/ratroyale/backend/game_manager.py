@@ -8,7 +8,7 @@ from .entity_effect import EntityEffect
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
 from .error import InvalidMoveTargetError, NotEnoughCrumbError
-from .entity import Entity, SkillResult
+from .entity import Entity, SkillResult, SkillTargetting
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
@@ -88,7 +88,7 @@ class GameManager:
                 )
                 # In actual implementation, replace the sample map in render test with an actual loaded map
 
-    def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
+    def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult:
         skill = entity.skills[skill_index]
         if self.crumbs < skill.crumb_cost:
             raise NotEnoughCrumbError()
@@ -149,7 +149,7 @@ class GameManager:
         """
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
-        if rodent.stamina <= 0:
+        if rodent.move_stamina <= 0:
             raise ValueError("Rodent doesn't have stamina left")
         if rodent.pos.get_distance(target) > rodent.speed:
             raise InvalidMoveTargetError("Cannot move rodent beyond its reach")
@@ -160,7 +160,7 @@ class GameManager:
         if not is_success:
             raise InvalidMoveTargetError("Cannot move rodent there")
         self.crumbs -= rodent.move_cost
-        rodent.stamina -= 1
+        rodent.move_stamina -= 1
         self.event_queue.put(EntityMoveEvent(path, rodent))
         return path
 

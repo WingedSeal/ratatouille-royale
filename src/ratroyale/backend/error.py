@@ -16,3 +16,7 @@ class InvalidMoveTargetError(RatRoyaleBackendError):
 
 class RodentEffectNotOnRodentError(RatRoyaleBackendError):
     pass
+
+
+class ShortHandSkillCallbackError(RatRoyaleBackendError):
+    pass

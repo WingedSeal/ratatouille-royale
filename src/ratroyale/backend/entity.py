@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from enum import Enum, auto
 from .entity_effect import EntityEffect
 from .skill_callback import SkillCallback
 from .side import Side
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(kw_only=True)
-class _EntitySkill:
+class EntitySkill:
     name: str
     method_name: str
     reach: int | None
@@ -22,16 +23,24 @@ class _EntitySkill:
 
 
 @dataclass
-class SkillResult:
+class SkillTargetting:
     target_count: int
     available_targets: list[OddRCoord]
     callback: SkillCallback
     can_cancel: bool
 
 
+class SkillResultEnum(Enum):
+    SUCCESS = auto()
+    CANCELLED = auto()
+
+
+SkillResult = SkillTargetting | SkillResultEnum
+
+
 @dataclass
-class EntitySkill(_EntitySkill):
-    func: Callable[["GameManager"], SkillResult | None]
+class CallableEntitySkill(EntitySkill):
+    func: Callable[["GameManager"], SkillResult]
 
 
 MINIMAL_DAMAGE_TAKEN = 1
@@ -52,7 +61,7 @@ class Entity:
     collision: bool = False
     description: str = ""
     height: int = 0
-    skills: list[EntitySkill] = []
+    skills: list[CallableEntitySkill] = []
     side: Side | None
     PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
 
@@ -127,7 +136,7 @@ def entity_data(
     collision: bool = False,
     height: int = 0,
     description: str = "",
-    skills: list[_EntitySkill] = [],
+    skills: list[EntitySkill] = [],
     name: str = "",
 ) -> Callable[[type[Entity_T]], type[Entity_T]]:
     def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
@@ -152,10 +161,11 @@ def entity_data(
                     f"Expected {skill} method to take 1 arguments (got {arg_count - 1})"
                 )
             cls.skills.append(
-                EntitySkill(
+                CallableEntitySkill(
                     **asdict(skill),
                     func=cast(
-                        Callable[["GameManager"], SkillResult | None], skill_function
+                        Callable[["GameManager"], SkillResult],
+                        skill_function,
                     ),
                 )
             )
@@ -164,7 +174,7 @@ def entity_data(
     return wrapper
 
 
-_entity_skill_type = Callable[[Entity_T, "GameManager"], SkillResult | None]
+_entity_skill_type = Callable[[Entity_T, "GameManager"], SkillResult]
 
 
 def entity_skill_check(
