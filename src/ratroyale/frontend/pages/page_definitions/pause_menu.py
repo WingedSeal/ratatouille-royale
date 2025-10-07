@@ -10,7 +10,7 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig
 
 @register_page
 class PauseMenu(Page):

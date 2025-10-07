@@ -11,7 +11,7 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 from typing import Callable
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
-from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig, ElementType
+from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.event_tokens.game_action import GameAction
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
@@ -34,8 +34,8 @@ class Page():
         self.base_color: tuple[int, int, int, int] = base_color if base_color else (0, 0, 0, 0)
         self.is_visible: bool = True
 
-        self._input_bindings: dict[tuple[str, GestureType], Callable] = {}
-        """ Maps (interactable_id, gesture_type) to handler functions """
+        self._input_bindings: dict[tuple[str | None, GestureType], Callable] = {}
+        """ Maps (element_id, gesture_type) to handler functions """
         self._page_bindings: dict[GameAction, Callable] = {}
         """ Maps (game_action) to handler functions """
 
@@ -44,24 +44,32 @@ class Page():
     def setup_elements(self, configs: list[ElementConfig]) -> None:
         self._element_manager.create_elements(configs)
 
-    def get_element(self, element_type: ElementType, element_id: str) -> Element | None:
+    def get_element(self, element_type: str, element_id: str) -> Element | None:
         return self._element_manager.get_element(element_type, element_id)
 
     def setup_input_bindings(self) -> None:
         """
-        Scan all methods of the page instance for `x_bindings` metadata
-        and populate x_bindings dict.
+        Scans all methods of the page instance for decorator metadata and
+        populates the binding dictionaries.
+
+        Supported decorators:
+        - @input_event_bind -> stored in _input_bindings
+        - @page_event_bind  -> stored in _page_bindings
         """
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
-            if callable(attr):
-                if hasattr(attr, "input_bindings"):
-                    for widget_id, gesture_type in attr.input_bindings:
-                        self._input_bindings[(widget_id, gesture_type)] = attr
-                if hasattr(attr, "page_bindings"):
-                    print(attr.page_bindings)
-                    for page_event in attr.page_bindings:
-                        self._page_bindings[page_event] = attr
+            if not callable(attr):
+                continue
+
+            # --- Input event bindings ---
+            if hasattr(attr, "_input_bindings"):
+                for element_id, event_type in getattr(attr, "_input_bindings"):
+                    self._input_bindings[(element_id, event_type)] = attr
+
+            # --- Page event bindings ---
+            if hasattr(attr, "_page_bindings"):
+                for page_event in getattr(attr, "_page_bindings"):
+                    self._page_bindings[page_event] = attr
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
@@ -106,7 +114,6 @@ class Page():
 
         return matched
 
-    
     def execute_page_callback(self, msg: PageCallbackEvent) -> None:
         """
         Executes the callback associated with the given PageQueryResponseEvent.

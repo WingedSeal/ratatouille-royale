@@ -6,7 +6,7 @@ from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, Callable
-from ratroyale.event_tokens.input_token import InputManagerEvent
+from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 from enum import Enum, auto
 from ratroyale.frontend.visual.asset_management.visual_component import UIVisual, SpriteVisual
 
@@ -131,20 +131,20 @@ T = TypeVar("T")
 
 class Element(Generic[T]):
     """
-    Base class for a logical page element.
+    Base class for a non-pygame_gui logical page element.
     Handles hitbox-based input detection and optional visual component.
     """
     def __init__(
         self,
-        interactable_id: str,
-        hitbox: Hitbox,
-        payload: T | None = None,
+        element_id: str,
+        hitbox: Hitbox, # TODO: generalize
+        payload: T | None = None, # Generalize
         is_interactable: bool = True,
         is_blocking: bool = True,
         z_order: int = 0,
         visual: VisualComponent | None = None
     ) -> None:
-        self.interactable_id: str = interactable_id
+        self.element_id: str = element_id
         self.hitbox: Hitbox = hitbox
         self.payload: T | None = payload
         self.is_interactable: bool = is_interactable
@@ -161,11 +161,12 @@ class Element(Generic[T]):
         gesture_pos = gesture.start_pos
         if gesture_pos is None or not self.is_interactable or not self.hitbox.contains_point(gesture_pos):
             return None
-        return InputManagerEvent(
-            element_id=self.interactable_id,
+        return post_gesture_event(InputManagerEvent(
+            element_id=self.element_id,
             gesture_data=gesture,
             payload=self.payload
             )
+        )
     
     def destroy_visual(self) -> None:
         if self.visual:
@@ -186,6 +187,13 @@ class Element(Generic[T]):
             child_y = topleft[1] + child._relative_offset[1]
             child.set_position((child_x, child_y))
 
+    def move_by(self, delta: tuple[float, float]) -> None:
+        new_pos = (
+            self.get_topleft()[0] + delta[0],
+            self.get_topleft()[1] + delta[1]
+        )
+        self.set_position(new_pos)
+
     def move_visual(self, topleft: tuple[float, float]) -> None:
         """Move all attached visuals to the new top-left position."""
         if self.visual:
@@ -197,7 +205,7 @@ class Element(Generic[T]):
         If offset is None, compute it from current absolute positions.
         """
         if child in self.children:
-            raise ValueError(f"Child '{child.interactable_id}' already attached to '{self.interactable_id}'")
+            raise ValueError(f"Child '{child.element_id}' already attached to '{self.element_id}'")
 
         self.children.append(child)
         child.parent = self
@@ -210,11 +218,11 @@ class Element(Generic[T]):
 
         child._relative_offset = offset
         self._update_child_position(child)
-
+        
     def remove_child(self, child: "Element") -> None:
         """Detach a child interactable."""
         if child not in self.children:
-            raise ValueError(f"Child '{child.interactable_id}' not found in '{self.interactable_id}'")
+            raise ValueError(f"Child '{child.element_id}' not found in '{self.element_id}'")
         self.children.remove(child)
         child.parent = None
         child._relative_offset = (0, 0)
@@ -224,13 +232,6 @@ class Element(Generic[T]):
         parent_x, parent_y = self.get_topleft()
         offset_x, offset_y = child._relative_offset
         child.set_position((parent_x + offset_x, parent_y + offset_y))
-
-    def move_by(self, delta: tuple[float, float]) -> None:
-        new_pos = (
-            self.get_topleft()[0] + delta[0],
-            self.get_topleft()[1] + delta[1]
-        )
-        self.set_position(new_pos)
 
     def render(self, surface: pygame.Surface) -> None:
         if self.visual:

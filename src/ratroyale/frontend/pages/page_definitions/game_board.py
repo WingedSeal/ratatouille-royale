@@ -12,7 +12,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_managers.backend_adapter import get_name_from_entity, get_name_from_tile
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ElementType, ParentIdentity
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, ParentIdentity
 
 from ratroyale.backend.board import Board
 from ratroyale.backend.tile import Tile

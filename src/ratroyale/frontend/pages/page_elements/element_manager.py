@@ -1,39 +1,41 @@
-from .element_builder import ElementType, ElementConfig, create_element, ParentIdentity
+from .element_builder import ElementConfig, create_element, ParentIdentity
 from .element import Element
 from ratroyale.frontend.gesture.gesture_data import GestureData
-from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.coordination_manager import CoordinationManager
 
 from pygame_gui import UIManager
+from pygame_gui.core import UIElement, ObjectID
 from pygame import Surface
 
 class ElementManager:
     """
-    Manages collections of elements grouped by ElementType.
+    Manages collections of elements grouped by element type string.
     Each type can have its own key-element structure.
     """
     def __init__(self, ui_manager: UIManager, coordination_manager: CoordinationManager) -> None:
         self.ui_manager = ui_manager
         self.coordination_manager = coordination_manager
-        self._collections: dict[ElementType, dict[str, Element]] = {}
+        self._element_collections: dict[str, dict[str, Element]] = {} # {element_type -> {element_id: element_obj}}
         self._flattened_collection: list[Element] = []
+
+        self._gui_element_collection: dict[str, UIElement] = {}
 
     # region Collection Management
 
-    def create_collection(self, element_type: ElementType) -> None:
+    def create_collection(self, element_type: str) -> None:
         """Initializes a new collection for the given element type."""
-        if element_type not in self._collections:
-            self._collections[element_type] = {}
+        if element_type not in self._element_collections:
+            self._element_collections[element_type] = {}
 
-    def get_collection(self, element_type: ElementType) -> dict:
+    def get_collection(self, element_type: str) -> dict:
         """Retrieves the collection for the given element type, creating it if necessary."""
-        if element_type not in self._collections:
+        if element_type not in self._element_collections:
             self.create_collection(element_type)
-        return self._collections[element_type]
+        return self._element_collections[element_type]
 
     def add_element(
             self, 
-            element_type: ElementType, 
+            element_type: str, 
             key: str, 
             element: Element, 
             parent_identity: ParentIdentity | None
@@ -60,7 +62,7 @@ class ElementManager:
         self._flattened_collection.append(element)
         self._sort_flattened_by_z_order()
 
-    def remove_element(self, element_type: ElementType, key: str) -> None:
+    def remove_element(self, element_type: str, key: str) -> None:
         """Removes an element and all its children from the collection and flattened list."""
         collection = self.get_collection(element_type)
         if key not in collection:
@@ -81,11 +83,26 @@ class ElementManager:
 
         self._sort_flattened_by_z_order()
 
-    def clear_collection(self, element_type: ElementType) -> None:
+    def add_gui_element(self, gui_element: UIElement, registered_name: str) -> None:
+        """
+        Adds a GUI element to the collection, with the appropriate name for management.
+        Note that this name should, but doesn't necessarily have to be the same as the actual
+        object_id used internally by gui_element. \n
+        i.e. the registered name and the event callback name can be different.
+        """
+        self._gui_element_collection[registered_name] = gui_element
+
+    def remove_gui_element(self, registered_name: str) -> None:
+        """
+        Remove the gui_element registered by this name.
+        """
+        self._gui_element_collection.pop(registered_name)
+
+    def clear_collection_of_type(self, element_type: str) -> None:
         """ Clears all elements from the specified collection. 
         Also clears corresponding elements from the flattened list."""
-        if element_type in self._collections:
-            collection = self._collections[element_type]
+        if element_type in self._element_collections:
+            collection = self._element_collections[element_type]
             for element in collection.values():
                 if element in self._flattened_collection:
                     self._flattened_collection.remove(element)
@@ -94,8 +111,9 @@ class ElementManager:
 
     def clear_all(self) -> None:
         """ Clears all collections and the flattened list."""
-        self._collections.clear()
+        self._element_collections.clear()
         self._flattened_collection.clear()
+        self._gui_element_collection.clear()
 
     def create_element(self, cfg: ElementConfig) -> None:
         """Uses an external factory function to build the element from a config."""
@@ -112,13 +130,13 @@ class ElementManager:
         for cfg in cfgs:
             self.create_element(cfg)
 
-    def get_element(self, element_type: ElementType, key: str) -> Element | None:
+    def get_element(self, element_type: str, key: str) -> Element | None:
         """ Retrieves an element by type and key."""
         collection = self.get_collection(element_type)
         return collection[key] if key in collection else None
 
-    def get_all_elements(self) -> dict[ElementType, dict[str, Element]]:
-        return self._collections
+    def get_all_elements(self) -> dict[str, dict[str, Element]]:
+        return self._element_collections
     
     def get_flattened_elements(self) -> list[Element]:
         return self._flattened_collection
@@ -135,15 +153,15 @@ class ElementManager:
         for element in reversed(self._flattened_collection):
             element.render(surface)
 
-    def render_collection(self, surface: Surface, element_type: ElementType) -> None:
+    def render_collection(self, surface: Surface, element_type: str) -> None:
         """Render only elements of a specific type."""
-        collection = self._collections.get(element_type, {})
+        collection = self._element_collections.get(element_type, {})
         for element in sorted(collection.values(), key=lambda x: x.z_order, reverse=True):
             element.render(surface)
 
-    def render_elements(self, surface: Surface, keys: list[str], element_type: ElementType) -> None:
+    def render_elements(self, surface: Surface, keys: list[str], element_type: str) -> None:
         """Render specific elements by key."""
-        collection = self._collections.get(element_type, {})
+        collection = self._element_collections.get(element_type, {})
         for key in keys:
             if key in collection:
                 collection[key].render(surface)
@@ -163,12 +181,10 @@ class ElementManager:
         for gesture in gestures:
             for element in self._flattened_collection:
                 if element.is_interactable:
-                    input_message: InputManagerEvent | None = element.process_gesture(gesture)
-                    if input_message:
-                        self.coordination_manager.put_message(input_message)
+                    element.process_gesture(gesture)
 
-                        if element.is_blocking:
-                            break
+                    if element.is_blocking:
+                        break
             else:
                 remaining_gestures.append(gesture)
 

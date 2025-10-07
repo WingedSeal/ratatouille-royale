@@ -102,9 +102,10 @@ class PageManager:
             if page.is_blocking:
                 break
 
-        # Step 4: TODO other_events get dispatched to its correct pages. 
+        # Step 4: other_events get dispatched to its correct pages. 
         self._dispatch_input(other_events)
 
+    # TODO: give events to each page's pygame_gui elements
     def _dispatch_input(self, events: list[pygame.event.Event]) -> None:
         if not events:
             return

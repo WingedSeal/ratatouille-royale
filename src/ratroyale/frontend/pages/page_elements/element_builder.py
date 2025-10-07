@@ -11,13 +11,7 @@ from ratroyale.backend.tile import Entity
 from dataclasses import dataclass
 from typing import TypeVar, Generic
 
-class ElementType(Enum):
-    BUTTON = auto()
-    TILE = auto()
-    ENTITY = auto()
-    ABILITY = auto()
-
-_ELEMENT_BUILDERS: dict[ElementType, Callable] = {}
+_ELEMENT_BUILDERS: dict[str, Callable] = {}
 
 T = TypeVar('T')
 
@@ -47,12 +41,12 @@ class ParentIdentity:
             - If None, the offset is automatically calculated from the element's rect relative to the parent's top-left.
     """
     parent_id: str
-    parent_type: ElementType | None = None
+    parent_type: str | None = None
     offset: tuple[int, int] | None = (0, 0)
 
 @dataclass
 class ElementConfig(Generic[T]):
-    element_type: ElementType                           # What kind of element this is
+    element_type: str                           # What kind of element this is
     id: str                                             # Unique identifier for this element
     rect: tuple[float, float, float, float]             # Rectangle for hitbox / UI element. 
     text: str = ""                                      # Optional text field (for buttons, labels, etc.)
@@ -66,7 +60,7 @@ class ElementConfig(Generic[T]):
 
     payload: T | None = None                            # Optional, for any extra data (e.g. Tiles, Entities, Abilities, etc.)
 
-def _register_element_creator(type_key: ElementType):
+def _register_element_creator(type_key: str):
     def decorator(fn: Callable):
         _ELEMENT_BUILDERS[type_key] = fn
         return fn
@@ -75,7 +69,7 @@ def _register_element_creator(type_key: ElementType):
 def create_element(cfg: ElementConfig, manager: UIManager) -> Element:
   return _ELEMENT_BUILDERS[cfg.element_type](cfg, manager)
 
-@_register_element_creator(ElementType.BUTTON)
+@_register_element_creator("button")
 def create_button(cfg: ElementConfig, manager: UIManager) -> Element:
     object_id = None
     if cfg.gui_theme:
@@ -90,34 +84,34 @@ def create_button(cfg: ElementConfig, manager: UIManager) -> Element:
     )
     visual.create(manager)
     return Element(
-        interactable_id=cfg.id,
+        element_id=cfg.id,
         hitbox=RectangleHitbox(cfg.rect),
         visual=visual,
         z_order=cfg.z_order,
         is_blocking=cfg.is_blocking
     )
 
-@_register_element_creator(ElementType.TILE)
+@_register_element_creator("tile")
 def create_tile(cfg: ElementConfig[Tile], manager: UIManager) -> Element:
     if cfg.payload is None:
         raise ValueError("Tile element must have a Tile payload defined.")
     tile = cfg.payload
     visual = TileVisual(tile)
     return Element[Tile](
-        interactable_id=cfg.id,
+        element_id=cfg.id,
         hitbox=HexHitbox(cfg.rect),
         visual=visual,
         payload=tile
     )
 
-@_register_element_creator(ElementType.ENTITY)
+@_register_element_creator("entity")
 def create_entity(cfg: ElementConfig[Entity], manager: UIManager) -> Element:
     if cfg.payload is None:
         raise ValueError("Entity element must have an Entity payload defined.")
     entity = cfg.payload
     visual = EntityVisual(entity)
     return Element[Entity](
-        interactable_id=cfg.id,
+        element_id=cfg.id,
         hitbox=HexHitbox(cfg.rect),
         visual=visual,
         z_order=cfg.z_order,
