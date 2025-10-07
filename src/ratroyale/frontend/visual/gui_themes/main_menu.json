@@ -70,7 +70,7 @@
         }
     },
   
-  "@MainMenuButton": {
+  "MainMenuButton": {
     "colours":
       {
         "normal_bg": "#A8DADC",
@@ -96,8 +96,9 @@
       }
   },
 
-  "#start_button": {
-      "colours": {
+  "start_button": {
+      "colours": 
+    {
       "normal_bg": "#F4A261",
       "hovered_bg": "#E76F51",
       "disabled_bg": "#DDBEA9",
@@ -121,7 +122,7 @@
     }
   },
 
-  "#quit_button": {
+  "quit_button": {
      "colours": {
       "normal_bg": "#2A9D8F",
       "hovered_bg": "#264653",

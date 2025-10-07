@@ -11,7 +11,7 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 from typing import Callable
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
-from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig, UIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, UIRegisterForm
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.event_tokens.game_action import GameAction
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
@@ -20,11 +20,13 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 class Page():
     """Base class for a page in the application."""
-    def __init__(self, 
-                 coordination_manager: CoordinationManager, 
-                 is_blocking: bool = True, 
-                 theme_name: str = "",
-                 base_color: tuple[int, int, int, int]  | None = None) -> None:
+    def __init__(
+            self, 
+            coordination_manager: CoordinationManager, 
+            is_blocking: bool = True, 
+            theme_name: str = "",
+            base_color: tuple[int, int, int, int]  | None = None
+            ) -> None:
         self.theme_path = str(resolve_theme_path(theme_name))
         self.gui_manager = pygame_gui.UIManager(SCREEN_SIZE, self.theme_path)
         """ Each page has its own UIManager """
