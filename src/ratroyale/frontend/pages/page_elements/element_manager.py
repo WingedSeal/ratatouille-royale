@@ -92,6 +92,9 @@ class ElementManager:
         """
         self._gui_element_collection[registered_name] = gui_element
 
+    def get_gui_element(self, registered_name: str) -> UIElement:
+        return self._gui_element_collection[registered_name]
+
     def remove_gui_element(self, registered_name: str) -> None:
         """
         Remove the gui_element registered by this name.
@@ -124,11 +127,6 @@ class ElementManager:
             element, 
             cfg.parent_identity
             )
-
-    def create_elements(self, cfgs: list[ElementConfig]) -> None:
-        """ Creates multiple elements from a list of configs."""
-        for cfg in cfgs:
-            self.create_element(cfg)
 
     def get_element(self, element_type: str, key: str) -> Element | None:
         """ Retrieves an element by type and key."""
@@ -189,6 +187,7 @@ class ElementManager:
                 remaining_gestures.append(gesture)
 
         return remaining_gestures
+    
     
 
 

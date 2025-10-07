@@ -1,14 +1,10 @@
 import pygame
-import pygame_gui
 
-from pygame_gui import UIManager
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Callable
+from typing import Generic, TypeVar
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
-from enum import Enum, auto
-from ratroyale.frontend.visual.asset_management.visual_component import UIVisual, SpriteVisual
 
 # region Base Hitbox Classes
 

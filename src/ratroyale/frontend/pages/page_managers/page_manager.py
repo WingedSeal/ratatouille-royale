@@ -78,6 +78,13 @@ class PageManager:
         # Step 0: get pygame events
         raw_events = pygame.event.get()
 
+        for page in reversed(self.page_stack):
+            for raw_event in raw_events:
+                page.gui_manager.process_events(raw_event)
+
+                if page.is_blocking:
+                    break
+
         # Step 1: separate them into mouse events (down, motion, up) & other events
         mouse_events = []
         other_events = []

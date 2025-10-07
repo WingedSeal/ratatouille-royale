@@ -12,15 +12,10 @@ def input_event_bind(element_id: str | None, event_type: int):
       ...
   """
   def decorator(func):
-    @wraps(func)
-    def wrapper(self, msg):
-      return func(self, msg)
-
-    bindings = getattr(wrapper, "input_bindings", [])
-    bindings.append((element_id, event_type))
-    setattr(wrapper, "input_bindings", bindings)  
-    return wrapper
-
+      bindings = getattr(func, "_input_bindings", [])
+      bindings.append((element_id, event_type))
+      setattr(func, "_input_bindings", bindings)
+      return func  # no wrapper needed
   return decorator
 
 def callback_event_bind(game_action: GameAction):

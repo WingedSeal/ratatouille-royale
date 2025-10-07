@@ -10,50 +10,61 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, GUITheme
+from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, GUITheme, GUIElement
+
+import pygame_gui
+import pygame
 
 @register_page
 class MainMenu(Page):
   def __init__(self, coordination_manager: CoordinationManager):
     super().__init__(coordination_manager, theme_name="main_menu")
 
-    configs = [
-      ElementConfig(
-          element_type=ElementType.BUTTON, 
-          id="start_button", 
-          rect=(100,100,200,50), 
-          text="Start",
-          gui_theme=GUITheme(class_id="MainMenuButton", object_id="start_button")
-          ),
-      ElementConfig(
-          element_type=ElementType.BUTTON, 
-          id="quit_button", 
-          rect=(100,200,200,50), 
-          text="Quit",
-          gui_theme=GUITheme(class_id="smth", object_id="start_button")
-          )
+    gui_elements = [
+      GUIElement("start_button", 
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(100, 100, 200, 50),
+            text="Start",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(class_id="MainMenuButton", object_id="start_button")
+        )
+      ),
+      GUIElement("quit_button", # <- registration name. This is what will be used for removal.
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(100, 200, 200, 50),
+            text="Quit",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(class_id="MainMenuButton", object_id="quit_button")
+            # object_id is returned when a pygame event processed by pygame_gui fires.
+            # use object_id to listen to inputs, not registration name,
+            # though it is advisable (but not enforced) to make them the same.
+        )
+      )
     ]
 
-    self.setup_elements(configs)
+    self.setup_gui_elements(gui_elements)
 
   # region Input Responses
 
-  @input_event_bind("start_button", to_event(GestureType.CLICK))
+  @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
   def on_start_click(self, msg: InputManagerEvent):
-      self.coordination_manager.put_message(
-        PageNavigationEvent(action_list=[
-          (PageNavigation.CLOSE_ALL, None),
-          (PageNavigation.OPEN, "GameBoard"),
-          (PageNavigation.OPEN, "PauseButton")])
-      )
+      print("start button clicked")
+      pass
+      # self.coordination_manager.put_message(
+      #   PageNavigationEvent(action_list=[
+      #     (PageNavigation.CLOSE_ALL, None),
+      #     (PageNavigation.OPEN, "GameBoard"),
+      #     (PageNavigation.OPEN, "PauseButton")])
+      # )
 
-  @input_event_bind("quit_button", to_event(GestureType.CLICK))
-  def on_quit_click(self, msg: InputManagerEvent):
+  @input_event_bind("start_button", pygame_gui.UI_BUTTON_ON_HOVERED)
+  def _test_hover(self, msg: pygame.event.Event):
+    print("hover detected")
+    print(msg)
+
+  @input_event_bind("quit_button", pygame_gui.UI_BUTTON_PRESSED)
+  def _on_quit_click(self, msg: InputManagerEvent):
       self.coordination_manager.stop_game()
-
-  @input_event_bind("child_button", to_event(GestureType.CLICK))
-  def test(self, msg: InputManagerEvent):
-      print("Test function called")
 
   # endregion
 

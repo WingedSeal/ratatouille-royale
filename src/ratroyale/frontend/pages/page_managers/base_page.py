@@ -11,7 +11,7 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 from typing import Callable
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
-from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig
+from ratroyale.frontend.pages.page_elements.element_builder import create_element, ElementConfig, GUIElement
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.event_tokens.game_action import GameAction
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
@@ -42,7 +42,12 @@ class Page():
         self.setup_input_bindings()
 
     def setup_elements(self, configs: list[ElementConfig]) -> None:
-        self._element_manager.create_elements(configs)
+        for config in configs:
+            self._element_manager.create_element(config)
+
+    def setup_gui_elements(self, ui_elements: list[GUIElement]) -> None:
+        for ui_element in ui_elements:
+            self._element_manager.add_gui_element(ui_element.ui_element, ui_element.registered_name)
 
     def get_element(self, element_type: str, element_id: str) -> Element | None:
         return self._element_manager.get_element(element_type, element_id)
@@ -56,6 +61,8 @@ class Page():
         - @input_event_bind -> stored in _input_bindings
         - @page_event_bind  -> stored in _page_bindings
         """
+        print("attempting to set up input binding")
+
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
             if not callable(attr):
@@ -70,6 +77,8 @@ class Page():
             if hasattr(attr, "_page_bindings"):
                 for page_event in getattr(attr, "_page_bindings"):
                     self._page_bindings[page_event] = attr
+        
+        print("final:", self._input_bindings)
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """

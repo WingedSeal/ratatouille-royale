@@ -26,7 +26,7 @@ class GameBoard(Page):
     super().__init__(coordination_manager)
     self.setup_elements([])
 
-    self.selected_element_id: tuple[ElementType, str] | None = None
+    self.selected_element_id: tuple[str, str] | None = None
     self.ability_menu_elements_id: list[str] = []
     self.board: Board | None = None
 
@@ -92,7 +92,7 @@ class GameBoard(Page):
     if not entity:
         return
 
-    self._select_element(ElementType.ENTITY, msg.element_id)
+    self._select_element("entity", msg.element_id)
 
     ability_menu_elements = []
     self.ability_menu_elements_id = []
@@ -109,21 +109,21 @@ class GameBoard(Page):
                 z_order=2,
                 parent_identity=ParentIdentity(
                   parent_id=msg.element_id,
-                  parent_type=ElementType.ENTITY,
+                  parent_type="entity",
                   offset=(50, i * 20)
                 )
             )
         )
 
     self.setup_elements(ability_menu_elements)
-    self._select_element(ElementType.ENTITY, msg.element_id, False)
+    self._select_element("entity", msg.element_id, False)
 
   @input_event_bind("ability", to_event(GestureType.CLICK))
   def _activate_ability(self, msg: InputManagerEvent) -> None:
     """ Activate selected ability. """
     print(f"Activated ability: {msg.element_id}")
     self._close_ability_menu()
-    self._select_element(ElementType.ENTITY, msg.element_id)
+    self._select_element("entity", msg.element_id)
 
   # endregion
 

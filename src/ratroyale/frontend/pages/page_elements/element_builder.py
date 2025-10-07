@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+from pygame_gui.core import UIElement
 
 from pygame_gui import UIManager
 from typing import Callable
@@ -59,6 +60,11 @@ class ElementConfig(Generic[T]):
     gui_theme: GUITheme| None = None                    # Optional. For targeting pygame_gui elements with JSON theming.
 
     payload: T | None = None                            # Optional, for any extra data (e.g. Tiles, Entities, Abilities, etc.)
+
+@dataclass
+class GUIElement:
+    registered_name: str
+    ui_element: UIElement
 
 def _register_element_creator(type_key: str):
     def decorator(fn: Callable):
