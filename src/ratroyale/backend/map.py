@@ -161,6 +161,9 @@ class Map:
             (large_map_flag << 2) & (many_features_flag << 1) & many_entities_flag
         )
 
+        data.extend(self.size_x.to_bytes(1 + large_map_flag, ENDIAN))
+        data.extend(self.size_y.to_bytes(1 + large_map_flag, ENDIAN))
+
         for row in self.tiles:
             for tile in row:
                 if tile is None:
@@ -239,9 +242,8 @@ class Map:
         for y in range(size_y):
             tiles.append([])
             for x in range(size_x):
-                tile_id_byte = data_pointer.get_byte()
-                tile_id = None if tile_id_byte == 0 else tile_id_byte
-                if tile_id is None:
+                tile_id = data_pointer.get_byte()
+                if tile_id == 0:
                     tiles[y].append(None)
                     continue
                 height = data_pointer.get_byte()
@@ -370,7 +372,7 @@ def heights_to_tiles(heights: list[list[int | None]]) -> list[list[Tile | None]]
                 tile_row.append(None)
                 continue
             coord = OddRCoord(x, y)
-            tile = Tile(coord=coord, height=height_value)
+            tile = Tile(tile_id=1, coord=coord, height=height_value)
             tile_row.append(tile)
         tile_grid.append(tile_row)
     return tile_grid
