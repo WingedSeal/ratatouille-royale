@@ -6,15 +6,18 @@ repos:
         entry: poetry run black --check ./src ./tests
         language: system
         pass_filenames: false
+        files: ^(src/|tests/).*\.py$
       
       - id: mypy
         name: mypy
         entry: poetry run mypy
         language: system
         pass_filenames: false
+        files: ^(src/|tests/).*\.py$
 
       - id: pytest
         name: pytest
         entry: poetry run pytest
         language: system
         pass_filenames: false
+        files: ^(src/|tests/).*\.py$
