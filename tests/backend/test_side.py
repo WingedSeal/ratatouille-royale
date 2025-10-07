@@ -1,5 +1,5 @@
 import pytest
-from src.ratroyale.backend.side import Side
+from ratroyale.backend.side import Side
 
 
 @pytest.mark.parametrize("value", range(len(Side) + 1))

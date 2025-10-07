@@ -28,10 +28,11 @@ class _DataPointer:
     def get_raw_bytes(self, size: int = 1) -> bytes:
         value = self.data[self.pointer : self.pointer + size]
         self.pointer += size
+        global test
         return value
 
     def verify_end(self) -> bool:
-        return self.pointer + 1 == len(self.data)
+        return self.pointer == len(self.data)
 
 
 class Map:
@@ -152,12 +153,12 @@ class Map:
         many_features_flag = 1 if len(self.features) > 255 else 0
         many_entities_flag = 1 if len(self.entities) > 255 else 0
 
-        data.extend(self.size_x.to_bytes(1 + large_map_flag, ENDIAN))
-        data.extend(self.size_y.to_bytes(1 + large_map_flag, ENDIAN))
-
         data.append(
             (large_map_flag << 2) & (many_features_flag << 1) & many_entities_flag
         )
+
+        data.extend(self.size_x.to_bytes(1 + large_map_flag, ENDIAN))
+        data.extend(self.size_y.to_bytes(1 + large_map_flag, ENDIAN))
 
         data.extend(
             (tile.height + 1) if tile is not None else 0
@@ -173,9 +174,10 @@ class Map:
                 != inspect.signature(Feature.__init__).parameters
                 else 0
             )
+
             feature_id = feature.FEATURE_ID()
             data.extend(
-                (feature_id & (feature_unique_constructor_flag << 15)).to_bytes(
+                (feature_id | (feature_unique_constructor_flag << 15)).to_bytes(
                     2, ENDIAN
                 )
             )
@@ -205,7 +207,7 @@ class Map:
                     f"Entity of type {type(entity_id)} cannot be pre placed since it has no PRE_PLACED_ENTITY_ID"
                 )
             data.extend(
-                (entity_id & (entity_unique_constructor_flag << 15)).to_bytes(2, ENDIAN)
+                (entity_id | (entity_unique_constructor_flag << 15)).to_bytes(2, ENDIAN)
             )
             data.extend(entity.pos.x.to_bytes(1 + large_map_flag, ENDIAN))
             data.extend(entity.pos.y.to_bytes(1 + large_map_flag, ENDIAN))
@@ -353,3 +355,18 @@ def _get_unique_init_arguments(obj: Any, basecls: type) -> tuple[int]:
 
     unique_params = derived_params - base_params
     return tuple(getattr(obj, name) for name in unique_params)
+
+
+def heights_to_tiles(heights: list[list[int | None]]) -> list[list[Tile | None]]:
+    tile_grid: list[list[Tile | None]] = []
+    for x, row_of_heights in enumerate(heights):
+        tile_row: list[Tile | None] = []
+        for y, height_value in enumerate(row_of_heights):
+            if height_value is None:
+                tile_row.append(None)
+                continue
+            coord = OddRCoord(x, y)
+            tile = Tile(coord=coord, height=height_value)
+            tile_row.append(tile)
+        tile_grid.append(tile_row)
+    return tile_grid
