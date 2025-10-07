@@ -37,7 +37,8 @@ class SkillTargetting:
         skill_result = self._callback(game_manager, selected_targets)
         if skill_result == SkillCompleted.SUCCESS:
             game_manager.crumbs -= self.source_skill.crumb_cost
-            self.source_enitity.skill_stamina -= 1
+            if self.source_enitity.skill_stamina is not None:
+                self.source_enitity.skill_stamina -= 1
         return skill_result
 
 
@@ -69,7 +70,7 @@ class Entity:
     health: int | None = None
     defense: int = 0
     movable: bool = False
-    skill_stamina: int = 0
+    skill_stamina: int | None = None
     collision: bool = False
     description: str = ""
     height: int = 0
@@ -144,7 +145,7 @@ def entity_data(
     *,
     health: int | None = None,
     defense: int = 0,
-    skill_stamina: int = 0,
+    skill_stamina: int | None = None,
     movable: bool = False,
     collision: bool = False,
     height: int = 0,

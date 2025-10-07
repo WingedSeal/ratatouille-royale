@@ -10,6 +10,14 @@ class NotEnoughCrumbError(RatRoyaleBackendError):
     pass
 
 
+class NotEnoughSkillStaminaError(RatRoyaleBackendError):
+    pass
+
+
+class NotEnoughMoveStaminaError(RatRoyaleBackendError):
+    pass
+
+
 class InvalidMoveTargetError(RatRoyaleBackendError):
     pass
 

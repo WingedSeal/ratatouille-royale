@@ -41,7 +41,7 @@ def rodent_data(
     name: str,
     speed: int,
     move_stamina: int,
-    skill_stamina: int,
+    skill_stamina: int | None,
     move_cost: int,
     attack: int,
     height: int,

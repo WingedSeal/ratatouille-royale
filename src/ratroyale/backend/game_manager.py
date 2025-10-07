@@ -7,8 +7,13 @@ from .feature import Feature
 from .entity_effect import EntityEffect
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
-from .error import InvalidMoveTargetError, NotEnoughCrumbError
-from .entity import Entity, SkillResult, SkillCompleted, SkillTargetting
+from .error import (
+    InvalidMoveTargetError,
+    NotEnoughCrumbError,
+    NotEnoughMoveStaminaError,
+    NotEnoughSkillStaminaError,
+)
+from .entity import Entity, SkillResult, SkillCompleted
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
@@ -112,10 +117,13 @@ class GameManager:
         skill = entity.skills[skill_index]
         if self.crumbs < skill.crumb_cost:
             raise NotEnoughCrumbError()
+        if entity.skill_stamina is not None and entity.skill_stamina <= 0:
+            raise NotEnoughSkillStaminaError()
         skill_result = skill.func(self)
         if skill_result == SkillCompleted.SUCCESS:
             self.crumbs -= skill.crumb_cost
-            entity.skill_stamina -= 1
+            if entity.skill_stamina is not None:
+                entity.skill_stamina -= 1
         return skill_result
 
     def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
@@ -173,7 +181,7 @@ class GameManager:
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
         if rodent.move_stamina <= 0:
-            raise ValueError("Rodent doesn't have stamina left")
+            raise NotEnoughMoveStaminaError()
         if rodent.pos.get_distance(target) > rodent.speed:
             raise InvalidMoveTargetError("Cannot move rodent beyond its reach")
         path = self.board.path_find(rodent, target)
