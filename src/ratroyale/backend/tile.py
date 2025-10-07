@@ -9,8 +9,11 @@ from .entity import Entity
 
 @dataclass
 class Tile:
+    tile_id: int
+    """Non-Zero positive integer ID for visual rendering of that tile"""
     coord: OddRCoord
     height: int
+    """Zero or positive integer representing tile height"""
     entities: list[Entity] = field(default_factory=list)
     features: list[Feature] = field(default_factory=list)
 
@@ -22,6 +25,7 @@ class Tile:
 
     def __repr__(self) -> str:
         return f"""Tile(
+    tile_id={self.tile_id}
     coord={repr(self.coord)}, 
     height={self.height},
     entities={pformat(self.entities)},

@@ -164,7 +164,11 @@ class GameBoardPage(Page):
             for q in range(5):
                 for r in range(5):
                     tile = Tile(
-                        coord=OddRCoord(q, r), entities=[], height=0, features=[]
+                        tile_id=1,
+                        coord=OddRCoord(q, r),
+                        entities=[],
+                        height=0,
+                        features=[],
                     )
                     tile_interactable = TileInteractable(tile)
                     self.add_element(tile_interactable)

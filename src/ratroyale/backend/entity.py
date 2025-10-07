@@ -77,9 +77,11 @@ class Entity:
     skills: list[CallableEntitySkill] = []
     side: Side | None
     PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
+    """Map of preplaced-able entities' IDs to the entity class"""
 
     @classmethod
     def PRE_PLACED_ENTITY_ID(cls) -> int | None:
+        """Non-zero positive integer representing entity's ID for preplacing it during map generation. Can be `None` if it cannot be preplaced."""
         return None
 
     def __init_subclass__(cls) -> None:
