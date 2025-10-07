@@ -16,10 +16,13 @@ class Feature(ABC):
     defense: int = 0
     side: Side | None = None
     ALL_FEATURES: ClassVar[dict[int, type["Feature"]]] = {}
+    """Map of all features' IDs to the feature class"""
 
     @classmethod
     @abstractmethod
-    def FEATURE_ID(cls) -> int: ...
+    def FEATURE_ID(cls) -> int:
+        """Non-zero positive integer representing feature's ID unique to each feature class"""
+        ...
 
     def __init_subclass__(cls) -> None:
         if cls.FEATURE_ID() in Feature.ALL_FEATURES:

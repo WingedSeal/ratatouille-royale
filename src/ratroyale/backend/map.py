@@ -54,13 +54,17 @@ class Map:
         (1 + large_map_flag) bytes for `size_y`
 
         loop (`size_x`*`size_y`) times {
-            1 byte for tile's `height` (`None if byte == 0 else byte - 1`)
+            1 byte for tile's `tile_id` (`None if byte == 0 else byte`)
+            if `tile_id` is not None {
+                1 byte for tile's `height`
+            }
         }
+
 
         (1 + many_features_flag) byte for feature_count
         loop feature_count times {
             1 bit for feature_unique_constructor_flag
-            15 bits for feature's class
+            15 bits for feature's class (Non-zero)
             1 byte for feature's `health` (`None if byte == 0 else byte`)
             1 byte for feature's `defense`
             1 byte for feature's `side`
@@ -80,7 +84,7 @@ class Map:
         (1 + many_entities_flag) byte for entity_count
         loop entity_count times {
             1 bit for entity_unique_constructor_flag
-            15 bits for entity's class
+            15 bits for entity's class (Non-zero)
             1 byte for entity's `side`
             (1 + large_map_flag) bytes for entity's `OddRCoord.x`
             (1 + large_map_flag) bytes for entity's `OddRCoord.y`
@@ -157,14 +161,13 @@ class Map:
             (large_map_flag << 2) & (many_features_flag << 1) & many_entities_flag
         )
 
-        data.extend(self.size_x.to_bytes(1 + large_map_flag, ENDIAN))
-        data.extend(self.size_y.to_bytes(1 + large_map_flag, ENDIAN))
-
-        data.extend(
-            (tile.height + 1) if tile is not None else 0
-            for row in self.tiles
-            for tile in row
-        )
+        for row in self.tiles:
+            for tile in row:
+                if tile is None:
+                    data.append(0)
+                else:
+                    data.append(tile.tile_id)
+                    data.append(tile.height)
 
         data.extend(len(self.features).to_bytes(1 + many_features_flag, ENDIAN))
         for feature in self.features:
@@ -236,12 +239,13 @@ class Map:
         for y in range(size_y):
             tiles.append([])
             for x in range(size_x):
-                height_byte = data_pointer.get_byte()
-                height = None if height_byte == 0 else height_byte - 1
-                if height is None:
+                tile_id_byte = data_pointer.get_byte()
+                tile_id = None if tile_id_byte == 0 else tile_id_byte
+                if tile_id is None:
                     tiles[y].append(None)
-                else:
-                    tiles[y].append(Tile(OddRCoord(x, y), height))
+                    continue
+                height = data_pointer.get_byte()
+                tiles[y].append(Tile(tile_id, OddRCoord(x, y), height))
 
         feature_count = data_pointer.get_byte(1 + many_features_flag)
         features: list[Feature] = []
