@@ -33,7 +33,7 @@ class RectangleHitbox(Hitbox):
         self.rect = rect
 
     def contains_point(self, point: tuple[float, float]) -> bool:
-        return cast(bool, self.rect.collidepoint(point))
+        return self.rect.collidepoint(point)
 
     def draw(
         self, surface: pygame.Surface, color: tuple[int, int, int] = (0, 0, 255)

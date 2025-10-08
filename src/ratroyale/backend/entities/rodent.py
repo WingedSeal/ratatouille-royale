@@ -6,19 +6,10 @@ from typing import Any, Callable, TypeVar
 from ..side import Side
 
 
-class RodentMeta(ABCMeta):
-    def __call__(cls: "RodentMeta", *args: Any, **kwargs: Any) -> Any:
-        if not getattr(cls, "_has_rodent_data", False):
-            raise TypeError(
-                f"'{cls.__name__}' must be decorated with @rodent_data(...)"
-            )
-        return super().__call__(*args, **kwargs)
-
-
 ENTITY_JUMP_HEIGHT = 1
 
 
-class Rodent(Entity, metaclass=RodentMeta):
+class Rodent(Entity):
     _has_rodent_data = False
     speed: int
     stamina: int
@@ -27,13 +18,17 @@ class Rodent(Entity, metaclass=RodentMeta):
     side: Side | None
 
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
+        if not self._has_rodent_data:
+            raise TypeError(
+                f"'{type(self).__name__}' must be decorated with @rodent_data(...)"
+            )
         super().__init__(pos, side)
 
     @abstractmethod
     def skill_descriptions(self) -> list[str]: ...
 
 
-T = TypeVar("T", bound=Rodent)
+T = TypeVar("T", bound=type[Rodent])
 
 
 def rodent_data(
@@ -50,8 +45,8 @@ def rodent_data(
     skills: list[_EntitySkill],
     movable: bool = True,
     collision: bool = True,
-) -> Callable[[type[T]], type[T]]:
-    def wrapper(cls: type[T]) -> type[T]:
+) -> Callable[[T], T]:
+    def wrapper(cls: T) -> T:
         assert issubclass(cls, Rodent)
         entity_data(
             health=health,

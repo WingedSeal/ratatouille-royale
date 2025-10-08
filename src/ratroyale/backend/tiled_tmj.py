@@ -40,8 +40,8 @@ LAYER_NAMES: dict[LayerName, int] = {
 
 def _get_tile_data_value(
     tile_data: "np.typing.NDArray[np.uint32]", layer_name: LayerName
-) -> np.int32:
-    return tile_data[LAYER_NAMES[layer_name]]
+) -> np.uint32:
+    return cast(np.uint32, tile_data[LAYER_NAMES[layer_name]])
 
 
 def _reconstruct_layer_data(
@@ -207,7 +207,7 @@ def create_hex_mask(width: int, height: int) -> Image.Image:
 def gen_tileset_tsx(
     row: int, col: int, old_tileset_image: str = "./tileset.png"
 ) -> None:
-    img = Image.open(old_tileset_image)
+    img: Image.Image = Image.open(old_tileset_image)
     img = img.resize(
         (TILED_TILE_PIXEL * col, TILED_TILE_PIXEL * row), Image.Resampling.LANCZOS
     )
