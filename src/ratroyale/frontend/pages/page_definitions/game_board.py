@@ -51,7 +51,7 @@ class GameBoard(Page):
         self.ability_panel_id: str | None = None
         self.board: Board | None = None
 
-    def on_create(self) -> None:
+    def on_open(self) -> None:
         self.coordination_manager.put_message(
             GameManagerEvent(game_action="start_game")
         )

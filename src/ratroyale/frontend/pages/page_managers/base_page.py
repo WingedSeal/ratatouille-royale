@@ -173,11 +173,11 @@ class Page:
     def show(self) -> None:
         self.is_visible = True
 
-    def on_create(self) -> None:
+    def on_open(self) -> None:
         """Called when the page is created. Override in subclasses if needed."""
         pass
 
-    def on_destroy(self) -> None:
+    def on_close(self) -> None:
         """Called when the page is destroyed. Override in subclasses if needed."""
         pass
 
