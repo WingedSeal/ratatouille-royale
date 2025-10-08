@@ -45,7 +45,4 @@ class PauseButton(Page):
     # --- Input Responses ---
     @input_event_bind("pause_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_pause_click(self, msg: pygame.event.Event) -> None:
-        # Strictly typed pygame event
-        self.coordination_manager.put_message(
-            PageNavigationEvent(action_list=[(PageNavigation.OPEN, "PauseMenu")])
-        )
+        self.post(PageNavigationEvent(action_list=[(PageNavigation.OPEN, "PauseMenu")]))

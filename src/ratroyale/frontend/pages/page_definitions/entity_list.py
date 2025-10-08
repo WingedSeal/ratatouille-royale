@@ -61,9 +61,7 @@ class EntityList(Page):
 
     @input_event_bind("entity_list_button", pygame_gui.UI_BUTTON_PRESSED)
     def _on_click(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
-            GameManagerEvent(game_action="entity_list")
-        )
+        self.post(GameManagerEvent(game_action="entity_list"))
 
     @callback_event_bind("entity_list")
     def _create_entity_list(self, msg: PageCallbackEvent[list[Entity]]) -> None:

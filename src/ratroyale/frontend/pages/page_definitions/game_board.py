@@ -52,9 +52,7 @@ class GameBoard(Page):
         self.board: Board | None = None
 
     def on_open(self) -> None:
-        self.coordination_manager.put_message(
-            GameManagerEvent(game_action="start_game")
-        )
+        self.post(GameManagerEvent(game_action="start_game"))
 
     # region Input Bindings
 

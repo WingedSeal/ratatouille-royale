@@ -97,7 +97,7 @@ class MainMenu(Page):
 
     @input_event_bind("gui_demo_button", pygame_gui.UI_BUTTON_PRESSED)
     def _on_gui_demo_click(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
+        self.post(
             PageNavigationEvent(
                 action_list=[
                     (PageNavigation.CLOSE_ALL, None),
