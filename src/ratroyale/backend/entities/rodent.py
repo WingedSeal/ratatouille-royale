@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from ..entity import Entity, entity_data
 from ..hexagon import OddRCoord
-from ..entity import _EntitySkill
+from ..entity import EntitySkill
 from typing import Any, Callable, TypeVar
 from ..side import Side
 
@@ -12,7 +12,7 @@ ENTITY_JUMP_HEIGHT = 1
 class Rodent(Entity):
     _has_rodent_data = False
     speed: int
-    stamina: int
+    move_stamina: int
     move_cost: int
     attack: int
     side: Side | None
@@ -35,14 +35,15 @@ def rodent_data(
     *,
     name: str,
     speed: int,
-    stamina: int,
+    move_stamina: int,
+    skill_stamina: int | None,
     move_cost: int,
     attack: int,
     height: int,
     health: int,
     defense: int,
     description: str,
-    skills: list[_EntitySkill],
+    skills: list[EntitySkill],
     movable: bool = True,
     collision: bool = True,
 ) -> Callable[[T], T]:
@@ -63,7 +64,8 @@ def rodent_data(
         cls.defense = defense
         cls.description = description
         cls.speed = speed
-        cls.stamina = stamina
+        cls.move_stamina = move_stamina
+        cls.skill_stamina = skill_stamina
         cls.move_cost = move_cost
         cls.attack = attack
         cls.height = height

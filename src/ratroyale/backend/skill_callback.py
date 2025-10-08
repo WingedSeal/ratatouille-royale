@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Protocol
 
+
 if TYPE_CHECKING:
     from .entity import SkillResult
     from .game_manager import GameManager
@@ -9,7 +10,7 @@ if TYPE_CHECKING:
 class SkillCallback(Protocol):
     def __call__(
         self, game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> "SkillResult | None": ...
+    ) -> "SkillResult": ...
 
 
 def skill_callback_check(callback: "SkillCallback") -> "SkillCallback":
