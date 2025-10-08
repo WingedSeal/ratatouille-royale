@@ -4,11 +4,10 @@ from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from typing import TypeVar, Generic
 
-__all__ = [
-  "GameManagerEvent"
-]
+__all__ = ["GameManagerEvent"]
 
 T = TypeVar("T")
+
 
 @dataclass
 class GameManagerEvent(Generic[T], EventToken):

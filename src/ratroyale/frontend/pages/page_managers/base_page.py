@@ -9,66 +9,86 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
-from typing import Callable
+from typing import Callable, Protocol, cast, Any
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
-from ratroyale.frontend.pages.page_elements.element_builder import ElementConfig, UIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_builder import (
+    ElementConfig,
+    UIRegisterForm,
+)
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 
-class Page():
+class InputHandler(Protocol):
+    def __call__(self, event: pygame.event.Event) -> None: ...
+
+
+class CallbackHandler(Protocol):
+    def __call__(self, event: PageCallbackEvent[Any]) -> None: ...
+
+
+class Page:
     """Base class for a page in the application."""
+
     def __init__(
-            self, 
-            coordination_manager: CoordinationManager, 
-            is_blocking: bool = True, 
-            theme_name: str = "",
-            base_color: tuple[int, int, int, int]  | None = None
-            ) -> None:
+        self,
+        coordination_manager: CoordinationManager,
+        is_blocking: bool = True,
+        theme_name: str = "",
+        base_color: tuple[int, int, int, int] | None = None,
+    ) -> None:
         self.theme_path = str(resolve_theme_path(theme_name))
         self.gui_manager = pygame_gui.UIManager(SCREEN_SIZE, self.theme_path)
         """ Each page has its own UIManager """
         self.coordination_manager = coordination_manager
         self.is_blocking: bool = is_blocking
-        self._element_manager: ElementManager = ElementManager(self.gui_manager, self.coordination_manager)
+        self._element_manager: ElementManager = ElementManager(
+            self.gui_manager, self.coordination_manager
+        )
         self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
-        self.base_color: tuple[int, int, int, int] = base_color if base_color else (0, 0, 0, 0)
+        self.base_color: tuple[int, int, int, int] = (
+            base_color if base_color else (0, 0, 0, 0)
+        )
         self.is_visible: bool = True
-        self.hovered: bool = False 
+        self.hovered: bool = False
         """ Pygame_gui elements will constantly fire hovered events instead of once during entry.
         Use this variable to keep track of scenarios where you want something to trigger only on beginning of hover. """
 
-        self._input_bindings: dict[tuple[str | None, GestureType], Callable] = {}
+        self._input_bindings: dict[tuple[str | None, GestureType], InputHandler] = {}
         """ Maps (element_id, gesture_type) to handler functions """
-        self._callback_bindings: dict[str, Callable] = {}
+        self._callback_bindings: dict[str, CallbackHandler] = {}
         """ Maps (game_action) to handler functions """
 
-        self.setup_input_bindings()
+        self.setup_event_bindings()
 
     @input_event_bind(None, pygame.QUIT)
-    def quit_game(self, msg: pygame.event.Event):
+    def quit_game(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.stop_game()
 
-    def setup_elements(self, configs: list[ElementConfig]) -> None:
+    def setup_elements(self, configs: list[ElementConfig[Any]]) -> None:
         for config in configs:
             self._element_manager.create_element(config)
 
     def setup_gui_elements(self, ui_elements: list[UIRegisterForm]) -> None:
         for ui_element in ui_elements:
-            self._element_manager.add_gui_element(ui_element.ui_element, ui_element.registered_name)
+            self._element_manager.add_gui_element(
+                ui_element.ui_element, ui_element.registered_name
+            )
 
-    def get_element(self, element_type: str, element_id: str) -> Element | None:
+    def get_element(self, element_type: str, element_id: str) -> Element[Any] | None:
         return self._element_manager.get_element(element_type, element_id)
 
-    def setup_input_bindings(self) -> None:
+    def setup_event_bindings(self) -> None:
         """
         Scans all methods of the page instance for decorator metadata and
         populates the binding dictionaries.
 
         Supported decorators:
         - @input_event_bind -> stored in _input_bindings
+            Binds element_id (a string name) and an event type (an integer) to a method.
         - @callback_event_bind  -> stored in _callback_bindings
+            Binds an action name (a simple string) to a method.
         """
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
@@ -78,14 +98,14 @@ class Page():
             # --- Input event bindings ---
             if hasattr(attr, "_input_bindings"):
                 for element_id, event_type in getattr(attr, "_input_bindings"):
-                    self._input_bindings[(element_id, event_type)] = attr
+                    self._input_bindings[(element_id, event_type)] = cast(
+                        InputHandler, attr
+                    )
 
-            # --- Page event bindings ---
+            # --- Callback event bindings ---
             if hasattr(attr, "_callback_bindings"):
                 for page_event in getattr(attr, "_callback_bindings"):
-                    self._callback_bindings[page_event] = attr
-
-        print(f"{type(self).__name__} has {self._callback_bindings}")
+                    self._callback_bindings[page_event] = cast(CallbackHandler, attr)
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
@@ -111,41 +131,42 @@ class Page():
         """
         element_id = self.get_leaf_object_id(get_id(msg))
 
-        # Call handlers that match either the event type and prefix
-        return any(
-            handler(msg)
-            for (prefix, event_type), handler in self._input_bindings.items()
-            if event_type == msg.type and (
-                prefix is None or (element_id is not None and (element_id == prefix or element_id.startswith(prefix)))
-            )
-        )
-    
+        executed = False
+        for (prefix, event_type), handler in self._input_bindings.items():
+            if event_type != msg.type:
+                continue
+            if prefix is None or (
+                element_id and (element_id == prefix or element_id.startswith(prefix))
+            ):
+                handler(msg)
+                executed = True
+        return executed
+
+    def execute_page_callback(self, msg: PageCallbackEvent[Any]) -> bool:
+        """
+        Executes the callback associated with the given PageCallbackEvent.
+        """
+        executed = False
+        for callback_action, handler in self._callback_bindings.items():
+            if callback_action == msg.callback_action:
+                handler(msg)
+                executed = True
+        return executed
+
     def get_leaf_object_id(self, object_id: str | None) -> str | None:
         """
         Given a fully-qualified pygame_gui object_id (with panel prefixes),
         returns only the last segment, which corresponds to the actual element.
-        
+
         Example:
             'ability_panel_for_entity_TailBlazer_1_3.ability_0_from_entity_TailBlazer_1_3'
             -> 'ability_0_from_entity_TailBlazer_1_3'
         """
-        return object_id.split('.')[-1] if object_id else None
+        return object_id.split(".")[-1] if object_id else None
 
-    def execute_page_callback(self, msg: PageCallbackEvent) -> bool:
-        """
-        Executes the callback associated with the given PageCallbackEvent.
-        """
-        print(f"{type(self).__name__} has {self._callback_bindings}")
-        # Call handlers that match either the event type and prefix
-        return any(
-            handler(msg)
-            for callback_action, handler in self._callback_bindings.items()
-            if callback_action == msg.callback_action
-        )
-    
     def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
         pass
-    
+
     def hide(self) -> None:
         self.is_visible = False
 
@@ -153,11 +174,11 @@ class Page():
         self.is_visible = True
 
     def on_create(self) -> None:
-        """ Called when the page is created. Override in subclasses if needed. """
+        """Called when the page is created. Override in subclasses if needed."""
         pass
 
     def on_destroy(self) -> None:
-        """ Called when the page is destroyed. Override in subclasses if needed. """
+        """Called when the page is destroyed. Override in subclasses if needed."""
         pass
 
     def render(self, time_delta: float) -> pygame.Surface:
@@ -168,4 +189,4 @@ class Page():
             self.gui_manager.draw_ui(self.canvas)
             return self.canvas
         else:
-            return pygame.Surface((0, 0))  
+            return pygame.Surface((0, 0))

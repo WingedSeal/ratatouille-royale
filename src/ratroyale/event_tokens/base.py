@@ -2,7 +2,4 @@ from dataclasses import dataclass
 
 
 @dataclass
-class EventToken:
-  ...
-
-
+class EventToken: ...

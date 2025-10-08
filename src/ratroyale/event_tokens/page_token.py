@@ -12,8 +12,9 @@ __all__ = [
     "PageManagerEvent",
     "PageNavigation",
     "PageNavigationEvent",
-    "PageCallbackEvent"
+    "PageCallbackEvent",
 ]
+
 
 class PageNavigation(Enum):
     OPEN = auto()
@@ -24,13 +25,18 @@ class PageNavigation(Enum):
     HIDE = auto()
     SHOW = auto()
 
+
 @dataclass
 class PageManagerEvent(EventToken):
     pass
 
+
 @dataclass
 class PageNavigationEvent(PageManagerEvent):
-    action_list: list[tuple[PageNavigation, str | None]]  # List of (action, page_name) tuples
+    action_list: list[
+        tuple[PageNavigation, str | None]
+    ]  # List of (action, page_name) tuples
+
 
 @dataclass
 class PageCallbackEvent(Generic[T], PageManagerEvent):

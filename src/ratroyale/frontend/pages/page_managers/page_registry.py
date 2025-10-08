@@ -3,6 +3,7 @@ from ratroyale.frontend.pages.page_managers.base_page import Page
 
 _PAGE_REGISTRY: dict[str, Type[Page]] = {}
 
+
 def register_page(cls: Type[Page]) -> Type[Page]:
     """
     Decorator that registers a Page subclass into the global registry.
@@ -30,6 +31,7 @@ def resolve_page(page_name: str) -> Type[Page]:
             f"Page '{page_name}' not found in registry. "
             "Make sure it's imported and registered."
         )
+
 
 def all_pages() -> list[str]:
     """Return a list of all registered page names (for debugging or introspection)."""

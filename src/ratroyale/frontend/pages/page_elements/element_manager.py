@@ -7,20 +7,26 @@ from pygame_gui import UIManager
 from pygame_gui.core import UIElement, ObjectID
 from pygame import Surface
 
-from typing import TypeVar, Type, Optional
+from typing import TypeVar, Type, Optional, Any
 
 T = TypeVar("T")
+
 
 class ElementManager:
     """
     Manages collections of elements grouped by element type string.
     Each type can have its own key-element structure.
     """
-    def __init__(self, ui_manager: UIManager, coordination_manager: CoordinationManager) -> None:
+
+    def __init__(
+        self, ui_manager: UIManager, coordination_manager: CoordinationManager
+    ) -> None:
         self.ui_manager = ui_manager
         self.coordination_manager = coordination_manager
-        self._element_collections: dict[str, dict[str, Element]] = {} # {element_type -> {element_id: element_obj}}
-        self._flattened_collection: list[Element] = []
+        self._element_collections: dict[str, dict[str, Element[Any]]] = (
+            {}
+        )  # {element_type -> {element_id: element_obj}}
+        self._flattened_collection: list[Element[Any]] = []
 
         self._gui_element_collection: dict[str, UIElement] = {}
 
@@ -31,23 +37,25 @@ class ElementManager:
         if element_type not in self._element_collections:
             self._element_collections[element_type] = {}
 
-    def get_collection(self, element_type: str) -> dict:
+    def get_collection(self, element_type: str) -> dict[str, Element[Any]]:
         """Retrieves the collection for the given element type, creating it if necessary."""
         if element_type not in self._element_collections:
             self.create_collection(element_type)
         return self._element_collections[element_type]
 
     def add_element(
-            self, 
-            element_type: str, 
-            key: str, 
-            element: Element, 
-            parent_identity: ParentIdentity | None
-            ) -> None:
+        self,
+        element_type: str,
+        key: str,
+        element: Element[Any],
+        parent_identity: ParentIdentity | None,
+    ) -> None:
         """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
         collection = self.get_collection(element_type)
         if key in collection:
-            raise ValueError(f"Element with key '{key}' already exists in collection '{element_type}'")
+            raise ValueError(
+                f"Element with key '{key}' already exists in collection '{element_type}'"
+            )
         collection[key] = element
         # print(f"Added element '{key}' to collection '{element_type}'")
 
@@ -56,13 +64,17 @@ class ElementManager:
             parent_type = parent_identity.parent_type
             offset = parent_identity.offset
 
-            parent_collection = self.get_collection(parent_type if parent_type else element_type)
+            parent_collection = self.get_collection(
+                parent_type if parent_type else element_type
+            )
             if parent_id in parent_collection:
-                parent: Element = parent_collection[parent_id]
+                parent: Element[Any] = parent_collection[parent_id]
                 parent.add_child(element, offset)
                 print(f"Set parent of element '{key}' to '{parent_id}'")
             else:
-                raise ValueError(f"Parent with id '{parent_id}' not found in collection '{parent_type}'")
+                raise ValueError(
+                    f"Parent with id '{parent_id}' not found in collection '{parent_type}'"
+                )
         self._flattened_collection.append(element)
         self._sort_flattened_by_z_order()
 
@@ -72,7 +84,7 @@ class ElementManager:
         if key not in collection:
             return
 
-        element: Element = collection[key]
+        element: Element[Any] = collection[key]
 
         # Remove from parent's children list if applicable
         if element.parent is not None:
@@ -96,7 +108,7 @@ class ElementManager:
         """
         self._gui_element_collection[registered_name] = gui_element
         # print(f"Registered {gui_element} with name: {registered_name}")
-    
+
     def get_gui_element(self, registered_name: str, cls: type[T]) -> T:
         element = self._gui_element_collection[registered_name]
         if not element:
@@ -105,7 +117,6 @@ class ElementManager:
             return element
         else:
             raise ValueError("The element type provided is incorrect.")
-
 
     def remove_gui_element(self, registered_name: str) -> None:
         """
@@ -116,7 +127,7 @@ class ElementManager:
             removed.kill()
 
     def clear_collection_of_type(self, element_type: str) -> None:
-        """ Clears all elements from the specified collection. 
+        """Clears all elements from the specified collection.
         Also clears corresponding elements from the flattened list."""
         if element_type in self._element_collections:
             collection = self._element_collections[element_type]
@@ -127,32 +138,27 @@ class ElementManager:
             self._sort_flattened_by_z_order()
 
     def clear_all(self) -> None:
-        """ Clears all collections and the flattened list."""
+        """Clears all collections and the flattened list."""
         self._element_collections.clear()
         self._flattened_collection.clear()
         self._gui_element_collection.clear()
 
-    def create_element(self, cfg: ElementConfig) -> None:
+    def create_element(self, cfg: ElementConfig[Any]) -> None:
         """Uses an external factory function to build the element from a config."""
-        element = create_element(cfg, self.ui_manager)
-        self.add_element(
-            cfg.element_type, 
-            cfg.id, 
-            element, 
-            cfg.parent_identity
-            )
+        element = create_element(cfg)
+        self.add_element(cfg.element_type, cfg.id, element, cfg.parent_identity)
 
-    def get_element(self, element_type: str, key: str) -> Element | None:
-        """ Retrieves an element by type and key."""
+    def get_element(self, element_type: str, key: str) -> Element[Any] | None:
+        """Retrieves an element by type and key."""
         collection = self.get_collection(element_type)
         return collection[key] if key in collection else None
 
-    def get_all_elements(self) -> dict[str, dict[str, Element]]:
+    def get_all_elements(self) -> dict[str, dict[str, Element[Any]]]:
         return self._element_collections
-    
-    def get_flattened_elements(self) -> list[Element]:
+
+    def get_flattened_elements(self) -> list[Element[Any]]:
         return self._flattened_collection
-    
+
     def _sort_flattened_by_z_order(self) -> None:
         self._flattened_collection.sort(key=lambda x: x.z_order, reverse=True)
 
@@ -168,10 +174,14 @@ class ElementManager:
     def render_collection(self, surface: Surface, element_type: str) -> None:
         """Render only elements of a specific type."""
         collection = self._element_collections.get(element_type, {})
-        for element in sorted(collection.values(), key=lambda x: x.z_order, reverse=True):
+        for element in sorted(
+            collection.values(), key=lambda x: x.z_order, reverse=True
+        ):
             element.render(surface)
 
-    def render_elements(self, surface: Surface, keys: list[str], element_type: str) -> None:
+    def render_elements(
+        self, surface: Surface, keys: list[str], element_type: str
+    ) -> None:
         """Render specific elements by key."""
         collection = self._element_collections.get(element_type, {})
         for key in keys:
@@ -206,9 +216,3 @@ class ElementManager:
                 remaining_gestures.append(gesture)
 
         return remaining_gestures
-    
-    
-
-
-
-    

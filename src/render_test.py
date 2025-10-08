@@ -21,6 +21,7 @@ from ratroyale.backend.player_info.squeak import (
     SqueakGetPlacableTiles,
 )
 
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -28,9 +29,7 @@ def main():
 
     coordination_manager = CoordinationManager()
 
-    page_manager = PageManager(
-        screen=screen, coordination_manager=coordination_manager
-    )
+    page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
 
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
@@ -84,15 +83,12 @@ def main():
         features=[],
     )
     game_manager = GameManager(
-        map=map,
-        players_info=(player_info_1, player_info_2),
-        first_turn=Side.MOUSE
+        map=map, players_info=(player_info_1, player_info_2), first_turn=Side.MOUSE
     )
     # endregion
 
     backend_adapter = BackendAdapter(
-        game_manager=game_manager, 
-        coordination_manager=coordination_manager
+        game_manager=game_manager, coordination_manager=coordination_manager
     )
 
     page_manager.push_page(pages.MainMenu)

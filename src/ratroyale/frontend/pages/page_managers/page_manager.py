@@ -2,11 +2,17 @@ import pygame
 import pygame_gui
 from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.gesture.gesture_reader import GestureReader, GESTURE_READER_CARES
+from ratroyale.frontend.gesture.gesture_reader import (
+    GestureReader,
+    GESTURE_READER_CARES,
+)
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
+
+from typing import Any
+
 
 class PageManager:
     def __init__(
@@ -20,7 +26,6 @@ class PageManager:
 
         self.page_stack: list[Page] = []
         """Active page stack"""
-
 
     # region Basic Page Management Methods
 
@@ -43,10 +48,10 @@ class PageManager:
 
     def remove_page(self, page_type: type[Page]) -> None:
         for i, page in enumerate(self.page_stack):
-                if isinstance(page, page_type):
-                    removed = self.page_stack.pop(i)
-                    removed.on_destroy()
-                    break
+            if isinstance(page, page_type):
+                removed = self.page_stack.pop(i)
+                removed.on_destroy()
+                break
 
     def get_page(self, page_type: type[Page]) -> Page | None:
         """Return the first page instance of the given type."""
@@ -56,13 +61,13 @@ class PageManager:
         return None
 
     def replace_top(self, page_type: type[Page], page: Page | None) -> None:
-        """ Switch topmost page for a different one """
+        """Switch topmost page for a different one"""
         if self.page_stack:
             self.pop_page()
             self.push_page(page_type, page)
 
     def remove_all_pages(self) -> None:
-        """ Remove all pages from the stack """
+        """Remove all pages from the stack"""
         while self.page_stack:
             self.pop_page()
 
@@ -98,30 +103,30 @@ class PageManager:
         # Step 2: produce gesture data
         gestures = self.gesture_reader.read_events(mouse_events)
 
-        # Step 3: distribute gesture data to pages, 
+        # Step 3: distribute gesture data to pages,
         # where pages will distribute gesture data to its elements for posting events.
         for page in reversed(self.page_stack):
             if not gestures:
-                break  
+                break
 
             gestures = page.handle_gestures(gestures)
 
             if page.is_blocking:
                 break
 
-        # Step 4: other_events get dispatched to its correct pages. 
+        # Step 4: other_events get dispatched to its correct pages.
         self._dispatch_input(other_events)
 
     # TODO: give events to each page's pygame_gui elements
     def _dispatch_input(self, events: list[pygame.event.Event]) -> None:
         if not events:
             return
-        
+
         handler_found: bool = False
-        
+
         for event in events:
             for page in self.page_stack:
-                handler_found = handler_found or page.execute_input_callback(event) 
+                handler_found = handler_found or page.execute_input_callback(event)
 
         if not handler_found:
             # print(f"No page handled event: {event}")
@@ -130,17 +135,17 @@ class PageManager:
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)
         if not msg_queue:
-            return 
-        
+            return
+
         while not msg_queue.empty():
             msg = msg_queue.get()
             if isinstance(msg, PageNavigationEvent):
                 self._navigate(msg)
             elif isinstance(msg, PageCallbackEvent):
                 self._delegate(msg)
-    
+
     def _navigate(self, msg: PageNavigationEvent) -> None:
-        """ Handle page navigation actions such as PUSH, POP, REPLACE, HIDE, and SHOW."""
+        """Handle page navigation actions such as PUSH, POP, REPLACE, HIDE, and SHOW."""
         for action, page_name in msg.action_list:
             page_type = resolve_page(page_name) if page_name else None
 
@@ -167,12 +172,12 @@ class PageManager:
                     case PageNavigation.CLOSE_TOP:
                         self.pop_page()
 
-    def _delegate(self, msg: PageCallbackEvent) -> None:
+    def _delegate(self, msg: PageCallbackEvent[Any]) -> None:
         """Delegate a PageManagerEvent to the appropriate page."""
         for page in self.page_stack:
 
             if page:
-                page.execute_page_callback(msg)    
+                page.execute_page_callback(msg)
             else:
                 # print(f"No page of type {name} to handle {msg}")
                 pass
@@ -180,8 +185,8 @@ class PageManager:
     def execute_visual_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
         if not msg_queue:
-            return 
-        
+            return
+
         while not msg_queue.empty():
             msg = msg_queue.get()
             if isinstance(msg, PageNavigationEvent):
@@ -192,7 +197,7 @@ class PageManager:
     # endregion
 
     # region Rendering
-    
+
     def render(self, delta: float) -> None:
         """Render pages bottom-up."""
         for page in self.page_stack:

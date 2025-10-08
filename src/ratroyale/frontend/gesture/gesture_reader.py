@@ -3,7 +3,12 @@ import time
 from ratroyale.frontend.gesture.gesture_data import GestureType, GestureData
 from enum import Enum, auto
 
-GESTURE_READER_CARES: list[int] = [pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP]
+GESTURE_READER_CARES: list[int] = [
+    pygame.MOUSEBUTTONDOWN,
+    pygame.MOUSEMOTION,
+    pygame.MOUSEBUTTONUP,
+]
+
 
 # TODO: fix strange unresponsive click issues.
 class GestureState(Enum):
@@ -11,6 +16,7 @@ class GestureState(Enum):
     STATE_PRESSED = auto()
     STATE_DRAGGING = auto()
     STATE_HOLD_TRIGGERED = auto()
+
 
 class GestureReader:
     # region Threshold Variables
@@ -219,7 +225,6 @@ class GestureReader:
                 self.state = GestureState.STATE_HOLD_TRIGGERED
                 self.on_hold(self.start_pos)
 
-
     def _on_drag_start(self) -> None:
         pass
 
@@ -233,39 +238,48 @@ class GestureReader:
     # endregion
 
     # region Callbacks
-    def on_click(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
-        self.output_gesture(GestureData(
-            gesture_type=GestureType.CLICK, 
-            start_pos=pos,
-            original_event=raw_event
-        ))
+    def on_click(
+        self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None
+    ) -> None:
+        self.output_gesture(
+            GestureData(
+                gesture_type=GestureType.CLICK, start_pos=pos, original_event=raw_event
+            )
+        )
 
-    def on_double_click(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
-        self.output_gesture(GestureData(
-            gesture_type=GestureType.DOUBLE_CLICK, 
-            start_pos=pos,
-            original_event=raw_event
-        ))
+    def on_double_click(
+        self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None
+    ) -> None:
+        self.output_gesture(
+            GestureData(
+                gesture_type=GestureType.DOUBLE_CLICK,
+                start_pos=pos,
+                original_event=raw_event,
+            )
+        )
 
-    def on_drag(self, dx: int, dy: int, raw_event: pygame.event.Event | None = None) -> None:
-        self.output_gesture(GestureData(
-            gesture_type=GestureType.DRAG, 
-            delta=(dx, dy),
-            original_event=raw_event
-        ))
+    def on_drag(
+        self, dx: int, dy: int, raw_event: pygame.event.Event | None = None
+    ) -> None:
+        self.output_gesture(
+            GestureData(
+                gesture_type=GestureType.DRAG, delta=(dx, dy), original_event=raw_event
+            )
+        )
 
     def on_drag_end(self, raw_event: pygame.event.Event | None = None) -> None:
-        self.output_gesture(GestureData(
-            gesture_type=GestureType.DRAG_END,
-            original_event=raw_event
-        ))
+        self.output_gesture(
+            GestureData(gesture_type=GestureType.DRAG_END, original_event=raw_event)
+        )
 
-    def on_hold(self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None) -> None:
-        self.output_gesture(GestureData(
-            gesture_type=GestureType.HOLD, 
-            start_pos=pos,
-            original_event=raw_event
-        ))
+    def on_hold(
+        self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None
+    ) -> None:
+        self.output_gesture(
+            GestureData(
+                gesture_type=GestureType.HOLD, start_pos=pos, original_event=raw_event
+            )
+        )
 
     def on_swipe(
         self,
@@ -275,13 +289,15 @@ class GestureReader:
         velo_y: float,
         raw_event: pygame.event.Event | None = None,
     ) -> None:
-        self.output_gesture(GestureData(
-            gesture_type=GestureType.SWIPE, 
-            start_pos=start_pos, 
-            end_pos=end_pos, 
-            velocity=(velo_x, velo_y),
-            original_event=raw_event
-        ))
+        self.output_gesture(
+            GestureData(
+                gesture_type=GestureType.SWIPE,
+                start_pos=start_pos,
+                end_pos=end_pos,
+                velocity=(velo_x, velo_y),
+                original_event=raw_event,
+            )
+        )
 
     def output_gesture(self, gesture_data: GestureData) -> None:
         self.gesture_queue.append(gesture_data)

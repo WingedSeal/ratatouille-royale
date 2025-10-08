@@ -3,43 +3,54 @@ import pygame
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Any
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 
 # region Base Hitbox Classes
+
 
 class Hitbox(ABC):
     @abstractmethod
     def contains_point(self, point: tuple[float, float]) -> bool:
         """Return True if the point is inside the hitbox."""
         ...
+
     @abstractmethod
-    def draw(self, surface: pygame.Surface, color: tuple[int, int, int] = (255, 0, 0)) -> None:
+    def draw(
+        self, surface: pygame.Surface, color: tuple[int, int, int] = (255, 0, 0)
+    ) -> None:
         """Draw the hitbox for debugging purposes."""
         ...
+
     @abstractmethod
     def move_to(self, topleft_coord: tuple[float, float]) -> None:
         """Move the hitbox to a new topleft coordinate"""
         ...
+
     @abstractmethod
-    def get_topleft(self) -> tuple[float, float]:
-        ...
+    def get_topleft(self) -> tuple[float, float]: ...
+
 
 class RectangleHitbox(Hitbox):
     def __init__(self, rect: tuple[float, float, float, float]) -> None:
         self.rect = pygame.Rect(rect)
 
     def contains_point(self, point: tuple[float, float]) -> bool:
-        return self.rect.collidepoint(point)
+        result: bool = self.rect.collidepoint(point)
+        return result
 
-    def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 0, 255)) -> None:
+    def draw(
+        self, surface: pygame.Surface, color: tuple[int, int, int] = (0, 0, 255)
+    ) -> None:
         pygame.draw.rect(surface, color, self.rect, 1)
 
     def move_to(self, topleft_coord: tuple[float, float]) -> None:
         self.rect.topleft = topleft_coord
 
     def get_topleft(self) -> tuple[float, float]:
-        return self.rect.topleft
+        result: tuple[float, float] = self.rect.topleft
+        return result
+
 
 class CircleHitbox(Hitbox):
     def __init__(self, center: tuple[float, float], radius: int) -> None:
@@ -49,16 +60,18 @@ class CircleHitbox(Hitbox):
     def contains_point(self, point: tuple[float, float]) -> bool:
         x, y = point
         cx, cy = self.center
-        return (x - cx) ** 2 + (y - cy) ** 2 <= self.radius ** 2
+        return (x - cx) ** 2 + (y - cy) ** 2 <= self.radius**2
 
-    def draw(self, surface: pygame.Surface, color: tuple[int, int, int]=(0, 255, 0)) -> None:
+    def draw(
+        self, surface: pygame.Surface, color: tuple[int, int, int] = (0, 255, 0)
+    ) -> None:
         pygame.draw.circle(surface, color, self.center, self.radius, 1)
 
-    def move_to(self, topleft_coord: tuple[float, float]) -> None:
-        ...
+    def move_to(self, topleft_coord: tuple[float, float]) -> None: ...
 
     def get_topleft(self) -> tuple[float, float]:
         return (self.center[0] - self.radius, self.center[1] + self.radius)
+
 
 # TODO: could change this to polygonal hitbox and move all hex related functions to hexagon.py
 class HexHitbox(Hitbox):
@@ -80,14 +93,14 @@ class HexHitbox(Hitbox):
         cx, cy = center
         w, h = self.width / 2, self.height / 2
         return [
-            (cx,     cy - h),    # top
-            (cx + w, cy - h/2),  # top-right
-            (cx + w, cy + h/2),  # bottom-right
-            (cx,     cy + h),    # bottom
-            (cx - w, cy + h/2),  # bottom-left
-            (cx - w, cy - h/2)   # top-left
+            (cx, cy - h),  # top
+            (cx + w, cy - h / 2),  # top-right
+            (cx + w, cy + h / 2),  # bottom-right
+            (cx, cy + h),  # bottom
+            (cx - w, cy + h / 2),  # bottom-left
+            (cx - w, cy - h / 2),  # top-left
         ]
-    
+
     def contains_point(self, point: tuple[float, float]) -> bool:
         # Ray-casting algorithm for convex polygon
         x, y = point
@@ -113,32 +126,37 @@ class HexHitbox(Hitbox):
         self.cx, self.cy = center
         self.points = self._compute_points(center)
 
-    def draw(self, surface: pygame.Surface, color: tuple[int, int, int] = (0, 0, 255)) -> None:
+    def draw(
+        self, surface: pygame.Surface, color: tuple[int, int, int] = (0, 0, 255)
+    ) -> None:
         pygame.draw.polygon(surface, color, self.points, 1)
 
     def get_topleft(self) -> tuple[float, float]:
         return self.topleft
 
- # endregion
+
+# endregion
 
 # region Base Element Class
 
 T = TypeVar("T")
+
 
 class Element(Generic[T]):
     """
     Base class for a non-pygame_gui logical page element.
     Handles hitbox-based input detection and optional visual component.
     """
+
     def __init__(
         self,
         element_id: str,
-        hitbox: Hitbox, # TODO: generalize
-        payload: T | None = None, # Generalize
+        hitbox: Hitbox,  # TODO: generalize
+        payload: T | None = None,  # Generalize
         is_interactable: bool = True,
         is_blocking: bool = True,
         z_order: int = 0,
-        visual: VisualComponent | None = None
+        visual: VisualComponent | None = None,
     ) -> None:
         self.element_id: str = element_id
         self.hitbox: Hitbox = hitbox
@@ -150,25 +168,28 @@ class Element(Generic[T]):
         self.z_order: int = z_order
         self.visual: VisualComponent | None = visual
 
-        self.parent: Element | None = None
-        self.children: list[Element] = []
+        self.parent: Element[Any] | None = None
+        self.children: list[Element[Any]] = []
 
     def handle_gesture(self, gesture: GestureData) -> bool:
         gesture_pos = gesture.start_pos
-        if gesture_pos is None or not self.is_interactable or not self.hitbox.contains_point(gesture_pos):
+        if (
+            gesture_pos is None
+            or not self.is_interactable
+            or not self.hitbox.contains_point(gesture_pos)
+        ):
             return False
-        post_gesture_event(InputManagerEvent(
-            element_id=self.element_id,
-            gesture_data=gesture,
-            payload=self.payload
+        post_gesture_event(
+            InputManagerEvent(
+                element_id=self.element_id, gesture_data=gesture, payload=self.payload
             )
         )
         return True
-    
+
     def destroy_visual(self) -> None:
         if self.visual:
             self.visual.destroy()
-    
+
     def get_topleft(self) -> tuple[float, float]:
         """Return the current top-left position of this interactable."""
         return self.hitbox.get_topleft()
@@ -185,10 +206,7 @@ class Element(Generic[T]):
             child.set_position((child_x, child_y))
 
     def move_by(self, delta: tuple[float, float]) -> None:
-        new_pos = (
-            self.get_topleft()[0] + delta[0],
-            self.get_topleft()[1] + delta[1]
-        )
+        new_pos = (self.get_topleft()[0] + delta[0], self.get_topleft()[1] + delta[1])
         self.set_position(new_pos)
 
     def move_visual(self, topleft: tuple[float, float]) -> None:
@@ -196,13 +214,17 @@ class Element(Generic[T]):
         if self.visual:
             self.visual.set_position(topleft)
 
-    def add_child(self, child: "Element", offset: tuple[float, float] | None = None) -> None:
+    def add_child(
+        self, child: "Element[Any]", offset: tuple[float, float] | None = None
+    ) -> None:
         """
         Attach a child interactable.
         If offset is None, compute it from current absolute positions.
         """
         if child in self.children:
-            raise ValueError(f"Child '{child.element_id}' already attached to '{self.element_id}'")
+            raise ValueError(
+                f"Child '{child.element_id}' already attached to '{self.element_id}'"
+            )
 
         self.children.append(child)
         child.parent = self
@@ -215,16 +237,18 @@ class Element(Generic[T]):
 
         child._relative_offset = offset
         self._update_child_position(child)
-        
-    def remove_child(self, child: "Element") -> None:
+
+    def remove_child(self, child: "Element[Any]") -> None:
         """Detach a child interactable."""
         if child not in self.children:
-            raise ValueError(f"Child '{child.element_id}' not found in '{self.element_id}'")
+            raise ValueError(
+                f"Child '{child.element_id}' not found in '{self.element_id}'"
+            )
         self.children.remove(child)
         child.parent = None
         child._relative_offset = (0, 0)
 
-    def _update_child_position(self, child: "Element") -> None:
+    def _update_child_position(self, child: "Element[Any]") -> None:
         """Reposition a specific child based on its stored offset."""
         parent_x, parent_y = self.get_topleft()
         offset_x, offset_y = child._relative_offset
@@ -233,14 +257,15 @@ class Element(Generic[T]):
     def render(self, surface: pygame.Surface) -> None:
         if self.visual:
             self.visual.render(surface)
-    
+
     # --- Debug Utility ---
-    def draw_hitbox(self, surface, color=(255, 0, 0)) -> None:
+    def draw_hitbox(
+        self, surface: pygame.Surface, color: tuple[int, int, int] = (255, 0, 0)
+    ) -> None:
         """Draw this interactable's hitbox and its children's recursively."""
         self.hitbox.draw(surface, color)
         for child in self.children:
             child.draw_hitbox(surface, color)
 
+
 # endregion
-
-
