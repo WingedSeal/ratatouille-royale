@@ -1,7 +1,27 @@
 from typing import Type
 from ratroyale.frontend.pages.page_managers.base_page import Page
 
-_PAGE_REGISTRY: dict[str, Type[Page]] = {}
+import sys
+from pathlib import Path
+import importlib
+
+frontend_folder = Path(__file__).parent.parent
+sys.path.append(str(frontend_folder.resolve()))
+
+PAGES_FOLDER = frontend_folder / "page_definitions"
+_PAGE_REGISTRY: dict[str, type[Page]] = {}
+
+
+def auto_import_pages() -> None:
+    for py_file in PAGES_FOLDER.glob("*.py"):
+        module_name = py_file.stem
+        if module_name == "__init__":
+            continue
+        module_path = f"ratroyale.frontend.pages.page_definitions.{module_name}"
+        try:
+            importlib.import_module(module_path)
+        except Exception as e:
+            print(f"Failed to import {module_name}: {e}")
 
 
 def register_page(cls: Type[Page]) -> Type[Page]:
