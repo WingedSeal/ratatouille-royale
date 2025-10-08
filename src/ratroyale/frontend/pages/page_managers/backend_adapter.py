@@ -7,6 +7,7 @@ from ratroyale.backend.board import Board
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.utils import EventQueue
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -22,7 +23,9 @@ class BackendAdapter:
         }
 
     def execute_backend_callback(self) -> None:
-        msg_queue = self.coordination_manager.mailboxes.get(GameManagerEvent, None)
+        msg_queue: EventQueue[GameManagerEvent[Any]] | None = (
+            self.coordination_manager.mailboxes.get(GameManagerEvent, None)
+        )
         if not msg_queue:
             return
 

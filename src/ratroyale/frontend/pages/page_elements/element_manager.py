@@ -57,7 +57,6 @@ class ElementManager:
                 f"Element with key '{key}' already exists in collection '{element_type}'"
             )
         collection[key] = element
-        # print(f"Added element '{key}' to collection '{element_type}'")
 
         if parent_identity:
             parent_id = parent_identity.parent_id
@@ -70,7 +69,6 @@ class ElementManager:
             if parent_id in parent_collection:
                 parent: Element[Any] = parent_collection[parent_id]
                 parent.add_child(element, offset)
-                print(f"Set parent of element '{key}' to '{parent_id}'")
             else:
                 raise ValueError(
                     f"Parent with id '{parent_id}' not found in collection '{parent_type}'"
@@ -107,7 +105,6 @@ class ElementManager:
         i.e. the registered name and the event callback name can be different.
         """
         self._gui_element_collection[registered_name] = gui_element
-        # print(f"Registered {gui_element} with name: {registered_name}")
 
     def get_gui_element(self, registered_name: str, cls: type[T]) -> T:
         element = self._gui_element_collection[registered_name]
