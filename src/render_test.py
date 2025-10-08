@@ -95,7 +95,9 @@ def main():
     )
 
     coordination_manager.put_message(
-        PageNavigationEvent(action_list=[(PageNavigation.OPEN, "MainMenu")])
+        PageNavigationEvent(
+            action_list=[(PageNavigation.OPEN, "TestPage")]
+        )  # change this to test your page
     )
 
     while coordination_manager.game_running:

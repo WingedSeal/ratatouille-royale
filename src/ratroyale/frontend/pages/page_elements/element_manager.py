@@ -116,7 +116,9 @@ class ElementManager:
         if isinstance(element, cls):
             return element
         else:
-            raise ValueError("The element type provided is incorrect.")
+            raise TypeError(
+                f"The element type provided ({cls.__name__}) is incorrect. The true type is {type(element).__name__}"
+            )
 
     def remove_gui_element(self, registered_name: str) -> None:
         """

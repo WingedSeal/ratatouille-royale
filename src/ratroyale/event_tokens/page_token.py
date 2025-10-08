@@ -17,6 +17,8 @@ __all__ = [
 
 
 class PageNavigation(Enum):
+    """ """
+
     OPEN = auto()
     CLOSE = auto()
     CLOSE_TOP = auto()
