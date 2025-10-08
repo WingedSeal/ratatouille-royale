@@ -1,15 +1,12 @@
-import pygame
 import pygame_gui
 from pygame_gui.core import UIElement
 
-from pygame_gui import UIManager
 from ratroyale.frontend.visual.asset_management.visual_component import (
     TileVisual,
     EntityVisual,
 )
 from ratroyale.frontend.pages.page_elements.element import (
     Element,
-    RectangleHitbox,
     HexHitbox,
 )
 from ratroyale.backend.tile import Tile
@@ -18,8 +15,8 @@ from dataclasses import dataclass
 from typing import TypeVar, Generic, ParamSpec, Callable, Any
 
 T = TypeVar("T")
-P = ParamSpec("P")  # Parameter specification
-R = TypeVar("R")  # Return type
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 @dataclass

@@ -9,14 +9,14 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
-from typing import Callable, Protocol, cast, Any
+from typing import Protocol, cast, Any
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
     UIRegisterForm,
 )
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
-from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
+from ratroyale.frontend.pages.page_managers.page_registry import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 

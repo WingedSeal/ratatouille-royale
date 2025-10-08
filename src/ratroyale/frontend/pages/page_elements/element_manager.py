@@ -4,10 +4,10 @@ from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.coordination_manager import CoordinationManager
 
 from pygame_gui import UIManager
-from pygame_gui.core import UIElement, ObjectID
+from pygame_gui.core import UIElement
 from pygame import Surface
 
-from typing import TypeVar, Type, Optional, Any
+from typing import TypeVar, Any
 
 T = TypeVar("T")
 

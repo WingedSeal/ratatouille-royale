@@ -1,8 +1,8 @@
 from ratroyale.event_tokens.page_token import *
 from typing import Callable, TypeVar, ParamSpec
 
-P = ParamSpec("P")  # Parameter specification
-R = TypeVar("R")  # Return type
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 def input_event_bind(

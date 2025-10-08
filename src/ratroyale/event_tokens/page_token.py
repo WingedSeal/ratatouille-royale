@@ -1,8 +1,5 @@
 from dataclasses import dataclass
 from .base import EventToken
-from ratroyale.backend.board import Board
-from ratroyale.backend.entity import Entity
-from ratroyale.backend.tile import Tile
 from enum import Enum, auto
 from typing import TypeVar, Generic
 

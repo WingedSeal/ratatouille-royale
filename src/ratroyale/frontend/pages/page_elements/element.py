@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, Any
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 
-# region Base Hitbox Classes
+# region Hitbox Classes
 
 
 class Hitbox(ABC):
@@ -151,8 +151,8 @@ class Element(Generic[T]):
     def __init__(
         self,
         element_id: str,
-        hitbox: Hitbox,  # TODO: generalize
-        payload: T | None = None,  # Generalize
+        hitbox: Hitbox,
+        payload: T | None = None,
         is_interactable: bool = True,
         is_blocking: bool = True,
         z_order: int = 0,

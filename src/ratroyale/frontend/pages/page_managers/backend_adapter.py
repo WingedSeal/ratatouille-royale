@@ -5,7 +5,7 @@ from ratroyale.event_tokens.page_token import *
 from typing import Callable, Any
 from ratroyale.backend.board import Board
 from ratroyale.backend.tile import Tile
-from ratroyale.backend.entity import Entity, EntitySkill
+from ratroyale.backend.entity import Entity
 from ratroyale.backend.hexagon import OddRCoord
 
 
