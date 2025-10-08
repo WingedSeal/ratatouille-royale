@@ -4,7 +4,7 @@ from ratroyale.backend.error import ShortHandSkillCallbackError
 
 from ...entity_effect import EntityEffect
 from ...skill_callback import SkillCallback, skill_callback_check
-from ...entity import SkillResult, SkillCompleted, SkillTargetting
+from ...entity import SkillResult, SkillCompleted, SkillTargeting
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
@@ -22,9 +22,9 @@ def select_any_tile(
     target_count: int = 1,
     *,
     can_cancel: bool = True,
-) -> SkillTargetting:
+) -> SkillTargeting:
     coords = board.get_attackable_coords(rodent, skill)
-    return SkillTargetting(
+    return SkillTargeting(
         target_count, rodent, skill, list(coords), callback, can_cancel
     )
 
@@ -38,7 +38,7 @@ def select_targetable(
     *,
     is_feature_targetable: bool = True,
     can_cancel: bool = True,
-) -> SkillTargetting:
+) -> SkillTargeting:
 
     @skill_callback_check
     def skill_callback(
@@ -72,7 +72,7 @@ def select_targetable(
         ):
             targets.append(coord)
             continue
-    return SkillTargetting(
+    return SkillTargeting(
         target_count, rodent, skill, targets, skill_callback, can_cancel
     )
 

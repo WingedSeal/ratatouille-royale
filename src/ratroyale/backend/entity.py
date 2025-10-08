@@ -23,7 +23,7 @@ class EntitySkill:
 
 
 @dataclass
-class SkillTargetting:
+class SkillTargeting:
     target_count: int
     source_enitity: "Entity"
     source_skill: "CallableEntitySkill"
@@ -47,7 +47,7 @@ class SkillCompleted(Enum):
     CANCELLED = auto()
 
 
-SkillResult: TypeAlias = SkillTargetting | SkillCompleted
+SkillResult: TypeAlias = SkillTargeting | SkillCompleted
 
 
 @dataclass

@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 
-from .backend.entity import SkillTargetting
+from .backend.entity import SkillTargeting
 from .backend.hexagon import OddRCoord
 from .backend.game_manager import GameManager
 
@@ -19,7 +19,7 @@ class GamePlay(GameState):
 @dataclass
 class SelectTarget(GameState):
     targets: list[OddRCoord]
-    skill_result: SkillTargetting
+    skill_result: SkillTargeting
 
 
 class MainMenu(GameState):

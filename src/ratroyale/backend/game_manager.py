@@ -95,22 +95,22 @@ class GameManager:
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult:
         """
-        The result may either be a completed skill or require more targetting.
+        The result may either be a completed skill or require more targeting.
 
         .. example::
         ```python
         # Activate Skill
         skill_result = game_manager.activate_skill(self, entity, 1)
         if isinstance(skill_result, Callable):
-            self.skill_targetting = skill_result
+            self.skill_targeting = skill_result
         ```
         ```python
         # Main Loop
-        if self.skill_targetting:
+        if self.skill_targeting:
             ...
             selected_targets = ...
             if selected_targets is not None:
-                skill_result = self.skill_targetting.apply_callback(game_manager, selected_targets)
+                skill_result = self.skill_targeting.apply_callback(game_manager, selected_targets)
         ```
 
         """
