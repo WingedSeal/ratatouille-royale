@@ -28,7 +28,6 @@ class _DataPointer:
     def get_raw_bytes(self, size: int = 1) -> bytes:
         value = self.data[self.pointer : self.pointer + size]
         self.pointer += size
-        global test
         return value
 
     def verify_end(self) -> bool:
