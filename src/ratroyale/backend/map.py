@@ -157,7 +157,7 @@ class Map:
         many_entities_flag = 1 if len(self.entities) > 255 else 0
 
         data.append(
-            (large_map_flag << 2) & (many_features_flag << 1) & many_entities_flag
+            (large_map_flag << 2) | (many_features_flag << 1) | many_entities_flag
         )
 
         data.extend(self.size_x.to_bytes(1 + large_map_flag, ENDIAN))
