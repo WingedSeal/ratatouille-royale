@@ -4,7 +4,6 @@ from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
-from ratroyale.frontend.pages.page_managers.page_registry import auto_import_pages
 from ratroyale.event_tokens.page_token import PageNavigationEvent, PageNavigation
 
 from ratroyale.backend.game_manager import GameManager
@@ -31,8 +30,6 @@ def main():
     coordination_manager = CoordinationManager()
 
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
-
-    auto_import_pages()
 
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10

@@ -1,4 +1,3 @@
-from typing import Type
 from ratroyale.frontend.pages.page_managers.base_page import Page
 
 import sys
@@ -9,7 +8,7 @@ import traceback
 # region Path Configuration
 
 frontend_folder = Path(__file__).parent.parent
-sys.path.append(str(frontend_folder.resolve()))
+sys.path.append(frontend_folder.resolve().as_posix())
 
 PAGES_FOLDER = frontend_folder / "page_definitions"
 MODULE_PATH = "ratroyale.frontend.pages.page_definitions."
@@ -32,7 +31,7 @@ def auto_import_pages() -> None:
             traceback.print_exc()
 
 
-def register_page(cls: Type[Page]) -> Type[Page]:
+def register_page(cls: type[Page]) -> type[Page]:
     """
     Decorator that registers a Page subclass into the global registry.
 
@@ -48,7 +47,7 @@ def register_page(cls: Type[Page]) -> Type[Page]:
     return cls
 
 
-def resolve_page(page_name: str) -> Type[Page]:
+def resolve_page(page_name: str) -> type[Page]:
     """
     Resolve a page class by name. Raises KeyError if not found.
     """

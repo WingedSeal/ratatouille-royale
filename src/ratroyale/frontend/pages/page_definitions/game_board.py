@@ -133,8 +133,8 @@ class GameBoard(Page):
         )
 
         panel_width = 160
-        panel_x = entity_center_x - panel_width / 2  # center the panel
-        panel_y = entity_center_y  # or some offset below the entity
+        panel_x = entity_center_x - panel_width / 2
+        panel_y = entity_center_y
         panel_id = f"ability_panel"
         self.ability_panel_id = panel_id
         panel_rect = pygame.Rect(
@@ -150,7 +150,7 @@ class GameBoard(Page):
 
         panel_element = UIRegisterForm(panel_id, panel_object)
 
-        self.setup_gui_elements([panel_element])  # Register panel
+        self.setup_gui_elements([panel_element])
 
         # --- Create ability buttons inside the panel ---
         for i, skill in enumerate(entity.skills):
@@ -212,7 +212,6 @@ class GameBoard(Page):
             )
             entity.set_position(new_topleft)
 
-    # Called when drag ends
     @input_event_bind(None, GestureType.DRAG_END.value)
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
         self.dragging_element_id = None
@@ -246,7 +245,7 @@ class GameBoard(Page):
 
     def _select_element(
         self, element_type: str, element_id: str, toggle: bool = True
-    ) -> Element[Any] | None:
+    ) -> Element[Tile | Entity] | None:
         """
         Handles single-selection logic for both tiles and entities.
         Only one element can be selected at a time.
@@ -254,7 +253,7 @@ class GameBoard(Page):
         Returns the currently selected element, or None if deselected.
         """
         # Un-highlight previous selection
-        prev_element: Element[Any] | None = None
+        prev_element: Element[Tile | Entity] | None = None
         if self.selected_element_id:
             prev_type, prev_id = self.selected_element_id
             prev_element = self.get_element(prev_type, prev_id)

@@ -21,15 +21,14 @@ from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry impo
 class VisualComponent(ABC):
     """Base class for anything that can be rendered as part of an Interactable."""
 
-    @abstractmethod
-    def create(self, manager: UIManager) -> None:
-        """Optional: create/init the visual.
+    def create(self) -> None:
+        """Create/init the visual.
         For UI, this might need the gui_manager; for sprites, maybe not."""
         ...
 
     def destroy(self) -> None:
         """Optional. Used for triggering the .kill() on pygame_gui elements"""
-        ...
+        pass
 
     @abstractmethod
     def render(self, surface: pygame.Surface) -> None:
@@ -58,14 +57,8 @@ class SpriteVisual(VisualComponent):
         self.position = position
         self.highlighted = False
 
-    def create(self, manager: UIManager) -> None:
-        pass
-
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.image, self.position)
-
-    def destroy(self) -> None:
-        return super().destroy()
 
     def set_position(self, topleft_coord: tuple[float, float]) -> None:
         self.position = topleft_coord

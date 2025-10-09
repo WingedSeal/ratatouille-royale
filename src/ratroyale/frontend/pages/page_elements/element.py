@@ -156,10 +156,8 @@ class HexHitbox(Hitbox):
 
 # region Base Element Class
 
-T = TypeVar("T")
 
-
-class Element(Generic[T]):
+class Element[T]():
     """
     Base class for a non-pygame_gui logical page element.
     Handles hitbox-based input detection and optional visual component.
