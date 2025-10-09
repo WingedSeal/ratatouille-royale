@@ -16,7 +16,9 @@ from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
 )
-from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_register_form import (
+    ElementRegisterForm,
+)
 
 import pygame_gui
 import pygame
@@ -27,9 +29,9 @@ class TestCommunicate(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager, is_blocking=False)
 
-    def define_initial_gui(self) -> list[GUIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementRegisterForm]:
         return [
-            GUIRegisterForm(
+            ElementRegisterForm(
                 "test_label",
                 pygame_gui.elements.UILabel(
                     relative_rect=pygame.Rect(310, 350, 80, 30),

@@ -13,7 +13,9 @@ from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
 )
-from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_register_form import (
+    ElementRegisterForm,
+)
 
 import pygame_gui
 import pygame
@@ -25,9 +27,9 @@ class TestPage(Page):
         super().__init__(coordination_manager)
         # if page is strangely not responsive, check is_blocking status of open pages.
 
-    def define_initial_gui(self) -> list[GUIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementRegisterForm]:
         """Return all GUI elements for the TestPage."""
-        gui_elements: list[GUIRegisterForm] = []
+        gui_elements: list[ElementRegisterForm] = []
 
         # region Panel + nested button
         panel_element = pygame_gui.elements.UIPanel(
@@ -37,7 +39,7 @@ class TestPage(Page):
                 class_id="AbilityPanel", object_id="panel_event"
             ),
         )
-        gui_elements.append(GUIRegisterForm("test_panel", panel_element))
+        gui_elements.append(ElementRegisterForm("test_panel", panel_element))
 
         # Nested button inside the panel
         pygame_gui.elements.UIButton(
@@ -53,7 +55,7 @@ class TestPage(Page):
 
         # region Other buttons
         gui_elements.append(
-            GUIRegisterForm(
+            ElementRegisterForm(
                 "registered_name",  # <- registered name. for getting & deleting.
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(200, 100, 200, 50),
@@ -68,7 +70,7 @@ class TestPage(Page):
         )
 
         gui_elements.append(
-            GUIRegisterForm(
+            ElementRegisterForm(
                 "registered_name_2",  # <- registered name. for getting & deleting.
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(400, 100, 200, 50),

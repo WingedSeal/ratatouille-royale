@@ -13,7 +13,9 @@ from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
 )
-from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_register_form import (
+    ElementRegisterForm,
+)
 
 import pygame_gui
 import pygame
@@ -24,10 +26,10 @@ class MainMenu(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager, theme_name="main_menu")
 
-    def define_initial_gui(self) -> list[GUIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementRegisterForm]:
         """Return all GUI elements for the main menu page."""
         return [
-            GUIRegisterForm(
+            ElementRegisterForm(
                 "start_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100, 100, 200, 50),
@@ -38,7 +40,7 @@ class MainMenu(Page):
                     ),
                 ),
             ),
-            GUIRegisterForm(
+            ElementRegisterForm(
                 "quit_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100, 200, 200, 50),
@@ -49,7 +51,7 @@ class MainMenu(Page):
                     ),
                 ),
             ),
-            GUIRegisterForm(
+            ElementRegisterForm(
                 "gui_demo_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100, 300, 200, 50),
@@ -60,7 +62,7 @@ class MainMenu(Page):
                     ),
                 ),
             ),
-            GUIRegisterForm(
+            ElementRegisterForm(
                 "element_demo_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(400, 300, 200, 50),

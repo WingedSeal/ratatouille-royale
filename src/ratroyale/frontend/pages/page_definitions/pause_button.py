@@ -13,7 +13,9 @@ from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
 )
-from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_register_form import (
+    ElementRegisterForm,
+)
 
 import pygame_gui
 import pygame
@@ -26,9 +28,9 @@ class PauseButton(Page):
             coordination_manager, is_blocking=False, theme_name="pause_button"
         )
 
-    def define_initial_gui(self) -> list[GUIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementRegisterForm]:
         return [
-            GUIRegisterForm(
+            ElementRegisterForm(
                 "pause_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(700, 20, 80, 40),

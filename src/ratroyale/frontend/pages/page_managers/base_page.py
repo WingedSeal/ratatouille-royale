@@ -15,7 +15,9 @@ from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
 )
-from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_register_form import (
+    ElementRegisterForm,
+)
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
@@ -69,7 +71,7 @@ class Page(ABC):
         self.setup_gui_elements(gui_elements)
 
     @abstractmethod
-    def define_initial_gui(self) -> list["GUIRegisterForm"]:
+    def define_initial_gui(self) -> list["ElementRegisterForm"]:
         """
         Return a list of UIRegisterForm (or other GUI element wrappers)
         that belong to this page. Even if the page has no elements,
@@ -81,17 +83,17 @@ class Page(ABC):
     def quit_game(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.stop_game()
 
-    def setup_elements(self, configs: list[ElementConfig[Any]]) -> None:
+    def setup_elements(self, configs: list[ElementConfig]) -> None:
         for config in configs:
             self._element_manager.create_element(config)
 
-    def setup_gui_elements(self, ui_elements: list[GUIRegisterForm]) -> None:
+    def setup_gui_elements(self, ui_elements: list[ElementRegisterForm]) -> None:
         for ui_element in ui_elements:
             self._element_manager.add_gui_element(
-                ui_element.ui_element, ui_element.registered_name
+                ui_element.element, ui_element.registered_name
             )
 
-    def get_element(self, element_type: str, element_id: str) -> Element[Any] | None:
+    def get_element(self, element_type: str, element_id: str) -> Element | None:
         return self._element_manager.get_element(element_type, element_id)
 
     def setup_event_bindings(self) -> None:

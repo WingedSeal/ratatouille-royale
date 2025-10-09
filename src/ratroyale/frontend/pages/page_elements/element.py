@@ -5,6 +5,7 @@ from ratroyale.frontend.visual.asset_management.visual_component import VisualCo
 from abc import ABC, abstractmethod
 from typing import Any
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
+from ratroyale.event_tokens.payloads import Payload
 
 # region Hitbox Classes
 
@@ -157,7 +158,7 @@ class HexHitbox(Hitbox):
 # region Base Element Class
 
 
-class Element[T]():
+class Element:
     """
     Base class for a non-pygame_gui logical page element.
     Handles hitbox-based input detection and optional visual component.
@@ -167,7 +168,7 @@ class Element[T]():
         self,
         element_id: str,
         hitbox: Hitbox,
-        payload: T | None = None,
+        payload: Payload | None = None,
         is_interactable: bool = True,
         is_blocking: bool = True,
         z_order: int = 0,
@@ -175,7 +176,7 @@ class Element[T]():
     ) -> None:
         self.element_id: str = element_id
         self.hitbox: Hitbox = hitbox
-        self.payload: T | None = payload
+        self.payload: Payload | None = payload
         self.is_interactable: bool = is_interactable
         self.is_blocking: bool = is_blocking
         self._relative_offset: tuple[float, float] = (0, 0)  # Offset from parent if any
@@ -183,8 +184,8 @@ class Element[T]():
         self.z_order: int = z_order
         self.visual: VisualComponent | None = visual
 
-        self.parent: Element[Any] | None = None
-        self.children: list[Element[Any]] = []
+        self.parent: Element | None = None
+        self.children: list[Element] = []
 
     def handle_gesture(self, gesture: GestureData, is_processing_input: bool) -> bool:
         # For elements which cannot be interacted with (e.g. particles)
@@ -229,7 +230,7 @@ class Element[T]():
         self.set_position(new_pos)
 
     def add_child(
-        self, child: "Element[Any]", offset: tuple[float, float] | None = None
+        self, child: "Element", offset: tuple[float, float] | None = None
     ) -> None:
         """
         Attach a child interactable.
@@ -252,7 +253,7 @@ class Element[T]():
         child._relative_offset = offset
         self._update_child_position(child)
 
-    def remove_child(self, child: "Element[Any]") -> None:
+    def remove_child(self, child: "Element") -> None:
         """Detach a child interactable."""
         if child not in self.children:
             raise ValueError(
@@ -262,7 +263,7 @@ class Element[T]():
         child.parent = None
         child._relative_offset = (0, 0)
 
-    def _update_child_position(self, child: "Element[Any]") -> None:
+    def _update_child_position(self, child: "Element") -> None:
         """Reposition a specific child based on its stored offset."""
         parent_x, parent_y = self.get_topleft()
         offset_x, offset_y = child._relative_offset

@@ -12,7 +12,8 @@ from ratroyale.frontend.pages.page_elements.element import (
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from dataclasses import dataclass
-from typing import TypeVar, Generic, ParamSpec, Callable, Any
+from typing import TypeVar, ParamSpec, Callable, Any
+from ratroyale.event_tokens.payloads import Payload, TilePayload, EntityPayload
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -53,7 +54,7 @@ class ParentIdentity:
 
 
 @dataclass
-class ElementConfig(Generic[T]):
+class ElementConfig:
     element_type: str  # What kind of element this is
     id: str  # Unique identifier for this element
     rect: tuple[float, float, float, float]  # Rectangle for hitbox / UI element.
@@ -70,55 +71,60 @@ class ElementConfig(Generic[T]):
         None  # Optional. For targeting pygame_gui elements with JSON theming.
     )
 
-    payload: T | None = (
+    payload: Payload | None = (
         None  # Optional, for any extra data (e.g. Tiles, Entities, Abilities, etc.)
     )
 
 
-_ELEMENT_BUILDERS: dict[str, Callable[[ElementConfig[Any]], Element[Any]]] = {}
+_ELEMENT_BUILDERS: dict[str, Callable[[ElementConfig], Element]] = {}
 
 
 def _register_element_creator(
     type_key: str,
 ) -> Callable[
-    [Callable[[ElementConfig[Any]], "Element[Any]"]],
-    Callable[[ElementConfig[Any]], "Element[Any]"],
+    [Callable[[ElementConfig], "Element"]],
+    Callable[[ElementConfig], "Element"],
 ]:
 
     def decorator(
-        fn: Callable[[ElementConfig[Any]], "Element[Any]"],
-    ) -> Callable[[ElementConfig[Any]], "Element[Any]"]:
+        fn: Callable[[ElementConfig], "Element"],
+    ) -> Callable[[ElementConfig], "Element"]:
         _ELEMENT_BUILDERS[type_key] = fn
         return fn
 
     return decorator
 
 
-def create_element(cfg: ElementConfig[T]) -> Element[T]:
+def create_element(cfg: ElementConfig) -> Element:
     return _ELEMENT_BUILDERS[cfg.element_type](cfg)
 
 
 @_register_element_creator("tile")
-def create_tile(cfg: ElementConfig[Tile]) -> Element[Tile]:
+def create_tile(cfg: ElementConfig) -> Element:
     if cfg.payload is None:
         raise ValueError("Tile element must have a Tile payload defined.")
-    tile = cfg.payload
-    visual = TileVisual(tile)
-    return Element[Tile](
-        element_id=cfg.id, hitbox=HexHitbox(cfg.rect), visual=visual, payload=tile
+    tile_payload = cfg.payload
+    assert isinstance(tile_payload, TilePayload)
+    visual = TileVisual(tile_payload.tile)
+    return Element(
+        element_id=cfg.id,
+        hitbox=HexHitbox(cfg.rect),
+        visual=visual,
+        payload=tile_payload,
     )
 
 
 @_register_element_creator("entity")
-def create_entity(cfg: ElementConfig[Entity]) -> Element[Entity]:
+def create_entity(cfg: ElementConfig) -> Element:
     if cfg.payload is None:
         raise ValueError("Entity element must have an Entity payload defined.")
-    entity = cfg.payload
-    visual = EntityVisual(entity)
-    return Element[Entity](
+    entity_payload = cfg.payload
+    assert isinstance(entity_payload, EntityPayload)
+    visual = EntityVisual(entity_payload.entity)
+    return Element(
         element_id=cfg.id,
         hitbox=RectangleHitbox(cfg.rect),
         visual=visual,
         z_order=cfg.z_order,
-        payload=entity,
+        payload=entity_payload,
     )

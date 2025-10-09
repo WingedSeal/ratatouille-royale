@@ -13,7 +13,9 @@ from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
 )
-from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_register_form import (
+    ElementRegisterForm,
+)
 
 import pygame_gui
 import pygame
@@ -24,9 +26,9 @@ class GUIDemo(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager, theme_name="gui_demo")
 
-    def define_initial_gui(self) -> list[GUIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementRegisterForm]:
         """Return all GUI elements for the GUI demo page."""
-        gui_elements: list[GUIRegisterForm] = []
+        gui_elements: list[ElementRegisterForm] = []
 
         # region Slider + Label
         volume_slider_id = "volume_slider"
@@ -39,7 +41,7 @@ class GUIDemo(Page):
                 class_id="DemoSlider", object_id=volume_slider_id
             ),
         )
-        gui_elements.append(GUIRegisterForm(volume_slider_id, volume_slider))
+        gui_elements.append(ElementRegisterForm(volume_slider_id, volume_slider))
 
         volume_label_id = "volume_label"
         volume_label = pygame_gui.elements.UILabel(
@@ -50,12 +52,12 @@ class GUIDemo(Page):
                 class_id="DemoLabel", object_id=volume_label_id
             ),
         )
-        gui_elements.append(GUIRegisterForm(volume_label_id, volume_label))
+        gui_elements.append(ElementRegisterForm(volume_label_id, volume_label))
         # endregion
 
         # region Text Field + Label
         label_id = "text_output_label"
-        label_element = GUIRegisterForm(
+        label_element = ElementRegisterForm(
             label_id,
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(50, 50, 300, 30),
@@ -66,7 +68,7 @@ class GUIDemo(Page):
         gui_elements.append(label_element)
 
         input_id = "text_input_box"
-        input_element = GUIRegisterForm(
+        input_element = ElementRegisterForm(
             input_id,
             pygame_gui.elements.UITextEntryLine(
                 relative_rect=pygame.Rect(50, 100, 300, 30),
@@ -92,7 +94,7 @@ class GUIDemo(Page):
                 class_id="DemoCheckbox", object_id=enable_sound_id
             ),
         )
-        gui_elements.append(GUIRegisterForm(enable_sound_id, enable_sound_checkbox))
+        gui_elements.append(ElementRegisterForm(enable_sound_id, enable_sound_checkbox))
 
         # --- Radio Buttons ---
         difficulty_radio_id = "difficulty_radio"
@@ -105,7 +107,7 @@ class GUIDemo(Page):
                 class_id="DemoRadio", object_id=difficulty_radio_id
             ),
         )
-        gui_elements.append(GUIRegisterForm(difficulty_radio_id, difficulty_radio))
+        gui_elements.append(ElementRegisterForm(difficulty_radio_id, difficulty_radio))
 
         # --- Progress Bar ---
         progress_bar_id = "progress_bar"
@@ -116,7 +118,7 @@ class GUIDemo(Page):
                 class_id="DemoProgressBar", object_id=progress_bar_id
             ),
         )
-        gui_elements.append(GUIRegisterForm(progress_bar_id, progress_bar))
+        gui_elements.append(ElementRegisterForm(progress_bar_id, progress_bar))
 
         button_progress_bar_id = "button_progress_bar"
         button_progress_bar = pygame_gui.elements.UIButton(
@@ -128,7 +130,7 @@ class GUIDemo(Page):
             ),
         )
         gui_elements.append(
-            GUIRegisterForm(button_progress_bar_id, button_progress_bar)
+            ElementRegisterForm(button_progress_bar_id, button_progress_bar)
         )
 
         # endregion

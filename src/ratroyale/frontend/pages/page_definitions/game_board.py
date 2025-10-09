@@ -26,7 +26,9 @@ from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
     ParentIdentity,
 )
-from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
+from ratroyale.frontend.pages.page_elements.element_register_form import (
+    ElementRegisterForm,
+)
 from ratroyale.frontend.pages.page_elements.element import Element
 
 from ratroyale.backend.board import Board
@@ -38,7 +40,7 @@ from ratroyale.frontend.visual.asset_management.sprite_registry import TYPICAL_T
 import pygame_gui
 import pygame
 
-from typing import Any
+from ratroyale.event_tokens.payloads import TilePayload, EntityPayload
 
 
 @register_page
@@ -53,7 +55,7 @@ class GameBoard(Page):
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="start_game"))
 
-    def define_initial_gui(self) -> list[GUIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementRegisterForm]:
         return []
 
     # region Input Bindings
@@ -64,27 +66,27 @@ class GameBoard(Page):
 
         if msg.success and msg.payload:
             self.board = msg.payload
-            element_configs: list[ElementConfig[Any]] = []
+            element_configs: list[ElementConfig] = []
             tiles = self.board.tiles
             entities = self.board.cache.entities
 
             for tile_list in tiles:
                 for tile in tile_list:
                     if tile:
-                        tile_element = ElementConfig[Tile](
+                        tile_element = ElementConfig(
                             element_type="tile",
                             id=get_name_from_tile(tile),
                             rect=self._define_tile_rect(tile),
-                            payload=tile,
+                            payload=TilePayload(tile),
                         )
                         element_configs.append(tile_element)
 
             for entity in entities:
-                entity_element = ElementConfig[Entity](
+                entity_element = ElementConfig(
                     element_type="entity",
                     id=get_name_from_entity(entity),
                     rect=self._define_entity_rect(entity),
-                    payload=entity,
+                    payload=EntityPayload(entity),
                     z_order=1,  # Ensure entities are rendered above tiles
                 )
                 element_configs.append(entity_element)
@@ -148,7 +150,7 @@ class GameBoard(Page):
             ),
         )
 
-        panel_element = GUIRegisterForm(panel_id, panel_object)
+        panel_element = ElementRegisterForm(panel_id, panel_object)
 
         self.setup_gui_elements([panel_element])
 
@@ -245,7 +247,7 @@ class GameBoard(Page):
 
     def _select_element(
         self, element_type: str, element_id: str, toggle: bool = True
-    ) -> Element[Tile | Entity] | None:
+    ) -> Element | None:
         """
         Handles single-selection logic for both tiles and entities.
         Only one element can be selected at a time.
@@ -253,7 +255,7 @@ class GameBoard(Page):
         Returns the currently selected element, or None if deselected.
         """
         # Un-highlight previous selection
-        prev_element: Element[Tile | Entity] | None = None
+        prev_element: Element | None = None
         if self.selected_element_id:
             prev_type, prev_id = self.selected_element_id
             prev_element = self.get_element(prev_type, prev_id)

@@ -23,10 +23,10 @@ class ElementManager:
     ) -> None:
         self.ui_manager = ui_manager
         self.coordination_manager = coordination_manager
-        self._element_collections: dict[str, dict[str, Element[Any]]] = (
+        self._element_collections: dict[str, dict[str, Element]] = (
             {}
         )  # {element_type -> {element_id: element_obj}}
-        self._flattened_collection: list[Element[Any]] = []
+        self._flattened_collection: list[Element] = []
 
         self._gui_element_collection: dict[str, UIElement] = {}
 
@@ -37,13 +37,13 @@ class ElementManager:
     def set_processing_status(self, is_processing_input: bool) -> None:
         self._is_processing_input = is_processing_input
 
-    def create_collection(self, element_type: str) -> dict[str, Element[Any]]:
+    def create_collection(self, element_type: str) -> dict[str, Element]:
         """Initializes a new collection for the given element type."""
         if element_type not in self._element_collections:
             self._element_collections[element_type] = {}
         return self._element_collections[element_type]
 
-    def get_collection(self, element_type: str) -> dict[str, Element[Any]]:
+    def get_collection(self, element_type: str) -> dict[str, Element]:
         """Retrieves the collection for the given element type, creating it if necessary."""
         if element_type not in self._element_collections:
             raise KeyError(f'"{element_type}" collection does not exist.')
@@ -53,7 +53,7 @@ class ElementManager:
         self,
         element_type: str,
         key: str,
-        element: Element[Any],
+        element: Element,
         parent_identity: ParentIdentity | None,
     ) -> None:
         """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
@@ -77,7 +77,7 @@ class ElementManager:
                 parent_type if parent_type else element_type
             )
             if parent_id in parent_collection:
-                parent: Element[Any] = parent_collection[parent_id]
+                parent: Element = parent_collection[parent_id]
                 parent.add_child(element, offset)
             else:
                 raise ValueError(
@@ -92,7 +92,7 @@ class ElementManager:
         if key not in collection:
             return
 
-        element: Element[Any] = collection[key]
+        element: Element = collection[key]
 
         # Remove from parent's children list if applicable
         if element.parent is not None:
@@ -151,12 +151,12 @@ class ElementManager:
         self._flattened_collection.clear()
         self._gui_element_collection.clear()
 
-    def create_element(self, cfg: ElementConfig[Any]) -> None:
+    def create_element(self, cfg: ElementConfig) -> None:
         """Uses an external factory function to build the element from a config."""
         element = create_element(cfg)
         self.add_element(cfg.element_type, cfg.id, element, cfg.parent_identity)
 
-    def get_element(self, element_type: str, key: str) -> Element[Any]:
+    def get_element(self, element_type: str, key: str) -> Element:
         """Retrieves an element by type and key."""
         collection = self.get_collection(element_type)
         element = collection[key]
@@ -164,13 +164,13 @@ class ElementManager:
             raise KeyError(f"{key} does not exist in {element_type} grouping.")
         return element
 
-    def get_all_elements(self) -> dict[str, dict[str, Element[Any]]]:
+    def get_all_elements(self) -> dict[str, dict[str, Element]]:
         return self._element_collections
 
     def get_all_gui_elements(self) -> dict[str, UIElement]:
         return self._gui_element_collection
 
-    def get_flattened_elements(self) -> list[Element[Any]]:
+    def get_flattened_elements(self) -> list[Element]:
         return self._flattened_collection
 
     def _sort_flattened_by_z_order(self) -> None:
