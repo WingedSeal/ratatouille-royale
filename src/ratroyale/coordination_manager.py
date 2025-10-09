@@ -27,8 +27,7 @@ class CoordinationManager:
             MailboxesDict,
             {
                 PageManagerEvent: EventQueue[PageManagerEvent](),
-                InputManagerEvent: EventQueue[InputManagerEvent](),
-                GameManagerEvent: EventQueue[GameManagerEvent](),
+                GameManagerEvent: EventQueue[GameManagerEvent[Any]](),
                 VisualManagerEvent: EventQueue[VisualManagerEvent](),
             },
         )
