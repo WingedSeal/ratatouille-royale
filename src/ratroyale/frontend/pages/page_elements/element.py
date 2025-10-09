@@ -175,15 +175,19 @@ class Element:
         visual: VisualComponent | None = None,
     ) -> None:
         self.element_id: str = element_id
+
+        # Interactivity & Visuals data
         self.hitbox: Hitbox = hitbox
         self.payload: Payload | None = payload
         self.is_interactable: bool = is_interactable
         self.is_blocking: bool = is_blocking
-        self._relative_offset: tuple[float, float] = (0, 0)  # Offset from parent if any
-
         self.z_order: int = z_order
-        self.visual: VisualComponent | None = visual
+        self.visual: VisualComponent | None = (
+            visual  # TODO: convert to Surface reference.
+        )
 
+        # Hierachical data
+        self._relative_offset: tuple[float, float] = (0, 0)  # Offset from parent if any
         self.parent: Element | None = None
         self.children: list[Element] = []
 
