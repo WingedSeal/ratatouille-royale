@@ -56,7 +56,7 @@ class Page:
         """ Pygame_gui elements will constantly fire hovered events instead of once during entry.
         Use this variable to keep track of scenarios where you want something to trigger only on beginning of hover. """
 
-        self._input_bindings: dict[tuple[str | None, GestureType], InputHandler] = {}
+        self._input_bindings: dict[tuple[str | None, int], InputHandler] = {}
         """ Maps (element_id, gesture_type) to handler functions """
         self._callback_bindings: dict[str, CallbackHandler] = {}
         """ Maps (game_action) to handler functions """

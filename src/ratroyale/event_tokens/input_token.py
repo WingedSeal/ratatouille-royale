@@ -2,26 +2,24 @@ import pygame
 
 from dataclasses import dataclass
 from .base import EventToken
-from ratroyale.frontend.gesture.gesture_data import GestureData, GESTURE_EVENT_MAP
-from typing import TypeVar, Generic
-
-T = TypeVar("T")
+from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
+from typing import Any
 
 
 @dataclass
-class InputManagerEvent(Generic[T], EventToken):
+class InputManagerEvent[T](EventToken):
     element_id: str | None
     gesture_data: GestureData
     payload: T | None = None
 
 
-def post_gesture_event(input_manager_event: InputManagerEvent[T]) -> None:
+def post_gesture_event(input_manager_event: InputManagerEvent[Any]) -> None:
     """
     Posts a GestureData event to Pygame's event queue using the
     hybrid gesture-specific event type mapping. The listener can
     access both gesture_data and element_id from the event.
     """
-    event_type: int = GESTURE_EVENT_MAP[input_manager_event.gesture_data.gesture_type]
+    event_type: int = input_manager_event.gesture_data.gesture_type.value
     pygame.event.post(
         pygame.event.Event(event_type, input_manager_event=input_manager_event)
     )
@@ -37,19 +35,20 @@ def get_id(event: pygame.event.Event) -> str | None:
     """
     event_type = event.type
 
-    # --- Case 1: pygame_gui events ---
-    if hasattr(event, "ui_object_id"):
+    is_pygame_gui_event = hasattr(event, "ui_object_id")
+    if is_pygame_gui_event:
         value = getattr(event, "ui_object_id")
         if isinstance(value, str):
             return value
+        raise TypeError("pygame_gui event has invalid ui_object_id")
 
-    # --- Case 2: our gesture events ---
-    if event_type in GESTURE_EVENT_MAP.values():
+    is_custom_gesture_event = event_type in [g.value for g in GestureType]
+    if is_custom_gesture_event:
         input_manager_event = getattr(event, "input_manager_event", None)
         if isinstance(input_manager_event, InputManagerEvent):
             return input_manager_event.element_id
+        raise TypeError("Gesture event missing InputManagerEvent or has wrong type")
 
-    # --- Case 3: unrelated event ---
     return None
 
 

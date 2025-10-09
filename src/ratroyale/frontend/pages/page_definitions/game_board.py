@@ -9,7 +9,7 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 
-from ratroyale.frontend.gesture.gesture_data import GestureType, to_event
+from ratroyale.frontend.gesture.gesture_data import GestureType
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
@@ -93,21 +93,21 @@ class GameBoard(Page):
             raise RuntimeError(f"Failed to start game: {msg.error_msg}")
 
     # TODO: fire normal clicks with double click.
-    @input_event_bind("tile", to_event(GestureType.CLICK))
+    @input_event_bind("tile", GestureType.CLICK.value)
     def _on_tile_click(self, msg: pygame.event.Event) -> None:
         tile_element_id = self._get_element_id(msg)
 
         self._select_element("tile", tile_element_id)
         self._close_ability_menu()
 
-    @input_event_bind("entity", to_event(GestureType.CLICK))
+    @input_event_bind("entity", GestureType.CLICK.value)
     def _on_entity_click(self, msg: pygame.event.Event) -> None:
         entity_element_id = self._get_element_id(msg)
 
         self._select_element("entity", entity_element_id)
         self._close_ability_menu()
 
-    @input_event_bind("entity", to_event(GestureType.HOLD))
+    @input_event_bind("entity", GestureType.HOLD.value)
     def _display_ability_menu(self, msg: pygame.event.Event) -> None:
         """Display the ability menu for the selected entity."""
         entity = get_payload(msg)
@@ -184,7 +184,7 @@ class GameBoard(Page):
         # self._select_element("entity", entity_element_id)
 
     # Called when drag starts; aligns the entity's center to the mouse
-    @input_event_bind("entity", to_event(GestureType.DRAG_START))
+    @input_event_bind("entity", GestureType.DRAG_START.value)
     def _on_entity_drag_start(self, msg: pygame.event.Event) -> None:
         entity_element_id = self._get_element_id(msg)
         entity_element = self._element_manager.get_element("entity", entity_element_id)
@@ -207,7 +207,7 @@ class GameBoard(Page):
             print("No entity found for drag start.")
 
     # Called while dragging; moves element regardless of hitbox
-    @input_event_bind(None, to_event(GestureType.DRAG))
+    @input_event_bind(None, GestureType.DRAG.value)
     def _on_entity_drag(self, msg: pygame.event.Event) -> None:
         if self.dragging_element_id is None:
             return
@@ -225,12 +225,12 @@ class GameBoard(Page):
             entity.set_position(new_topleft)
 
     # Called when drag ends
-    @input_event_bind(None, to_event(GestureType.DRAG_END))
+    @input_event_bind(None, GestureType.DRAG_END.value)
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
         self.dragging_element_id = None
 
     # TODO: fix swipe (very inconsistent ATM)
-    @input_event_bind(None, to_event(GestureType.SWIPE))
+    @input_event_bind(None, GestureType.SWIPE.value)
     def _on_swipe_test(self, msg: pygame.event.Event) -> None:
         print("Swipe test")
 

@@ -4,7 +4,7 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 
-from ratroyale.frontend.gesture.gesture_data import GestureType, to_event
+from ratroyale.frontend.gesture.gesture_data import GestureType
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (

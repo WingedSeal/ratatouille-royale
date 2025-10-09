@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from .base import EventToken
 from enum import Enum, auto
-from typing import TypeVar, Generic
-
-T = TypeVar("T")
 
 __all__ = [
     "PageManagerEvent",
@@ -19,40 +16,28 @@ class PageNavigation(Enum):
     within the frontend system.
 
     Each value describes an action that the PageManager can perform on the
-    current page stack, such as opening new pages, closing existing ones, or
+    current page stack, such as opening new pages, closing existing ones, hiding/showing pages, or
     reordering their display priority.
-
-    Members
-    --------
-    OPEN
-        Push a new page on top of the current page stack.
-    CLOSE
-        Close the active page with a given name.
-    CLOSE_TOP
-        Close the topmost page. No page name argument required.
-    REPLACE_TOP
-        Replace the current top page with a new one.
-    CLOSE_ALL
-        Close all pages in the stack, returning to an empty state. No page name argument required.
-    HIDE
-        Temporarily hide a page without removing it from the stack.
-    SHOW
-        Restore a previously hidden page.
-    BRING_DOWN
-        Move a page lower in the visual stacking order.
-    BRING_UP
-        Move a page higher in the visual stacking order.
     """
 
     OPEN = auto()
+    """Open a new page on top of the current page stack."""
     CLOSE = auto()
+    """Close the active page with a given name."""
     CLOSE_TOP = auto()
+    """Close the topmost page. No page name argument required."""
     REPLACE_TOP = auto()
+    """Replace the current top page with a new one."""
     CLOSE_ALL = auto()
+    """Close all pages in the stack, returning to an empty state. No page name argument required."""
     HIDE = auto()
+    """Temporarily hide a page without removing it from the stack."""
     SHOW = auto()
-    BRING_DOWN = auto()
-    BRING_UP = auto()
+    """Restore a previously hidden page."""
+    MOVE_DOWN = auto()
+    """Move a page lower in the visual stacking order."""
+    MOVE_UP = auto()
+    """Move a page higher in the visual stacking order."""
 
 
 @dataclass
@@ -68,7 +53,7 @@ class PageNavigationEvent(PageManagerEvent):
 
 
 @dataclass
-class PageCallbackEvent(Generic[T], PageManagerEvent):
+class PageCallbackEvent[T](PageManagerEvent):
     callback_action: str
     success: bool = True
     error_msg: str | None = None

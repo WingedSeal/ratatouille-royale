@@ -26,7 +26,7 @@ class PageManager:
         self.coordination_manager = coordination_manager
 
         self.gesture_reader = GestureReader()
-        """Highest level gesture reader. Outputs a gesture to be decorated by the pipeline."""
+        """Highest level gesture reader. Outputs a gesture to be distributed by the pipeline."""
 
         self.page_stack: list[Page] = []
         """Active page stack.
@@ -38,8 +38,8 @@ class PageManager:
             PageNavigation.REPLACE_TOP: self.replace_top_page,
             PageNavigation.HIDE: self.hide_page,
             PageNavigation.SHOW: self.show_page,
-            PageNavigation.BRING_UP: self.bring_up_page,
-            PageNavigation.BRING_DOWN: self.bring_down_page,
+            PageNavigation.MOVE_UP: self.move_up_page,
+            PageNavigation.MOVE_DOWN: self.move_down_page,
         }
         self.global_actions: dict[PageNavigation, Callable[[], None]] = {
             PageNavigation.CLOSE_ALL: self.remove_all_pages,
@@ -89,7 +89,7 @@ class PageManager:
         while self.page_stack:
             self.remove_top_page()
 
-    def bring_up_page(self, page_type: type[Page]) -> None:
+    def move_up_page(self, page_type: type[Page]) -> None:
         """Finds the given page type, then bring it up one layer"""
         try:
             index = self.get_page(page_type)[0]
@@ -102,7 +102,7 @@ class PageManager:
                 self.page_stack[index],
             )
 
-    def bring_down_page(self, page_type: type[Page]) -> None:
+    def move_down_page(self, page_type: type[Page]) -> None:
         """Finds the given page type, then bring it down one layer."""
         try:
             index = self.get_page(page_type)[0]

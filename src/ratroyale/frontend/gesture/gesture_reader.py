@@ -24,7 +24,7 @@ class GestureReader:
     MULTICLICK_MOVEMENT_THRESHOLD = 10
     """
     When attempting to detect multi-clicks, check how far the mouse has moved from the previous click.
-    If it is farther than this distance, subsequent clicks don't register as multi-clicks.
+    If it is farther than this distance, subsequent clicks won't register as multi-clicks.
     Measured in PX using Euclidean distance.
     """
     MULTICLICK_TIME_THRESHOLD = 0.40
