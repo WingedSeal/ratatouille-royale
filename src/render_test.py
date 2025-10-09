@@ -1,24 +1,24 @@
 # type: ignore
 import pygame
-from ratroyale.input.page.page_manager import PageManager
-from ratroyale.input.input_manager import InputManager
-from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.page.page_config import PageName
 
-from ratroyale.backend.game_manager import GameManager
-from ratroyale.backend.map import Map
-from ratroyale.backend.player_info.player_info import PlayerInfo
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
-from ratroyale.backend.side import Side
+from ratroyale.backend.game_manager import GameManager
+from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.backend.map import Map
+from ratroyale.backend.player_info.player_info import PlayerInfo
 from ratroyale.backend.player_info.squeak import (
     Squeak,
-    SqueakType,
-    SqueakOnPlace,
     SqueakGetPlacableTiles,
+    SqueakOnPlace,
+    SqueakType,
 )
+from ratroyale.backend.side import Side
+from ratroyale.backend.tile import Tile
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.input.input_manager import InputManager
+from ratroyale.input.page.page_config import PageName
+from ratroyale.input.page.page_manager import PageManager
 
 
 def main():

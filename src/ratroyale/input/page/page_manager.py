@@ -1,10 +1,11 @@
 import pygame
-from ratroyale.input.page.page_creator import Page, GameBoardPage
+
+from ratroyale.backend.board import Board
 from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.page_token import *
 from ratroyale.input.constants import PageName
 from ratroyale.input.page.gesture_reader import GestureReader
-from ratroyale.backend.board import Board
-from ratroyale.event_tokens.page_token import *
+from ratroyale.input.page.page_creator import GameBoardPage, Page
 
 
 class PageManager:

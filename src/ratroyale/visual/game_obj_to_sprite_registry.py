@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from typing import Type
+
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.tile import Tile

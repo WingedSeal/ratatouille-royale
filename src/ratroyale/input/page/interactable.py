@@ -1,17 +1,14 @@
+from abc import ABC, abstractmethod
 from typing import cast
+
 import pygame
 
-from ratroyale.input.constants import GestureKey, ActionKey
-from ratroyale.event_tokens.input_token import GestureData
-from ratroyale.visual.visual_component import (
-    VisualComponent,
-    TileVisual,
-    EntityVisual,
-)
-from ratroyale.visual.sprite_registry import TYPICAL_TILE_SIZE
-from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
-from abc import ABC, abstractmethod
+from ratroyale.backend.tile import Tile
+from ratroyale.event_tokens.input_token import GestureData
+from ratroyale.input.constants import ActionKey, GestureKey
+from ratroyale.visual.sprite_registry import TYPICAL_TILE_SIZE
+from ratroyale.visual.visual_component import EntityVisual, TileVisual, VisualComponent
 
 
 class Hitbox(ABC):

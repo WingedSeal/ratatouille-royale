@@ -1,8 +1,10 @@
-import pygame
 import time
+from enum import Enum, auto
+
+import pygame
+
 from ratroyale.event_tokens.input_token import GestureData
 from ratroyale.input.constants import GestureKey
-from enum import Enum, auto
 
 
 # TODO: fix strange unresponsive click issues.

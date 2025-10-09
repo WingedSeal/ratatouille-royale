@@ -1,11 +1,9 @@
-from typing import TYPE_CHECKING
-from ratroyale.input.constants import ActionKey, PageName
+from typing import TYPE_CHECKING, Callable
 
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.input_token import *
 from ratroyale.event_tokens.page_token import *
-
-from typing import Callable
+from ratroyale.input.constants import ActionKey, PageName
 
 if TYPE_CHECKING:
     from ratroyale.input.input_manager import InputManager

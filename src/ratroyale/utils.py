@@ -1,4 +1,4 @@
-from queue import Queue, Empty
+from queue import Empty, Queue
 from typing import TypeVar
 
 T = TypeVar("T")

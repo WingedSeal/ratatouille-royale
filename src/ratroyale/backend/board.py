@@ -2,25 +2,25 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Iterator
 
-from .features.commmon import DeploymentZone, Lair
-from .feature import Feature
-from .entity_effect import EntityEffect
 from ..utils import EventQueue
+from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
+from .entity import CallableEntitySkill, Entity
+from .entity_effect import EntityEffect
+from .error import EntityInvalidPosError
+from .feature import Feature
+from .features.commmon import DeploymentZone, Lair
 from .game_event import (
     EntityDamagedEvent,
+    EntityDieEvent,
     EntitySpawnEvent,
     FeatureDamagedEvent,
     FeatureDieEvent,
     GameEvent,
-    EntityDieEvent,
 )
-from .error import EntityInvalidPosError
-from .side import Side
-from .entity import Entity, CallableEntitySkill
-from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .hexagon import IsCoordBlocked, OddRCoord
-from .tile import Tile
 from .map import Map
+from .side import Side
+from .tile import Tile
 
 
 class Cache:

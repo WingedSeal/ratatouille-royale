@@ -1,8 +1,7 @@
 from dataclasses import dataclass, field
 
-from ..hexagon import OddRCoord
-
 from ..entity import Entity, SkillTargeting
+from ..hexagon import OddRCoord
 
 
 @dataclass

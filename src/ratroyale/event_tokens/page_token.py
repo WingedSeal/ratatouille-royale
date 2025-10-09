@@ -1,7 +1,9 @@
 from dataclasses import dataclass
-from .base import EventToken
-from ratroyale.input.constants import PageName
+
 from ratroyale.backend.board import Board
+from ratroyale.input.constants import PageName
+
+from .base import EventToken
 
 __all__ = [
     "PageManagerEvent",

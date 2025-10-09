@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pprint import pformat
 from typing import ClassVar, Iterable
-from .side import Side
-from .hexagon import OddRCoord
 
+from .hexagon import OddRCoord
+from .side import Side
 
 MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 

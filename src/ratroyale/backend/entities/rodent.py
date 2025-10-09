@@ -1,10 +1,9 @@
 from abc import ABCMeta, abstractmethod
-from ..entity import Entity, entity_data
-from ..hexagon import OddRCoord
-from ..entity import EntitySkill
 from typing import Any, Callable, TypeVar
-from ..side import Side
 
+from ..entity import Entity, EntitySkill, entity_data
+from ..hexagon import OddRCoord
+from ..side import Side
 
 ENTITY_JUMP_HEIGHT = 1
 

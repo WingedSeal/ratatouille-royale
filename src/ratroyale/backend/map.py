@@ -1,13 +1,13 @@
+import inspect
+from pathlib import Path
 from pprint import pformat
 from typing import Any, Final
-from .hexagon import OddRCoord
-from .side import Side
+
 from .entity import Entity
 from .feature import Feature
+from .hexagon import OddRCoord
+from .side import Side
 from .tile import Tile
-from pathlib import Path
-import inspect
-
 
 MAP_FILE_EXTENSION = "rrmap"
 

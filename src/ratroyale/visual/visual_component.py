@@ -1,18 +1,19 @@
 from abc import ABC, abstractmethod
-
 from dataclasses import dataclass, field
 from typing import Any
+
+import pygame
 from pygame_gui.core.ui_element import UIElement
 from pygame_gui.ui_manager import UIManager
-import pygame
-from ratroyale.backend.tile import Tile
+
 from ratroyale.backend.entity import Entity
-from ratroyale.visual.sprite_registry import SPRITE_REGISTRY, TYPICAL_TILE_SIZE
+from ratroyale.backend.tile import Tile
 from ratroyale.visual.game_obj_to_sprite_registry import (
-    SpriteRegistryKey,
     ENTITY_TO_SPRITE_REGISTRY,
     TILE_TO_SPRITE_REGISTRY,
+    SpriteRegistryKey,
 )
+from ratroyale.visual.sprite_registry import SPRITE_REGISTRY, TYPICAL_TILE_SIZE
 
 
 class VisualComponent(ABC):

@@ -1,13 +1,13 @@
-from abc import abstractmethod
-from enum import Enum, auto
-from .entity_effect import EntityEffect
-from .skill_callback import SkillCallback
-from .side import Side
-from .hexagon import OddRCoord
 import inspect
+from abc import abstractmethod
+from dataclasses import asdict, dataclass
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
-from dataclasses import asdict, dataclass
+from .entity_effect import EntityEffect
+from .hexagon import OddRCoord
+from .side import Side
+from .skill_callback import SkillCallback
 
 if TYPE_CHECKING:
     from .game_manager import GameManager

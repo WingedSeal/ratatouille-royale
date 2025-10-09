@@ -1,6 +1,9 @@
 from dataclasses import dataclass
-from ratroyale.input.constants import ActionKey, GestureKey, PageName
+
 import pygame
+
+from ratroyale.input.constants import ActionKey, GestureKey, PageName
+
 from .base import EventToken
 
 __all__ = ["GestureData", "InputManagerEvent"]

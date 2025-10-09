@@ -1,8 +1,9 @@
-from queue import PriorityQueue
 from dataclasses import dataclass, field
-from typing import Callable, Iterator, Protocol, Self, overload
-from ..utils import lerp
 from math import sqrt
+from queue import PriorityQueue
+from typing import Callable, Iterator, Protocol, Self, overload
+
+from ..utils import lerp
 
 
 class IsCoordBlocked(Protocol):

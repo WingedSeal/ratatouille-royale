@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
+
 import pygame
 import pygame_gui
-from ratroyale.input.constants import ActionKey, PageName, GestureKey
+
+from ratroyale.input.constants import ActionKey, GestureKey, PageName
 from ratroyale.input.page.interactable import Hitbox, RectangleHitbox
-from ratroyale.visual.visual_component import VisualComponent, UIVisual
+from ratroyale.visual.visual_component import UIVisual, VisualComponent
 
 
 @dataclass

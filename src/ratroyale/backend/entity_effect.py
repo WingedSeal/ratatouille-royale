@@ -1,12 +1,13 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
+
 from .side import Side
 
 if TYPE_CHECKING:
+    from .entities.rodent import Rodent
     from .entity import Entity
     from .game_manager import GameManager
-    from .entities.rodent import Rodent
 
 
 class EffectMeta(ABCMeta):

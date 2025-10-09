@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
+from .entity import Entity
 from .feature import Feature
 from .hexagon import OddRCoord
-from .entity import Entity
 
 
 @dataclass

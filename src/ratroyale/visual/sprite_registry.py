@@ -1,4 +1,5 @@
 import pygame
+
 from ratroyale.visual.game_obj_to_sprite_registry import SpriteRegistryKey
 
 # TODO: refactor entity/tile sprite drawing into type-based handlers

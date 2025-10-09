@@ -1,13 +1,12 @@
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Iterable, Protocol
-from dataclasses import dataclass
-
 
 from ..hexagon import OddRCoord
 
 if TYPE_CHECKING:
-    from ..game_manager import GameManager
     from ..entities.rodent import Rodent
+    from ..game_manager import GameManager
 
 
 class SqueakType(Enum):

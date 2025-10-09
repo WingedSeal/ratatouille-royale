@@ -3,10 +3,14 @@ from queue import Queue
 from random import shuffle
 from typing import Callable, Iterator
 
-from .feature import Feature
-from .entity_effect import EntityEffect
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.game_token import *
+from ratroyale.event_tokens.page_token import *
+
+from .board import Board
 from .entities.rodent import Rodent
-from .game_event import EntityMoveEvent, GameEvent
+from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
+from .entity_effect import EntityEffect
 from .error import (
     GameManagerActionPerformedInSelectingMode,
     GameManagerSkillCallBackInNonSelectingMode,
@@ -15,17 +19,13 @@ from .error import (
     NotEnoughMoveStaminaError,
     NotEnoughSkillStaminaError,
 )
-from .entity import Entity, SkillResult, SkillCompleted, SkillTargeting
+from .feature import Feature
+from .game_event import EntityMoveEvent, GameEvent
 from .hexagon import OddRCoord
+from .map import Map
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
-from .map import Map
-from .board import Board
 from .side import Side
-
-from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.page_token import *
 
 HAND_LENGTH = 5
 

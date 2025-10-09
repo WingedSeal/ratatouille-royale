@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from itertools import chain, combinations
 
-from .ai_action import AIAction, ActivateSkill, EndTurn, MoveAlly, SelectTargets
-from ..entity import SkillCompleted, SkillResult, SkillTargeting
 from ..entities.rodent import Rodent
+from ..entity import SkillCompleted, SkillTargeting
 from ..error import NotAITurnError
 from ..game_manager import GameManager
 from ..side import Side
+from .ai_action import ActivateSkill, AIAction, EndTurn, MoveAlly, SelectTargets
 
 
 class BaseAI(ABC):

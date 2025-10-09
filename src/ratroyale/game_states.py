@@ -2,8 +2,8 @@ from abc import ABC
 from dataclasses import dataclass
 
 from .backend.entity import SkillTargeting
-from .backend.hexagon import OddRCoord
 from .backend.game_manager import GameManager
+from .backend.hexagon import OddRCoord
 
 
 @dataclass

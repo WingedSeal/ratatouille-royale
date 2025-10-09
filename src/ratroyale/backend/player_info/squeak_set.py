@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from .squeak import Squeak
 
 if TYPE_CHECKING:

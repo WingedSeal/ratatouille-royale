@@ -1,20 +1,20 @@
-import pygame_gui
 import pygame
+import pygame_gui
 
-from .page_config import PAGES, PageConfig
-from ratroyale.event_tokens.input_token import InputManagerEvent, GestureData
-from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.constants import PageName
-from ratroyale.input.page.interactable import (
-    Interactable,
-    TileInteractable,
-    EntityInteractable,
-)
-from ratroyale.visual.visual_component import VisualComponent
-from ratroyale.backend.tile import Tile
 from ratroyale.backend.board import Board
 from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.backend.tile import Tile
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.input_token import GestureData, InputManagerEvent
+from ratroyale.input.constants import PageName
+from ratroyale.input.page.interactable import (
+    EntityInteractable,
+    Interactable,
+    TileInteractable,
+)
+from ratroyale.visual.visual_component import VisualComponent
 
+from .page_config import PAGES, PageConfig
 
 # ============================================
 # region Base Page Class
