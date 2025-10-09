@@ -25,6 +25,11 @@ class TestPage(Page):
         super().__init__(coordination_manager)
         # if page is strangely not responsive, check is_blocking status of open pages.
 
+    def define_initial_gui(self) -> list[UIRegisterForm]:
+        """Return all GUI elements for the TestPage."""
+        gui_elements: list[UIRegisterForm] = []
+
+        # region Panel + nested button
         panel_element = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(0, 0, 400, 300),
             manager=self.gui_manager,
@@ -32,7 +37,9 @@ class TestPage(Page):
                 class_id="AbilityPanel", object_id="panel_event"
             ),
         )
+        gui_elements.append(UIRegisterForm("test_panel", panel_element))
 
+        # Nested button inside the panel
         pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(0, 30, 150, 30),
             text="test btn",
@@ -42,8 +49,10 @@ class TestPage(Page):
                 class_id="AbilityButton", object_id="close_button"
             ),
         )
+        # endregion
 
-        gui_elements = [
+        # region Other buttons
+        gui_elements.append(
             UIRegisterForm(
                 "registered_name",  # <- registered name. for getting & deleting.
                 pygame_gui.elements.UIButton(
@@ -55,8 +64,10 @@ class TestPage(Page):
                         object_id="event_name",  # <- event name. used for listening.
                     ),
                 ),
-            ),
-            UIRegisterForm("test_panel", panel_element),
+            )
+        )
+
+        gui_elements.append(
             UIRegisterForm(
                 "registered_name_2",  # <- registered name. for getting & deleting.
                 pygame_gui.elements.UIButton(
@@ -68,11 +79,12 @@ class TestPage(Page):
                         object_id="event_name_2",  # <- event name. used for listening.
                     ),
                 ),
-            ),
-        ]
+            )
+        )
+        # endregion
 
-        # VERY IMPORTANT do not forget
-        self.setup_gui_elements(gui_elements)
+        # All elements returned here are automatically registered at the start of page.
+        return gui_elements
 
     # all input-listening methods will have this signature
     # e.g. def test(self, msg: pygame.event.Event) -> None:

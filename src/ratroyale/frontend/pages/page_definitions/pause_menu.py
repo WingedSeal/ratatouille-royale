@@ -26,8 +26,8 @@ class PauseMenu(Page):
             coordination_manager, base_color=(0, 0, 0, 128), theme_name="pause_menu"
         )
 
-        # --- Instantiate GUI elements ---
-        gui_elements = [
+    def define_initial_gui(self) -> list[UIRegisterForm]:
+        return [
             UIRegisterForm(
                 "resume_button",
                 pygame_gui.elements.UIButton(
@@ -51,8 +51,6 @@ class PauseMenu(Page):
                 ),
             ),
         ]
-
-        self.setup_gui_elements(gui_elements)
 
     # --- Input Handlers ---
     @input_event_bind("resume_button", pygame_gui.UI_BUTTON_PRESSED)

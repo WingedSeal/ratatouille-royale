@@ -45,8 +45,6 @@ from typing import Any
 class GameBoard(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager)
-        self.setup_elements([])
-
         self.selected_element_id: tuple[str, str] | None = None
         self.ability_panel_id: str | None = None
         self.board: Board | None = None

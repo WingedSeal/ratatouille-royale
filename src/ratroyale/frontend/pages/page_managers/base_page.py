@@ -20,6 +20,8 @@ from ratroyale.frontend.pages.page_elements.element_manager import ElementManage
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
+from abc import ABC, abstractmethod
+
 
 class InputHandler(Protocol):
     def __call__(self, event: pygame.event.Event) -> None: ...
@@ -29,7 +31,7 @@ class CallbackHandler(Protocol):
     def __call__(self, event: PageCallbackEvent[Any]) -> None: ...
 
 
-class Page:
+class Page(ABC):
     """Base class for a page in the application."""
 
     def __init__(
@@ -62,6 +64,18 @@ class Page:
         """ Maps (game_action) to handler functions """
 
         self.setup_event_bindings()
+
+        self.gui_elements = self.define_initial_gui()
+        self.setup_gui_elements(self.gui_elements)
+
+    @abstractmethod
+    def define_initial_gui(self) -> list["UIRegisterForm"]:
+        """
+        Return a list of UIRegisterForm (or other GUI element wrappers)
+        that belong to this page. Even if the page has no elements,
+        return an empty list.
+        """
+        ...
 
     @input_event_bind(None, pygame.QUIT)
     def quit_game(self, msg: pygame.event.Event) -> None:

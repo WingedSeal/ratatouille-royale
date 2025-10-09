@@ -20,13 +20,15 @@ import pygame
 
 
 @register_page
-class MainMenu(Page):
+class MainMenuPage(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager, theme_name="main_menu")
 
-        gui_elements = [
+    def define_initial_gui(self) -> list[UIRegisterForm]:
+        """Return all GUI elements for the main menu page."""
+        return [
             UIRegisterForm(
-                "start_button",  # <- registration name. This is what will be used for removal / management.
+                "start_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100, 100, 200, 50),
                     text="Start",
@@ -34,9 +36,6 @@ class MainMenu(Page):
                     object_id=pygame_gui.core.ObjectID(
                         class_id="MainMenuButton", object_id="start_button"
                     ),
-                    # object_id is returned when a pygame event processed by pygame_gui fires.
-                    # use object_id to listen to inputs, not registration name,
-                    # though it is advisable (but not enforced) to make them the same.
                 ),
             ),
             UIRegisterForm(
@@ -73,8 +72,6 @@ class MainMenu(Page):
                 ),
             ),
         ]
-
-        self.setup_gui_elements(gui_elements)
 
     # region Input Responses
 

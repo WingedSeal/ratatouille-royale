@@ -26,7 +26,8 @@ class PauseButton(Page):
             coordination_manager, is_blocking=False, theme_name="pause_button"
         )
 
-        gui_elements = [
+    def define_initial_gui(self) -> list[UIRegisterForm]:
+        return [
             UIRegisterForm(
                 "pause_button",
                 pygame_gui.elements.UIButton(
@@ -39,8 +40,6 @@ class PauseButton(Page):
                 ),
             ),
         ]
-
-        self.setup_gui_elements(gui_elements)
 
     # --- Input Responses ---
     @input_event_bind("pause_button", pygame_gui.UI_BUTTON_PRESSED)

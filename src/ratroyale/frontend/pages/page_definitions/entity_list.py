@@ -44,8 +44,7 @@ class EntityList(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager, is_blocking=False)
 
-        gui_elements = []
-
+    def define_initial_gui(self) -> list[UIRegisterForm]:
         entity_list_button_id = "entity_list_button"
         entity_list_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(700, 120, 80, 40),
@@ -55,9 +54,7 @@ class EntityList(Page):
                 class_id="EntityListButton", object_id=entity_list_button_id
             ),
         )
-        gui_elements.append(UIRegisterForm(entity_list_button_id, entity_list_button))
-
-        self.setup_gui_elements(gui_elements)
+        return [UIRegisterForm(entity_list_button_id, entity_list_button)]
 
     @input_event_bind("entity_list_button", pygame_gui.UI_BUTTON_PRESSED)
     def _on_click(self, msg: pygame.event.Event) -> None:

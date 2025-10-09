@@ -19,12 +19,14 @@ _PAGE_REGISTRY: dict[str, type[Page]] = {}
 
 
 def auto_import_pages() -> None:
+    print("auto import triggered")
     for py_file in PAGES_FOLDER.glob("*.py"):
         module_name = py_file.stem
         if module_name == "__init__":
             continue
         module_path = MODULE_PATH + module_name
         try:
+            print("Importing:", module_path)
             importlib.import_module(module_path)
         except Exception as e:
             print(f"Failed to import {module_name}: {e}")

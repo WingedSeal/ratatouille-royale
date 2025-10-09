@@ -27,16 +27,20 @@ class TestCommunicate(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager, is_blocking=False)
 
-        label = pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect(310, 350, 80, 30),
-            text=f"No numbers yet",
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="DemoLabel", object_id="label_id"
-            ),
-        )
-
-        self.setup_gui_elements([UIRegisterForm("test_label", label)])
+    def define_initial_gui(self) -> list[UIRegisterForm]:
+        return [
+            UIRegisterForm(
+                "test_label",
+                pygame_gui.elements.UILabel(
+                    relative_rect=pygame.Rect(310, 350, 80, 30),
+                    text=f"No numbers yet",
+                    manager=self.gui_manager,
+                    object_id=pygame_gui.core.ObjectID(
+                        class_id="DemoLabel", object_id="label_id"
+                    ),
+                ),
+            )
+        ]
 
     @callback_event_bind("action_name")
     def receive(self, msg: PageCallbackEvent[int]) -> None:
