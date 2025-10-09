@@ -36,10 +36,6 @@ class PageManager:
             PageNavigation.OPEN: self.open_page,
             PageNavigation.CLOSE: self.remove_page,
             PageNavigation.REPLACE_TOP: self.replace_top_page,
-            PageNavigation.HIDE: self.hide_page,
-            PageNavigation.SHOW: self.show_page,
-            PageNavigation.MOVE_UP: self.move_up_page,
-            PageNavigation.MOVE_DOWN: self.move_down_page,
         }
         self.global_actions: dict[PageNavigation, Callable[[], None]] = {
             PageNavigation.CLOSE_ALL: self.remove_all_pages,

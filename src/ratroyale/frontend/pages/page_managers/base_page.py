@@ -125,9 +125,10 @@ class Page(ABC):
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
         Dispatch a GestureData object to the appropriate Elements(s).
-        Elements then produces the corresponding InputManagerEvent, which is
-        handled by the page.
-        If the page is hidden, it will not process any gestures.
+
+        - Elements always process gestures to update internal state.
+        - If the page is hidden or not receiving input, no InputManagerEvent is produced.
+        - Returns gestures that are unconsumed (for other pages).
         """
         if not self.is_visible:
             return gestures

@@ -30,7 +30,12 @@ class ElementManager:
 
         self._gui_element_collection: dict[str, UIElement] = {}
 
+        self._is_processing_input: bool = True
+
     # region Collection Management
+
+    def set_processing_status(self, is_processing_input: bool) -> None:
+        self._is_processing_input = is_processing_input
 
     def create_collection(self, element_type: str) -> dict[str, Element[Any]]:
         """Initializes a new collection for the given element type."""
@@ -216,10 +221,9 @@ class ElementManager:
                 if not element.is_interactable:
                     continue
 
-                if element.handle_gesture(gesture):
-                    if element.is_blocking:
-                        consumed = True
-                        break
+                if element.handle_gesture(gesture, self._is_processing_input):
+                    consumed = True
+                    break
 
             if not consumed:
                 remaining_gestures.append(gesture)

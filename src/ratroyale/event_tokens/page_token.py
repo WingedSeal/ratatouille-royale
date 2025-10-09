@@ -13,11 +13,7 @@ __all__ = [
 class PageNavigation(Enum):
     """
     Represents high-level navigation commands for managing page transitions
-    within the frontend system.
-
-    Each value describes an action that the PageManager can perform on the
-    current page stack, such as opening new pages, closing existing ones, hiding/showing pages, or
-    reordering their display priority.
+    within the frontend system (e.g. Opening and closing pages)
     """
 
     OPEN = auto()
@@ -30,14 +26,6 @@ class PageNavigation(Enum):
     """Replace the current top page with a new one."""
     CLOSE_ALL = auto()
     """Close all pages in the stack, returning to an empty state. No page name argument required."""
-    HIDE = auto()
-    """Temporarily hide a page without removing it from the stack."""
-    SHOW = auto()
-    """Restore a previously hidden page."""
-    MOVE_DOWN = auto()
-    """Move a page lower in the visual stacking order."""
-    MOVE_UP = auto()
-    """Move a page higher in the visual stacking order."""
 
 
 @dataclass

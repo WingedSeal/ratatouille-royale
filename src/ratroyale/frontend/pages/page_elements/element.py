@@ -186,9 +186,10 @@ class Element[T]():
         self.parent: Element[Any] | None = None
         self.children: list[Element[Any]] = []
 
-    def handle_gesture(self, gesture: GestureData) -> bool:
-        if not self.is_interactable:
-            return False
+    def handle_gesture(self, gesture: GestureData, is_processing_input: bool) -> bool:
+        # For elements which cannot be interacted with (e.g. particles)
+        if not self.is_interactable or not is_processing_input:
+            return self.is_blocking
 
         pos = gesture.mouse_pos
         if pos is None or not self.hitbox.contains_point(pos):
