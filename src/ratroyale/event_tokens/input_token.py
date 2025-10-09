@@ -10,7 +10,7 @@ T = TypeVar("T")
 
 @dataclass
 class InputManagerEvent(Generic[T], EventToken):
-    element_id: str
+    element_id: str | None
     gesture_data: GestureData
     payload: T | None = None
 
@@ -53,7 +53,7 @@ def get_id(event: pygame.event.Event) -> str | None:
     return None
 
 
-def get_gesture_data(event: pygame.event.Event) -> GestureData | None:
+def get_gesture_data(event: pygame.event.Event) -> GestureData:
     """Extract GestureData from an event or its input_manager_event wrapper."""
     gesture_data = getattr(event, "gesture_data", None)
 

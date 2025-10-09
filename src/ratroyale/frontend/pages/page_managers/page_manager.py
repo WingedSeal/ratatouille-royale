@@ -13,6 +13,7 @@ from ratroyale.event_tokens.page_token import (
 )
 from ratroyale.event_tokens.visual_token import VisualManagerEvent
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
+from ratroyale.event_tokens.input_token import post_gesture_event, InputManagerEvent
 
 from typing import Any, Callable
 
@@ -150,6 +151,9 @@ class PageManager:
             else:
                 other_events.append(event)
 
+        # TEMP: gesture creation inspector
+        # inspect_gesture_events(other_events)
+
         # Step 3: produce gesture data
         gestures = self.gesture_reader.read_events(mouse_events)
 
@@ -163,6 +167,12 @@ class PageManager:
 
             if page.is_blocking:
                 break
+
+        # Step 6: for remaining unconsumed gesture, post it into event queue anyways with empty element_id.
+        for gesture in gestures:
+            post_gesture_event(
+                InputManagerEvent[None](element_id=None, gesture_data=gesture)
+            )
 
         # Step 5: other_events gets broadcasted.
         self._broadcast_input(other_events)

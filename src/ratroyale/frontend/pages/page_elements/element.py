@@ -1,6 +1,6 @@
 import pygame
 
-from ratroyale.frontend.gesture.gesture_data import GestureData
+from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, Any
@@ -23,17 +23,25 @@ class Hitbox(ABC):
         ...
 
     @abstractmethod
-    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+    def set_position(self, topleft_coord: tuple[float, float]) -> None:
         """Move the hitbox to a new topleft coordinate"""
+        print("Triggering abstract!!")
         ...
 
     @abstractmethod
-    def get_topleft(self) -> tuple[float, float]: ...
+    def get_topleft(self) -> tuple[float, float]:
+        """Returns the rectangular top-left coord, no matter the shape of the actual hitbox."""
+        ...
+
+    @abstractmethod
+    def get_size(self) -> tuple[float, float]:
+        """Returns the rectangular bounding box's size, no matter the shape of the actual hitbox."""
+        ...
 
 
 class RectangleHitbox(Hitbox):
     def __init__(self, rect: tuple[float, float, float, float]) -> None:
-        self.rect = pygame.Rect(rect)
+        self.rect: pygame.Rect = pygame.Rect(rect)
 
     def contains_point(self, point: tuple[float, float]) -> bool:
         result: bool = self.rect.collidepoint(point)
@@ -44,11 +52,16 @@ class RectangleHitbox(Hitbox):
     ) -> None:
         pygame.draw.rect(surface, color, self.rect, 1)
 
-    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+    def set_position(self, topleft_coord: tuple[float, float]) -> None:
         self.rect.topleft = topleft_coord
+        print(f"Hitbox's position is now: {self.rect.topleft}")
 
     def get_topleft(self) -> tuple[float, float]:
         result: tuple[float, float] = self.rect.topleft
+        return result
+
+    def get_size(self) -> tuple[float, float]:
+        result: tuple[float, float] = self.rect.size
         return result
 
 
@@ -67,10 +80,13 @@ class CircleHitbox(Hitbox):
     ) -> None:
         pygame.draw.circle(surface, color, self.center, self.radius, 1)
 
-    def move_to(self, topleft_coord: tuple[float, float]) -> None: ...
+    def set_position(self, topleft_coord: tuple[float, float]) -> None: ...
 
     def get_topleft(self) -> tuple[float, float]:
         return (self.center[0] - self.radius, self.center[1] + self.radius)
+
+    def get_size(self) -> tuple[float, float]:
+        return (2 * self.radius, 2 * self.radius)
 
 
 # TODO: could change this to polygonal hitbox and move all hex related functions to hexagon.py
@@ -115,7 +131,7 @@ class HexHitbox(Hitbox):
                     inside = not inside
         return inside
 
-    def move_to(self, topleft_coord: tuple[float, float]) -> None:
+    def set_position(self, topleft_coord: tuple[float, float]) -> None:
         """Move the hitbox so that the top-left of its bounding box is at `topleft`."""
         cx = topleft_coord[0] + self.width / 2
         cy = topleft_coord[1] + self.height / 2
@@ -133,6 +149,9 @@ class HexHitbox(Hitbox):
 
     def get_topleft(self) -> tuple[float, float]:
         return self.topleft
+
+    def get_size(self) -> tuple[float, float]:
+        return (self.width, self.height)
 
 
 # endregion
@@ -172,16 +191,18 @@ class Element(Generic[T]):
         self.children: list[Element[Any]] = []
 
     def handle_gesture(self, gesture: GestureData) -> bool:
-        gesture_pos = gesture.start_pos
-        if (
-            gesture_pos is None
-            or not self.is_interactable
-            or not self.hitbox.contains_point(gesture_pos)
-        ):
+        if not self.is_interactable:
             return False
+
+        pos = gesture.mouse_pos
+        if pos is None or not self.hitbox.contains_point(pos):
+            return False
+
         post_gesture_event(
             InputManagerEvent(
-                element_id=self.element_id, gesture_data=gesture, payload=self.payload
+                element_id=self.element_id,
+                gesture_data=gesture,
+                payload=self.payload,
             )
         )
         return True
@@ -196,8 +217,9 @@ class Element(Generic[T]):
 
     def set_position(self, topleft: tuple[float, float]) -> None:
         """Move this interactable and reposition all children accordingly."""
-        self.hitbox.move_to(topleft)
-        self.move_visual(topleft)
+        self.hitbox.set_position(topleft)
+        if self.visual:
+            self.visual.set_position(topleft)
 
         # Move children based on stored relative offsets
         for child in self.children:
@@ -205,14 +227,9 @@ class Element(Generic[T]):
             child_y = topleft[1] + child._relative_offset[1]
             child.set_position((child_x, child_y))
 
-    def move_by(self, delta: tuple[float, float]) -> None:
+    def add_position(self, delta: tuple[float, float]) -> None:
         new_pos = (self.get_topleft()[0] + delta[0], self.get_topleft()[1] + delta[1])
         self.set_position(new_pos)
-
-    def move_visual(self, topleft: tuple[float, float]) -> None:
-        """Move all attached visuals to the new top-left position."""
-        if self.visual:
-            self.visual.set_position(topleft)
 
     def add_child(
         self, child: "Element[Any]", offset: tuple[float, float] | None = None
@@ -257,6 +274,9 @@ class Element(Generic[T]):
     def render(self, surface: pygame.Surface) -> None:
         if self.visual:
             self.visual.render(surface)
+
+    def get_size(self) -> tuple[float, float]:
+        return self.hitbox.get_size()
 
     # --- Debug Utility ---
     def draw_hitbox(

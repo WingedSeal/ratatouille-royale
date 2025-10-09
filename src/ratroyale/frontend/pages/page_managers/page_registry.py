@@ -55,7 +55,8 @@ def resolve_page(page_name: str) -> Type[Page]:
     except KeyError:
         raise KeyError(
             f"Page '{page_name}' not found in registry. "
-            "Make sure it's imported and registered."
+            "Make sure it's imported and registered, "
+            "or make sure there are no code errors."
         )
 
 

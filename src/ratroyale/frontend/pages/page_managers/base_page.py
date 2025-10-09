@@ -110,8 +110,8 @@ class Page:
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
-        Dispatch a GestureData object to the appropriate Interactable(s).
-        Interactable then produces the corresponding InputManagerEvent, which is
+        Dispatch a GestureData object to the appropriate Elements(s).
+        Elements then produces the corresponding InputManagerEvent, which is
         handled by the page.
         If the page is hidden, it will not process any gestures.
         """

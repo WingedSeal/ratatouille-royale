@@ -86,7 +86,7 @@ class TestPage(Page):
         button.set_text("Clicked")
 
         # redirect or open new pages on top
-        # Check out Page Navigation for available commands
+        # Check out PageNavigation for available commands
         self.coordination_manager.put_message(
             PageNavigationEvent(
                 action_list=[

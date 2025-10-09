@@ -96,7 +96,7 @@ def main():
 
     coordination_manager.put_message(
         PageNavigationEvent(
-            action_list=[(PageNavigation.OPEN, "MainMenu")]
+            action_list=[(PageNavigation.OPEN, "GameBoard")]
         )  # change this to test your page
     )
 

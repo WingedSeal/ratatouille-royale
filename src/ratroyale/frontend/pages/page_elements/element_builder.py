@@ -8,6 +8,7 @@ from ratroyale.frontend.visual.asset_management.visual_component import (
 from ratroyale.frontend.pages.page_elements.element import (
     Element,
     HexHitbox,
+    RectangleHitbox,
 )
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
@@ -123,7 +124,7 @@ def create_entity(cfg: ElementConfig[Entity]) -> Element[Entity]:
     visual = EntityVisual(entity)
     return Element[Entity](
         element_id=cfg.id,
-        hitbox=HexHitbox(cfg.rect),
+        hitbox=RectangleHitbox(cfg.rect),
         visual=visual,
         z_order=cfg.z_order,
         payload=entity,

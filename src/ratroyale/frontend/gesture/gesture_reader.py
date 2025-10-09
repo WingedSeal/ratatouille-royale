@@ -3,6 +3,8 @@ import time
 from ratroyale.frontend.gesture.gesture_data import GestureType, GestureData
 from enum import Enum, auto
 
+# Don't ask me about the gesture detection logic inside this. It is borderline arcane.
+
 GESTURE_READER_CARES: list[int] = [
     pygame.MOUSEBUTTONDOWN,
     pygame.MOUSEMOTION,
@@ -10,7 +12,6 @@ GESTURE_READER_CARES: list[int] = [
 ]
 
 
-# TODO: fix strange unresponsive click issues.
 class GestureState(Enum):
     STATE_IDLE = auto()
     STATE_PRESSED = auto()
@@ -20,15 +21,15 @@ class GestureState(Enum):
 
 class GestureReader:
     # region Threshold Variables
-    DBCLICK_MOVEMENT_THRESHOLD = 10
+    MULTICLICK_MOVEMENT_THRESHOLD = 10
     """
-    When attempting to detect double clicks, check how far the mouse has moved from the previous click.
-    If it is farther than this distance, the second click does not register as a double click.
+    When attempting to detect multi-clicks, check how far the mouse has moved from the previous click.
+    If it is farther than this distance, subsequent clicks don't register as multi-clicks.
     Measured in PX using Euclidean distance.
     """
-    DBCLICK_TIME_THRESHOLD = 0.40
+    MULTICLICK_TIME_THRESHOLD = 0.40
     """
-    Maximum time between two clicks to register as a double click.
+    Maximum time between two clicks to register as a multi-click.
     Measured in SECONDS.
     """
 
@@ -69,24 +70,27 @@ class GestureReader:
         self.start_time: float | None = None
         self.last_click_time: float | None = None
         self.last_click_pos: tuple[int, int] | None = None
+        self.click_count: int = 0
 
         self.gesture_queue: list[GestureData] = []
 
     def read_events(self, events: list[pygame.event.Event]) -> list[GestureData]:
         """
         Convert a list of raw pygame events into a list of GestureData objects, storing raw_event for downstream processing.
+        Currently only detects left clicks.
         """
         self.gesture_queue.clear()
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                self._on_press(event.pos)
+                self._on_mousedown(event.pos)
             elif event.type == pygame.MOUSEMOTION:
-                self._on_motion(event.pos, raw_event=event)
+                self._on_mousemotion(event.pos, raw_event=event)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                self._on_release(event.pos, raw_event=event)
+                self._on_mouseup(event.pos, raw_event=event)
 
         self._check_hold()
+
         self._sync_with_hardware()
         return self.gesture_queue.copy()
 
@@ -105,7 +109,7 @@ class GestureReader:
             self._reset_state()
         elif mouse_down and self.state == GestureState.STATE_IDLE:
             # Button is down but we think idle -> fake a press
-            self._on_press(pygame.mouse.get_pos())
+            self._on_mousedown(pygame.mouse.get_pos())
 
     def _cancel_active_gestures(self) -> None:
         """Cancels any ongoing gestures (drag, hold, swipe) and resets the state."""
@@ -118,94 +122,130 @@ class GestureReader:
         self.last_click_time = None
         self.last_click_pos = None
 
-    def _on_press(self, pos: tuple[int, int]) -> None:
-        self.state = GestureState.STATE_PRESSED
+    def _on_mousedown(self, pos: tuple[int, int]) -> None:
+        """Called when the pointer is pressed down.
+
+        Sets up the initial state for potential click, drag, or hold gestures.
+        """
         self.start_pos = pos
         self.last_pos = pos
         self.start_time = time.time()
+        self.state = GestureState.STATE_PRESSED
 
-    def _on_motion(self, pos: tuple[int, int], raw_event: pygame.event.Event) -> None:
+        # Reset drag tracking
+        self.dragging_last_pos = None
+
+    def _on_mousemotion(
+        self, pos: tuple[int, int], raw_event: pygame.event.Event
+    ) -> None:
+        """Handle pointer motion and generate drag gestures if threshold exceeded."""
+
+        if self.start_pos is None:
+            return
+
+        if self.last_pos is None:
+            self.last_pos = pos
+            return
+
+        dx_total = pos[0] - self.start_pos[0]
+        dy_total = pos[1] - self.start_pos[1]
+        distance_total = (dx_total**2 + dy_total**2) ** 0.5
+
+        # Start drag if movement exceeds threshold
         if (
-            self.state
-            in (
-                GestureState.STATE_PRESSED,
-                GestureState.STATE_HOLD_TRIGGERED,
-                GestureState.STATE_DRAGGING,
-            )
-            and self.start_pos is not None
-            and self.last_pos is not None
+            distance_total > self.DRAG_MOVEMENT_THRESHOLD
+            and self.state != GestureState.STATE_DRAGGING
         ):
-            dx = pos[0] - self.start_pos[0]
-            dy = pos[1] - self.start_pos[1]
-            distance = (dx**2 + dy**2) ** 0.5
+            print(">>> DRAG START condition met")
+            self.state = GestureState.STATE_DRAGGING
+            self.dragging_last_pos = self.last_pos
+            self._on_drag_start(raw_event)
 
-            if (
-                distance > self.DRAG_MOVEMENT_THRESHOLD
-                and self.state != GestureState.STATE_DRAGGING
-            ):
-                self.state = GestureState.STATE_DRAGGING
-                self.dragging_last_pos = self.last_pos
-                self._on_drag_start()
+        # Emit drag events
+        if self.state == GestureState.STATE_DRAGGING and self.dragging_last_pos:
+            dx_frame = pos[0] - self.dragging_last_pos[0]
+            dy_frame = pos[1] - self.dragging_last_pos[1]
+            self.dragging_last_pos = pos
 
-            if (
-                self.state == GestureState.STATE_DRAGGING
-                and self.dragging_last_pos is not None
-            ):
-                dx_frame = pos[0] - self.dragging_last_pos[0]
-                dy_frame = pos[1] - self.dragging_last_pos[1]
-                self.dragging_last_pos = pos
-                self.on_drag(dx_frame, dy_frame, raw_event)
+            self.on_drag(
+                dx=dx_frame,
+                dy=dy_frame,
+                current_pos=pos,
+                start_pos=self.start_pos,
+                duration=time.time() - self.start_time if self.start_time else 0.0,
+                raw_event=raw_event,
+            )
 
         self.last_pos = pos
 
-    def _on_release(self, pos: tuple[int, int], raw_event: pygame.event.Event) -> None:
-        # is_spurious_release_event
+    def _on_mouseup(self, pos: tuple[int, int], raw_event: pygame.event.Event) -> None:
+        """Handle pointer release and produce click, drag-end, swipe, or hold gestures."""
+
         if self.start_time is None or self.start_pos is None:
             return
 
         elapsed_time = time.time() - self.start_time
         dx = pos[0] - self.start_pos[0]
         dy = pos[1] - self.start_pos[1]
-        distance = (dx**2 + dy**2) ** 0.5
+        distance_total = (dx**2 + dy**2) ** 0.5
 
-        is_swiping = (
+        # --- SWIPE detection ---
+        if (
             self.state == GestureState.STATE_DRAGGING
-            and distance >= self.SWIPE_MOVEMENT_THRESHOLD
-        )
-        if is_swiping:
-            speed = distance / max(elapsed_time, 1e-6)
+            and distance_total >= self.SWIPE_MOVEMENT_THRESHOLD
+        ):
+            speed = distance_total / max(elapsed_time, 1e-6)
             if speed >= self.SWIPE_SPEED_THRESHOLD:
+                direction = (dx / speed if speed else 0, dy / speed if speed else 0)
                 self.on_swipe(
-                    self.start_pos, pos, dx / distance, dy / distance, raw_event
+                    start_pos=self.start_pos,
+                    end_pos=pos,
+                    velo_x=dx,
+                    velo_y=dy,
+                    duration=elapsed_time,
+                    raw_event=raw_event,
                 )
 
-        is_clicking = self.state == GestureState.STATE_PRESSED
-        if is_clicking:
+        # --- CLICK / N-CLICK detection ---
+        if self.state == GestureState.STATE_PRESSED:
             current_time = time.time()
+
+            # Check if this is within double/triple click thresholds
             if (
                 self.last_click_time is not None
                 and self.last_click_pos is not None
-                and current_time - self.last_click_time <= self.DBCLICK_TIME_THRESHOLD
+                and current_time - self.last_click_time
+                <= self.MULTICLICK_TIME_THRESHOLD
                 and (
                     (pos[0] - self.last_click_pos[0]) ** 2
                     + (pos[1] - self.last_click_pos[1]) ** 2
                 )
                 ** 0.5
-                <= self.DBCLICK_MOVEMENT_THRESHOLD
+                <= self.MULTICLICK_MOVEMENT_THRESHOLD
             ):
-                self.on_double_click(pos, raw_event)
-                self.last_click_time = None
-                self.last_click_pos = None
+                self.click_count += 1
             else:
-                self.on_click(pos, raw_event)
-                self.last_click_time = current_time
-                self.last_click_pos = pos
-        elif self.state == GestureState.STATE_DRAGGING:
-            self.on_drag_end(raw_event)
-        elif self.state == GestureState.STATE_HOLD_TRIGGERED:
-            pass
+                self.click_count = 1
 
-        self._reset_state()
+            self.on_click(
+                mouse_pos=self.start_pos,
+                duration=elapsed_time,
+                click_count=self.click_count,
+                raw_event=raw_event,
+            )
+
+            # Update last click info
+            self.last_click_time = current_time
+            self.last_click_pos = pos
+
+        # --- DRAG_END detection ---
+        elif self.state == GestureState.STATE_DRAGGING:
+            self.on_drag_end(
+                current_pos=pos,
+                start_pos=self.start_pos,
+                duration=elapsed_time,
+                raw_event=raw_event,
+            )
 
     def _check_hold(self) -> None:
         if (
@@ -218,66 +258,133 @@ class GestureReader:
             dx = self.last_pos[0] - self.start_pos[0]
             dy = self.last_pos[1] - self.start_pos[1]
             distance = (dx**2 + dy**2) ** 0.5
+
             if (
                 elapsed >= self.HOLD_TIME_THRESHOLD
                 and distance <= self.HOLD_MOVEMENT_THRESHOLD
             ):
                 self.state = GestureState.STATE_HOLD_TRIGGERED
-                self.on_hold(self.start_pos)
+                self.on_hold(pos=self.last_pos, duration=elapsed)
 
-    def _on_drag_start(self) -> None:
-        pass
+    def _on_drag_start(self, raw_event: pygame.event.Event) -> None:
+        """Internal transition to DRAGGING state and trigger DRAG_START event."""
+        self.state = GestureState.STATE_DRAGGING
+        self.dragging_last_pos = self.last_pos
 
-    def _reset_state(self) -> None:
+        # Fire the external DRAG_START gesture
+        if self.last_pos is not None:
+            duration = (
+                time.time() - self.start_time if self.start_time is not None else 0.0
+            )
+            self.on_drag_start(
+                current_pos=self.last_pos,
+                start_pos=self.start_pos,
+                duration=duration,
+                raw_event=raw_event,
+            )
+
+    def _reset_state(self, reset_click_count: bool = False) -> None:
+        """Reset internal gesture state.
+
+        Args:
+            reset_click_count: Whether to reset click_count (default False).
+                Normally False so sequential clicks can accumulate.
+        """
         self.state = GestureState.STATE_IDLE
         self.start_pos = None
         self.last_pos = None
-        self.dragging_last_pos = None
         self.start_time = None
+        self.dragging_last_pos = None
+
+        if reset_click_count:
+            self.click_count = 0
 
     # endregion
 
-    # region Callbacks
+    # region Event Publisher Hooks
     def on_click(
-        self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None
+        self,
+        raw_event: pygame.event.Event,
+        mouse_pos: tuple[int, int],
+        duration: float,
+        click_count: int = 1,
     ) -> None:
         self.output_gesture(
             GestureData(
-                gesture_type=GestureType.CLICK, start_pos=pos, original_event=raw_event
+                gesture_type=GestureType.CLICK,
+                mouse_pos=mouse_pos,
+                duration=duration,
+                click_count=click_count,
+                raw_event=raw_event,
             )
         )
 
-    def on_double_click(
-        self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None
+    def on_drag_start(
+        self,
+        raw_event: pygame.event.Event,
+        current_pos: tuple[int, int],
+        start_pos: tuple[int, int] | None = None,
+        duration: float = 0.0,
     ) -> None:
+        """Trigger a DRAG_START gesture event."""
         self.output_gesture(
             GestureData(
-                gesture_type=GestureType.DOUBLE_CLICK,
-                start_pos=pos,
-                original_event=raw_event,
+                gesture_type=GestureType.DRAG_START,
+                mouse_pos=current_pos,
+                start_pos=start_pos,
+                duration=duration,
+                raw_event=raw_event,
             )
         )
 
     def on_drag(
-        self, dx: int, dy: int, raw_event: pygame.event.Event | None = None
+        self,
+        dx: float,
+        dy: float,
+        current_pos: tuple[int, int],
+        start_pos: tuple[int, int],
+        duration: float,
+        raw_event: pygame.event.Event,
     ) -> None:
         self.output_gesture(
             GestureData(
-                gesture_type=GestureType.DRAG, delta=(dx, dy), original_event=raw_event
+                gesture_type=GestureType.DRAG,
+                mouse_pos=current_pos,
+                start_pos=start_pos,
+                delta=(dx, dy),
+                duration=duration,
+                raw_event=raw_event,
             )
         )
 
-    def on_drag_end(self, raw_event: pygame.event.Event | None = None) -> None:
-        self.output_gesture(
-            GestureData(gesture_type=GestureType.DRAG_END, original_event=raw_event)
-        )
-
-    def on_hold(
-        self, pos: tuple[int, int], raw_event: pygame.event.Event | None = None
+    def on_drag_end(
+        self,
+        current_pos: tuple[int, int],
+        start_pos: tuple[int, int],
+        duration: float,
+        raw_event: pygame.event.Event,
     ) -> None:
         self.output_gesture(
             GestureData(
-                gesture_type=GestureType.HOLD, start_pos=pos, original_event=raw_event
+                gesture_type=GestureType.DRAG_END,
+                mouse_pos=current_pos,
+                start_pos=start_pos,
+                duration=duration,
+                raw_event=raw_event,
+            )
+        )
+
+    def on_hold(
+        self,
+        pos: tuple[int, int],
+        duration: float,
+    ) -> None:
+        self.output_gesture(
+            GestureData(
+                gesture_type=GestureType.HOLD,
+                mouse_pos=pos,
+                start_pos=pos,
+                duration=duration,
             )
         )
 
@@ -287,15 +394,37 @@ class GestureReader:
         end_pos: tuple[int, int],
         velo_x: float,
         velo_y: float,
-        raw_event: pygame.event.Event | None = None,
+        duration: float,
+        raw_event: pygame.event.Event,
     ) -> None:
+        speed = (velo_x**2 + velo_y**2) ** 0.5
+        direction = (velo_x / speed if speed else 0, velo_y / speed if speed else 0)
         self.output_gesture(
             GestureData(
                 gesture_type=GestureType.SWIPE,
+                mouse_pos=end_pos,
                 start_pos=start_pos,
-                end_pos=end_pos,
-                velocity=(velo_x, velo_y),
-                original_event=raw_event,
+                delta=(end_pos[0] - start_pos[0], end_pos[1] - start_pos[1]),
+                direction=direction,
+                speed=speed,
+                duration=duration,
+                raw_event=raw_event,
+            )
+        )
+
+    def on_hover(
+        self,
+        pos: tuple[int, int],
+        duration: float,
+        raw_event: pygame.event.Event,
+    ) -> None:
+        self.output_gesture(
+            GestureData(
+                gesture_type=GestureType.HOVER,
+                mouse_pos=pos,
+                start_pos=pos,
+                duration=duration,
+                raw_event=raw_event,
             )
         )
 

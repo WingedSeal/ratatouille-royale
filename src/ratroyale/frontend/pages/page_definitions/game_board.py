@@ -50,6 +50,7 @@ class GameBoard(Page):
         self.selected_element_id: tuple[str, str] | None = None
         self.ability_panel_id: str | None = None
         self.board: Board | None = None
+        self.dragging_element_id: tuple[str, str] | None = None
 
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="start_game"))
@@ -93,7 +94,6 @@ class GameBoard(Page):
 
     # TODO: fire normal clicks with double click.
     @input_event_bind("tile", to_event(GestureType.CLICK))
-    @input_event_bind("tile", to_event(GestureType.DOUBLE_CLICK))
     def _on_tile_click(self, msg: pygame.event.Event) -> None:
         tile_element_id = self._get_element_id(msg)
 
@@ -101,7 +101,6 @@ class GameBoard(Page):
         self._close_ability_menu()
 
     @input_event_bind("entity", to_event(GestureType.CLICK))
-    @input_event_bind("entity", to_event(GestureType.DOUBLE_CLICK))
     def _on_entity_click(self, msg: pygame.event.Event) -> None:
         entity_element_id = self._get_element_id(msg)
 
@@ -118,18 +117,32 @@ class GameBoard(Page):
                 "Wrong event type received. Make sure it is a gesture type event!"
             )
 
-        entity_element = self._select_element("entity", entity_element_id)
+        entity_element = self._element_manager.get_element("entity", entity_element_id)
         if not entity_element:
             raise ValueError("Something went wrong while trying to get the element.")
 
         assert isinstance(entity, Entity)
         # region Create ability panel
         # --- Create a parent panel for all ability buttons ---
-        topleft = entity_element.get_topleft() + TYPICAL_TILE_SIZE
-        panel_x, panel_y = topleft[0], topleft[1]
-        panel_id = f"ability_panel_for_{entity_element_id}"
+        print(
+            f"At time of ability menu opening, entity topleft is: {entity_element.get_topleft()}"
+        )
+        entity_center_x = (
+            entity_element.get_topleft()[0] + entity_element.get_size()[0] / 2
+        )
+        entity_center_y = (
+            entity_element.get_topleft()[1] + entity_element.get_size()[1] / 2
+        )
+
+        panel_width = 160
+        panel_x = entity_center_x - panel_width / 2  # center the panel
+        panel_y = entity_center_y  # or some offset below the entity
+        panel_id = f"ability_panel"
         self.ability_panel_id = panel_id
-        panel_rect = pygame.Rect(panel_x, panel_y, 160, len(entity.skills) * 30 + 10)
+        print(self.ability_panel_id)
+        panel_rect = pygame.Rect(
+            panel_x, panel_y, panel_width, len(entity.skills) * 30 + 10
+        )
         panel_object = pygame_gui.elements.UIPanel(
             relative_rect=panel_rect,
             manager=self.gui_manager,
@@ -168,18 +181,58 @@ class GameBoard(Page):
                 "Wrong event type received. Make sure it is a gesture type event!"
             )
 
-        self._select_element("entity", entity_element_id)
+        # self._select_element("entity", entity_element_id)
 
-    # TODO: drag not working for some reason.
-    # TODO: Movement of elements not supported yet. :(
-    @input_event_bind("tile", to_event(GestureType.HOLD))
-    def _test_drag(self, msg: pygame.event.Event) -> None:
-        print("drag tile triggered")
-        tile_element_id = self._get_element_id(msg)
-        tile_element = self._element_manager.get_element(tile_element_id, "tile")
+    # Called when drag starts; aligns the entity's center to the mouse
+    @input_event_bind("entity", to_event(GestureType.DRAG_START))
+    def _on_entity_drag_start(self, msg: pygame.event.Event) -> None:
+        entity_element_id = self._get_element_id(msg)
+        entity_element = self._element_manager.get_element("entity", entity_element_id)
+        gesture_data = get_gesture_data(msg)
 
-        if tile_element:
-            tile_element.set_position(pygame.mouse.get_pos())
+        if entity_element and gesture_data.mouse_pos and entity_element_id:
+            mouse_x, mouse_y = gesture_data.mouse_pos
+            width, height = entity_element.get_size()
+            new_x = mouse_x - width // 2
+            new_y = mouse_y - height // 2
+            print(
+                "Dragging",
+                entity_element.element_id,
+                "hitbox type:",
+                type(entity_element.hitbox),
+            )
+            entity_element.set_position((new_x, new_y))
+            self.dragging_element_id = ("entity", entity_element_id)
+        else:
+            print("No entity found for drag start.")
+
+    # Called while dragging; moves element regardless of hitbox
+    @input_event_bind(None, to_event(GestureType.DRAG))
+    def _on_entity_drag(self, msg: pygame.event.Event) -> None:
+        if self.dragging_element_id is None:
+            return
+
+        category, element_id = self.dragging_element_id
+        entity = self._element_manager.get_element(category, element_id)
+        gesture_data = get_gesture_data(msg)
+
+        if entity and gesture_data.mouse_pos:
+            width, height = entity.get_size()
+            new_topleft = (
+                gesture_data.mouse_pos[0] - width // 2,
+                gesture_data.mouse_pos[1] - height // 2,
+            )
+            entity.set_position(new_topleft)
+
+    # Called when drag ends
+    @input_event_bind(None, to_event(GestureType.DRAG_END))
+    def _on_drag_end(self, msg: pygame.event.Event) -> None:
+        self.dragging_element_id = None
+
+    # TODO: fix swipe (very inconsistent ATM)
+    @input_event_bind(None, to_event(GestureType.SWIPE))
+    def _on_swipe_test(self, msg: pygame.event.Event) -> None:
+        print("Swipe test")
 
     @callback_event_bind("entity_list")
     def _print_test(self, msg: pygame.event.Event) -> None:
@@ -194,7 +247,6 @@ class GameBoard(Page):
         if self.ability_panel_id:
             self._element_manager.remove_gui_element(self.ability_panel_id)
             self.ability_panel_id = None
-        pass
 
     def _get_element_id(self, msg: pygame.event.Event) -> str:
         element_id = get_id(msg)

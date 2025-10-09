@@ -12,48 +12,80 @@ class GestureType(Enum):
     """
 
     CLICK = auto()
-    DOUBLE_CLICK = auto()
+    DRAG_START = auto()
     DRAG = auto()
     DRAG_END = auto()
     SWIPE = auto()
     HOLD = auto()
+    HOVER = auto()
+
+
+_OFFSET_CONSTANT = 10000
+_BASE = pygame.USEREVENT + _OFFSET_CONSTANT
+
+# Value doesn't matter. What matters is that our chosen values don't overlap
+# with pygame or pygame_gui's own events.
+CLICK_EVENT: int = _BASE + 1
+DRAG_START_EVENT: int = _BASE + 8
+DRAG_EVENT: int = _BASE + 3
+DRAG_END_EVENT: int = _BASE + 4
+SWIPE_EVENT: int = _BASE + 5
+HOLD_EVENT: int = _BASE + 6
+HOVER_EVENT: int = _BASE + 7
+
+GESTURE_EVENT_MAP: dict[GestureType, int] = {
+    GestureType.CLICK: CLICK_EVENT,
+    GestureType.DRAG_START: DRAG_START_EVENT,
+    GestureType.DRAG: DRAG_EVENT,
+    GestureType.DRAG_END: DRAG_END_EVENT,
+    GestureType.SWIPE: SWIPE_EVENT,
+    GestureType.HOLD: HOLD_EVENT,
+    GestureType.HOVER: HOVER_EVENT,
+}
 
 
 @dataclass
 class GestureData:
     gesture_type: GestureType
 
+    # General attributes common to all gestures.
+    mouse_pos: tuple[int, int]
+    duration: float
+
+    # Used for N_CLICKS.
+    click_count: int = 1
+
+    # Movement-based attributes for DRAG and SWIPE.
+    delta: tuple[float, float] | None = None
+    direction: tuple[float, float] | None = None
+    speed: float | None = None
     start_pos: tuple[int, int] | None = None
-    end_pos: tuple[int, int] | None = None
-    current_pos: tuple[int, int] | None = None
-    delta: tuple[int, int] | None = None
-    duration: float | None = None
-    velocity: tuple[float, float] | None = None
-    mouse: str | None = (
-        None  # Supposed to represent which mouse is held. (left, right, or scrollwheel). Currently unused
-    )
 
-    original_event: pygame.event.Event | None = None
-
-
-_OFFSET_CONSTANT = 10000
-
-CLICK_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 1
-DOUBLE_CLICK_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 2
-DRAG_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 3
-DRAG_END_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 4
-SWIPE_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 5
-HOLD_EVENT: int = pygame.USEREVENT + _OFFSET_CONSTANT + 6
-
-GESTURE_EVENT_MAP: dict[GestureType, int] = {
-    GestureType.CLICK: CLICK_EVENT,
-    GestureType.DOUBLE_CLICK: DOUBLE_CLICK_EVENT,
-    GestureType.DRAG: DRAG_EVENT,
-    GestureType.DRAG_END: DRAG_END_EVENT,
-    GestureType.SWIPE: SWIPE_EVENT,
-    GestureType.HOLD: HOLD_EVENT,
-}
+    # Attached raw event for pygame_gui down the line.
+    # Optional for events that trigger after timeout. (e.g. HOLD)
+    raw_event: pygame.event.Event | None = None
 
 
 def to_event(gesture_type: GestureType) -> int:
     return GESTURE_EVENT_MAP[gesture_type]
+
+
+def inspect_gesture_events(events: list[pygame.event.Event]) -> None:
+    """
+    Temporary method for debugging GestureReader.
+
+    Prints when specific high-level gestures occur.
+    """
+    for e in events:
+        if e.type == to_event(GestureType.DRAG):
+            print("Drag initiated")
+        elif e.type == to_event(GestureType.DRAG_END):
+            print("Drag released")
+        elif e.type == to_event(GestureType.HOLD):
+            print("Hold initiated")
+        elif e.type == to_event(GestureType.CLICK):
+            print("Click detected")
+        elif e.type == to_event(GestureType.SWIPE):
+            print("Swipe detected")
+        elif e.type == to_event(GestureType.HOVER):
+            print("Hover detected")

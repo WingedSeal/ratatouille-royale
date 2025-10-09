@@ -32,15 +32,16 @@ class ElementManager:
 
     # region Collection Management
 
-    def create_collection(self, element_type: str) -> None:
+    def create_collection(self, element_type: str) -> dict[str, Element[Any]]:
         """Initializes a new collection for the given element type."""
         if element_type not in self._element_collections:
             self._element_collections[element_type] = {}
+        return self._element_collections[element_type]
 
     def get_collection(self, element_type: str) -> dict[str, Element[Any]]:
         """Retrieves the collection for the given element type, creating it if necessary."""
         if element_type not in self._element_collections:
-            self.create_collection(element_type)
+            raise KeyError(f'"{element_type}" collection does not exist.')
         return self._element_collections[element_type]
 
     def add_element(
@@ -51,7 +52,11 @@ class ElementManager:
         parent_identity: ParentIdentity | None,
     ) -> None:
         """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
-        collection = self.get_collection(element_type)
+        try:
+            collection = self.get_collection(element_type)
+        except:
+            collection = self.create_collection(element_type)
+
         if key in collection:
             raise ValueError(
                 f"Element with key '{key}' already exists in collection '{element_type}'"
@@ -114,7 +119,7 @@ class ElementManager:
             return element
         else:
             raise TypeError(
-                f"The element type provided ({cls.__name__}) is incorrect. The true type is {type(element).__name__}"
+                f"The element type ({cls.__name__}) is incorrect. The true type is {type(element).__name__}."
             )
 
     def remove_gui_element(self, registered_name: str) -> None:
@@ -122,8 +127,7 @@ class ElementManager:
         Remove the gui_element registered by this name.
         """
         removed = self._gui_element_collection.pop(registered_name)
-        if removed:
-            removed.kill()
+        removed.kill()
 
     def clear_collection_of_type(self, element_type: str) -> None:
         """Clears all elements from the specified collection.
@@ -147,13 +151,19 @@ class ElementManager:
         element = create_element(cfg)
         self.add_element(cfg.element_type, cfg.id, element, cfg.parent_identity)
 
-    def get_element(self, element_type: str, key: str) -> Element[Any] | None:
+    def get_element(self, element_type: str, key: str) -> Element[Any]:
         """Retrieves an element by type and key."""
         collection = self.get_collection(element_type)
-        return collection[key] if key in collection else None
+        element = collection[key]
+        if not element:
+            raise KeyError(f"{key} does not exist in {element_type} grouping.")
+        return element
 
     def get_all_elements(self) -> dict[str, dict[str, Element[Any]]]:
         return self._element_collections
+
+    def get_all_gui_elements(self) -> dict[str, UIElement]:
+        return self._gui_element_collection
 
     def get_flattened_elements(self) -> list[Element[Any]]:
         return self._flattened_collection
