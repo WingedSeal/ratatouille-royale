@@ -24,7 +24,7 @@ class VisualComponent(ABC):
     def create(self) -> None:
         """Create/init the visual.
         For UI, this might need the gui_manager; for sprites, maybe not."""
-        ...
+        pass
 
     def destroy(self) -> None:
         """Optional. Used for triggering the .kill() on pygame_gui elements"""
