@@ -74,7 +74,7 @@ class Board:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.append(entity)
-        self.event_queue.put(EntitySpawnEvent(entity))
+        self.event_queue.put_nowait(EntitySpawnEvent(entity))
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
@@ -108,7 +108,7 @@ class Board:
         Damage an entity. Doesn't work on entity with no health.
         """
         is_dead, damage_taken = entity._take_damage(damage)
-        self.event_queue.put(EntityDamagedEvent(entity, damage, damage_taken))
+        self.event_queue.put_nowait(EntityDamagedEvent(entity, damage, damage_taken))
         if not is_dead:
             return
         is_dead = entity.on_death()
@@ -118,14 +118,14 @@ class Board:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.remove(entity)
-        self.event_queue.put(EntityDieEvent(entity))
+        self.event_queue.put_nowait(EntityDieEvent(entity))
 
     def damage_feature(self, feature: Feature, damage: int) -> None:
         """
         Damage a feature. Doesn't work on feature with no health.
         """
         is_dead, damage_taken = feature._take_damage(damage)
-        self.event_queue.put(FeatureDamagedEvent(feature, damage, damage_taken))
+        self.event_queue.put_nowait(FeatureDamagedEvent(feature, damage, damage_taken))
         if not is_dead:
             return
         is_dead = feature.on_death()
@@ -144,7 +144,7 @@ class Board:
             if feature.side is None:
                 raise ValueError("Lair cannot have side of None")
             self.cache.lairs[feature.side].remove(feature)
-        self.event_queue.put(FeatureDieEvent(feature))
+        self.event_queue.put_nowait(FeatureDieEvent(feature))
 
     def line_of_sight_check(
         self,

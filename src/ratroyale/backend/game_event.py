@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from ratroyale.backend.side import Side
+
 from .entity import Entity
 from .feature import Feature
 from .hexagon import OddRCoord
@@ -43,3 +45,11 @@ class FeatureDamagedEvent(GameEvent):
     feature: Feature
     damage: int
     hp_loss: int
+
+
+@dataclass
+class EndTurnEvent(GameEvent):
+    from_side: Side
+    to_side: Side
+    leftover_crumbs: int
+    new_crumbs: int

@@ -20,7 +20,7 @@ from .error import (
     NotEnoughSkillStaminaError,
 )
 from .feature import Feature
-from .game_event import EntityMoveEvent, GameEvent
+from .game_event import EndTurnEvent, EntityMoveEvent, GameEvent
 from .hexagon import OddRCoord
 from .map import Map
 from .player_info.player_info import PlayerInfo
@@ -303,13 +303,23 @@ class GameManager:
                     active_effect.overridden_effects.remove(effect)
                 else:
                     self.effect_duration_over(effect)
+        from_side = self.turn
         self.turn = self.turn.other_side()
         if self.turn == self.first_turn:
             for effect in self.board.cache.effects:
                 if effect.duration is not None:
                     effect.duration -= 1
             self.turn_count += 1
+        leftover_crumbs = self.crumbs
         self.crumbs = crumb_per_turn(self.turn_count)
+        self.event_queue.put_nowait(
+            EndTurnEvent(
+                from_side=from_side,
+                to_side=self.turn,
+                leftover_crumbs=leftover_crumbs,
+                new_crumbs=self.crumbs,
+            )
+        )
 
     def apply_effect(self, entity: Entity, effect: EntityEffect) -> None:
         old_effect = entity.effects.get(effect.name)
