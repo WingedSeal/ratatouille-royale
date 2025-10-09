@@ -1,14 +1,15 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
-from ratroyale.backend.entity_effect import EntityEffect
+from ratroyale.backend.error import ShortHandSkillCallbackError
 
+from ...entity_effect import EntityEffect
 from ...skill_callback import SkillCallback, skill_callback_check
-from ...entity import SkillResult
+from ...entity import SkillResult, SkillCompleted, SkillTargeting
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
     from ...entities.rodent import Rodent
-    from ...entity import EntitySkill
+    from ...entity import CallableEntitySkill
     from ...board import Board
     from ...hexagon import OddRCoord
 
@@ -16,26 +17,43 @@ if TYPE_CHECKING:
 def select_any_tile(
     board: "Board",
     rodent: "Rodent",
-    skill: "EntitySkill",
+    skill: "CallableEntitySkill",
     callback: "SkillCallback",
     target_count: int = 1,
     *,
     can_cancel: bool = True,
-) -> SkillResult:
+) -> SkillTargeting:
     coords = board.get_attackable_coords(rodent, skill)
-    return SkillResult(target_count, list(coords), callback, can_cancel)
+    return SkillTargeting(
+        target_count, rodent, skill, list(coords), callback, can_cancel
+    )
 
 
 def select_targetable(
     board: "Board",
     rodent: "Rodent",
-    skill: "EntitySkill",
-    callback: "SkillCallback",
+    skill: "CallableEntitySkill",
+    callback: "SkillCallback" | Iterable["SkillCallback"],
     target_count: int = 1,
     *,
     is_feature_targetable: bool = True,
     can_cancel: bool = True,
-) -> SkillResult:
+) -> SkillTargeting:
+
+    @skill_callback_check
+    def skill_callback(
+        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+    ) -> SkillResult:
+        if isinstance(callback, Iterable):
+            for c in callback:
+                result_enum = c(game_manager, selected_targets)
+                if result_enum != SkillCompleted.SUCCESS:
+                    raise ShortHandSkillCallbackError(
+                        f"{select_targetable.__name__} is used with shorthand callback (iterable of callback) but one of them didn't succeed instantly."
+                    )
+            return SkillCompleted.SUCCESS
+        return callback(game_manager, selected_targets)
+
     coords = board.get_attackable_coords(rodent, skill)
     targets: list[OddRCoord] = []
     for coord in coords:
@@ -54,7 +72,9 @@ def select_targetable(
         ):
             targets.append(coord)
             continue
-    return SkillResult(target_count, targets, callback, can_cancel)
+    return SkillTargeting(
+        target_count, rodent, skill, targets, skill_callback, can_cancel
+    )
 
 
 def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCallback:
@@ -66,7 +86,7 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
     @skill_callback_check
     def callback(
         game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> None:
+    ) -> SkillCompleted:
         for target in selected_targets:
             enemy = game_manager.get_enemy_on_pos(target)
             if enemy is not None:
@@ -78,6 +98,7 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
             if feature is None:
                 raise ValueError("Trying to damage nothing")
             game_manager.board.damage_feature(feature, damage)
+        return SkillCompleted.SUCCESS
 
     return callback
 
@@ -98,7 +119,7 @@ def apply_effect(
     @skill_callback_check
     def callback(
         game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> None:
+    ) -> SkillCompleted:
         for target in selected_targets:
             if is_ally_instead:
                 entity = game_manager.get_ally_on_pos(target)
@@ -108,6 +129,7 @@ def apply_effect(
             game_manager.apply_effect(
                 entity, effect(entity, duration=duration, intensity=intensity)
             )
+        return SkillCompleted.SUCCESS
 
     return callback
 
@@ -131,7 +153,7 @@ def aoe_damage(
     @skill_callback_check
     def callback(
         game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> None:
+    ) -> SkillCompleted:
         tagged_coord: set["OddRCoord"] = set()
         for selected_target in selected_targets:
             selected_tile = game_manager.board.get_tile(selected_target)
@@ -166,5 +188,6 @@ def aoe_damage(
                 game_manager.board.damage_feature(feature, damage)
                 if not is_stackable:
                     tagged_coord.add(coord)
+        return SkillCompleted.SUCCESS
 
     return callback

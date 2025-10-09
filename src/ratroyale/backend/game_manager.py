@@ -7,8 +7,13 @@ from .feature import Feature
 from .entity_effect import EntityEffect
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
-from .error import InvalidMoveTargetError, NotEnoughCrumbError
-from .entity import Entity, SkillResult
+from .error import (
+    InvalidMoveTargetError,
+    NotEnoughCrumbError,
+    NotEnoughMoveStaminaError,
+    NotEnoughSkillStaminaError,
+)
+from .entity import Entity, SkillResult, SkillCompleted
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
@@ -45,10 +50,7 @@ class GameManager:
     first_turn: Side
 
     def __init__(
-        self,
-        map: Map,
-        players_info: tuple[PlayerInfo, PlayerInfo],
-        first_turn: Side
+        self, map: Map, players_info: tuple[PlayerInfo, PlayerInfo], first_turn: Side
     ) -> None:
         self.turn = first_turn
         self.turn_count = 1
@@ -69,13 +71,39 @@ class GameManager:
     @property
     def event_queue(self) -> Queue[GameEvent]:
         return self.board.event_queue
-                            
-    def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult | None:
+
+    def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult:
+        """
+        The result may either be a completed skill or require more targeting.
+
+        .. example::
+        ```python
+        # Activate Skill
+        skill_result = game_manager.activate_skill(self, entity, 1)
+        if isinstance(skill_result, Callable):
+            self.skill_targeting = skill_result
+        ```
+        ```python
+        # Main Loop
+        if self.skill_targeting:
+            ...
+            selected_targets = ...
+            if selected_targets is not None:
+                skill_result = self.skill_targeting.apply_callback(game_manager, selected_targets)
+        ```
+
+        """
         skill = entity.skills[skill_index]
         if self.crumbs < skill.crumb_cost:
             raise NotEnoughCrumbError()
-        self.crumbs -= skill.crumb_cost
-        return skill.func(self)
+        if entity.skill_stamina is not None and entity.skill_stamina <= 0:
+            raise NotEnoughSkillStaminaError()
+        skill_result = skill.func(self)
+        if skill_result == SkillCompleted.SUCCESS:
+            self.crumbs -= skill.crumb_cost
+            if entity.skill_stamina is not None:
+                entity.skill_stamina -= 1
+        return skill_result
 
     def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
         """
@@ -131,8 +159,8 @@ class GameManager:
         """
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
-        if rodent.stamina <= 0:
-            raise ValueError("Rodent doesn't have stamina left")
+        if rodent.move_stamina <= 0:
+            raise NotEnoughMoveStaminaError()
         if rodent.pos.get_distance(target) > rodent.speed:
             raise InvalidMoveTargetError("Cannot move rodent beyond its reach")
         path = self.board.path_find(rodent, target)
@@ -142,7 +170,7 @@ class GameManager:
         if not is_success:
             raise InvalidMoveTargetError("Cannot move rodent there")
         self.crumbs -= rodent.move_cost
-        rodent.stamina -= 1
+        rodent.move_stamina -= 1
         self.event_queue.put(EntityMoveEvent(path, rodent))
         return path
 

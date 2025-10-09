@@ -27,7 +27,9 @@ dev = [
     "poethepoet (>=0.37.0,<0.38.0)",
     "mypy (>=1.18.2,<2.0.0)",
     "black (>=25.9.0,<26.0.0)",
-    "pre-commit (>=4.3.0,<5.0.0)"
+    "pre-commit (>=4.3.0,<5.0.0)",
+    "pytest (>=8.4.2,<9.0.0)",
+    "pillow (>=11.3.0,<12.0.0)"
 ]
 
 [tool.poetry]
@@ -38,13 +40,14 @@ packages = [
 
 [tool.poe.tasks]
 render-test = "python ./src/render_test.py"
-format = "black ./src"
+format = "black ./src ./tests"
 check = "pre-commit run --all-files"
+tiled-cli = { cmd = "python ${POE_ROOT}/src/tiled_cli.py", cwd = "${POE_PWD}" }
 
 [tool.mypy]
 python_version = "3.12"
-mypy_path = "src"
-files = ["./src/ratroyale/", "./src/main.py"]
+mypy_path = ["src", "tests"]
+files = ["./src/ratroyale/", "./src/main.py", "./tests/"]
 strict = true
 warn_return_any = true
 warn_unused_configs = true
@@ -55,3 +58,14 @@ warn_unused_ignores = true
 line-length = 88
 target-version = ["py312"]
 include = "\\.pyi?$"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [
+  "src"
+]
+markers = [
+    "slow: slow running tests",
+    "integration: integration tests", 
+    "backend: backend tests",
+]

@@ -1,10 +1,11 @@
 from abc import abstractmethod
+from enum import Enum, auto
 from .entity_effect import EntityEffect
 from .skill_callback import SkillCallback
 from .side import Side
 from .hexagon import OddRCoord
 import inspect
-from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar, cast
+from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
 from dataclasses import asdict, dataclass
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(kw_only=True)
-class _EntitySkill:
+class EntitySkill:
     name: str
     method_name: str
     reach: int | None
@@ -22,16 +23,36 @@ class _EntitySkill:
 
 
 @dataclass
-class SkillResult:
+class SkillTargeting:
     target_count: int
+    source_enitity: "Entity"
+    source_skill: "CallableEntitySkill"
     available_targets: list[OddRCoord]
-    callback: SkillCallback
+    _callback: SkillCallback
     can_cancel: bool
+
+    def apply_callback(
+        self, game_manager: "GameManager", selected_targets: list["OddRCoord"]
+    ) -> "SkillResult":
+        skill_result = self._callback(game_manager, selected_targets)
+        if skill_result == SkillCompleted.SUCCESS:
+            game_manager.crumbs -= self.source_skill.crumb_cost
+            if self.source_enitity.skill_stamina is not None:
+                self.source_enitity.skill_stamina -= 1
+        return skill_result
+
+
+class SkillCompleted(Enum):
+    SUCCESS = auto()
+    CANCELLED = auto()
+
+
+SkillResult: TypeAlias = SkillTargeting | SkillCompleted
 
 
 @dataclass
-class EntitySkill(_EntitySkill):
-    func: Callable[["GameManager"], SkillResult | None]
+class CallableEntitySkill(EntitySkill):
+    func: Callable[["GameManager"], SkillResult]
 
 
 MINIMAL_DAMAGE_TAKEN = 1
@@ -49,15 +70,18 @@ class Entity:
     health: int | None = None
     defense: int = 0
     movable: bool = False
+    skill_stamina: int | None = None
     collision: bool = False
     description: str = ""
     height: int = 0
-    skills: list[EntitySkill] = []
+    skills: list[CallableEntitySkill] = []
     side: Side | None
     PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
+    """Map of preplaced-able entities' IDs to the entity class"""
 
     @classmethod
     def PRE_PLACED_ENTITY_ID(cls) -> int | None:
+        """Non-zero positive integer representing entity's ID for preplacing it during map generation. Can be `None` if it cannot be preplaced."""
         return None
 
     def __init_subclass__(cls) -> None:
@@ -123,11 +147,12 @@ def entity_data(
     *,
     health: int | None = None,
     defense: int = 0,
+    skill_stamina: int | None = None,
     movable: bool = False,
     collision: bool = False,
     height: int = 0,
     description: str = "",
-    skills: list[_EntitySkill] = [],
+    skills: list[EntitySkill] = [],
     name: str = "",
 ) -> Callable[[type[Entity_T]], type[Entity_T]]:
     def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
@@ -135,6 +160,7 @@ def entity_data(
         cls.health = health
         cls.max_health = health
         cls.defense = defense
+        cls.skill_stamina = skill_stamina
         cls.movable = movable
         cls.collision = collision
         cls.description = description
@@ -152,10 +178,11 @@ def entity_data(
                     f"Expected {skill} method to take 1 arguments (got {arg_count - 1})"
                 )
             cls.skills.append(
-                EntitySkill(
+                CallableEntitySkill(
                     **asdict(skill),
                     func=cast(
-                        Callable[["GameManager"], SkillResult | None], skill_function
+                        Callable[["GameManager"], SkillResult],
+                        skill_function,
                     ),
                 )
             )
@@ -164,7 +191,7 @@ def entity_data(
     return wrapper
 
 
-_entity_skill_type = Callable[[Entity_T, "GameManager"], SkillResult | None]
+_entity_skill_type = Callable[[Entity_T, "GameManager"], SkillResult]
 
 
 def entity_skill_check(

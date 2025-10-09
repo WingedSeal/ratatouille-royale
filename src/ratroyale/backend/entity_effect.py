@@ -1,7 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Callable, Self, TypeVar
-
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 from .side import Side
 
 if TYPE_CHECKING:

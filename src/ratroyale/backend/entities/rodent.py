@@ -1,57 +1,53 @@
 from abc import ABCMeta, abstractmethod
 from ..entity import Entity, entity_data
 from ..hexagon import OddRCoord
-from ..entity import _EntitySkill
+from ..entity import EntitySkill
 from typing import Any, Callable, TypeVar
 from ..side import Side
-
-
-class RodentMeta(ABCMeta):
-    def __call__(cls: "RodentMeta", *args: Any, **kwargs: Any) -> Any:
-        if not getattr(cls, "_has_rodent_data", False):
-            raise TypeError(
-                f"'{cls.__name__}' must be decorated with @rodent_data(...)"
-            )
-        return super().__call__(*args, **kwargs)
 
 
 ENTITY_JUMP_HEIGHT = 1
 
 
-class Rodent(Entity, metaclass=RodentMeta):
+class Rodent(Entity):
     _has_rodent_data = False
     speed: int
-    stamina: int
+    move_stamina: int
     move_cost: int
     attack: int
     side: Side | None
 
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
+        if not self._has_rodent_data:
+            raise TypeError(
+                f"'{type(self).__name__}' must be decorated with @rodent_data(...)"
+            )
         super().__init__(pos, side)
 
     @abstractmethod
     def skill_descriptions(self) -> list[str]: ...
 
 
-T = TypeVar("T", bound=Rodent)
+T = TypeVar("T", bound=type[Rodent])
 
 
 def rodent_data(
     *,
     name: str,
     speed: int,
-    stamina: int,
+    move_stamina: int,
+    skill_stamina: int | None,
     move_cost: int,
     attack: int,
     height: int,
     health: int,
     defense: int,
     description: str,
-    skills: list[_EntitySkill],
+    skills: list[EntitySkill],
     movable: bool = True,
     collision: bool = True,
-) -> Callable[[type[T]], type[T]]:
-    def wrapper(cls: type[T]) -> type[T]:
+) -> Callable[[T], T]:
+    def wrapper(cls: T) -> T:
         assert issubclass(cls, Rodent)
         entity_data(
             health=health,
@@ -68,7 +64,8 @@ def rodent_data(
         cls.defense = defense
         cls.description = description
         cls.speed = speed
-        cls.stamina = stamina
+        cls.move_stamina = move_stamina
+        cls.skill_stamina = skill_stamina
         cls.move_cost = move_cost
         cls.attack = attack
         cls.height = height

@@ -16,7 +16,7 @@ from .game_event import (
 )
 from .error import EntityInvalidPosError
 from .side import Side
-from .entity import Entity, EntitySkill
+from .entity import Entity, CallableEntitySkill
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .hexagon import IsCoordBlocked, OddRCoord
 from .tile import Tile
@@ -212,7 +212,7 @@ class Board:
         return entity.pos.path_find(goal, self._is_coord_blocked(entity))
 
     def get_attackable_coords(
-        self, rodent: Rodent, skill: EntitySkill
+        self, rodent: Rodent, skill: CallableEntitySkill
     ) -> Iterator[OddRCoord]:
         """
         Get every coords a rodent can attack with its skill altitude
