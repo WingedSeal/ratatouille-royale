@@ -4,6 +4,7 @@ from ratroyale.frontend.pages.page_managers.base_page import Page
 import sys
 from pathlib import Path
 import importlib
+import traceback
 
 # region Path Configuration
 
@@ -19,17 +20,16 @@ _PAGE_REGISTRY: dict[str, type[Page]] = {}
 
 
 def auto_import_pages() -> None:
-    print("auto import triggered")
     for py_file in PAGES_FOLDER.glob("*.py"):
         module_name = py_file.stem
         if module_name == "__init__":
             continue
         module_path = MODULE_PATH + module_name
         try:
-            print("Importing:", module_path)
             importlib.import_module(module_path)
-        except Exception as e:
-            print(f"Failed to import {module_name}: {e}")
+        except BaseException as e:
+            print(f"Failed to import {module_name}: {type(e).__name__}: {e}")
+            traceback.print_exc()
 
 
 def register_page(cls: Type[Page]) -> Type[Page]:
@@ -58,7 +58,8 @@ def resolve_page(page_name: str) -> Type[Page]:
         raise KeyError(
             f"Page '{page_name}' not found in registry. "
             "Make sure it's imported and registered, "
-            "or make sure there are no code errors."
+            "or make sure there are no code errors,"
+            "or make sure the page class hasn't had it's name changed unexpectedly."
         )
 
 

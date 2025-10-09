@@ -20,7 +20,7 @@ import pygame
 
 
 @register_page
-class MainMenuPage(Page):
+class MainMenu(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager, theme_name="main_menu")
 

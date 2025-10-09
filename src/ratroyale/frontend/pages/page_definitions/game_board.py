@@ -53,12 +53,15 @@ class GameBoard(Page):
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="start_game"))
 
+    def define_initial_gui(self) -> list[UIRegisterForm]:
+        return []
+
     # region Input Bindings
 
     @callback_event_bind("start_game")
     def _start_game(self, msg: PageCallbackEvent[Board]) -> None:
         """Handle the response from starting a game."""
-        print("GameBoard received START_GAME response")
+
         if msg.success and msg.payload:
             self.board = msg.payload
             element_configs: list[ElementConfig[Any]] = []
@@ -122,9 +125,6 @@ class GameBoard(Page):
         assert isinstance(entity, Entity)
         # region Create ability panel
         # --- Create a parent panel for all ability buttons ---
-        print(
-            f"At time of ability menu opening, entity topleft is: {entity_element.get_topleft()}"
-        )
         entity_center_x = (
             entity_element.get_topleft()[0] + entity_element.get_size()[0] / 2
         )
@@ -137,7 +137,6 @@ class GameBoard(Page):
         panel_y = entity_center_y  # or some offset below the entity
         panel_id = f"ability_panel"
         self.ability_panel_id = panel_id
-        print(self.ability_panel_id)
         panel_rect = pygame.Rect(
             panel_x, panel_y, panel_width, len(entity.skills) * 30 + 10
         )
@@ -171,7 +170,6 @@ class GameBoard(Page):
     @input_event_bind("ability", pygame_gui.UI_BUTTON_PRESSED)
     def _activate_ability(self, msg: pygame.event.Event) -> None:
         """Activate selected ability."""
-        print(f"Activated ability: {self._get_ability_id(msg)}")
         self._close_ability_menu()
         entity_element_id = get_id(msg)
         if not entity_element_id:
@@ -193,16 +191,8 @@ class GameBoard(Page):
             width, height = entity_element.get_size()
             new_x = mouse_x - width // 2
             new_y = mouse_y - height // 2
-            print(
-                "Dragging",
-                entity_element.element_id,
-                "hitbox type:",
-                type(entity_element.hitbox),
-            )
             entity_element.set_position((new_x, new_y))
             self.dragging_element_id = ("entity", entity_element_id)
-        else:
-            print("No entity found for drag start.")
 
     # Called while dragging; moves element regardless of hitbox
     @input_event_bind(None, GestureType.DRAG.value)

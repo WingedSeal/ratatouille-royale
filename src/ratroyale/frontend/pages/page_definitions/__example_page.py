@@ -91,7 +91,6 @@ class TestPage(Page):
     #   ...
     @input_event_bind("event_name", pygame_gui.UI_BUTTON_PRESSED)
     def on_example_click(self, msg: pygame.event.Event) -> None:
-        print("test button clicked")
         button = self._element_manager.get_gui_element(
             "registered_name", pygame_gui.elements.UIButton
         )
@@ -109,12 +108,10 @@ class TestPage(Page):
 
     @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
     def close_panel(self, msg: pygame.event.Event) -> None:
-        print("closing panel")
         self._element_manager.remove_gui_element("test_panel")
 
     @input_event_bind("event_name_2", pygame_gui.UI_BUTTON_PRESSED)
     def communicate(self, msg: pygame.event.Event) -> None:
-        print("communication")
         self.coordination_manager.put_message(
             PageCallbackEvent[int]("action_name", payload=3)
         )

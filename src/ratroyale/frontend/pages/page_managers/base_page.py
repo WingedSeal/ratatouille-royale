@@ -65,8 +65,8 @@ class Page(ABC):
 
         self.setup_event_bindings()
 
-        self.gui_elements = self.define_initial_gui()
-        self.setup_gui_elements(self.gui_elements)
+        gui_elements = self.define_initial_gui()
+        self.setup_gui_elements(gui_elements)
 
     @abstractmethod
     def define_initial_gui(self) -> list["UIRegisterForm"]:

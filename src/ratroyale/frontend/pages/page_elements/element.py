@@ -25,7 +25,6 @@ class Hitbox(ABC):
     @abstractmethod
     def set_position(self, topleft_coord: tuple[float, float]) -> None:
         """Move the hitbox to a new topleft coordinate"""
-        print("Triggering abstract!!")
         ...
 
     @abstractmethod
@@ -54,7 +53,6 @@ class RectangleHitbox(Hitbox):
 
     def set_position(self, topleft_coord: tuple[float, float]) -> None:
         self.rect.topleft = topleft_coord
-        print(f"Hitbox's position is now: {self.rect.topleft}")
 
     def get_topleft(self) -> tuple[float, float]:
         result: tuple[float, float] = self.rect.topleft

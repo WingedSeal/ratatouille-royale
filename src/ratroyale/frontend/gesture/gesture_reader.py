@@ -156,7 +156,6 @@ class GestureReader:
             distance_total > self.DRAG_MOVEMENT_THRESHOLD
             and self.state != GestureState.STATE_DRAGGING
         ):
-            print(">>> DRAG START condition met")
             self.state = GestureState.STATE_DRAGGING
             self.dragging_last_pos = self.last_pos
             self._on_drag_start(raw_event)
