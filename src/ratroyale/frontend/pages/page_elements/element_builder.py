@@ -1,5 +1,4 @@
 import pygame_gui
-from pygame_gui.core import UIElement
 
 from ratroyale.frontend.visual.asset_management.visual_component import (
     TileVisual,
@@ -77,12 +76,6 @@ class ElementConfig(Generic[T]):
 
 
 _ELEMENT_BUILDERS: dict[str, Callable[[ElementConfig[Any]], Element[Any]]] = {}
-
-
-@dataclass
-class UIRegisterForm:
-    registered_name: str
-    ui_element: UIElement
 
 
 def _register_element_creator(

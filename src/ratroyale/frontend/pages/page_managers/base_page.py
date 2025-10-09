@@ -14,8 +14,8 @@ from typing import Protocol, cast, Any
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
-    UIRegisterForm,
 )
+from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
@@ -69,7 +69,7 @@ class Page(ABC):
         self.setup_gui_elements(gui_elements)
 
     @abstractmethod
-    def define_initial_gui(self) -> list["UIRegisterForm"]:
+    def define_initial_gui(self) -> list["GUIRegisterForm"]:
         """
         Return a list of UIRegisterForm (or other GUI element wrappers)
         that belong to this page. Even if the page has no elements,
@@ -85,7 +85,7 @@ class Page(ABC):
         for config in configs:
             self._element_manager.create_element(config)
 
-    def setup_gui_elements(self, ui_elements: list[UIRegisterForm]) -> None:
+    def setup_gui_elements(self, ui_elements: list[GUIRegisterForm]) -> None:
         for ui_element in ui_elements:
             self._element_manager.add_gui_element(
                 ui_element.ui_element, ui_element.registered_name

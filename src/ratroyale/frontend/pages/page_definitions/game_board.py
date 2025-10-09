@@ -25,8 +25,8 @@ from ratroyale.frontend.pages.page_managers.backend_adapter import (
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
     ParentIdentity,
-    UIRegisterForm,
 )
+from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
 from ratroyale.frontend.pages.page_elements.element import Element
 
 from ratroyale.backend.board import Board
@@ -53,7 +53,7 @@ class GameBoard(Page):
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="start_game"))
 
-    def define_initial_gui(self) -> list[UIRegisterForm]:
+    def define_initial_gui(self) -> list[GUIRegisterForm]:
         return []
 
     # region Input Bindings
@@ -148,7 +148,7 @@ class GameBoard(Page):
             ),
         )
 
-        panel_element = UIRegisterForm(panel_id, panel_object)
+        panel_element = GUIRegisterForm(panel_id, panel_object)
 
         self.setup_gui_elements([panel_element])
 

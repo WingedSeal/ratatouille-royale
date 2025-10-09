@@ -1,9 +1,9 @@
 import pygame
 
-from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
+from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Any
+from typing import Any
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 
 # region Hitbox Classes

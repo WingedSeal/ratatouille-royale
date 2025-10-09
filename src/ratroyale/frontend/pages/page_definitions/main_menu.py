@@ -12,8 +12,8 @@ from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
-    UIRegisterForm,
 )
+from ratroyale.frontend.pages.page_elements.gui_register_form import GUIRegisterForm
 
 import pygame_gui
 import pygame
@@ -24,10 +24,10 @@ class MainMenu(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager, theme_name="main_menu")
 
-    def define_initial_gui(self) -> list[UIRegisterForm]:
+    def define_initial_gui(self) -> list[GUIRegisterForm]:
         """Return all GUI elements for the main menu page."""
         return [
-            UIRegisterForm(
+            GUIRegisterForm(
                 "start_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100, 100, 200, 50),
@@ -38,7 +38,7 @@ class MainMenu(Page):
                     ),
                 ),
             ),
-            UIRegisterForm(
+            GUIRegisterForm(
                 "quit_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100, 200, 200, 50),
@@ -49,7 +49,7 @@ class MainMenu(Page):
                     ),
                 ),
             ),
-            UIRegisterForm(
+            GUIRegisterForm(
                 "gui_demo_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100, 300, 200, 50),
@@ -60,7 +60,7 @@ class MainMenu(Page):
                     ),
                 ),
             ),
-            UIRegisterForm(
+            GUIRegisterForm(
                 "element_demo_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(400, 300, 200, 50),
@@ -83,7 +83,6 @@ class MainMenu(Page):
                     (PageNavigation.CLOSE_ALL, None),
                     (PageNavigation.OPEN, "GameBoard"),
                     (PageNavigation.OPEN, "PauseButton"),
-                    (PageNavigation.OPEN, "EntityList"),
                 ]
             )
         )
