@@ -79,6 +79,58 @@ class GUIDemo(Page):
         gui_elements.append(input_element)
         # endregion
 
+        # region Additional GUI Elements: Checkbox, Radio Buttons, Progress Bar
+
+        # --- Checkbox ---
+        enable_sound_id = "enable_sound_checkbox"
+        enable_sound_checkbox = pygame_gui.elements.UISelectionList(
+            relative_rect=pygame.Rect(400, 200, 200, 50),
+            item_list=["Enable Sound"],
+            manager=self.gui_manager,
+            allow_multi_select=True,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="DemoCheckbox", object_id=enable_sound_id
+            ),
+        )
+        gui_elements.append(UIRegisterForm(enable_sound_id, enable_sound_checkbox))
+
+        # --- Radio Buttons ---
+        difficulty_radio_id = "difficulty_radio"
+        difficulty_radio = pygame_gui.elements.UISelectionList(
+            relative_rect=pygame.Rect(400, 260, 200, 80),
+            item_list=["Easy", "Normal", "Hard"],
+            manager=self.gui_manager,
+            allow_multi_select=False,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="DemoRadio", object_id=difficulty_radio_id
+            ),
+        )
+        gui_elements.append(UIRegisterForm(difficulty_radio_id, difficulty_radio))
+
+        # --- Progress Bar ---
+        progress_bar_id = "progress_bar"
+        progress_bar = pygame_gui.elements.UIProgressBar(
+            relative_rect=pygame.Rect(400, 360, 200, 30),
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="DemoProgressBar", object_id=progress_bar_id
+            ),
+        )
+        gui_elements.append(UIRegisterForm(progress_bar_id, progress_bar))
+
+        button_progress_bar_id = "button_progress_bar"
+        button_progress_bar = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(400, 390, 200, 50),
+            text="Add progress",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="GUIDemoButton", object_id=button_progress_bar_id
+            ),
+        )
+        gui_elements.append(UIRegisterForm(button_progress_bar_id, button_progress_bar))
+
+        # endregion
+
         return gui_elements
 
     # region Input Responses
