@@ -27,4 +27,20 @@ class RodentEffectNotOnRodentError(RatRoyaleBackendError):
 
 
 class ShortHandSkillCallbackError(RatRoyaleBackendError):
+    """
+    select_targetable() allows alternative method to pass callback.
+    Instead of passing callback directly, a list of callback can be passed
+    and the function will generate a new callback and chain on its own.
+    However the limitation is that if one of the callback return fail,
+    it doesn't know what to do. Hence this exception.
+    """
+
+    pass
+
+
+class NotAITurnError(RatRoyaleBackendError):
+    pass
+
+
+class GameManagerActionPerformedInSelectingMode(RatRoyaleBackendError):
     pass

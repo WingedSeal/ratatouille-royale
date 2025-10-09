@@ -39,6 +39,10 @@ class SkillTargeting:
             game_manager.crumbs -= self.source_skill.crumb_cost
             if self.source_enitity.skill_stamina is not None:
                 self.source_enitity.skill_stamina -= 1
+        if isinstance(skill_result, SkillTargeting):
+            game_manager.skill_targeting = skill_result
+        else:
+            game_manager.skill_targeting = None
         return skill_result
 
 

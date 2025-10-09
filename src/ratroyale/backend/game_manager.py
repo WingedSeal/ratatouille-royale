@@ -1,19 +1,20 @@
 import math
 from queue import Queue
 from random import shuffle
-from typing import Iterator
+from typing import Callable, Iterator
 
 from .feature import Feature
 from .entity_effect import EntityEffect
 from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
 from .error import (
+    GameManagerActionPerformedInSelectingMode,
     InvalidMoveTargetError,
     NotEnoughCrumbError,
     NotEnoughMoveStaminaError,
     NotEnoughSkillStaminaError,
 )
-from .entity import Entity, SkillResult, SkillCompleted
+from .entity import Entity, SkillResult, SkillCompleted, SkillTargeting
 from .hexagon import OddRCoord
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
@@ -72,10 +73,26 @@ class GameManager:
             Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set().get_new_deck(),
         }
         self.hands = {
-            Side.RAT: [self.draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
-            Side.MOUSE: [self.draw_squeak(Side.MOUSE) for _ in range(HAND_LENGTH)],
+            Side.RAT: [self._draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
+            Side.MOUSE: [self._draw_squeak(Side.MOUSE) for _ in range(HAND_LENGTH)],
         }
         self.coordination_manager = coordination_manager
+        self.skill_targeting: SkillTargeting | None = None
+        """
+        If it is currently in selecting target mode. It'll have the detail of skill targeting.
+        """
+
+    @property
+    def is_selecting_target(self) -> bool:
+        return self.skill_targeting is not None
+
+    @property
+    def cancel_selecting_target(self) -> None:
+        self.skill_targeting = None
+
+    def _validate_not_selecting_target(self) -> None:
+        if self.is_selecting_target:
+            raise GameManagerActionPerformedInSelectingMode()
 
     @property
     def event_queue(self) -> Queue[GameEvent]:
@@ -101,19 +118,17 @@ class GameManager:
         ```python
         # Activate Skill
         skill_result = game_manager.activate_skill(self, entity, 1)
-        if isinstance(skill_result, Callable):
-            self.skill_targeting = skill_result
         ```
         ```python
         # Main Loop
-        if self.skill_targeting:
+        if self.game_manager.skill_targeting:
             ...
             selected_targets = ...
             if selected_targets is not None:
-                skill_result = self.skill_targeting.apply_callback(game_manager, selected_targets)
+                skill_result = self.game_manager.skill_targeting.apply_callback(game_manager, selected_targets)
         ```
-
         """
+        self._validate_not_selecting_target()
         skill = entity.skills[skill_index]
         if self.crumbs < skill.crumb_cost:
             raise NotEnoughCrumbError()
@@ -124,6 +139,10 @@ class GameManager:
             self.crumbs -= skill.crumb_cost
             if entity.skill_stamina is not None:
                 entity.skill_stamina -= 1
+        if isinstance(skill_result, SkillTargeting):
+            if not skill_result.available_targets:
+                return SkillCompleted.CANCELLED
+            self.__target = skill_result
         return skill_result
 
     def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
@@ -178,6 +197,7 @@ class GameManager:
         :param target: Target to move to
         :returns: Path the rodent took to get there
         """
+        self._validate_not_selecting_target()
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
         if rodent.move_stamina <= 0:
@@ -203,6 +223,7 @@ class GameManager:
         :param target: Target to move to
         :returns: Path the rodent took to get there
         """
+        self._validate_not_selecting_target()
         path = self.board.path_find(entity, target)
         if path is None:
             raise InvalidMoveTargetError()
@@ -226,7 +247,7 @@ class GameManager:
                 continue
             yield entity
 
-    def draw_squeak(self, side: Side) -> Squeak:
+    def _draw_squeak(self, side: Side) -> Squeak:
         """
         Get a squeak from a deck, spawn a new deck if it's empty
         """
@@ -245,9 +266,10 @@ class GameManager:
             raise NotEnoughCrumbError()
         squeak.on_place(self, coord)
         self.crumbs -= squeak.crumb_cost
-        self.hands[self.turn][hand_index] = self.draw_squeak(self.turn)
+        self.hands[self.turn][hand_index] = self._draw_squeak(self.turn)
 
     def end_turn(self) -> None:
+        self._validate_not_selecting_target()
         for effect in self.board.cache.effects:
             effect.on_turn_change(self)
             if effect.duration == 1 and effect._should_clear(self.turn):
