@@ -19,7 +19,7 @@ def post_gesture_event(input_manager_event: InputManagerEvent[Any]) -> None:
     hybrid gesture-specific event type mapping. The listener can
     access both gesture_data and element_id from the event.
     """
-    event_type: int = input_manager_event.gesture_data.gesture_type.value
+    event_type: int = input_manager_event.gesture_data.gesture_type.to_pygame_event()
     pygame.event.post(
         pygame.event.Event(event_type, input_manager_event=input_manager_event)
     )
@@ -42,7 +42,7 @@ def get_id(event: pygame.event.Event) -> str | None:
             return value
         raise TypeError("pygame_gui event has invalid ui_object_id")
 
-    is_custom_gesture_event = event_type in [g.value for g in GestureType]
+    is_custom_gesture_event = event_type in [g.to_pygame_event() for g in GestureType]
     if is_custom_gesture_event:
         input_manager_event = getattr(event, "input_manager_event", None)
         if isinstance(input_manager_event, InputManagerEvent):

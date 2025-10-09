@@ -94,21 +94,21 @@ class GameBoard(Page):
             raise RuntimeError(f"Failed to start game: {msg.error_msg}")
 
     # TODO: fire normal clicks with double click.
-    @input_event_bind("tile", GestureType.CLICK.value)
+    @input_event_bind("tile", GestureType.CLICK.to_pygame_event())
     def _on_tile_click(self, msg: pygame.event.Event) -> None:
         tile_element_id = self._get_element_id(msg)
 
         self._select_element("tile", tile_element_id)
         self._close_ability_menu()
 
-    @input_event_bind("entity", GestureType.CLICK.value)
+    @input_event_bind("entity", GestureType.CLICK.to_pygame_event())
     def _on_entity_click(self, msg: pygame.event.Event) -> None:
         entity_element_id = self._get_element_id(msg)
 
         self._select_element("entity", entity_element_id)
         self._close_ability_menu()
 
-    @input_event_bind("entity", GestureType.HOLD.value)
+    @input_event_bind("entity", GestureType.HOLD.to_pygame_event())
     def _display_ability_menu(self, msg: pygame.event.Event) -> None:
         """Display the ability menu for the selected entity."""
         entity = get_payload(msg)
@@ -180,7 +180,7 @@ class GameBoard(Page):
         # self._select_element("entity", entity_element_id)
 
     # Called when drag starts; aligns the entity's center to the mouse
-    @input_event_bind("entity", GestureType.DRAG_START.value)
+    @input_event_bind("entity", GestureType.DRAG_START.to_pygame_event())
     def _on_entity_drag_start(self, msg: pygame.event.Event) -> None:
         entity_element_id = self._get_element_id(msg)
         entity_element = self._element_manager.get_element("entity", entity_element_id)
@@ -195,7 +195,7 @@ class GameBoard(Page):
             self.dragging_element_id = ("entity", entity_element_id)
 
     # Called while dragging; moves element regardless of hitbox
-    @input_event_bind(None, GestureType.DRAG.value)
+    @input_event_bind(None, GestureType.DRAG.to_pygame_event())
     def _on_entity_drag(self, msg: pygame.event.Event) -> None:
         if self.dragging_element_id is None:
             return
@@ -212,12 +212,12 @@ class GameBoard(Page):
             )
             entity.set_position(new_topleft)
 
-    @input_event_bind(None, GestureType.DRAG_END.value)
+    @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
         self.dragging_element_id = None
 
     # TODO: fix swipe (very inconsistent ATM)
-    @input_event_bind(None, GestureType.SWIPE.value)
+    @input_event_bind(None, GestureType.SWIPE.to_pygame_event())
     def _on_swipe_test(self, msg: pygame.event.Event) -> None:
         print("Swipe test")
 

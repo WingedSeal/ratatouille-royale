@@ -21,6 +21,9 @@ class GestureType(Enum):
     HOLD = _BASE + 6
     HOVER = _BASE + 7
 
+    def to_pygame_event(self) -> int:
+        return self.value
+
 
 @dataclass
 class GestureData:
