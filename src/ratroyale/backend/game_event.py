@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from typing import Literal
 
-from ratroyale.backend.side import Side
-
+from .entity_effect import EntityEffect
+from .side import Side
 from .entity import Entity
 from .feature import Feature
 from .hexagon import OddRCoord
@@ -53,3 +54,18 @@ class EndTurnEvent(GameEvent):
     to_side: Side
     leftover_crumbs: int
     new_crumbs: int
+
+
+@dataclass
+class EntityEffectUpdateEvent(GameEvent):
+    effect: EntityEffect
+    apply_or_clear: Literal["apply", "clear"]
+    reason: Literal[
+        "overriding",
+        "overriden",
+        "normal_apply",
+        "force_clear",
+        "duration_over",
+        "duration_over_and_overriden",
+        "stronger_effect_cleared",
+    ]

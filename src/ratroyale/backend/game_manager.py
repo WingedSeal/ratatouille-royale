@@ -20,7 +20,12 @@ from .error import (
     NotEnoughSkillStaminaError,
 )
 from .feature import Feature
-from .game_event import EndTurnEvent, EntityMoveEvent, GameEvent
+from .game_event import (
+    EntityEffectUpdateEvent,
+    EndTurnEvent,
+    EntityMoveEvent,
+    GameEvent,
+)
 from .hexagon import OddRCoord
 from .map import Map
 from .player_info.player_info import PlayerInfo
@@ -327,12 +332,21 @@ class GameManager:
             entity.effects[effect.name] = effect
             self.board.cache.effects.append(effect)
             effect.on_applied(self, is_overriding=False)
+            self.event_queue.put_nowait(
+                EntityEffectUpdateEvent(effect, "apply", "normal_apply")
+            )
             return
         if effect.intensity > old_effect.intensity:
             effect.overridden_effects.append(old_effect)
             self.board.cache.effects.append(effect)
             effect.on_applied(self, is_overriding=True)
+            self.event_queue.put_nowait(
+                EntityEffectUpdateEvent(effect, "apply", "overriding")
+            )
             old_effect.on_cleared(self, is_overridden=True)
+            self.event_queue.put_nowait(
+                EntityEffectUpdateEvent(effect, "clear", "overriden")
+            )
             return
         elif effect.intensity == old_effect.intensity:
             if old_effect.duration is None:
@@ -353,6 +367,9 @@ class GameManager:
         self.board.cache.effects.remove(effect)
         if not effect.overridden_effects:
             effect.on_cleared(self, is_overridden=False)
+            self.event_queue.put_nowait(
+                EntityEffectUpdateEvent(effect, "clear", "duration_over")
+            )
             del effect.entity.effects[effect.name]
         effect.entity.effects = {
             name: e
@@ -361,7 +378,13 @@ class GameManager:
         }
         new_effect = max(effect.overridden_effects, key=lambda e: e.intensity)
         new_effect.on_applied(self, is_overriding=True)
+        self.event_queue.put_nowait(
+            EntityEffectUpdateEvent(effect, "apply", "stronger_effect_cleared")
+        )
         effect.on_cleared(self, is_overridden=True)
+        self.event_queue.put_nowait(
+            EntityEffectUpdateEvent(effect, "clear", "duration_over_and_overriden")
+        )
         effect.overridden_effects.remove(new_effect)
         new_effect.overridden_effects = effect.overridden_effects
         effect.entity.effects[effect.name] = new_effect
@@ -371,3 +394,7 @@ class GameManager:
         del effect.entity.effects[effect.name]
         for _effect in effect.overridden_effects:
             self.board.cache.effects.remove(_effect)
+        effect.on_cleared(self, is_overridden=False)
+        self.event_queue.put_nowait(
+            EntityEffectUpdateEvent(effect, "clear", "force_clear")
+        )
