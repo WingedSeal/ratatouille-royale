@@ -127,7 +127,7 @@ class ElementManager:
         Remove the gui_element registered by this name.
         """
         removed = self._gui_element_collection.pop(registered_name)
-        removed.kill()
+        removed.kill()  # type: ignore
 
     def clear_collection_of_type(self, element_type: str) -> None:
         """Clears all elements from the specified collection.
