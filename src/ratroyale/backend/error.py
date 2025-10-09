@@ -44,3 +44,7 @@ class NotAITurnError(RatRoyaleBackendError):
 
 class GameManagerActionPerformedInSelectingMode(RatRoyaleBackendError):
     pass
+
+
+class GameManagerSkillCallBackInNonSelectingMode(RatRoyaleBackendError):
+    pass

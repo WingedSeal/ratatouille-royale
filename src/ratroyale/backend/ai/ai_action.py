@@ -14,7 +14,7 @@ class AIAction:
 class MoveAlly(AIAction):
     ally: Entity
     target_coord: OddRCoord
-    path: list[OddRCoord] | None = None
+    custom_path: list[OddRCoord] | None = None
 
 
 @dataclass

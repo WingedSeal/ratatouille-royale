@@ -9,6 +9,7 @@ from .entities.rodent import Rodent
 from .game_event import EntityMoveEvent, GameEvent
 from .error import (
     GameManagerActionPerformedInSelectingMode,
+    GameManagerSkillCallBackInNonSelectingMode,
     InvalidMoveTargetError,
     NotEnoughCrumbError,
     NotEnoughMoveStaminaError,
@@ -98,6 +99,22 @@ class GameManager:
     def event_queue(self) -> Queue[GameEvent]:
         return self.board.event_queue
 
+    def apply_skill_callback(
+        self, selected_targets: list["OddRCoord"]
+    ) -> "SkillResult":
+        if self.skill_targeting is None:
+            raise GameManagerSkillCallBackInNonSelectingMode()
+        skill_result = self.skill_targeting._callback(self, selected_targets)
+        if skill_result == SkillCompleted.SUCCESS:
+            self.crumbs -= self.skill_targeting.source_skill.crumb_cost
+            if self.skill_targeting.source_enitity.skill_stamina is not None:
+                self.skill_targeting.source_enitity.skill_stamina -= 1
+        if isinstance(skill_result, SkillTargeting):
+            self.skill_targeting = skill_result
+        else:
+            self.skill_targeting = None
+        return skill_result
+
     def execute_callbacks(self) -> None:
         game_event_queue = self.coordination_manager.mailboxes[GameManagerEvent]
 
@@ -125,7 +142,7 @@ class GameManager:
             ...
             selected_targets = ...
             if selected_targets is not None:
-                skill_result = self.game_manager.skill_targeting.apply_callback(game_manager, selected_targets)
+                skill_result = self.game_manager.apply_skill_callback(game_manager, selected_targets)
         ```
         """
         self._validate_not_selecting_target()
@@ -190,11 +207,17 @@ class GameManager:
             return feature
         return None
 
-    def move_rodent(self, rodent: Rodent, target: OddRCoord) -> list[OddRCoord]:
+    def move_rodent(
+        self,
+        rodent: Rodent,
+        target: OddRCoord,
+        custom_path: list[OddRCoord] | None = None,
+    ) -> list[OddRCoord]:
         """
         Move rodent to target. Raise error if it cannot move there
         :param rodent: Rodent to move
         :param target: Target to move to
+        :param custom_path: Force rodent to move in a specific path if not None, defaults to `None`
         :returns: Path the rodent took to get there
         """
         self._validate_not_selecting_target()
@@ -204,6 +227,8 @@ class GameManager:
             raise NotEnoughMoveStaminaError()
         if rodent.pos.get_distance(target) > rodent.speed:
             raise InvalidMoveTargetError("Cannot move rodent beyond its reach")
+        if custom_path is not None:
+            raise NotImplementedError("Custom pathing isn't implemented yet")
         path = self.board.path_find(rodent, target)
         if path is None:
             raise InvalidMoveTargetError()

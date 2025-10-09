@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from itertools import chain, combinations
 
 from .ai_action import AIAction, ActivateSkill, EndTurn, MoveAlly, SelectTargets
-from ..entity import SkillTargeting
+from ..entity import SkillCompleted, SkillResult, SkillTargeting
 from ..entities.rodent import Rodent
 from ..error import NotAITurnError
 from ..game_manager import GameManager
@@ -20,6 +20,34 @@ class BaseAI(ABC):
     def validate_ai_turn(self) -> None:
         if not self.is_ai_turn():
             raise NotAITurnError()
+
+    def run_ai_and_update_game_manager(self) -> None:
+        self.validate_ai_turn()
+        banned_action: AIAction | None = None
+        """Banned AIAction to prevent activing skill that get cancelled over and over"""
+        while self.is_ai_turn():
+            actions = self._get_all_actions()
+            if banned_action is not None:
+                actions.remove(banned_action)
+                banned_action = None
+            action = self.select_action(actions)
+            match action:
+                case EndTurn():
+                    self.game_manager.end_turn()
+                case MoveAlly(_, ally, target_coord, custom_path):
+                    if isinstance(ally, Rodent):
+                        self.game_manager.move_rodent(ally, target_coord, custom_path)
+                    else:
+                        self.game_manager.move_entity_uncheck(ally, target_coord)
+                case ActivateSkill(_, entity, skill_index):
+                    skill_result = self.game_manager.activate_skill(entity, skill_index)
+                    if skill_result == SkillCompleted.CANCELLED:
+                        banned_action = action
+                case SelectTargets(skill_targeting, selected_targets):
+                    assert self.game_manager.skill_targeting is skill_targeting
+                    self.game_manager.apply_skill_callback(list(selected_targets))
+                case _:
+                    raise ValueError("action not handled")
 
     @abstractmethod
     def select_action(self, actions: list[AIAction]) -> AIAction:
