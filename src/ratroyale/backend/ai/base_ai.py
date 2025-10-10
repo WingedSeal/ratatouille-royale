@@ -105,6 +105,8 @@ class BaseAI(ABC):
                 all_actions.append(ActivateSkill(skill.crumb_cost, entity, i))
         # PlaceSqueak
         for hand_index, squeak in enumerate(self.game_manager.hands[self.ai_side]):
+            if squeak.crumb_cost < self.game_manager.crumbs:
+                continue
             for target_coord in squeak.get_placable_tiles(self.game_manager):
                 all_actions.append(
                     PlaceSqueak(squeak.crumb_cost, target_coord, hand_index, squeak)
