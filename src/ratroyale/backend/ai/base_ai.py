@@ -6,7 +6,14 @@ from ..entity import SkillCompleted, SkillTargeting
 from ..error import NotAITurnError
 from ..game_manager import GameManager
 from ..side import Side
-from .ai_action import ActivateSkill, AIAction, EndTurn, MoveAlly, SelectTargets
+from .ai_action import (
+    ActivateSkill,
+    AIAction,
+    EndTurn,
+    MoveAlly,
+    PlaceSqueak,
+    SelectTargets,
+)
 
 
 class BaseAI(ABC):
@@ -46,6 +53,8 @@ class BaseAI(ABC):
                 case SelectTargets(skill_targeting, selected_targets):
                     assert self.game_manager.skill_targeting is skill_targeting
                     self.game_manager.apply_skill_callback(list(selected_targets))
+                case PlaceSqueak(_, target_coord, hand_index, _):
+                    self.game_manager.place_squeak(hand_index, target_coord)
                 case _:
                     raise ValueError("action not handled")
 
@@ -94,4 +103,10 @@ class BaseAI(ABC):
                 if self.game_manager.crumbs < skill.crumb_cost:
                     continue
                 all_actions.append(ActivateSkill(skill.crumb_cost, entity, i))
+        # PlaceSqueak
+        for hand_index, squeak in enumerate(self.game_manager.hands[self.ai_side]):
+            for target_coord in squeak.get_placable_tiles(self.game_manager):
+                all_actions.append(
+                    PlaceSqueak(squeak.crumb_cost, target_coord, hand_index, squeak)
+                )
         return all_actions

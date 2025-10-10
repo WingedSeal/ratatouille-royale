@@ -1,7 +1,7 @@
 import math
 from queue import Queue
 from random import shuffle
-from typing import Callable, Iterator
+from typing import Iterator
 
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *

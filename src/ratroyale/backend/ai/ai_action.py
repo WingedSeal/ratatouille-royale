@@ -1,28 +1,29 @@
 from dataclasses import dataclass, field
 
+from ..player_info.squeak import Squeak
 from ..entity import Entity, SkillTargeting
 from ..hexagon import OddRCoord
 
 
-@dataclass
+@dataclass(frozen=True)
 class AIAction:
     crumb_cost: int
 
 
-@dataclass
+@dataclass(frozen=True)
 class MoveAlly(AIAction):
     ally: Entity
     target_coord: OddRCoord
     custom_path: list[OddRCoord] | None = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class ActivateSkill(AIAction):
     entity: Entity
     skill_index: int
 
 
-@dataclass
+@dataclass(frozen=True)
 class SelectTargets(AIAction):
     """
     AI isn't allowed to cancel skill
@@ -33,6 +34,13 @@ class SelectTargets(AIAction):
     selected_targets: tuple["OddRCoord", ...]
 
 
-@dataclass
+@dataclass(frozen=True)
+class PlaceSqueak(AIAction):
+    target_coord: OddRCoord
+    hand_index: int
+    squeak: Squeak
+
+
+@dataclass(frozen=True)
 class EndTurn(AIAction):
     crumb_cost: int = field(default=0, init=False)
