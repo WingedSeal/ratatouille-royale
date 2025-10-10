@@ -100,3 +100,6 @@ class PauseMenu(Page):
                 ]
             )
         )
+    @input_event_bind("exit_desktop_button", pygame_gui.UI_BUTTON_PRESSED)
+    def on_exit_desktop_click(self, msg: pygame.event.Event) -> None:
+        self.coordination_manager.stop_game()
