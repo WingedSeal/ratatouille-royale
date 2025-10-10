@@ -69,7 +69,7 @@
         }
     },
   
-  "MainMenuButton": {
+  "PauseMenuButton": {
     "colours":
       {
         "normal_bg": "#A8DADC",
@@ -95,7 +95,59 @@
       }
   },
 
-  "start_button": {
+  "resume_button": {
+      "colours": 
+    {
+      "normal_bg": "#F4A261",
+      "hovered_bg": "#E76F51",
+      "disabled_bg": "#DDBEA9",
+      "selected_bg": "#FFE8D6",
+      "active_bg": "#F2CC8F",
+      "normal_text": "#264653",
+      "hovered_text": "#2A9D8F",
+      "selected_text": "#E76F51",
+      "disabled_text": "#6D6875",
+      "active_text": "#F4A261",
+      "normal_border": "#264653",
+      "hovered_border": "#2A9D8F",
+      "disabled_border": "#6D6875",
+      "selected_border": "#E76F51",
+      "active_border": "#F4A261",
+      "normal_text_shadow": "#00000070",
+      "hovered_text_shadow": "#00000070",
+      "disabled_text_shadow": "#00000070",
+      "selected_text_shadow": "#00000070",
+      "active_text_shadow": "#00000070"
+    }
+  },
+
+  "options_button": {
+      "colours": 
+    {
+      "normal_bg": "#F4A261",
+      "hovered_bg": "#E76F51",
+      "disabled_bg": "#DDBEA9",
+      "selected_bg": "#FFE8D6",
+      "active_bg": "#F2CC8F",
+      "normal_text": "#264653",
+      "hovered_text": "#2A9D8F",
+      "selected_text": "#E76F51",
+      "disabled_text": "#6D6875",
+      "active_text": "#F4A261",
+      "normal_border": "#264653",
+      "hovered_border": "#2A9D8F",
+      "disabled_border": "#6D6875",
+      "selected_border": "#E76F51",
+      "active_border": "#F4A261",
+      "normal_text_shadow": "#00000070",
+      "hovered_text_shadow": "#00000070",
+      "disabled_text_shadow": "#00000070",
+      "selected_text_shadow": "#00000070",
+      "active_text_shadow": "#00000070"
+    }
+  },
+
+  "guide_button": {
       "colours": 
     {
       "normal_bg": "#F4A261",
