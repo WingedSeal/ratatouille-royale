@@ -1,35 +1,35 @@
 # type: ignore
 import pygame
+from ratroyale.frontend.pages.page_managers.page_manager import PageManager
+from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.event_tokens.page_token import PageNavigationEvent, PageNavigation
 
-from ratroyale.backend.entities.rodents.vanguard import TailBlazer
-from ratroyale.backend.entity import Entity
 from ratroyale.backend.game_manager import GameManager
-from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map
 from ratroyale.backend.player_info.player_info import PlayerInfo
+from ratroyale.backend.tile import Tile
+from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.backend.entities.rodents.vanguard import TailBlazer
+from ratroyale.backend.entity import Entity
+from ratroyale.backend.side import Side
 from ratroyale.backend.player_info.squeak import (
     Squeak,
-    SqueakGetPlacableTiles,
-    SqueakOnPlace,
     SqueakType,
+    SqueakOnPlace,
+    SqueakGetPlacableTiles,
 )
-from ratroyale.backend.side import Side
-from ratroyale.backend.tile import Tile
-from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.input.input_manager import InputManager
-from ratroyale.input.page.page_config import PageName
-from ratroyale.input.page.page_manager import PageManager
 
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))
+    screen = pygame.display.set_mode(SCREEN_SIZE)
     clock = pygame.time.Clock()
 
     coordination_manager = CoordinationManager()
 
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
-    input_manager = InputManager(coordination_manager=coordination_manager)
 
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
@@ -85,27 +85,32 @@ def main():
         features=[],
     )
     game_manager = GameManager(
-        map=map,
-        players_info=(player_info_1, player_info_2),
-        first_turn=Side.MOUSE,
-        coordination_manager=coordination_manager,
+        map=map, players_info=(player_info_1, player_info_2), first_turn=Side.MOUSE
     )
     # endregion
 
-    page_manager.push_page(PageName.MAIN_MENU)
+    backend_adapter = BackendAdapter(
+        game_manager=game_manager, coordination_manager=coordination_manager
+    )
+
+    coordination_manager.put_message(
+        PageNavigationEvent(
+            action_list=[(PageNavigation.OPEN, "MainMenu")]
+        )  # change this to test your page
+    )
 
     while coordination_manager.game_running:
         dt = clock.tick(60) / 1000.0  # delta time in seconds
 
-        while not coordination_manager.all_mailboxes_empty():
-            page_manager.execute_callbacks()
-            input_manager.execute_callbacks()
-            game_manager.execute_callbacks()
-
         screen.fill((0, 0, 0))
         page_manager.handle_events()
-        page_manager.update(dt)
-        page_manager.draw()
+
+        while not coordination_manager.all_mailboxes_empty():
+            page_manager.execute_page_callback()
+            page_manager.execute_visual_callback()
+            backend_adapter.execute_backend_callback()
+
+        page_manager.render(dt)
 
         pygame.display.flip()
 

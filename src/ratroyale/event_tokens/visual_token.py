@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from .base import EventToken
 
-__all__ = ["VisualManagerEvent"]
+# TODO: figure the visual domain out more concretely.
 
 
 @dataclass
