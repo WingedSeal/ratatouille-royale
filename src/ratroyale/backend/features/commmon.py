@@ -1,13 +1,24 @@
+from dataclasses import dataclass
 from ..feature import Feature
 
 
+@dataclass
 class Lair(Feature):
-    @classmethod
-    def FEATURE_ID(cls) -> int:
+    @staticmethod
+    def FEATURE_ID() -> int:
         return 1
 
+    @staticmethod
+    def is_collision() -> bool:
+        return True
 
+
+@dataclass
 class DeploymentZone(Feature):
-    @classmethod
-    def FEATURE_ID(cls) -> int:
+    @staticmethod
+    def FEATURE_ID() -> int:
         return 2
+
+    @staticmethod
+    def is_collision() -> bool:
+        return False

@@ -53,8 +53,9 @@ class Board:
 
     def __init__(self, map: Map) -> None:
         self.cache = Cache()
-        self.tiles = deepcopy(map.tiles)
-        self.cache.features = deepcopy(map.features)
+        map = deepcopy(map)
+        self.tiles = map.tiles
+        self.cache.features = map.features
         for feature in self.cache.features:
             if isinstance(feature, DeploymentZone):
                 self.cache.deployment_zones[feature.side].append(feature)
@@ -97,6 +98,8 @@ class Board:
             if entity.collision and any(
                 _entity.collision for _entity in target_tile.entities
             ):
+                return True
+            if any(feature.is_collision() for feature in target_tile.features):
                 return True
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
@@ -150,7 +153,7 @@ class Board:
             if feature.side is None:
                 raise ValueError("Lair cannot have side of None")
             self.cache.lairs[feature.side].remove(feature)
-            if len(self.cache.lairs) == 0:
+            if len(self.cache.lairs[feature.side]) == 0:
                 self.event_queue.put_nowait(GameOverEvent(feature.side.other_side()))
         self.event_queue.put_nowait(FeatureDieEvent(feature))
 
@@ -194,6 +197,8 @@ class Board:
         if end_tile is None:
             return False
         if entity.collision and any(_entity.collision for _entity in end_tile.entities):
+            return False
+        if any(feature.is_collision() for feature in end_tile.features):
             return False
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)

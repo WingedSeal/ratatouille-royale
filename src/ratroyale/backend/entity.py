@@ -42,7 +42,7 @@ SkillResult: TypeAlias = SkillTargeting | SkillCompleted
 
 @dataclass
 class CallableEntitySkill(EntitySkill):
-    func: Callable[["GameManager"], SkillResult]
+    func: Callable[["Entity", "GameManager"], SkillResult]
 
 
 MINIMAL_DAMAGE_TAKEN = 1
@@ -165,13 +165,13 @@ def entity_data(
             arg_count = len(inspect.signature(skill_function).parameters)
             if arg_count != 2:
                 raise ValueError(
-                    f"Expected {skill} method to take 1 arguments (got {arg_count - 1})"
+                    f"Expected {skill} method to take 2 arguments (got {arg_count - 1})"
                 )
             cls.skills.append(
                 CallableEntitySkill(
                     **asdict(skill),
                     func=cast(
-                        Callable[["GameManager"], SkillResult],
+                        Callable[[Entity, "GameManager"], SkillResult],
                         skill_function,
                     ),
                 )

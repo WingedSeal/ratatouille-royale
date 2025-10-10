@@ -3,7 +3,6 @@ from queue import Queue
 from random import shuffle
 from typing import Iterator
 
-from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.utils import EventQueue
@@ -143,7 +142,7 @@ class GameManager:
             raise NotEnoughCrumbError()
         if entity.skill_stamina is not None and entity.skill_stamina <= 0:
             raise NotEnoughSkillStaminaError()
-        skill_result = skill.func(self)
+        skill_result = skill.func(entity, self)
         if skill_result == SkillCompleted.SUCCESS:
             self.crumbs -= skill.crumb_cost
             if entity.skill_stamina is not None:
@@ -151,7 +150,7 @@ class GameManager:
         if isinstance(skill_result, SkillTargeting):
             if not skill_result.available_targets:
                 return SkillCompleted.CANCELLED
-            self.__target = skill_result
+            self.skill_targeting = skill_result
         return skill_result
 
     def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:

@@ -43,6 +43,8 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
                 continue
             if any(entity.collision for entity in tile.entities):
                 continue
+            if any(feature.is_collision() for feature in tile.features):
+                continue
             yield pos
 
 

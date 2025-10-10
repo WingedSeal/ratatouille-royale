@@ -18,11 +18,15 @@ class Feature(ABC):
     ALL_FEATURES: ClassVar[dict[int, type["Feature"]]] = {}
     """Map of all features' IDs to the feature class"""
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def FEATURE_ID(cls) -> int:
+    def FEATURE_ID() -> int:
         """Non-zero positive integer representing feature's ID unique to each feature class"""
         ...
+
+    @staticmethod
+    @abstractmethod
+    def is_collision() -> bool: ...
 
     def __init_subclass__(cls) -> None:
         if cls.FEATURE_ID() in Feature.ALL_FEATURES:

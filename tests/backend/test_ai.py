@@ -1,7 +1,7 @@
 import pytest
 
 from ratroyale.backend.ai.random_ai import RandomAI
-from ratroyale.backend.features.commmon import Lair
+from ratroyale.backend.features.commmon import DeploymentZone, Lair
 from ratroyale.backend.game_event import FeatureDieEvent, GameEvent, GameOverEvent
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
@@ -21,11 +21,13 @@ def small_map() -> Map:
         1,
         heights_to_tiles([[0, 0]]),
         entities=[],
-        features=[Lair([OddRCoord(1, 0)], 1, side=Side.RAT)],
+        features=[
+            Lair([OddRCoord(1, 0)], 1, side=Side.RAT),
+            DeploymentZone([OddRCoord(0, 0)], side=Side.MOUSE),
+        ],
     )
 
 
-@pytest.mark.slow
 @pytest.mark.integration
 def test_random_ai(small_map: Map) -> None:
     game_manager = GameManager(
