@@ -1,11 +1,8 @@
 from pathlib import Path
 
 from .backend.game_manager import GameManager
-from .backend.map import MAP_FILE_EXTENSION, Map
 from .backend.player_info.player_info import SAVE_FILE_EXTENSION, PlayerInfo
-from .backend.player_info.squeak_set import SqueakSet
-from .backend.side import Side
-from .game_states import GamePlay, GameState, MainMenu
+from .game_states import GameState, MainMenu
 
 SAVE_FILE = f"idk_where_this_is.{SAVE_FILE_EXTENSION}"
 

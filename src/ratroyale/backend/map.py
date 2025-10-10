@@ -148,7 +148,7 @@ class Map:
             data = file.read()
         try:
             return cls.load(data)
-        except:
+        except Exception:
             return None
 
     def to_file(self, file_path: Path) -> None:

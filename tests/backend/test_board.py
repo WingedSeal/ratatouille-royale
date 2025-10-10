@@ -26,7 +26,7 @@ def example_board(empty_board: Board) -> Board:
 
 
 def test_cache(example_board: Board) -> None:
-    assert type(example_board.cache.features[0]) == Lair
+    assert type(example_board.cache.features[0]) is Lair
     assert type(example_board.cache.entities_with_hp[0]).name == "TailBlazer"
 
 

@@ -1,3 +1,4 @@
+# ruff: noqa
 # type: ignore
 import pygame
 from ratroyale.frontend.pages.page_managers.page_manager import PageManager

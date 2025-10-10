@@ -2,7 +2,6 @@ from typing import Any, TypeVar, cast
 
 from ratroyale.event_tokens.base import EventToken
 from ratroyale.event_tokens.game_token import GameManagerEvent
-from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.event_tokens.page_token import PageManagerEvent
 from ratroyale.event_tokens.visual_token import VisualManagerEvent
 from ratroyale.utils import EventQueue

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pprint import pformat
-from typing import ClassVar, Iterable
+from typing import ClassVar
 
 from .hexagon import OddRCoord
 from .side import Side

@@ -1,5 +1,4 @@
 import inspect
-from abc import abstractmethod
 from dataclasses import asdict, dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast

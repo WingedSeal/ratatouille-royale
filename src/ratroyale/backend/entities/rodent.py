@@ -1,5 +1,5 @@
-from abc import ABCMeta, abstractmethod
-from typing import Any, Callable, TypeVar
+from abc import abstractmethod
+from typing import Callable, TypeVar
 
 from ..entity import Entity, EntitySkill, entity_data
 from ..hexagon import OddRCoord
