@@ -23,3 +23,10 @@ repos:
         pass_filenames: false
         files: ^(src/|tests/).*\.py$
         types: [python]
+      - id: ruff-check
+        name: ruff check
+        entry: poetry run ruff check
+        language: system
+        files: ^(src/|tests/).*\.py$
+        types: [python]
+      
