@@ -40,7 +40,9 @@ def test_random_ai(small_map: Map) -> None:
     )
     ai = RandomAI(game_manager, Side.MOUSE)
     for _ in range(100):
+        # Player Turn
         game_manager.end_turn()
+        # AI Turn
         ai.run_ai_and_update_game_manager()
         event = game_manager.event_queue.get_or_none()
         if isinstance(event, GameOverEvent):
