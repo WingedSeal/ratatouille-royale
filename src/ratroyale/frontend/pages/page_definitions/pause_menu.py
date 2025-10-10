@@ -40,13 +40,46 @@ class PauseMenu(Page):
                 ),
             ),
             UIRegisterForm(
+                "options_button",
+                pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect(300, 260, 200, 50),
+                    text="Options/Settings",
+                    manager=self.gui_manager,
+                    object_id=pygame_gui.core.ObjectID(
+                        class_id="PauseMenuButton", object_id="options_button"
+                    ),
+                ),
+            ),
+            UIRegisterForm(
+                "guide_button",
+                pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect(300, 320, 200, 50),
+                    text="Guide Book",
+                    manager=self.gui_manager,
+                    object_id=pygame_gui.core.ObjectID(
+                        class_id="PauseMenuButton", object_id="guide_button"
+                    ),
+                ),
+            ),
+            UIRegisterForm(
                 "quit_button",
                 pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(300, 300, 200, 50),
+                    relative_rect=pygame.Rect(300, 380, 200, 50),
                     text="Quit Game",
                     manager=self.gui_manager,
                     object_id=pygame_gui.core.ObjectID(
                         class_id="PauseMenuButton", object_id="quit_button"
+                    ),
+                ),
+            ),
+            UIRegisterForm(
+                "exit_desktop_button",
+                pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect(300, 440, 200, 50),
+                    text="Exit to Desktop",
+                    manager=self.gui_manager,
+                    object_id=pygame_gui.core.ObjectID(
+                        class_id="PauseMenuButton", object_id="exit_desktop_button"
                     ),
                 ),
             ),
