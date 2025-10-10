@@ -1,7 +1,7 @@
 name: pre-commit
 on:
   pull_request:
-      types: [opened, edited]
+      types: [opened, edited, synchronize, reopened]
       branches: [develop]
   workflow_dispatch:
 jobs:
