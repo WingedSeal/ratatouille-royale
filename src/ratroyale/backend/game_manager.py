@@ -6,6 +6,7 @@ from typing import Iterator
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
+from ratroyale.utils import EventQueue
 
 from .board import Board
 from .entities.rodent import Rodent
@@ -67,6 +68,8 @@ class GameManager:
         first_turn: Side,
     ) -> None:
         self.turn = first_turn
+        self.first_turn = first_turn
+        self.crumbs = 0
         self.turn_count = 1
         self.board = Board(map)
         self.players_info = {
@@ -97,7 +100,7 @@ class GameManager:
             raise GameManagerActionPerformedInSelectingMode()
 
     @property
-    def event_queue(self) -> Queue[GameEvent]:
+    def event_queue(self) -> EventQueue[GameEvent]:
         return self.board.event_queue
 
     def apply_skill_callback(

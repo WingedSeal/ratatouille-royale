@@ -69,3 +69,8 @@ class EntityEffectUpdateEvent(GameEvent):
         "duration_over_and_overriden",
         "stronger_effect_cleared",
     ]
+
+
+@dataclass
+class GameOverEvent(GameEvent):
+    victory_side: Side

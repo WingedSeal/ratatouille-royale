@@ -1,6 +1,6 @@
 from collections import defaultdict
 from copy import deepcopy
-from typing import Iterator
+from typing import Iterable, Iterator
 
 from ..utils import EventQueue
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
@@ -16,6 +16,7 @@ from .game_event import (
     FeatureDamagedEvent,
     FeatureDieEvent,
     GameEvent,
+    GameOverEvent,
 )
 from .hexagon import IsCoordBlocked, OddRCoord
 from .map import Map
@@ -36,6 +37,11 @@ class Cache:
         )
         self.lairs: dict[Side, list[Lair]] = defaultdict(list)
         self.effects: list[EntityEffect] = []
+
+    def get_all_lairs(self) -> Iterable[Lair]:
+        for side_lair in self.lairs.values():
+            for lair in side_lair:
+                yield lair
 
 
 class Board:
@@ -144,6 +150,8 @@ class Board:
             if feature.side is None:
                 raise ValueError("Lair cannot have side of None")
             self.cache.lairs[feature.side].remove(feature)
+            if len(self.cache.lairs) == 0:
+                self.event_queue.put_nowait(GameOverEvent(feature.side.other_side()))
         self.event_queue.put_nowait(FeatureDieEvent(feature))
 
     def line_of_sight_check(
