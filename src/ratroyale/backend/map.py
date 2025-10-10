@@ -112,6 +112,15 @@ class Map:
         self.tiles = tiles
         self.entities = entities
         self.features = []
+        if len(tiles) != size_y:
+            raise ValueError(
+                f"Expected {size_y} rows since size_y={size_y}. But tiles has length of {len(tiles)}"
+            )
+        for i, tile_row in enumerate(tiles):
+            if len(tile_row) != size_x:
+                raise ValueError(
+                    f"Expected {size_x} column since size_x={size_x}. But row {i} of tiles has length of {len(tile_row)}"
+                )
         for feature in features:
             self.add_feature(feature)
 

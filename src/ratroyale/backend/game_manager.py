@@ -74,14 +74,12 @@ class GameManager:
             first_turn: players_info[0],
             first_turn.other_side(): players_info[1],
         }
-        self.decks = {
-            Side.RAT: self.players_info[Side.RAT].get_squeak_set().get_new_deck(),
-            Side.MOUSE: self.players_info[Side.MOUSE].get_squeak_set().get_new_deck(),
-        }
-        self.hands = {
-            Side.RAT: [self._draw_squeak(Side.RAT) for _ in range(HAND_LENGTH)],
-            Side.MOUSE: [self._draw_squeak(Side.MOUSE) for _ in range(HAND_LENGTH)],
-        }
+        self.decks: dict[Side, list[Squeak]] = {}
+        self.hands: dict[Side, list[Squeak]] = {}
+        for side in Side:
+            decks, hands = self.players_info[side].get_squeak_set().get_deck_and_hand()
+            self.decks[side] = decks
+            self.hands[side] = hands
         self.coordination_manager = coordination_manager
         self.skill_targeting: SkillTargeting | None = None
         """
