@@ -65,7 +65,6 @@ class GameManager:
         map: Map,
         players_info: tuple[PlayerInfo, PlayerInfo],
         first_turn: Side,
-        coordination_manager: CoordinationManager,
     ) -> None:
         self.turn = first_turn
         self.turn_count = 1
@@ -80,7 +79,6 @@ class GameManager:
             decks, hands = self.players_info[side].get_squeak_set().get_deck_and_hand()
             self.decks[side] = decks
             self.hands[side] = hands
-        self.coordination_manager = coordination_manager
         self.skill_targeting: SkillTargeting | None = None
         """
         If it is currently in selecting target mode. It'll have the detail of skill targeting.
@@ -117,18 +115,6 @@ class GameManager:
         else:
             self.skill_targeting = None
         return skill_result
-
-    def execute_callbacks(self) -> None:
-        game_event_queue = self.coordination_manager.mailboxes[GameManagerEvent]
-
-        while not game_event_queue.empty():
-            token: GameManagerEvent = game_event_queue.get()
-
-            if isinstance(token, RequestStart_GameManagerEvent):
-                self.coordination_manager.put_message(
-                    ConfirmStartGame_PageManagerEvent(self.board)
-                )
-                # In actual implementation, replace the sample map in render test with an actual loaded map
 
     def activate_skill(self, entity: Entity, skill_index: int) -> SkillResult:
         """
