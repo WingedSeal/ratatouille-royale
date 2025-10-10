@@ -29,8 +29,8 @@ def test_random_ai(small_map: Map) -> None:
     game_manager = GameManager(
         small_map,
         players_info=(
-            PlayerInfo([TAIL_BLAZER] * 5, [{0, 1, 2, 3, 4}], 1),
-            PlayerInfo([TAIL_BLAZER] * 5, [{0, 1, 2, 3, 4}], 1),
+            PlayerInfo([TAIL_BLAZER] * 5, [{0, 1, 2, 3, 4}], [{0, 1, 2, 3, 4}], 1),
+            PlayerInfo([TAIL_BLAZER] * 5, [{0, 1, 2, 3, 4}], [{0, 1, 2, 3, 4}], 1),
         ),
         first_turn=Side.RAT,
     )
