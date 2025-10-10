@@ -49,7 +49,7 @@ class VisualComponent(ABC):
 
 class UIElementVisual(VisualComponent):
     def __init__(self, ui_element: UIElement) -> None:
-        self.ui_element = ui_element
+        self.ui_element: UIElement = ui_element
 
     def destroy(self) -> None:
         return self.ui_element.kill()  # type: ignore
@@ -68,11 +68,15 @@ class UIElementVisual(VisualComponent):
 
 class ElementVisual(VisualComponent):
     def __init__(self, element: Element) -> None:
-        self.sprite = pygame.Surface(
+        self.sprite: pygame.Surface = pygame.Surface(
             (200, 100)
         )  # placeholder. revise element to hold a sprite key that can be retrieved here later
-        self.position = element.get_topleft()
-        self.highlighted = False
+        self.element: Element | None = element
+        self.position: tuple[float, float] = element.get_topleft()
+        self.highlighted: bool = False
+
+    def destroy(self) -> None:
+        self.element = None
 
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.sprite, self.position)

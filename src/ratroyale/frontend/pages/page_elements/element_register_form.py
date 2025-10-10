@@ -1,4 +1,3 @@
-from __future__ import annotations
 from dataclasses import dataclass
 from pygame_gui.core import UIElement
 from typing import Literal
@@ -10,7 +9,7 @@ from ratroyale.frontend.visual.asset_management.visual_component import (
     UIElementVisual,
 )
 
-GroupingName = Literal["UI_ELEMENT, TILE, ENTITY, CARD"]
+GroupingName = Literal["UI_ELEMENT", "TILE", "ENTITY", "CARD"]
 # more as needed
 
 
@@ -18,6 +17,8 @@ GroupingName = Literal["UI_ELEMENT, TILE, ENTITY, CARD"]
 # In addition to what is already defined in elements.py, an Element should also provide a Surface
 # containing an image of itself. This could be a simple singular image, and can be extended to handle
 # sprite animations via visual component later.
+# TODO: revise ElementManager to consolidate element collections
+# TODO: migrate all pages to test the system.
 @dataclass
 class ElementRegisterForm:
     """Wrapper for game elements (both custom and pygame_gui) to include custom payload & visual_component"""
