@@ -24,6 +24,7 @@ class SqueakGetPlacableTiles(Protocol):
 
 @dataclass(frozen=True, kw_only=True)
 class Squeak:
+    name: str
     crumb_cost: int
     squeak_type: SqueakType
     on_place: SqueakOnPlace
