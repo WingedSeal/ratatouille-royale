@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Sequence
 
 from ..player_info.squeak import Squeak
-from ..entity import Entity, SkillTargeting
+from ..entity import CallableEntitySkill, Entity, SkillTargeting
 from ..hexagon import OddRCoord
 
 
@@ -22,6 +22,9 @@ class MoveAlly(AIAction):
 class ActivateSkill(AIAction):
     entity: Entity
     skill_index: int
+
+    def get_skill(self) -> CallableEntitySkill:
+        return self.entity.skills[self.skill_index]
 
 
 @dataclass(frozen=True)

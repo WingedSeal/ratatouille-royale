@@ -90,7 +90,7 @@ class Board:
             return None
         return self.tiles[coord.y][coord.x]
 
-    def _is_coord_blocked(self, entity: Entity) -> IsCoordBlocked:
+    def is_coord_blocked(self, entity: Entity | type[Entity]) -> IsCoordBlocked:
         def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
@@ -217,12 +217,12 @@ class Board:
         """
         return rodent.pos.get_reachable_coords(
             rodent.speed,
-            self._is_coord_blocked(rodent),
+            self.is_coord_blocked(rodent),
             is_include_self=is_include_self,
         )
 
     def path_find(self, entity: Entity, goal: OddRCoord) -> list[OddRCoord] | None:
-        return entity.pos.path_find(goal, self._is_coord_blocked(entity))
+        return entity.pos.path_find(goal, self.is_coord_blocked(entity))
 
     def get_attackable_coords(
         self, rodent: Rodent, skill: CallableEntitySkill

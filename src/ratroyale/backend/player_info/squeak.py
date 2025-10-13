@@ -28,7 +28,7 @@ class Squeak:
     squeak_type: SqueakType
     on_place: SqueakOnPlace
     get_placable_tiles: SqueakGetPlacableTiles
-    rodent_or_trick: "type[Rodent]"
+    rodent: "type[Rodent] | None"
 
 
 def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
