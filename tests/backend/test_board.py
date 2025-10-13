@@ -2,7 +2,7 @@ import pytest
 
 from ratroyale.backend.board import Board
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
-from ratroyale.backend.features.commmon import Lair
+from ratroyale.backend.features.common import Lair
 from ratroyale.backend.game_event import (
     EntityDamagedEvent,
     EntitySpawnEvent,

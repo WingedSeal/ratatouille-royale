@@ -8,7 +8,7 @@ from .entity import CallableEntitySkill, Entity
 from .entity_effect import EntityEffect
 from .error import EntityInvalidPosError
 from .feature import Feature
-from .features.commmon import DeploymentZone, Lair
+from .features.common import DeploymentZone, Lair
 from .game_event import (
     EntityDamagedEvent,
     EntityDieEvent,

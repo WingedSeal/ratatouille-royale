@@ -1,7 +1,7 @@
 import pytest
 
 from ratroyale.backend.ai.random_ai import RandomAI
-from ratroyale.backend.features.commmon import DeploymentZone, Lair
+from ratroyale.backend.features.common import DeploymentZone, Lair
 from ratroyale.backend.game_event import GameOverEvent
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
