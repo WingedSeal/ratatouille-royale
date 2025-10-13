@@ -67,7 +67,7 @@ class EntityEffectUpdateEvent(GameEvent):
         "force_clear",
         "duration_over",
         "duration_over_and_replaced_by_weaker_effect",
-        "stronger_effect_duration_over",
+        "replacing_stronger_effect_that_duration_over",
     ]
 
 
