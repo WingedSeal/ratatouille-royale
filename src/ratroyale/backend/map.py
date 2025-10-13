@@ -1,13 +1,13 @@
+import inspect
+from pathlib import Path
 from pprint import pformat
 from typing import Any, Final
-from .hexagon import OddRCoord
-from .side import Side
+
 from .entity import Entity
 from .feature import Feature
+from .hexagon import OddRCoord
+from .side import Side
 from .tile import Tile
-from pathlib import Path
-import inspect
-
 
 MAP_FILE_EXTENSION = "rrmap"
 
@@ -112,6 +112,15 @@ class Map:
         self.tiles = tiles
         self.entities = entities
         self.features = []
+        if len(tiles) != size_y:
+            raise ValueError(
+                f"Expected {size_y} rows since size_y={size_y}. But tiles has length of {len(tiles)}"
+            )
+        for i, tile_row in enumerate(tiles):
+            if len(tile_row) != size_x:
+                raise ValueError(
+                    f"Expected {size_x} column since size_x={size_x}. But row {i} of tiles has length of {len(tile_row)}"
+                )
         for feature in features:
             self.add_feature(feature)
 
@@ -139,7 +148,7 @@ class Map:
             data = file.read()
         try:
             return cls.load(data)
-        except:
+        except Exception:
             return None
 
     def to_file(self, file_path: Path) -> None:

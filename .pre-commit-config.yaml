@@ -13,7 +13,7 @@ repos:
         entry: poetry run mypy
         language: system
         files: ^(src/|tests/).*\.py$
-        require_serial: true
+        pass_filenames: false
         types: [python]
 
       - id: pytest
@@ -23,3 +23,11 @@ repos:
         pass_filenames: false
         files: ^(src/|tests/).*\.py$
         types: [python]
+
+      - id: ruff-check
+        name: ruff check
+        entry: poetry run ruff check
+        language: system
+        files: ^(src/|tests/).*\.py$
+        types: [python]
+      

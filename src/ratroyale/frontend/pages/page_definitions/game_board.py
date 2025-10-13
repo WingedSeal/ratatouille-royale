@@ -1,6 +1,5 @@
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.input_token import (
-    InputManagerEvent,
     get_id,
     get_gesture_data,
     get_payload,
@@ -24,7 +23,6 @@ from ratroyale.frontend.pages.page_managers.backend_adapter import (
 
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
-    ParentIdentity,
     UIRegisterForm,
 )
 from ratroyale.frontend.pages.page_elements.element import Element
@@ -135,7 +133,7 @@ class GameBoard(Page):
         panel_width = 160
         panel_x = entity_center_x - panel_width / 2
         panel_y = entity_center_y
-        panel_id = f"ability_panel"
+        panel_id = "ability_panel"
         self.ability_panel_id = panel_id
         panel_rect = pygame.Rect(
             panel_x, panel_y, panel_width, len(entity.skills) * 30 + 10

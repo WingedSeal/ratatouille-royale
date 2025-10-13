@@ -54,7 +54,7 @@ class ElementManager:
         """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
         try:
             collection = self.get_collection(element_type)
-        except:
+        except KeyError:
             collection = self.create_collection(element_type)
 
         if key in collection:

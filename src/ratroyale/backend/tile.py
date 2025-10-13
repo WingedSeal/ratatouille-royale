@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 from pprint import pformat
 
-from .side import Side
+from .entity import Entity
 from .feature import Feature
 from .hexagon import OddRCoord
-from .entity import Entity
+from .side import Side
 
 
 @dataclass

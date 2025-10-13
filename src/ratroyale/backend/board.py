@@ -1,26 +1,27 @@
 from collections import defaultdict
 from copy import deepcopy
-from typing import Iterator
+from typing import Iterable, Iterator
 
-from .features.commmon import DeploymentZone, Lair
-from .feature import Feature
-from .entity_effect import EntityEffect
 from ..utils import EventQueue
+from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
+from .entity import CallableEntitySkill, Entity
+from .entity_effect import EntityEffect
+from .error import EntityInvalidPosError
+from .feature import Feature
+from .features.common import DeploymentZone, Lair
 from .game_event import (
     EntityDamagedEvent,
+    EntityDieEvent,
     EntitySpawnEvent,
     FeatureDamagedEvent,
     FeatureDieEvent,
     GameEvent,
-    EntityDieEvent,
+    GameOverEvent,
 )
-from .error import EntityInvalidPosError
-from .side import Side
-from .entity import Entity, CallableEntitySkill
-from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .hexagon import IsCoordBlocked, OddRCoord
-from .tile import Tile
 from .map import Map
+from .side import Side
+from .tile import Tile
 
 
 class Cache:
@@ -37,6 +38,11 @@ class Cache:
         self.lairs: dict[Side, list[Lair]] = defaultdict(list)
         self.effects: list[EntityEffect] = []
 
+    def get_all_lairs(self) -> Iterable[Lair]:
+        for side_lair in self.lairs.values():
+            for lair in side_lair:
+                yield lair
+
 
 class Board:
     size_x: int
@@ -47,8 +53,9 @@ class Board:
 
     def __init__(self, map: Map) -> None:
         self.cache = Cache()
-        self.tiles = deepcopy(map.tiles)
-        self.cache.features = deepcopy(map.features)
+        map = deepcopy(map)
+        self.tiles = map.tiles
+        self.cache.features = map.features
         for feature in self.cache.features:
             if isinstance(feature, DeploymentZone):
                 self.cache.deployment_zones[feature.side].append(feature)
@@ -74,7 +81,7 @@ class Board:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.append(entity)
-        self.event_queue.put(EntitySpawnEvent(entity))
+        self.event_queue.put_nowait(EntitySpawnEvent(entity))
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
@@ -92,6 +99,8 @@ class Board:
                 _entity.collision for _entity in target_tile.entities
             ):
                 return True
+            if any(feature.is_collision() for feature in target_tile.features):
+                return True
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return True
@@ -108,7 +117,7 @@ class Board:
         Damage an entity. Doesn't work on entity with no health.
         """
         is_dead, damage_taken = entity._take_damage(damage)
-        self.event_queue.put(EntityDamagedEvent(entity, damage, damage_taken))
+        self.event_queue.put_nowait(EntityDamagedEvent(entity, damage, damage_taken))
         if not is_dead:
             return
         is_dead = entity.on_death()
@@ -118,14 +127,14 @@ class Board:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.remove(entity)
-        self.event_queue.put(EntityDieEvent(entity))
+        self.event_queue.put_nowait(EntityDieEvent(entity))
 
     def damage_feature(self, feature: Feature, damage: int) -> None:
         """
         Damage a feature. Doesn't work on feature with no health.
         """
         is_dead, damage_taken = feature._take_damage(damage)
-        self.event_queue.put(FeatureDamagedEvent(feature, damage, damage_taken))
+        self.event_queue.put_nowait(FeatureDamagedEvent(feature, damage, damage_taken))
         if not is_dead:
             return
         is_dead = feature.on_death()
@@ -144,7 +153,9 @@ class Board:
             if feature.side is None:
                 raise ValueError("Lair cannot have side of None")
             self.cache.lairs[feature.side].remove(feature)
-        self.event_queue.put(FeatureDieEvent(feature))
+            if len(self.cache.lairs[feature.side]) == 0:
+                self.event_queue.put_nowait(GameOverEvent(feature.side.other_side()))
+        self.event_queue.put_nowait(FeatureDieEvent(feature))
 
     def line_of_sight_check(
         self,
@@ -186,6 +197,8 @@ class Board:
         if end_tile is None:
             return False
         if entity.collision and any(_entity.collision for _entity in end_tile.entities):
+            return False
+        if any(feature.is_collision() for feature in end_tile.features):
             return False
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)

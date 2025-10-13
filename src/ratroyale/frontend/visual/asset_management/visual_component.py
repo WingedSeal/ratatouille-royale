@@ -1,9 +1,5 @@
 from abc import ABC, abstractmethod
 
-from dataclasses import dataclass, field
-from pygame_gui.core.ui_element import UIElement
-from pygame_gui.core.object_id import ObjectID
-from pygame_gui.ui_manager import UIManager
 import pygame
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity

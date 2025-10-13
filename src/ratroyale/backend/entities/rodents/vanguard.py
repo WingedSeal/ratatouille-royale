@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
-from ..rodent import Rodent, rodent_data
+
 from ...entity import EntitySkill, SkillTargeting, entity_skill_check
+from ..rodent import Rodent, rodent_data
 from .common_skills import normal_damage, select_targetable
 
 if TYPE_CHECKING:

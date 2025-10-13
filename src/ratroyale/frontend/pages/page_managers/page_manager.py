@@ -67,7 +67,7 @@ class PageManager:
     def remove_top_page(self) -> None:
         """Remove the topmost page, or the first page of the given type."""
         if not self.page_stack:
-            raise IndexError(f"Page stack is empty.")
+            raise IndexError("Page stack is empty.")
         closed_page = self.page_stack.pop()
         closed_page.on_close()
 

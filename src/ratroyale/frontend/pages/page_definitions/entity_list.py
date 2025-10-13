@@ -1,15 +1,8 @@
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens.input_token import (
-    InputManagerEvent,
-    get_id,
-    get_gesture_data,
-    get_payload,
-)
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 
-from ratroyale.frontend.gesture.gesture_data import GestureType
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
@@ -17,23 +10,13 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
     callback_event_bind,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-from ratroyale.frontend.pages.page_managers.backend_adapter import (
-    get_name_from_entity,
-    get_name_from_tile,
-)
 
 from ratroyale.frontend.pages.page_elements.element_builder import (
-    ElementConfig,
-    ParentIdentity,
     UIRegisterForm,
 )
-from ratroyale.frontend.pages.page_elements.element import Element
 
-from ratroyale.backend.board import Board
-from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 
-from ratroyale.frontend.visual.asset_management.sprite_registry import TYPICAL_TILE_SIZE
 
 import pygame_gui
 import pygame

@@ -1,13 +1,12 @@
-from abc import abstractmethod
-from enum import Enum, auto
-from .entity_effect import EntityEffect
-from .skill_callback import SkillCallback
-from .side import Side
-from .hexagon import OddRCoord
 import inspect
+from dataclasses import asdict, dataclass
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
-from dataclasses import asdict, dataclass
+from .entity_effect import EntityEffect
+from .hexagon import OddRCoord
+from .side import Side
+from .skill_callback import SkillCallback
 
 if TYPE_CHECKING:
     from .game_manager import GameManager
@@ -31,16 +30,6 @@ class SkillTargeting:
     _callback: SkillCallback
     can_cancel: bool
 
-    def apply_callback(
-        self, game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> "SkillResult":
-        skill_result = self._callback(game_manager, selected_targets)
-        if skill_result == SkillCompleted.SUCCESS:
-            game_manager.crumbs -= self.source_skill.crumb_cost
-            if self.source_enitity.skill_stamina is not None:
-                self.source_enitity.skill_stamina -= 1
-        return skill_result
-
 
 class SkillCompleted(Enum):
     SUCCESS = auto()
@@ -52,7 +41,7 @@ SkillResult: TypeAlias = SkillTargeting | SkillCompleted
 
 @dataclass
 class CallableEntitySkill(EntitySkill):
-    func: Callable[["GameManager"], SkillResult]
+    func: Callable[["Entity", "GameManager"], SkillResult]
 
 
 MINIMAL_DAMAGE_TAKEN = 1
@@ -175,13 +164,13 @@ def entity_data(
             arg_count = len(inspect.signature(skill_function).parameters)
             if arg_count != 2:
                 raise ValueError(
-                    f"Expected {skill} method to take 1 arguments (got {arg_count - 1})"
+                    f"Expected {skill} method to take 2 arguments (got {arg_count - 1})"
                 )
             cls.skills.append(
                 CallableEntitySkill(
                     **asdict(skill),
                     func=cast(
-                        Callable[["GameManager"], SkillResult],
+                        Callable[[Entity, "GameManager"], SkillResult],
                         skill_function,
                     ),
                 )
