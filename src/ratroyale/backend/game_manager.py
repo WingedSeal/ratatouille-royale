@@ -368,7 +368,9 @@ class GameManager:
         )
         effect.on_cleared(self, is_overridden=True)
         self.event_queue.put_nowait(
-            EntityEffectUpdateEvent(effect, "clear", "duration_over_and_overriden")
+            EntityEffectUpdateEvent(
+                effect, "clear", "duration_over_and_replaced_by_weaker_effect"
+            )
         )
         effect.overridden_effects.remove(new_effect)
         new_effect.overridden_effects = effect.overridden_effects
