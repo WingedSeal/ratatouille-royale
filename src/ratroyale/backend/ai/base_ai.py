@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from itertools import chain, combinations
 
+
 from ..entities.rodent import Rodent
 from ..entity import SkillCompleted, SkillTargeting
 from ..error import NotAITurnError
@@ -35,6 +36,8 @@ class BaseAI(ABC):
         is_banned_actions_updated = False
         """Banned AIAction to prevent activing skill that get cancelled over and over"""
         while self.is_ai_turn():
+            if self.game_manager.game_over_event is not None:
+                return
             if (
                 not is_banned_actions_updated
             ):  # If banned action wasn't updated, it means that it did something

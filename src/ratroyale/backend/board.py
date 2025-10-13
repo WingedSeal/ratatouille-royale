@@ -68,6 +68,7 @@ class Board:
         self.event_queue = EventQueue()
         for entity in map.entities:
             self.add_entity(entity)
+        self.game_over_event: GameOverEvent | None = None
 
     def add_entity(self, entity: Entity) -> None:
         self.cache.entities.append(entity)
@@ -154,7 +155,9 @@ class Board:
                 raise ValueError("Lair cannot have side of None")
             self.cache.lairs[feature.side].remove(feature)
             if len(self.cache.lairs[feature.side]) == 0:
-                self.event_queue.put_nowait(GameOverEvent(feature.side.other_side()))
+                game_over_event = GameOverEvent(feature.side.other_side())
+                self.event_queue.put_nowait(game_over_event)
+                self.game_over_event = game_over_event
         self.event_queue.put_nowait(FeatureDieEvent(feature))
 
     def line_of_sight_check(

@@ -116,12 +116,14 @@ class RushBAI(BaseAI):
             self.last_rodent_and_skill_in_lair_range is not None
             and ally_on_field is self.last_rodent_and_skill_in_lair_range.rodent
         ):
+            print("yes")
             for activate_skill in actions.activate_skill:
                 if activate_skill.entity is not ally_on_field:
                     continue
                 assert isinstance(activate_skill.entity, Rodent)
                 skill = activate_skill.get_skill()
                 if skill is not self.last_rodent_and_skill_in_lair_range.skill:
+                    print(activate_skill)
                     return activate_skill
         self.last_rodent_and_skill_in_lair_range = None
 
@@ -141,5 +143,7 @@ class RushBAI(BaseAI):
                 return activate_skill
 
         # Move rodent to enemy lair
+        # if not actions.move_ally:
+        #     return EndTurn()
         best_move = max(actions.move_ally, key=cmp_to_key(self.compare_moves))
         return best_move

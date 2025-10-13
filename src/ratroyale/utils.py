@@ -1,5 +1,5 @@
 from queue import Empty, Queue
-from typing import TypeVar
+from typing import TypeVar, cast
 
 T = TypeVar("T")
 
@@ -14,3 +14,9 @@ class EventQueue(Queue[T]):
             return self.get_nowait()
         except Empty:
             return None
+
+    def peek(self) -> T | None:
+        with self.mutex:
+            if len(self.queue) == 0:
+                return None
+            return cast(T, self.queue[0])

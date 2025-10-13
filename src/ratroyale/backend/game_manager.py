@@ -2,10 +2,7 @@ import math
 from random import shuffle
 from typing import Iterator
 
-from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.page_token import *
-from ratroyale.utils import EventQueue
-
+from ..utils import EventQueue
 from .board import Board
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
@@ -24,6 +21,7 @@ from .game_event import (
     EndTurnEvent,
     EntityMoveEvent,
     GameEvent,
+    GameOverEvent,
 )
 from .hexagon import OddRCoord
 from .map import Map
@@ -84,6 +82,10 @@ class GameManager:
         """
         If it is currently in selecting target mode. It'll have the detail of skill targeting.
         """
+
+    @property
+    def game_over_event(self) -> GameOverEvent | None:
+        return self.board.game_over_event
 
     @property
     def is_selecting_target(self) -> bool:
