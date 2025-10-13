@@ -366,11 +366,15 @@ class GameManager:
         new_effect = max(effect.overridden_effects, key=lambda e: e.intensity)
         new_effect.on_applied(self, is_overriding=True)
         self.event_queue.put_nowait(
-            EntityEffectUpdateEvent(effect, "apply", "stronger_effect_duration_over")
+            EntityEffectUpdateEvent(
+                effect, "apply", "replacing_stronger_effect_that_duration_over"
+            )
         )
         effect.on_cleared(self, is_overridden=True)
         self.event_queue.put_nowait(
-            EntityEffectUpdateEvent(effect, "clear", "duration_over_and_overriden")
+            EntityEffectUpdateEvent(
+                effect, "clear", "duration_over_and_replaced_by_weaker_effect"
+            )
         )
         effect.overridden_effects.remove(new_effect)
         new_effect.overridden_effects = effect.overridden_effects
