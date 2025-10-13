@@ -75,6 +75,13 @@ class BaseAI(ABC):
         """
         ...
 
+    @abstractmethod
+    def get_name_and_description(self) -> tuple[str, str]:
+        """
+        Return AI's name and description for rendering.
+        """
+        ...
+
     def _get_all_actions(self) -> list[AIAction]:
         skill_targeting = self.game_manager.skill_targeting
         if skill_targeting is not None:
