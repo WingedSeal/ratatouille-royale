@@ -13,7 +13,7 @@ repos:
         entry: poetry run mypy
         language: system
         files: ^(src/|tests/).*\.py$
-        require_serial: true
+        pass_filenames: false
         types: [python]
 
       - id: pytest
