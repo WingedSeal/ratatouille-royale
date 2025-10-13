@@ -4,7 +4,6 @@ from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.features.commmon import DeploymentZone, Lair
-from ratroyale.backend.game_event import GameEvent, GameOverEvent
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.player_info.player_info import PlayerInfo
@@ -42,20 +41,14 @@ def test_random_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
         first_turn=Side.RAT,
     )
     ai = ai_type(game_manager, Side.MOUSE)
-    event: GameEvent | None = None
     for _ in range(100):
         assert game_manager.turn == Side.RAT
         # Player Turn
         game_manager.end_turn()
         # AI Turn
         ai.run_ai_and_update_game_manager()
-        while True:
-            event = game_manager.event_queue.get_or_none()
-            print(event)
-            if isinstance(event, GameOverEvent):
-                assert event.victory_side == ai.ai_side
-                return
-            if event is None:
-                break
+        if game_manager.game_over_event is not None:
+            assert game_manager.game_over_event.victory_side == ai.ai_side
+            return
 
     assert False
