@@ -31,8 +31,14 @@ class BaseAI(ABC):
     def run_ai_and_update_game_manager(self) -> None:
         self.validate_ai_turn()
         banned_actions: list[AIAction] = []
+        is_banned_actions_updated = False
         """Banned AIAction to prevent activing skill that get cancelled over and over"""
         while self.is_ai_turn():
+            if (
+                not is_banned_actions_updated
+            ):  # If banned action wasn't updated, it means that it did something
+                # that updated the game state. Hence the ban should be lifted
+                banned_actions = []
             actions = self._get_all_actions()
             for banned_action in banned_actions:
                 try:
@@ -40,6 +46,7 @@ class BaseAI(ABC):
                 except ValueError:
                     pass
             action = self.select_action(actions)
+            is_banned_actions_updated = False
             match action:
                 case EndTurn():
                     self.game_manager.end_turn()
@@ -52,6 +59,7 @@ class BaseAI(ABC):
                     skill_result = self.game_manager.activate_skill(entity, skill_index)
                     if skill_result == SkillCompleted.CANCELLED:
                         banned_actions.append(action)
+                        is_banned_actions_updated = True
                 case SelectTargets(skill_targeting, selected_targets):
                     assert self.game_manager.skill_targeting is skill_targeting
                     self.game_manager.apply_skill_callback(list(selected_targets))
