@@ -6,4 +6,5 @@ TAIL_BLAZER = Squeak(
     squeak_type=SqueakType.RODENT,
     on_place=summon_on_place(TailBlazer),
     get_placable_tiles=rodent_placable_tile,
+    rodent_or_trick=TailBlazer,
 )

@@ -20,13 +20,16 @@ if TYPE_CHECKING:
     move_cost=3,
     height=0,
     skills=[
-        EntitySkill(name="Stab", method_name="stab", reach=2, altitude=0, crumb_cost=3),
+        EntitySkill(
+            name="Stab", method_name="stab", reach=2, altitude=0, crumb_cost=3, tags=[]
+        ),
         EntitySkill(
             name="Spear Launching",
             method_name="spear_launching",
             reach=5,
             altitude=0,
             crumb_cost=7,
+            tags=[],
         ),
     ],
 )
