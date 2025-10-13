@@ -7,6 +7,7 @@ from ..error import NotAITurnError
 from ..game_manager import GameManager
 from ..side import Side
 from .ai_action import (
+    AIActions,
     ActivateSkill,
     AIAction,
     EndTurn,
@@ -30,7 +31,7 @@ class BaseAI(ABC):
 
     def run_ai_and_update_game_manager(self) -> None:
         self.validate_ai_turn()
-        banned_actions: list[AIAction] = []
+        banned_actions: list[ActivateSkill] = []
         is_banned_actions_updated = False
         """Banned AIAction to prevent activing skill that get cancelled over and over"""
         while self.is_ai_turn():
@@ -42,7 +43,7 @@ class BaseAI(ABC):
             actions = self._get_all_actions()
             for banned_action in banned_actions:
                 try:
-                    actions.remove(banned_action)
+                    actions.activate_skill.remove(banned_action)
                 except ValueError:
                     pass
             action = self.select_action(actions)
@@ -69,7 +70,7 @@ class BaseAI(ABC):
                     raise ValueError("action not handled")
 
     @abstractmethod
-    def select_action(self, actions: list[AIAction]) -> AIAction:
+    def select_action(self, actions: AIActions) -> AIAction:
         """
         The evaluation function to select the action AI will take from all available actions
         """
@@ -82,7 +83,7 @@ class BaseAI(ABC):
         """
         ...
 
-    def _get_all_actions(self) -> list[AIAction]:
+    def _get_all_actions(self) -> AIActions:
         skill_targeting = self.game_manager.skill_targeting
         if skill_targeting is not None:
             return self.__get_selecting_target_actions(skill_targeting)
@@ -90,17 +91,18 @@ class BaseAI(ABC):
 
     def __get_selecting_target_actions(
         self, skill_targeting: SkillTargeting
-    ) -> list[AIAction]:
-        all_actions: list[AIAction] = []
+    ) -> AIActions:
+        all_actions = AIActions()
         # SelectTarget
         for targets in combinations(
             skill_targeting.available_targets, skill_targeting.target_count
         ):
-            all_actions.append(SelectTargets(skill_targeting, targets))
+            all_actions.select_targets.append(SelectTargets(skill_targeting, targets))
         return all_actions
 
-    def __get_non_selecting_target_actions(self) -> list[AIAction]:
-        all_actions: list[AIAction] = [EndTurn()]
+    def __get_non_selecting_target_actions(self) -> AIActions:
+        all_actions = AIActions()
+        all_actions.end_turn.append(EndTurn())
         cache = self.game_manager.board.cache
         # MoveAlly
         for ally in cache.sides[self.ai_side]:
@@ -111,7 +113,9 @@ class BaseAI(ABC):
             if self.game_manager.crumbs < ally.move_cost:
                 continue
             for move_target_coord in self.game_manager.board.get_reachable_coords(ally):
-                all_actions.append(MoveAlly(ally.move_cost, ally, move_target_coord))
+                all_actions.move_ally.append(
+                    MoveAlly(ally.move_cost, ally, move_target_coord)
+                )
         # ActivateSkill
         for entity in chain(cache.sides[self.ai_side], cache.sides[None]):
             if entity.skill_stamina is not None and entity.skill_stamina <= 0:
@@ -119,13 +123,15 @@ class BaseAI(ABC):
             for i, skill in enumerate(entity.skills):
                 if self.game_manager.crumbs < skill.crumb_cost:
                     continue
-                all_actions.append(ActivateSkill(skill.crumb_cost, entity, i))
+                all_actions.activate_skill.append(
+                    ActivateSkill(skill.crumb_cost, entity, i)
+                )
         # PlaceSqueak
         for hand_index, squeak in enumerate(self.game_manager.hands[self.ai_side]):
             if self.game_manager.crumbs < squeak.crumb_cost:
                 continue
             for target_coord in squeak.get_placable_tiles(self.game_manager):
-                all_actions.append(
+                all_actions.place_squeak.append(
                     PlaceSqueak(squeak.crumb_cost, target_coord, hand_index, squeak)
                 )
         return all_actions

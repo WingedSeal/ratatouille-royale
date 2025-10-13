@@ -3,7 +3,7 @@ from typing import cast
 from ratroyale.backend.player_info.squeak import SqueakType
 from ratroyale.backend.tags import SkillTag
 from ..entities.rodent import Rodent
-from .ai_action import AIAction, PlaceSqueak, SelectTargets
+from .ai_action import AIAction, AIActions, PlaceSqueak, SelectTargets
 from .base_ai import BaseAI
 
 
@@ -32,7 +32,7 @@ class RushBAI(BaseAI):
                     return hand
         return None
 
-    def select_action(self, actions: list[AIAction]) -> AIAction:
+    def select_action(self, actions: AIActions) -> AIAction:
         if self.game_manager.is_selecting_target:
             select_targets_actions = cast(list[SelectTargets], actions)
             return select_targets_actions[0]  # TODO: Select Skill
