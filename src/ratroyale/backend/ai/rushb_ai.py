@@ -126,15 +126,20 @@ class RushBAI(BaseAI):
         self.last_rodent_and_skill_in_lair_range = None
 
         # Check if lair is now within range
-        # TODO:
+        for activate_skill in actions.activate_skill:
+            if activate_skill.entity is not ally_on_field:
+                continue
+            assert isinstance(activate_skill.entity, Rodent)
+            skill = activate_skill.get_skill()
+            if (
+                self.choose_lair_coord()
+                in self.game_manager.board.get_attackable_coords(ally_on_field, skill)
+            ):
+                self.last_rodent_and_skill_in_lair_range = RodentAndSkill(
+                    ally_on_field, skill
+                )
+                return activate_skill
 
+        # Move rodent to enemy lair
         best_move = max(actions.move_ally, key=cmp_to_key(self.compare_moves))
         return best_move
-        # Move rodent to enemy lair
-
-        # if (
-        #     self.choose_lair_coord()
-        #     in self.game_manager.board.get_attackable_coords(
-        #         action.entity, skill
-        #     )
-        # ):
