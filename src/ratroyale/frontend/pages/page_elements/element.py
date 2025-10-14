@@ -1,10 +1,10 @@
 import pygame
 
+from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from typing import TypeVar
 from pygame_gui.core import UIElement
-from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 from ratroyale.event_tokens.payloads import Payload
 from .spatial_component import SpatialComponent, Camera
 from .hitbox import Hitbox

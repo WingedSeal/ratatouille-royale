@@ -4,8 +4,8 @@ from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.coordination_manager import CoordinationManager
 from .spatial_component import Camera
 
-from pygame_gui import UIManager
 from pygame import Surface
+from pygame_gui import UIManager
 
 from typing import TypeVar
 

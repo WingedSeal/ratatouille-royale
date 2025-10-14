@@ -1,23 +1,28 @@
 from __future__ import annotations
-import pygame_gui
-import pygame
 
-from ratroyale.event_tokens.input_token import get_id
+from abc import ABC, abstractmethod
+from typing import Any, Protocol, cast
+
+import pygame
+import pygame_gui
+
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.base import EventToken
-from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
-from typing import Protocol, cast, Any
+from ratroyale.event_tokens.game_token import *
+from ratroyale.event_tokens.input_token import get_id
+from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
-from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 
-from abc import ABC, abstractmethod
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 class InputHandler(Protocol):

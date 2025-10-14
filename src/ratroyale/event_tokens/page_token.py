@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from .base import EventToken
 from enum import Enum, auto
+
+from .base import EventToken
 
 __all__ = [
     "PageManagerEvent",

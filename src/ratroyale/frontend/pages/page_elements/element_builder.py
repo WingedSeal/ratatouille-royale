@@ -1,8 +1,9 @@
+from dataclasses import dataclass
+from typing import Callable, ParamSpec, TypeVar
+
 import pygame_gui
 
 from ratroyale.frontend.pages.page_elements.element import ElementWrapper
-from dataclasses import dataclass
-from typing import TypeVar, ParamSpec, Callable
 from ratroyale.event_tokens.payloads import Payload
 
 T = TypeVar("T")
