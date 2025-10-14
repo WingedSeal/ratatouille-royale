@@ -64,6 +64,15 @@ class Cracker(Rodent):
     def on_turn_change(self, game_manager: "GameManager", turn_change_to: Side) -> None:
         if turn_change_to != self.side:
             return
+
+        tile = game_manager.board.get_tile(self.pos)
+        assert tile is not None
+        for entity in tile.entities:
+            if entity is self:
+                continue
+            if entity.side == self.side:
+                game_manager.heal_entity(self, 1)
+                return
         for neighbor in self.pos.get_reachable_coords(3):
             tile = game_manager.board.get_tile(neighbor)
             if tile is None:
