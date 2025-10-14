@@ -35,7 +35,6 @@ class Camera:
         """
         screen_px = SCREEN_SIZE_HALVED[0] if not screen_pos else screen_pos[0]
         screen_py = SCREEN_SIZE_HALVED[1] if not screen_pos else screen_pos[1]
-        old_scale = self.scale
 
         # World point under cursor before zoom
         wx, wy = self.screen_to_world(screen_px, screen_py)

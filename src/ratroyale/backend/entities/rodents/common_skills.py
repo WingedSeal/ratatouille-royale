@@ -2,15 +2,15 @@ from typing import TYPE_CHECKING, Iterable
 
 from ratroyale.backend.error import ShortHandSkillCallbackError
 
+from ...entity import SkillCompleted, SkillResult, SkillTargeting
 from ...entity_effect import EntityEffect
 from ...skill_callback import SkillCallback, skill_callback_check
-from ...entity import SkillResult, SkillCompleted, SkillTargeting
 
 if TYPE_CHECKING:
-    from ...game_manager import GameManager
+    from ...board import Board
     from ...entities.rodent import Rodent
     from ...entity import CallableEntitySkill
-    from ...board import Board
+    from ...game_manager import GameManager
     from ...hexagon import OddRCoord
 
 

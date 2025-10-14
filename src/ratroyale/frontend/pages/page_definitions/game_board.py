@@ -16,21 +16,10 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
     callback_event_bind,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-from ratroyale.frontend.pages.page_managers.backend_adapter import (
-    get_name_from_entity,
-    get_name_from_tile,
-)
 
 from ratroyale.frontend.pages.page_elements.hitbox import RectangleHitbox, HexHitbox
 
 
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    ElementConfig,
-    ParentIdentity,
-)
-from ratroyale.frontend.pages.page_elements.element_register_form import (
-    ElementRegisterForm,
-)
 from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 
 from ratroyale.backend.board import Board
@@ -62,8 +51,6 @@ from ratroyale.frontend.visual.asset_management.visual_component import VisualCo
 from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
     SpritesheetComponent,
 )
-
-from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
 
 
 @register_page
@@ -200,7 +187,7 @@ class GameBoard(Page):
         panel_width = 160
         panel_x = entity_center_x - panel_width / 2
         panel_y = entity_center_y
-        panel_id = f"ability_panel"
+        panel_id = "ability_panel"
         self.ability_panel_id = panel_id
         panel_rect = pygame.Rect(
             panel_x, panel_y, panel_width, len(entity.skills) * 30 + 10

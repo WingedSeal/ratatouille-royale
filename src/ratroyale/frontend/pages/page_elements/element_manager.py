@@ -1,11 +1,10 @@
-from .element_builder import ElementConfig, create_element, ParentIdentity
+from .element_builder import ParentIdentity
 from .element import ElementWrapper
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.coordination_manager import CoordinationManager
 from .spatial_component import Camera
 
 from pygame_gui import UIManager
-from pygame_gui.core import UIElement
 from pygame import Surface
 
 from typing import TypeVar
@@ -60,7 +59,7 @@ class ElementManager:
         """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
         try:
             collection = self.get_collection(element.grouping_name)
-        except:
+        except KeyError:
             collection = self.create_collection(element.grouping_name)
 
         if element.registered_name in collection:

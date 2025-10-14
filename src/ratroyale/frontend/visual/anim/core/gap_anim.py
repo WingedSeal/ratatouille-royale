@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from .anim_structure import AnimEvent
-from ...asset_management.spritesheet_structure import SpritesheetComponent
 
 
 @dataclass

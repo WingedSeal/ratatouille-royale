@@ -62,7 +62,7 @@ class ElementWrapper:
     def get_interactable(self, cls: type[T]) -> T:
         if not self.interactable_component:
             raise AttributeError(
-                f"This element wrapper does not have an interactable component."
+                "This element wrapper does not have an interactable component."
             )
         if not isinstance(self.interactable_component, cls):
             raise TypeError(

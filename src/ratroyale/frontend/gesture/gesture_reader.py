@@ -195,7 +195,7 @@ class GestureReader:
         ):
             speed = distance_total / max(elapsed_time, 1e-6)
             if speed >= self.SWIPE_SPEED_THRESHOLD:
-                direction = (dx / speed if speed else 0, dy / speed if speed else 0)
+                # direction = (dx / speed if speed else 0, dy / speed if speed else 0)
                 self.on_swipe(
                     start_pos=self.start_pos,
                     end_pos=pos,

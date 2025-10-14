@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
-from ..rodent import Rodent, rodent_data
+
+from ...tags import RodentClassTag
 from ...entity import EntitySkill, SkillTargeting, entity_skill_check
+from ..rodent import Rodent, rodent_data
 from .common_skills import normal_damage, select_targetable
 
 if TYPE_CHECKING:
@@ -18,14 +20,19 @@ if TYPE_CHECKING:
     attack=3,
     move_cost=3,
     height=0,
+    class_tag=RodentClassTag.VANGUARD,
+    entity_tags=[],
     skills=[
-        EntitySkill(name="Stab", method_name="stab", reach=2, altitude=0, crumb_cost=3),
+        EntitySkill(
+            name="Stab", method_name="stab", reach=2, altitude=0, crumb_cost=3, tags=[]
+        ),
         EntitySkill(
             name="Spear Launching",
             method_name="spear_launching",
             reach=5,
             altitude=0,
             crumb_cost=7,
+            tags=[],
         ),
     ],
 )

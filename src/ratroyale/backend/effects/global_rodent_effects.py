@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
-from ..entity_effect import EffectClearSide, effect_data, RodentEffect
+
+from ..entity_effect import EffectClearSide, RodentEffect, effect_data
 
 if TYPE_CHECKING:
     from ..game_manager import GameManager

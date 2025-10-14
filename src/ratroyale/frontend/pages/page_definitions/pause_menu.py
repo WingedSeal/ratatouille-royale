@@ -1,21 +1,13 @@
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens.input_token import InputManagerEvent
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 
-from ratroyale.frontend.gesture.gesture_data import GestureType
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    ElementConfig,
-)
-from ratroyale.frontend.pages.page_elements.element_register_form import (
-    ElementRegisterForm,
-)
 
 from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera

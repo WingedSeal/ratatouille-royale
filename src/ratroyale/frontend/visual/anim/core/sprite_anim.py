@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import pygame
 from .anim_structure import AnimEvent
 from ...asset_management.spritesheet_structure import SpritesheetComponent
 from ...asset_management.spritesheet_manager import SpritesheetManager

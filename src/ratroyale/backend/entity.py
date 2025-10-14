@@ -1,13 +1,13 @@
-from abc import abstractmethod
-from enum import Enum, auto
-from .entity_effect import EntityEffect
-from .skill_callback import SkillCallback
-from .side import Side
-from .hexagon import OddRCoord
 import inspect
+from dataclasses import asdict, dataclass
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
-from dataclasses import asdict, dataclass
+from .tags import EntityTag, SkillTag
+from .entity_effect import EntityEffect
+from .hexagon import OddRCoord
+from .side import Side
+from .skill_callback import SkillCallback
 
 if TYPE_CHECKING:
     from .game_manager import GameManager
@@ -20,6 +20,7 @@ class EntitySkill:
     reach: int | None
     crumb_cost: int
     altitude: int | None
+    tags: list[SkillTag]
 
 
 @dataclass
@@ -30,16 +31,6 @@ class SkillTargeting:
     available_targets: list[OddRCoord]
     _callback: SkillCallback
     can_cancel: bool
-
-    def apply_callback(
-        self, game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> "SkillResult":
-        skill_result = self._callback(game_manager, selected_targets)
-        if skill_result == SkillCompleted.SUCCESS:
-            game_manager.crumbs -= self.source_skill.crumb_cost
-            if self.source_enitity.skill_stamina is not None:
-                self.source_enitity.skill_stamina -= 1
-        return skill_result
 
 
 class SkillCompleted(Enum):
@@ -52,7 +43,7 @@ SkillResult: TypeAlias = SkillTargeting | SkillCompleted
 
 @dataclass
 class CallableEntitySkill(EntitySkill):
-    func: Callable[["GameManager"], SkillResult]
+    func: Callable[["Entity", "GameManager"], SkillResult]
 
 
 MINIMAL_DAMAGE_TAKEN = 1
@@ -72,6 +63,7 @@ class Entity:
     movable: bool = False
     skill_stamina: int | None = None
     collision: bool = False
+    entity_tags: list[EntityTag] = []
     description: str = ""
     height: int = 0
     skills: list[CallableEntitySkill] = []
@@ -151,6 +143,7 @@ def entity_data(
     movable: bool = False,
     collision: bool = False,
     height: int = 0,
+    entity_tags: list[EntityTag] = [],
     description: str = "",
     skills: list[EntitySkill] = [],
     name: str = "",
@@ -166,6 +159,7 @@ def entity_data(
         cls.description = description
         cls.height = height
         cls.name = name
+        cls.entity_tags = entity_tags
         for skill in skills:
             if not hasattr(cls, skill.method_name):
                 raise ValueError(f"{skill} is not an attribute of {cls.__name__}")
@@ -175,13 +169,13 @@ def entity_data(
             arg_count = len(inspect.signature(skill_function).parameters)
             if arg_count != 2:
                 raise ValueError(
-                    f"Expected {skill} method to take 1 arguments (got {arg_count - 1})"
+                    f"Expected {skill} method to take 2 arguments (got {arg_count - 1})"
                 )
             cls.skills.append(
                 CallableEntitySkill(
                     **asdict(skill),
                     func=cast(
-                        Callable[["GameManager"], SkillResult],
+                        Callable[[Entity, "GameManager"], SkillResult],
                         skill_function,
                     ),
                 )

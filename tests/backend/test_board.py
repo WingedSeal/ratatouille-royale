@@ -1,6 +1,8 @@
 import pytest
+
+from ratroyale.backend.board import Board
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
-from ratroyale.backend.features.commmon import Lair
+from ratroyale.backend.features.common import Lair
 from ratroyale.backend.game_event import (
     EntityDamagedEvent,
     EntitySpawnEvent,
@@ -8,7 +10,6 @@ from ratroyale.backend.game_event import (
 )
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map
-from ratroyale.backend.board import Board
 from ratroyale.backend.side import Side
 
 
@@ -25,7 +26,7 @@ def example_board(empty_board: Board) -> Board:
 
 
 def test_cache(example_board: Board) -> None:
-    assert type(example_board.cache.features[0]) == Lair
+    assert type(example_board.cache.features[0]) is Lair
     assert type(example_board.cache.entities_with_hp[0]).name == "TailBlazer"
 
 

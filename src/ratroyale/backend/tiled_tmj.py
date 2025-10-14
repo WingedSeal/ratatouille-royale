@@ -1,20 +1,21 @@
-from typing import TYPE_CHECKING, Any, Literal, cast, get_args
 from itertools import count
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal, cast, get_args
+
 from .entity import Entity
 from .feature import Feature
 from .hexagon import OddRCoord
+from .map import Map
 from .side import Side
 from .tile import Tile
-from .map import Map
 
 try:
     import numpy as np
-    from PIL import Image, ImageDraw, ImageChops
+    from PIL import Image, ImageChops, ImageDraw
 except ImportError:
     if TYPE_CHECKING:
         import numpy as np
-        from PIL import Image, ImageDraw, ImageChops
+        from PIL import Image, ImageChops, ImageDraw
 
 TILED_TILE_PIXEL = 50
 

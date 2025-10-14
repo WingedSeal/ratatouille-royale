@@ -1,13 +1,9 @@
 import pygame_gui
 
-from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from ratroyale.frontend.pages.page_elements.element import ElementWrapper
-from .hitbox import HexHitbox, RectangleHitbox
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.entity import Entity
 from dataclasses import dataclass
-from typing import TypeVar, ParamSpec, Callable, Any
-from ratroyale.event_tokens.payloads import Payload, TilePayload, EntityPayload
+from typing import TypeVar, ParamSpec, Callable
+from ratroyale.event_tokens.payloads import Payload
 
 T = TypeVar("T")
 P = ParamSpec("P")
