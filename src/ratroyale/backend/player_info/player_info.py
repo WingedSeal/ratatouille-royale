@@ -2,6 +2,8 @@ from pathlib import Path
 
 from .squeak import Squeak
 from .squeak_set import SqueakSet
+from . import squeaks  # noqa
+
 
 SAVE_FILE_EXTENSION = "save"
 
@@ -10,6 +12,27 @@ class PlayerInfo:
     all_squeaks: list[Squeak]
     squeak_sets: list[SqueakSet]
     selected_squeak_set_index: int
+
+    _FORMAT_SPEC = """
+    2 bytes for all_squeaks_length
+    loop all_squeaks_length times {
+        1 byte for squeak_name_length
+        squeak_name_length bytes for squeak_name
+    }
+    1 bytes for squeak_sets_count
+    loop squeak_sets_count times {
+        1 byte for squeak_set_length
+        loop squeak_set_length times {
+            2 bytes for squeak_index
+        }
+    }
+    loop squeak_sets_count times {
+        loop 5 times {
+            2 bytes for squeak_index
+        }
+    }
+    2 bytes for select_squeak_set_index
+    """
 
     def __init__(
         self,

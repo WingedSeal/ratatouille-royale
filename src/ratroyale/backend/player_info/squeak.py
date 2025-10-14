@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Iterable, Protocol
+from typing import TYPE_CHECKING, ClassVar, Iterable, Protocol
 
 
 from ..hexagon import OddRCoord
@@ -33,6 +33,12 @@ class Squeak:
     on_place: SqueakOnPlace
     get_placable_tiles: SqueakGetPlacableTiles
     rodent: "type[Rodent] | None"
+    SQEAK_MAP: ClassVar[dict[str, "Squeak"]] = {}
+    REVERSED_SQEAK_MAP: ClassVar[dict["Squeak", str]] = {}
+
+    def __post_init__(self) -> None:
+        type(self).SQEAK_MAP[self.name] = self
+        type(self).REVERSED_SQEAK_MAP[self] = self.name
 
 
 def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
