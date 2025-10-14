@@ -319,8 +319,14 @@ class GameManager:
             )
         )
 
-    def apply_effect(self, entity: Entity, effect: EntityEffect) -> None:
+    def apply_effect(
+        self, entity: Entity, effect: EntityEffect, stack_intensity: bool = False
+    ) -> None:
         old_effect = entity.effects.get(effect.name)
+        if stack_intensity and old_effect is not None:
+            old_effect.intensity += effect.intensity
+            old_effect.duration = effect.duration
+            return
         if old_effect is None:
             entity.effects[effect.name] = effect
             self.board.cache.effects.append(effect)

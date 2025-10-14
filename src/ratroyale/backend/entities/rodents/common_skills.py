@@ -109,11 +109,13 @@ def apply_effect(
     duration: int | None,
     intensity: float,
     is_ally_instead: bool = False,
+    stack_intensity: bool = False,
 ) -> SkillCallback:
     """
     Apply effect on enemy (or ally if `is_ally_instead`) rodent
     :param effect: EntityEffect to apply to enemy
     :is_ally_instead: Target ally instead of enemy
+    :stack_intensity: Whether to stack intensity and extend the duration instead (Note that it'll not recall on_apply)
     """
 
     @skill_callback_check
@@ -127,7 +129,9 @@ def apply_effect(
                 entity = game_manager.get_enemy_on_pos(target)
             assert entity is not None
             game_manager.apply_effect(
-                entity, effect(entity, duration=duration, intensity=intensity)
+                entity,
+                effect(entity, duration=duration, intensity=intensity),
+                stack_intensity=stack_intensity,
             )
         return SkillCompleted.SUCCESS
 
