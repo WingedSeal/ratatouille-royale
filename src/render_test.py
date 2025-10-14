@@ -35,9 +35,9 @@ def main():
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
     tiles: list[list[Tile | None]] = []
-    for q in range(size_x):
+    for q in range(size_y):
         row = []
-        for r in range(size_y):
+        for r in range(size_x):
             tile = Tile(
                 tile_id=1, coord=OddRCoord(q, r), entities=[], height=0, features=[]
             )
@@ -52,10 +52,12 @@ def main():
     # Create 5 dummy squeaks
     dummy_squeaks = [
         Squeak(
+            name="Test Card",
             crumb_cost=1,
             squeak_type=SqueakType.RODENT,
             on_place=dummy_on_place,
             get_placable_tiles=dummy_get_placable,
+            rodent=TailBlazer,
         )
         for i in range(5)
     ]
@@ -66,12 +68,14 @@ def main():
 
     # PlayerInfo
     player_info_1 = PlayerInfo(
+        hands=[[0, 1, 2, 3, 4]],
         all_squeaks=dummy_squeaks,
         squeak_sets=dummy_squeak_sets,
         selected_squeak_set_index=selected_index,
     )
 
     player_info_2 = PlayerInfo(
+        hands=[[0, 1, 2, 3, 4]],
         all_squeaks=dummy_squeaks,
         squeak_sets=dummy_squeak_sets,
         selected_squeak_set_index=selected_index,
