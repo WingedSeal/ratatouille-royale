@@ -121,7 +121,7 @@ class RushBAI(BaseAI):
                     continue
                 assert isinstance(activate_skill.entity, Rodent)
                 skill = activate_skill.get_skill()
-                if skill is not self.last_rodent_and_skill_in_lair_range.skill:
+                if skill is self.last_rodent_and_skill_in_lair_range.skill:
                     return activate_skill
         self.last_rodent_and_skill_in_lair_range = None
 
