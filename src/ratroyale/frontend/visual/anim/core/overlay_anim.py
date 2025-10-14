@@ -7,7 +7,7 @@ from ...asset_management.spritesheet_structure import SpritesheetComponent
 @dataclass
 class OverlayAnim(AnimEvent):
     spritesheet_component: SpritesheetComponent
-    blend_mode: int  # for pygame blend modes
+    pygame_blend_mode: int
     intensity_range: tuple[float, float]
 
 
@@ -39,7 +39,7 @@ class ColorOverlayAnim(OverlayAnim):
         overlay_color = pygame.Color(r, g, b, a)
 
         # Apply to visual component
-        self.spritesheet_component.set_overlay(overlay_color, self.blend_mode)
+        self.spritesheet_component.set_overlay(overlay_color, self.pygame_blend_mode)
 
         return None
 

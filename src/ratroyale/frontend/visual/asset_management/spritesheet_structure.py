@@ -88,7 +88,8 @@ class SpritesheetComponent:
     ) -> pygame.Surface | None:
         current_frame = self._current_frame()
         aligned = self._fit_with_spatial_rect(current_frame, spatial_rect)
-
         overlaid = self._apply_overlay(aligned)
+
+        self.clear_overlay()
 
         return overlaid

@@ -33,6 +33,12 @@ from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
     SpritesheetComponent,
 )
+from ratroyale.frontend.visual.anim.core.anim_settings import (
+    ScaleMode,
+    TimingMode,
+    VerticalAnchor,
+    HorizontalAnchor,
+)
 
 from ..page_managers.base_page import Page
 
@@ -180,7 +186,7 @@ class MainMenu(Page):
         if vis:
             scale_anim = ScaleAnim(
                 easing_func=pytweening.easeOutCirc,
-                timing_mode="DURATION_PER_LOOP",  # or "DURATION_IN_TOTAL"
+                timing_mode=TimingMode.DURATION_PER_LOOP,
                 period=1,  # duration of one loop in seconds
                 reverse_pass_per_loop=True,  # whether to reverse direction at the end of each loop
                 compose_with_default=True,  # optional, depends on your AnimEvent logic
@@ -189,9 +195,9 @@ class MainMenu(Page):
                 spatial_component=element_wrapper.spatial_component,
                 camera=self.camera,
                 align_hitbox_during_anim=False,
-                scale_mode="SCALE_BY_FACTOR",
+                scale_mode=ScaleMode.SCALE_BY_FACTOR,
                 target=(0.8, 1.2),
-                expansion_anchor=("LOWER", "MIDDLE"),
+                expansion_anchor=(VerticalAnchor.LOWER, HorizontalAnchor.MIDDLE),
             )
 
             # move_anim = MoveAnim(

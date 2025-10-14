@@ -1,11 +1,9 @@
 from dataclasses import dataclass
-from typing import Literal, Callable
+from typing import Callable
 from abc import ABC, abstractmethod
 import math
 import pytweening  # type: ignore
-
-# TODO: move all literals into its own enums
-TimingMode = Literal["DURATION_PER_LOOP", "DURATION_IN_TOTAL"]
+from .anim_settings import TimingMode
 
 
 # TODO: reintroduce reverse easing.
@@ -45,10 +43,10 @@ class AnimEvent(ABC):
         Returns normalized_t
         """
         # Determine timing mode.
-        if self.timing_mode == "DURATION_PER_LOOP":
+        if self.timing_mode == TimingMode.DURATION_PER_LOOP:
             loop_period = self.period
             total_time = (self.loop_count or 1) * loop_period
-        elif self.timing_mode == "DURATION_IN_TOTAL":
+        elif self.timing_mode == TimingMode.DURATION_IN_TOTAL:
             loop_period = self.period / (self.loop_count or 1)
             total_time = self.period
 

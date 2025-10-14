@@ -4,7 +4,7 @@ from .anim_structure import AnimEvent
 
 @dataclass
 class GapAnim(AnimEvent):
-    """Does nothing. Used for animation timing purposes."""
+    """Introduces a time gap where no animation happens. Used for animation timing purposes."""
 
     def __post_init__(self) -> None:
         super().__post_init__()

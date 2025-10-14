@@ -1,20 +1,16 @@
 from dataclasses import dataclass
-from typing import Literal
 from .anim_structure import AnimEvent
 from ratroyale.frontend.pages.page_elements.spatial_component import (
     SpatialComponent,
     Camera,
 )
-
-MoveAnimMode = Literal["MOVE_TO", "MOVE_BY"]
-ScaleMode = Literal["SCALE_TO_SIZE", "SCALE_BY_FACTOR"]
-HorizontalAnchor = Literal["LEFT", "MIDDLE", "RIGHT"]
-VerticalAnchor = Literal["UPPER", "MIDDLE", "LOWER"]
-SkewMode = Literal["SKEW_TO", "SKEW_BY"]
-"""SKEW_TO: animates towards a target skew value
-SKEW_BY: animates relative to the current skew value"""
-
-# TODO: currently all fucked up because of the camera. gotta fix.
+from .anim_settings import (
+    MoveAnimMode,
+    ScaleMode,
+    SkewMode,
+    HorizontalAnchor,
+    VerticalAnchor,
+)
 
 
 @dataclass(kw_only=True)
@@ -46,7 +42,7 @@ class MoveAnim(TransformAnim):
         start_x, start_y = self._start_pos
         dx, dy = self.direction_vector
 
-        if self.move_mode == "MOVE_BY":
+        if self.move_mode == MoveAnimMode.MOVE_BY:
             eased_t = (
                 (1 - eased_t)
                 if (self.reverse_pass_per_loop and self._direction < 0)
@@ -55,7 +51,7 @@ class MoveAnim(TransformAnim):
             new_x = start_x + dx * eased_t
             new_y = start_y + dy * eased_t
 
-        elif self.move_mode == "MOVE_TO":
+        elif self.move_mode == MoveAnimMode.MOVE_TO:
             target_x, target_y = dx, dy
             if self.reverse_pass_per_loop and self._direction < 0:
                 new_x = target_x + (start_x - target_x) * eased_t
@@ -92,16 +88,16 @@ class ScaleAnim(TransformAnim):
         anchor_x, anchor_y = self._rect.x, self._rect.y  # default: top-left
 
         # Vertical anchor
-        if self.expansion_anchor[0] == "MIDDLE":
+        if self.expansion_anchor[0] == VerticalAnchor.MIDDLE:
             anchor_y = self._rect.centery
-        elif self.expansion_anchor[0] == "LOWER":
+        elif self.expansion_anchor[0] == VerticalAnchor.LOWER:
             anchor_y = self._rect.bottom
         # else UPPER: keep as _rect.y
 
         # Horizontal anchor
-        if self.expansion_anchor[1] == "MIDDLE":
+        if self.expansion_anchor[1] == HorizontalAnchor.MIDDLE:
             anchor_x = self._rect.centerx
-        elif self.expansion_anchor[1] == "RIGHT":
+        elif self.expansion_anchor[1] == HorizontalAnchor.RIGHT:
             anchor_x = self._rect.right
         # else LEFT: keep as _rect.x
 
@@ -115,7 +111,7 @@ class ScaleAnim(TransformAnim):
         target_width, target_height = self.target
 
         # Compute new size
-        if self.scale_mode == "SCALE_TO_SIZE":
+        if self.scale_mode == ScaleMode.SCALE_TO_SIZE:
             if self.reverse_pass_per_loop and self._direction < 0:
                 # Interpolate from target back to start
                 new_width = target_width + (start_width - target_width) * eased_t
@@ -125,7 +121,7 @@ class ScaleAnim(TransformAnim):
                 new_width = start_width + (target_width - start_width) * eased_t
                 new_height = start_height + (target_height - start_height) * eased_t
 
-        elif self.scale_mode == "SCALE_BY_FACTOR":
+        elif self.scale_mode == ScaleMode.SCALE_BY_FACTOR:
             if self.reverse_pass_per_loop and self._direction < 0:
                 # Scale back down toward original size
                 new_width = start_width * (target_width - (target_width - 1) * eased_t)
@@ -157,10 +153,14 @@ class ScaleAnim(TransformAnim):
 
 @dataclass
 class RotateAnim(TransformAnim):
-    """This will have no effect on pygame GUI elements (neither visual nor hitbox will change). Mainly used to rotate sprite images."""
+    """This will have no effect on pygame GUI elements (neither visual nor hitbox will change). Mainly used to rotate sprite images.
+    Positive angle is clockwise rotation, while negative is counterclockwise."""
 
     angle: float
-    pivot: tuple[VerticalAnchor, HorizontalAnchor] = ("MIDDLE", "MIDDLE")
+    pivot: tuple[VerticalAnchor, HorizontalAnchor] = (
+        VerticalAnchor.MIDDLE,
+        HorizontalAnchor.MIDDLE,
+    )
 
 
 @dataclass
@@ -169,4 +169,7 @@ class SkewAnim(TransformAnim):
 
     skew_mode: SkewMode
     target: tuple[float, float]
-    pivot: tuple[VerticalAnchor, HorizontalAnchor] = ("MIDDLE", "MIDDLE")
+    pivot: tuple[VerticalAnchor, HorizontalAnchor] = (
+        VerticalAnchor.MIDDLE,
+        HorizontalAnchor.MIDDLE,
+    )
