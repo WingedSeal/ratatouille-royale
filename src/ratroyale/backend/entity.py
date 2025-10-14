@@ -95,6 +95,9 @@ class Entity:
     def on_hp_loss(self, hp_loss: int) -> None:
         pass
 
+    def reset_stamina(self) -> None:
+        self.skill_stamina = self.max_skill_stamina
+
     def on_death(self) -> bool:
         """
         Method called when entity dies

@@ -27,6 +27,10 @@ class Rodent(Entity):
     @abstractmethod
     def skill_descriptions(self) -> list[str]: ...
 
+    def reset_stamina(self) -> None:
+        self.move_stamina = self.max_move_stamina
+        super().reset_stamina()
+
 
 T = TypeVar("T", bound=type[Rodent])
 
