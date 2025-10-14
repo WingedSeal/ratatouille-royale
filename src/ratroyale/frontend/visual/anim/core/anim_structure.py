@@ -11,9 +11,9 @@ from .anim_settings import TimingMode, AnimDirection
 class AnimEvent(ABC):
     easing_func: Callable[[float], float] = pytweening.linear
     timing_mode: TimingMode
-    period: float = 1.0  # in seconds
+    period_in_seconds: float = 1.0
     reverse_pass_per_loop: bool = False
-    compose_with_default: bool = False
+    run_together_with_default: bool = False
     """Will be overridden if part of a GroupedEvent"""
     callback: str | None = None
     loop_count: int | None = 1
@@ -44,11 +44,11 @@ class AnimEvent(ABC):
         """
         # Determine timing mode.
         if self.timing_mode == TimingMode.DURATION_PER_LOOP:
-            loop_period = self.period
+            loop_period = self.period_in_seconds
             total_time = (self.loop_count or 1) * loop_period
         elif self.timing_mode == TimingMode.DURATION_IN_TOTAL:
-            loop_period = self.period / (self.loop_count or 1)
-            total_time = self.period
+            loop_period = self.period_in_seconds / (self.loop_count or 1)
+            total_time = self.period_in_seconds
 
         # Record previous time & updated time.
         prev_time = self._elapsed_time
@@ -91,7 +91,7 @@ class GroupedAnim:
     """A callback happens once all animations in the list is finished."""
     loop_count: int = 1
     """Replays the animation for this amount of time."""
-    compose_with_default: bool = False
+    run_together_with_default: bool = False
     """If false, this stops default animation. If true, this composes with default."""
 
     def __post_init__(self) -> None:
