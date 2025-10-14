@@ -8,7 +8,7 @@ from .squeak_set import SqueakSet
 from . import squeaks  # noqa
 
 HAND_LENGTH = 5
-SAVE_FILE_EXTENSION = "save"
+SAVE_FILE_EXTENSION = "rrsave"
 ENDIAN: Final = "big"
 
 
