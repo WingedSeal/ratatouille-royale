@@ -1,6 +1,6 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Callable, TypeVar
 
 from .side import Side
 
@@ -10,13 +10,6 @@ if TYPE_CHECKING:
     from .game_manager import GameManager
 
 
-class EffectMeta(ABCMeta):
-    def __call__(cls: "EffectMeta", *args: Any, **kwargs: Any) -> Any:
-        if not getattr(cls, "_has_effect_data", False):
-            raise TypeError(f"'{cls.__name__}' must be decorated with @effect_subclass")
-        return super().__call__(*args, **kwargs)
-
-
 class EffectClearSide(Enum):
     ENEMY = auto()
     ALLY = auto()
@@ -24,7 +17,7 @@ class EffectClearSide(Enum):
     """Clear on turn of one who goes second"""
 
 
-class EntityEffect(metaclass=EffectMeta):
+class EntityEffect(ABC):
     _has_effect_data = False
     name: str
     entity: "Entity"
@@ -36,6 +29,10 @@ class EntityEffect(metaclass=EffectMeta):
     def __init__(
         self, entity: "Entity", *, duration: int | None, intensity: float = 0
     ) -> None:
+        if not self._has_effect_data:
+            raise TypeError(
+                f"'{type(self).__name__}' must be decorated with @effect_subclass"
+            )
         self.entity = entity
         self.duration = duration
         self.intensity = intensity
@@ -93,19 +90,11 @@ def effect_data(
     return wrapper
 
 
-def effect_subclass(cls: type[T]) -> type[T]:
-    assert issubclass(cls, EntityEffect)
-    cls._has_effect_data = True
-    return cls
-
-
-@effect_subclass
 class RodentEffect(EntityEffect):
     rodent: "Rodent"
 
     def __init__(
         self, rodent: "Rodent", *, duration: int | None, intensity: int
     ) -> None:
-        self.intensity = intensity
         self.rodent = rodent
         super().__init__(rodent, duration=duration, intensity=intensity)
