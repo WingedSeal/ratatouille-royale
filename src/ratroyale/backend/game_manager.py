@@ -2,10 +2,7 @@ import math
 from random import shuffle
 from typing import Iterator
 
-from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.page_token import *
-from ratroyale.utils import EventQueue
-
+from ..utils import EventQueue
 from .board import Board
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
@@ -24,6 +21,7 @@ from .game_event import (
     EndTurnEvent,
     EntityMoveEvent,
     GameEvent,
+    GameOverEvent,
 )
 from .hexagon import OddRCoord
 from .map import Map
@@ -84,6 +82,10 @@ class GameManager:
         """
         If it is currently in selecting target mode. It'll have the detail of skill targeting.
         """
+
+    @property
+    def game_over_event(self) -> GameOverEvent | None:
+        return self.board.game_over_event
 
     @property
     def is_selecting_target(self) -> bool:
@@ -279,9 +281,11 @@ class GameManager:
         squeak = self.hands[self.turn][hand_index]
         if self.crumbs < squeak.crumb_cost:
             raise NotEnoughCrumbError()
-        squeak.on_place(self, coord)
+        new_squeak = squeak.on_place(self, coord)
         self.crumbs -= squeak.crumb_cost
-        self.hands[self.turn][hand_index] = self._draw_squeak(self.turn)
+        self.hands[self.turn][hand_index] = (
+            self._draw_squeak(self.turn) if new_squeak is None else new_squeak
+        )
 
     def end_turn(self) -> None:
         self._validate_not_selecting_target()
