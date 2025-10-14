@@ -1,6 +1,6 @@
 import pytest
 
-from ratroyale.backend.features.commmon import Lair
+from ratroyale.backend.features.common import Lair
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.side import Side
