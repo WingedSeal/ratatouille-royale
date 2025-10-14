@@ -31,14 +31,14 @@ class EntityEffect(ABC):
     ) -> None:
         if not self._has_effect_data:
             raise TypeError(
-                f"'{type(self).__name__}' must be decorated with @effect_subclass"
+                f"'{type(self).__name__}' must be decorated with @effect_data"
             )
         self.entity = entity
         self.duration = duration
         self.intensity = intensity
         self.overridden_effects = []
 
-    def _should_clear(self, turn: Side) -> bool:
+    def should_clear(self, turn: Side) -> bool:
         match self.effect_clear_side:
             case EffectClearSide.ENEMY:
                 side = self.entity.side

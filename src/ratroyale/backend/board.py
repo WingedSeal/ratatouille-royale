@@ -2,6 +2,7 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Iterable, Iterator
 
+from .timer import Timer
 from ..utils import EventQueue
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .entity import CallableEntitySkill, Entity
@@ -37,6 +38,7 @@ class Cache:
         )
         self.lairs: dict[Side, list[Lair]] = defaultdict(list)
         self.effects: list[EntityEffect] = []
+        self.timers: list[Timer] = []
 
     def get_all_lairs(self) -> Iterable[Lair]:
         for side_lair in self.lairs.values():

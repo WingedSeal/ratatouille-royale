@@ -2,6 +2,8 @@ import math
 from random import shuffle
 from typing import Iterator
 
+from ratroyale.backend.timer import Timer
+
 from ..utils import EventQueue
 from .board import Board
 from .entities.rodent import Rodent
@@ -291,18 +293,25 @@ class GameManager:
         self._validate_not_selecting_target()
         for effect in self.board.cache.effects:
             effect.on_turn_change(self)
-            if effect.duration == 1 and effect._should_clear(self.turn):
+            if effect.duration == 1 and effect.should_clear(self.turn):
                 active_effect = effect.entity.effects[effect.name]
                 if active_effect != effect:
                     active_effect.overridden_effects.remove(effect)
                 else:
                     self.effect_duration_over(effect)
+        for timer in self.board.cache.timers:
+            timer.on_turn_change(self)
+            if timer.duration == 1 and timer.should_clear(self.turn):
+                timer.on_timer_over(self)
+                self.board.cache.timers.remove(timer)
         from_side = self.turn
         self.turn = self.turn.other_side()
         if self.turn == self.first_turn:
             for effect in self.board.cache.effects:
                 if effect.duration is not None:
                     effect.duration -= 1
+            for timer in self.board.cache.timers:
+                timer.duration -= 1
             self.turn_count += 1
         leftover_crumbs = self.crumbs
         self.crumbs = crumb_per_turn(self.turn_count)
@@ -318,6 +327,9 @@ class GameManager:
                 new_crumbs=self.crumbs,
             )
         )
+
+    def apply_timer(self, timer: Timer) -> None:
+        self.board.cache.timers.append(timer)
 
     def apply_effect(
         self, entity: Entity, effect: EntityEffect, stack_intensity: bool = False
