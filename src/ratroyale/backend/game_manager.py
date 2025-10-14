@@ -306,6 +306,10 @@ class GameManager:
             self.turn_count += 1
         leftover_crumbs = self.crumbs
         self.crumbs = crumb_per_turn(self.turn_count)
+        for entity in self.board.cache.sides[None]:
+            entity.reset_stamina()
+        for entity in self.board.cache.sides[from_side]:
+            entity.reset_stamina()
         self.event_queue.put_nowait(
             EndTurnEvent(
                 from_side=from_side,
