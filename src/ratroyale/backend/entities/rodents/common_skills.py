@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING, Iterable
 
-from ratroyale.backend.error import ShortHandSkillCallbackError
-
+from ...error import ShortHandSkillCallbackError
+from ...timer import Timer, TimerCallback, TimerClearSide
 from ...entity import SkillCompleted, SkillResult, SkillTargeting
 from ...entity_effect import EntityEffect
 from ...skill_callback import SkillCallback, skill_callback_check
+from ...entities.rodent import Rodent
 
 if TYPE_CHECKING:
     from ...board import Board
-    from ...entities.rodent import Rodent
     from ...entity import CallableEntitySkill
     from ...game_manager import GameManager
     from ...hexagon import OddRCoord
@@ -98,6 +98,43 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
             if feature is None:
                 raise ValueError("Trying to damage nothing")
             game_manager.board.damage_feature(feature, damage)
+        return SkillCompleted.SUCCESS
+
+    return callback
+
+
+def apply_timer(
+    timer_clear_side: TimerClearSide,
+    *,
+    duration: int,
+    on_turn_change: TimerCallback | None = None,
+    on_timer_over: TimerCallback | None = None,
+    is_ally_instead: bool = False,
+) -> SkillCallback:
+    """
+    Apply timer on enemy (or ally if `is_ally_instead`) rodent
+    :is_ally_instead: Target ally instead of enemy
+    """
+
+    @skill_callback_check
+    def callback(
+        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+    ) -> SkillCompleted:
+        for target in selected_targets:
+            if is_ally_instead:
+                entity = game_manager.get_ally_on_pos(target)
+            else:
+                entity = game_manager.get_enemy_on_pos(target)
+            assert entity is not None
+            game_manager.apply_timer(
+                Timer(
+                    entity,
+                    timer_clear_side,
+                    duration=duration,
+                    on_turn_change=on_turn_change,
+                    on_timer_over=on_timer_over,
+                ),
+            )
         return SkillCompleted.SUCCESS
 
     return callback

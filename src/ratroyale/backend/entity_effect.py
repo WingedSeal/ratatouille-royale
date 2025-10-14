@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Callable, TypeVar
 from .side import Side
 
 if TYPE_CHECKING:
-    from .entities.rodent import Rodent
     from .entity import Entity
     from .game_manager import GameManager
 
@@ -88,13 +87,3 @@ def effect_data(
         return cls
 
     return wrapper
-
-
-class RodentEffect(EntityEffect):
-    rodent: "Rodent"
-
-    def __init__(
-        self, rodent: "Rodent", *, duration: int | None, intensity: int
-    ) -> None:
-        self.rodent = rodent
-        super().__init__(rodent, duration=duration, intensity=intensity)

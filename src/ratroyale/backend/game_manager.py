@@ -300,9 +300,9 @@ class GameManager:
                 else:
                     self.effect_duration_over(effect)
         for timer in self.board.cache.timers:
-            timer.on_turn_change(self)
+            timer.on_turn_change(timer, self)
             if timer.duration == 1 and timer.should_clear(self.turn):
-                timer.on_timer_over(self)
+                timer.on_timer_over(timer, self)
                 self.board.cache.timers.remove(timer)
         from_side = self.turn
         self.turn = self.turn.other_side()
