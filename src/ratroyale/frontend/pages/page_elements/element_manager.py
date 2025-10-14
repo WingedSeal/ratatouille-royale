@@ -1,13 +1,14 @@
-from .element_builder import ElementConfig, create_element, ParentIdentity
-from .element import Element
-from ratroyale.frontend.gesture.gesture_data import GestureData
-from ratroyale.coordination_manager import CoordinationManager
+from typing import Any, TypeVar
 
+from pygame import Surface
 from pygame_gui import UIManager
 from pygame_gui.core import UIElement
-from pygame import Surface
 
-from typing import TypeVar, Any
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.frontend.gesture.gesture_data import GestureData
+
+from .element import Element
+from .element_builder import ElementConfig, ParentIdentity, create_element
 
 T = TypeVar("T")
 

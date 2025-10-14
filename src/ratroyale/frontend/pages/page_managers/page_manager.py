@@ -1,21 +1,22 @@
+from typing import Any, Callable
+
 import pygame
-from ratroyale.frontend.pages.page_managers.base_page import Page
+
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.gesture.gesture_reader import (
-    GestureReader,
-    GESTURE_READER_CARES,
-)
+from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 from ratroyale.event_tokens.page_token import (
-    PageNavigation,
-    PageNavigationEvent,
     PageCallbackEvent,
     PageManagerEvent,
+    PageNavigation,
+    PageNavigationEvent,
 )
 from ratroyale.event_tokens.visual_token import VisualManagerEvent
+from ratroyale.frontend.gesture.gesture_reader import (
+    GESTURE_READER_CARES,
+    GestureReader,
+)
+from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
-from ratroyale.event_tokens.input_token import post_gesture_event, InputManagerEvent
-
-from typing import Any, Callable
 
 
 class PageManager:

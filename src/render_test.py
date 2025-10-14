@@ -1,26 +1,26 @@
 # ruff: noqa
 # type: ignore
 import pygame
-from ratroyale.frontend.pages.page_managers.page_manager import PageManager
-from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
-from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
-from ratroyale.event_tokens.page_token import PageNavigationEvent, PageNavigation
 
-from ratroyale.backend.game_manager import GameManager
-from ratroyale.backend.map import Map
-from ratroyale.backend.player_info.player_info import PlayerInfo
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
-from ratroyale.backend.side import Side
+from ratroyale.backend.game_manager import GameManager
+from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.backend.map import Map
+from ratroyale.backend.player_info.player_info import PlayerInfo
 from ratroyale.backend.player_info.squeak import (
     Squeak,
-    SqueakType,
-    SqueakOnPlace,
     SqueakGetPlacableTiles,
+    SqueakOnPlace,
+    SqueakType,
 )
+from ratroyale.backend.side import Side
+from ratroyale.backend.tile import Tile
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEvent
+from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
+from ratroyale.frontend.pages.page_managers.page_manager import PageManager
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 def main():

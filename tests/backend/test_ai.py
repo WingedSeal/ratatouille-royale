@@ -4,14 +4,12 @@ from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.features.common import DeploymentZone, Lair
+from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.player_info.player_info import PlayerInfo
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
 from ratroyale.backend.side import Side
-from ratroyale.backend.game_manager import GameManager
-from ratroyale.backend.player_info.squeaks.rodents.vanguard import (
-    TAIL_BLAZER,
-)
 
 
 @pytest.fixture

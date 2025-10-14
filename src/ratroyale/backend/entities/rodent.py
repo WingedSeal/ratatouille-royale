@@ -1,10 +1,10 @@
 from abc import abstractmethod
 from typing import Callable, TypeVar
 
-from ..tags import EntityTag, RodentClassTag
 from ..entity import Entity, EntitySkill, entity_data
 from ..hexagon import OddRCoord
 from ..side import Side
+from ..tags import EntityTag, RodentClassTag
 
 ENTITY_JUMP_HEIGHT = 1
 

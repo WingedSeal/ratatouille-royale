@@ -1,16 +1,15 @@
 from abc import ABC, abstractmethod
 from itertools import chain, combinations
 
-
 from ..entities.rodent import Rodent
 from ..entity import SkillCompleted, SkillTargeting
 from ..error import NotAITurnError
 from ..game_manager import GameManager
 from ..side import Side
 from .ai_action import (
-    AIActions,
     ActivateSkill,
     AIAction,
+    AIActions,
     EndTurn,
     MoveAlly,
     PlaceSqueak,
