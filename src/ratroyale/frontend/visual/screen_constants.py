@@ -6,5 +6,5 @@ SCREEN_SIZE: tuple[int, int] = (
     SCREEN_RATIO[0] * DIAG,
     SCREEN_RATIO[1] * DIAG,
 )
-SCREEN_SIZE_HALVED: tuple[float, float] = (SCREEN_SIZE[0] / 2, SCREEN_SIZE[1] / 2)
+SCREEN_SIZE_HALVED: tuple[int, int] = (SCREEN_SIZE[0] // 2, SCREEN_SIZE[1] // 2)
 THEME_PATH: str = ""
