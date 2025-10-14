@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
+from .tags import EntityTag, SkillTag
 from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
 from .side import Side
@@ -19,6 +20,7 @@ class EntitySkill:
     reach: int | None
     crumb_cost: int
     altitude: int | None
+    tags: list[SkillTag]
 
 
 @dataclass
@@ -61,6 +63,7 @@ class Entity:
     movable: bool = False
     skill_stamina: int | None = None
     collision: bool = False
+    entity_tags: list[EntityTag] = []
     description: str = ""
     height: int = 0
     skills: list[CallableEntitySkill] = []
@@ -140,6 +143,7 @@ def entity_data(
     movable: bool = False,
     collision: bool = False,
     height: int = 0,
+    entity_tags: list[EntityTag] = [],
     description: str = "",
     skills: list[EntitySkill] = [],
     name: str = "",
@@ -155,6 +159,7 @@ def entity_data(
         cls.description = description
         cls.height = height
         cls.name = name
+        cls.entity_tags = entity_tags
         for skill in skills:
             if not hasattr(cls, skill.method_name):
                 raise ValueError(f"{skill} is not an attribute of {cls.__name__}")

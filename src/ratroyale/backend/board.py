@@ -68,6 +68,7 @@ class Board:
         self.event_queue = EventQueue()
         for entity in map.entities:
             self.add_entity(entity)
+        self.game_over_event: GameOverEvent | None = None
 
     def add_entity(self, entity: Entity) -> None:
         self.cache.entities.append(entity)
@@ -90,7 +91,7 @@ class Board:
             return None
         return self.tiles[coord.y][coord.x]
 
-    def _is_coord_blocked(self, entity: Entity) -> IsCoordBlocked:
+    def is_coord_blocked(self, entity: Entity | type[Entity]) -> IsCoordBlocked:
         def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
@@ -154,7 +155,9 @@ class Board:
                 raise ValueError("Lair cannot have side of None")
             self.cache.lairs[feature.side].remove(feature)
             if len(self.cache.lairs[feature.side]) == 0:
-                self.event_queue.put_nowait(GameOverEvent(feature.side.other_side()))
+                game_over_event = GameOverEvent(feature.side.other_side())
+                self.event_queue.put_nowait(game_over_event)
+                self.game_over_event = game_over_event
         self.event_queue.put_nowait(FeatureDieEvent(feature))
 
     def line_of_sight_check(
@@ -217,12 +220,12 @@ class Board:
         """
         return rodent.pos.get_reachable_coords(
             rodent.speed,
-            self._is_coord_blocked(rodent),
+            self.is_coord_blocked(rodent),
             is_include_self=is_include_self,
         )
 
     def path_find(self, entity: Entity, goal: OddRCoord) -> list[OddRCoord] | None:
-        return entity.pos.path_find(goal, self._is_coord_blocked(entity))
+        return entity.pos.path_find(goal, self.is_coord_blocked(entity))
 
     def get_attackable_coords(
         self, rodent: Rodent, skill: CallableEntitySkill
