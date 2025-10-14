@@ -1,4 +1,7 @@
 from pathlib import Path
+from typing import Final
+
+from ratroyale.utils import DataPointer
 
 from .squeak import Squeak
 from .squeak_set import SqueakSet
@@ -6,6 +9,7 @@ from . import squeaks  # noqa
 
 
 SAVE_FILE_EXTENSION = "save"
+ENDIAN: Final = "big"
 
 
 class PlayerInfo:
@@ -58,6 +62,24 @@ class PlayerInfo:
         return self.squeak_sets[self.selected_squeak_set_index]
 
     @classmethod
-    def from_file(cls, file: Path) -> "PlayerInfo":
-        # TODO
-        return cls([], [], [], 0)
+    def load(cls, data: bytes) -> "PlayerInfo":
+        data_pointer = DataPointer(data, ENDIAN)  # noqa
+        return PlayerInfo([], [], [], 0)
+
+    def save(self) -> bytes:
+        data = bytearray()
+        return bytes(data)
+
+    @classmethod
+    def from_file(cls, file_path: Path) -> "PlayerInfo | None":
+        with file_path.open("rb") as file:
+            data = file.read()
+        try:
+            return cls.load(data)
+        except Exception:
+            return None
+
+    def to_file(self, file_path: Path) -> None:
+        data = self.save()
+        with file_path.open("wb") as file:
+            file.write(data)
