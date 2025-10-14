@@ -81,6 +81,8 @@ class MainMenu(Page):
                     (PageNavigation.OPEN, "GameBoard"),
                     (PageNavigation.OPEN, "PauseButton"),
                     (PageNavigation.OPEN, "EntityList"),
+                    (PageNavigation.OPEN, "PlayerInfoPage"),
+                    # (PageNavigation.OPEN, "InspectDeckPage"),
                 ]
             )
         )

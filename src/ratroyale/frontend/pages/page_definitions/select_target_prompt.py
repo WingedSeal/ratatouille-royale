@@ -17,7 +17,7 @@ import pygame
 
 
 @register_page
-class TestPage(Page):
+class SelectTargetPromptPage(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(coordination_manager)
         # if page is strangely not responsive, check is_blocking status of open pages.

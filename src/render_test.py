@@ -35,11 +35,11 @@ def main():
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
     tiles: list[list[Tile | None]] = []
-    for q in range(size_x):
+    for q in range(size_y):
         row = []
-        for r in range(size_y):
+        for r in range(size_x):
             tile = Tile(
-                tile_id=1, coord=OddRCoord(q, r), entities=[], height=0, features=[]
+                tile_id=1, coord=OddRCoord(r, q), entities=[], height=0, features=[]
             )
             row.append(tile)
         tiles.append(row)
@@ -69,12 +69,14 @@ def main():
         all_squeaks=dummy_squeaks,
         squeak_sets=dummy_squeak_sets,
         selected_squeak_set_index=selected_index,
+        hands=[set([1, 1, 1, 1, 1])],
     )
 
     player_info_2 = PlayerInfo(
         all_squeaks=dummy_squeaks,
         squeak_sets=dummy_squeak_sets,
         selected_squeak_set_index=selected_index,
+        hands=[set([1, 1, 1, 1, 1])],
     )
 
     map = Map(
@@ -96,7 +98,9 @@ def main():
 
     coordination_manager.put_message(
         PageNavigationEvent(
-            action_list=[(PageNavigation.OPEN, "MainMenu")]
+            action_list=[
+                (PageNavigation.OPEN, "MainMenu"),
+            ]
         )  # change this to test your page
     )
 
