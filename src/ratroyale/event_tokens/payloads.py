@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 
-#  from ratroyale.backend.card import Card or smth
-
 
 @dataclass
 class Payload:
@@ -21,11 +19,11 @@ class EntityPayload(Payload):
 
 
 @dataclass
-class CardPayload(Payload):
-    card: str  # Placeholder
+class SqueakPayload(Payload):
+    squeak_index: int
 
 
 @dataclass
-class CardPlacementPayload(Payload):
-    card: str
+class SqueakPlacementPayload(Payload):
+    squeak_index: int
     tile: Tile
