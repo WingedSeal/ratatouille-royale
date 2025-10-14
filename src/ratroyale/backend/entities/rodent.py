@@ -12,6 +12,7 @@ class Rodent(Entity):
     _has_rodent_data = False
     speed: int
     move_stamina: int
+    max_move_stamina: int
     move_cost: int
     attack: int
     side: Side | None
@@ -64,6 +65,7 @@ def rodent_data(
         cls.description = description
         cls.speed = speed
         cls.move_stamina = move_stamina
+        cls.max_move_stamina = move_stamina
         cls.skill_stamina = skill_stamina
         cls.move_cost = move_cost
         cls.attack = attack
