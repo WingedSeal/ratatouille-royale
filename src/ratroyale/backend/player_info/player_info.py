@@ -19,6 +19,7 @@ class PlayerInfo:
 
     _FORMAT_SPEC = """
     2 bytes for all_squeaks_length
+    large_all_squeaks_length = all_squeaks_length > 255
     loop all_squeaks_length times {
         1 byte for squeak_name_length
         squeak_name_length bytes for squeak_name
@@ -27,12 +28,12 @@ class PlayerInfo:
     loop squeak_sets_count times {
         1 byte for squeak_set_length
         loop squeak_set_length times {
-            2 bytes for squeak_index
+            (1 + large_all_squeaks_length) bytes for squeak_index
         }
     }
     loop squeak_sets_count times {
         loop 5 times {
-            2 bytes for squeak_index
+            (1 + large_all_squeaks_length) bytes for squeak_index
         }
     }
     2 bytes for select_squeak_set_index
@@ -66,6 +67,8 @@ class PlayerInfo:
         data_pointer = DataPointer(data, ENDIAN)
         all_squeaks_length = data_pointer.get_byte(2)
 
+        large_all_squeaks_length = all_squeaks_length > 255
+
         all_squeaks: list[Squeak] = []
         for _ in range(all_squeaks_length):
             squeak_name_length = data_pointer.get_byte()
@@ -78,7 +81,7 @@ class PlayerInfo:
             squeak_set: list[int] = []
             squeak_set_length = data_pointer.get_byte()
             for _ in range(squeak_set_length):
-                squeak_index = data_pointer.get_byte(2)
+                squeak_index = data_pointer.get_byte(1 + large_all_squeaks_length)
                 squeak_set.append(squeak_index)
             squeak_sets.append(set(squeak_set))
 
@@ -87,7 +90,7 @@ class PlayerInfo:
             hand: list[int] = []
             squeak_set_length = data_pointer.get_byte()
             for _ in range(squeak_set_length):
-                squeak_index = data_pointer.get_byte(2)
+                squeak_index = data_pointer.get_byte(1 + large_all_squeaks_length)
                 hand.append(squeak_index)
             hands.append(set(hand))
 
