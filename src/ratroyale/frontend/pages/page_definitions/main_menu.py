@@ -16,7 +16,10 @@ from ratroyale.frontend.pages.page_elements.element_builder import (
 from ratroyale.frontend.pages.page_elements.element_register_form import (
     ElementRegisterForm,
 )
-from ratroyale.frontend.pages.page_elements.element import ElementWrapper
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+    ui_element_wrapper,
+)
 from ratroyale.frontend.pages.page_elements.spatial_component import (
     SpatialComponent,
     Camera,
@@ -58,85 +61,61 @@ class MainMenu(Page):
         elements: list[ElementWrapper] = []
 
         start_button_id = "start_button"
-        start_button_pos = pygame.Rect(100, 100, 200, 50)
         start_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(0, 0, 10, 10),
+            relative_rect=pygame.Rect(100, 100, 200, 50),
             text="Start",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainMenuButton", object_id=start_button_id
             ),
         )
-        start_button_element = ElementWrapper(
-            registered_name=start_button_id,
-            grouping_name="UI_ELEMENTS",
-            camera=self.camera,
-            spatial_component=SpatialComponent(start_button_pos),
-            interactable_component=start_button,
-            visual_component=VisualComponent(),
+        start_button_element = ui_element_wrapper(
+            start_button, start_button_id, self.camera
         )
         elements.append(start_button_element)
 
         # Quit button
         quit_button_id = "quit_button"
-        quit_button_pos = pygame.Rect(100, 200, 200, 50)
         quit_button = pygame_gui.elements.UIButton(
-            relative_rect=quit_button_pos,
+            relative_rect=pygame.Rect(100, 200, 200, 50),
             text="Quit",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainMenuButton", object_id=quit_button_id
             ),
         )
-        quit_button_element = ElementWrapper(
-            registered_name=quit_button_id,
-            grouping_name="UI_ELEMENTS",
-            camera=self.camera,
-            spatial_component=SpatialComponent(quit_button_pos),
-            interactable_component=quit_button,
-            visual_component=VisualComponent(),  # optional
+        quit_button_element = ui_element_wrapper(
+            quit_button, quit_button_id, self.camera
         )
         elements.append(quit_button_element)
 
         # GUI Demo button
         gui_demo_button_id = "gui_demo_button"
-        gui_demo_button_pos = pygame.Rect(100, 300, 200, 50)
         gui_demo_button = pygame_gui.elements.UIButton(
-            relative_rect=gui_demo_button_pos,
+            relative_rect=pygame.Rect(100, 300, 200, 50),
             text="Go to GUI demo",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainMenuButton", object_id=gui_demo_button_id
             ),
         )
-        gui_demo_element = ElementWrapper(
-            registered_name=gui_demo_button_id,
-            grouping_name="UI_ELEMENTS",
-            camera=self.camera,
-            spatial_component=SpatialComponent(gui_demo_button_pos),
-            interactable_component=gui_demo_button,
-            visual_component=VisualComponent(),
+        gui_demo_element = ui_element_wrapper(
+            gui_demo_button, gui_demo_button_id, self.camera
         )
         elements.append(gui_demo_element)
 
         # Element Demo button
         element_demo_button_id = "element_demo_button"
-        element_demo_button_pos = pygame.Rect(400, 300, 200, 50)
         element_demo_button = pygame_gui.elements.UIButton(
-            relative_rect=element_demo_button_pos,
+            relative_rect=pygame.Rect(400, 300, 200, 50),
             text="Go to Element demo",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainMenuButton", object_id=element_demo_button_id
             ),
         )
-        element_demo_element = ElementWrapper(
-            registered_name=element_demo_button_id,
-            grouping_name="UI_ELEMENTS",
-            camera=self.camera,
-            spatial_component=SpatialComponent(element_demo_button_pos),
-            interactable_component=element_demo_button,
-            visual_component=VisualComponent(),
+        element_demo_element = ui_element_wrapper(
+            element_demo_button, element_demo_button_id, self.camera
         )
         elements.append(element_demo_element)
 

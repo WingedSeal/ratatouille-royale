@@ -154,3 +154,42 @@ class ElementWrapper:
         self.interactable_component.draw(surface, color)
         for child in self.children:
             child.draw_hitbox(surface, color)
+
+
+def ui_element_wrapper(
+    element: UIElement,
+    registered_name: str,
+    camera: Camera,
+    grouping_name: str = "UI_ELEMENT",
+) -> ElementWrapper:
+    """
+    Convenience helper to wrap a pygame_gui element into an ElementWrapper.
+
+    Args:
+        element: The pygame_gui element to wrap (e.g., UIButton, UILabel, etc.)
+        registered_name: The internal name to register the element with.
+        grouping_name: Optional grouping category for organization.
+        camera: Optional camera reference if this element participates in world-space transforms.
+
+    Returns:
+        ElementWrapper: A fully constructed wrapper containing spatial, visual, and interactable components.
+    """
+    # Get its current rect from pygame_gui
+    rect = element.relative_rect
+
+    # Build the spatial component using the element's rect
+    spatial = SpatialComponent(rect)
+
+    # Build the visual and interactable components
+    visual = VisualComponent()
+    interactable = element  # pygame_gui element itself acts as interactable
+
+    # Return the wrapper
+    return ElementWrapper(
+        registered_name=registered_name,
+        grouping_name=grouping_name,
+        camera=camera,
+        spatial_component=spatial,
+        visual_component=visual,
+        interactable_component=interactable,
+    )
