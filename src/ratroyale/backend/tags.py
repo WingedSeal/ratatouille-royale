@@ -12,3 +12,4 @@ class EntityTag(Enum):
 class RodentClassTag(Enum):
     VANGUARD = "Vanguard"
     DUELIST = "Duelist"
+    TANK = "Tank"

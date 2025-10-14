@@ -29,6 +29,9 @@ class Rodent(Entity):
     @abstractmethod
     def skill_descriptions(self) -> list[str]: ...
 
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return []
+
     def reset_stamina(self) -> None:
         self.move_stamina = self.max_move_stamina
         super().reset_stamina()

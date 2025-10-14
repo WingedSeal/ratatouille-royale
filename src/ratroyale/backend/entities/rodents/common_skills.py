@@ -90,14 +90,14 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
         for target in selected_targets:
             enemy = game_manager.get_enemy_on_pos(target)
             if enemy is not None:
-                game_manager.board.damage_entity(enemy, damage)
+                game_manager.damage_entity(enemy, damage)
                 continue
             if not is_feature_targetable:
                 raise ValueError("Trying to damage entity that is not there")
             feature = game_manager.get_feature_on_pos(target)
             if feature is None:
                 raise ValueError("Trying to damage nothing")
-            game_manager.board.damage_feature(feature, damage)
+            game_manager.damage_feature(feature, damage)
         return SkillCompleted.SUCCESS
 
     return callback
@@ -219,14 +219,14 @@ def aoe_damage(
                     continue
                 enemy = game_manager.get_enemy_on_pos(coord)
                 if enemy is not None:
-                    game_manager.board.damage_entity(enemy, damage)
+                    game_manager.damage_entity(enemy, damage)
                     continue
                 if not is_feature_targetable:
                     raise ValueError("Trying to damage entity that is not there")
                 feature = game_manager.get_feature_on_pos(coord)
                 if feature is None:
                     raise ValueError("Trying to damage nothing")
-                game_manager.board.damage_feature(feature, damage)
+                game_manager.damage_feature(feature, damage)
                 if not is_stackable:
                     tagged_coord.add(coord)
         return SkillCompleted.SUCCESS

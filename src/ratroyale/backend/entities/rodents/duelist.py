@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 )
 class RatbertBrewbelly(Rodent):
     def vomit_timer_callback(self, timer: Timer, game_manager: "GameManager") -> None:
-        game_manager.board.damage_entity(timer.entity, self.attack // 2)
+        game_manager.damage_entity(timer.entity, self.attack // 2)
 
     @entity_skill_check
     def projectile_vomit(self, game_manager: "GameManager") -> SkillTargeting:

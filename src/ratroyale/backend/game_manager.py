@@ -2,6 +2,7 @@ import math
 from random import shuffle
 from typing import Iterator
 
+from ratroyale.backend.features.common import DeploymentZone, Lair
 from ratroyale.backend.timer import Timer
 
 from ..utils import EventQueue
@@ -10,6 +11,7 @@ from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EntityEffect
 from .error import (
+    EntityInvalidPosError,
     GameManagerActionPerformedInSelectingMode,
     GameManagerSkillCallBackInNonSelectingMode,
     InvalidMoveTargetError,
@@ -19,9 +21,14 @@ from .error import (
 )
 from .feature import Feature
 from .game_event import (
+    EntityDamagedEvent,
+    EntityDieEvent,
     EntityEffectUpdateEvent,
     EndTurnEvent,
+    EntityHealedEvent,
     EntityMoveEvent,
+    FeatureDamagedEvent,
+    FeatureDieEvent,
     GameEvent,
     GameOverEvent,
 )
@@ -84,10 +91,7 @@ class GameManager:
         """
         If it is currently in selecting target mode. It'll have the detail of skill targeting.
         """
-
-    @property
-    def game_over_event(self) -> GameOverEvent | None:
-        return self.board.game_over_event
+        self.game_over_event: GameOverEvent | None = None
 
     @property
     def is_selecting_target(self) -> bool:
@@ -413,3 +417,59 @@ class GameManager:
         self.event_queue.put_nowait(
             EntityEffectUpdateEvent(effect, "clear", "force_clear")
         )
+
+    def damage_entity(self, entity: Entity, damage: int) -> None:
+        """
+        Damage an entity. Throw error if called on entity with no health.
+        """
+        is_dead, damage_taken = entity._take_damage(self, damage)
+        self.event_queue.put_nowait(EntityDamagedEvent(entity, damage, damage_taken))
+        if not is_dead:
+            return
+        is_dead = entity.on_death()
+        if not is_dead:
+            return
+        tile = self.board.get_tile(entity.pos)
+        if tile is None:
+            raise EntityInvalidPosError()
+        tile.entities.remove(entity)
+        self.event_queue.put_nowait(EntityDieEvent(entity))
+
+    def heal_entity(self, entity: Entity, heal: int, overheal_cap: int = 0) -> None:
+        """
+        Heal an entity. Throw error if called on entity with no health.
+        """
+        heal_taken = entity._heal(self, heal, overheal_cap)
+        self.event_queue.put_nowait(
+            EntityHealedEvent(entity, heal, heal_taken, overheal_cap)
+        )
+
+    def damage_feature(self, feature: Feature, damage: int) -> None:
+        """
+        Damage a feature. Throw error if called on feature with no health.
+        """
+        is_dead, damage_taken = feature._take_damage(damage)
+        self.event_queue.put_nowait(FeatureDamagedEvent(feature, damage, damage_taken))
+        if not is_dead:
+            return
+        is_dead = feature.on_death()
+        if not is_dead:
+            return
+
+        for pos in feature.shape:
+            tile = self.board.get_tile(pos)
+            if tile is None:
+                raise ValueError("Feature is existing on invalid tile")
+            tile.features.remove(feature)
+        self.board.cache.features.remove(feature)
+        if isinstance(feature, DeploymentZone):
+            self.board.cache.deployment_zones[feature.side].remove(feature)
+        elif isinstance(feature, Lair):
+            if feature.side is None:
+                raise ValueError("Lair cannot have side of None")
+            self.board.cache.lairs[feature.side].remove(feature)
+            if len(self.board.cache.lairs[feature.side]) == 0:
+                game_over_event = GameOverEvent(feature.side.other_side())
+                self.event_queue.put_nowait(game_over_event)
+                self.game_over_event = game_over_event
+        self.event_queue.put_nowait(FeatureDieEvent(feature))

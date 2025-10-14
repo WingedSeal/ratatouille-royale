@@ -11,13 +11,8 @@ from .error import EntityInvalidPosError
 from .feature import Feature
 from .features.common import DeploymentZone, Lair
 from .game_event import (
-    EntityDamagedEvent,
-    EntityDieEvent,
     EntitySpawnEvent,
-    FeatureDamagedEvent,
-    FeatureDieEvent,
     GameEvent,
-    GameOverEvent,
 )
 from .hexagon import IsCoordBlocked, OddRCoord
 from .map import Map
@@ -70,7 +65,6 @@ class Board:
         self.event_queue = EventQueue()
         for entity in map.entities:
             self.add_entity(entity)
-        self.game_over_event: GameOverEvent | None = None
 
     def add_entity(self, entity: Entity) -> None:
         self.cache.entities.append(entity)
@@ -114,53 +108,6 @@ class Board:
             )
 
         return is_coord_blocked
-
-    def damage_entity(self, entity: Entity, damage: int) -> None:
-        """
-        Damage an entity. Doesn't work on entity with no health.
-        """
-        is_dead, damage_taken = entity._take_damage(damage)
-        self.event_queue.put_nowait(EntityDamagedEvent(entity, damage, damage_taken))
-        if not is_dead:
-            return
-        is_dead = entity.on_death()
-        if not is_dead:
-            return
-        tile = self.get_tile(entity.pos)
-        if tile is None:
-            raise EntityInvalidPosError()
-        tile.entities.remove(entity)
-        self.event_queue.put_nowait(EntityDieEvent(entity))
-
-    def damage_feature(self, feature: Feature, damage: int) -> None:
-        """
-        Damage a feature. Doesn't work on feature with no health.
-        """
-        is_dead, damage_taken = feature._take_damage(damage)
-        self.event_queue.put_nowait(FeatureDamagedEvent(feature, damage, damage_taken))
-        if not is_dead:
-            return
-        is_dead = feature.on_death()
-        if not is_dead:
-            return
-
-        for pos in feature.shape:
-            tile = self.get_tile(pos)
-            if tile is None:
-                raise ValueError("Feature is existing on invalid tile")
-            tile.features.remove(feature)
-        self.cache.features.remove(feature)
-        if isinstance(feature, DeploymentZone):
-            self.cache.deployment_zones[feature.side].remove(feature)
-        elif isinstance(feature, Lair):
-            if feature.side is None:
-                raise ValueError("Lair cannot have side of None")
-            self.cache.lairs[feature.side].remove(feature)
-            if len(self.cache.lairs[feature.side]) == 0:
-                game_over_event = GameOverEvent(feature.side.other_side())
-                self.event_queue.put_nowait(game_over_event)
-                self.game_over_event = game_over_event
-        self.event_queue.put_nowait(FeatureDieEvent(feature))
 
     def line_of_sight_check(
         self,

@@ -42,6 +42,14 @@ class EntityDamagedEvent(GameEvent):
 
 
 @dataclass
+class EntityHealedEvent(GameEvent):
+    entity: Entity
+    heal: int
+    hp_gained: int
+    overheal_cap: int
+
+
+@dataclass
 class FeatureDamagedEvent(GameEvent):
     feature: Feature
     damage: int

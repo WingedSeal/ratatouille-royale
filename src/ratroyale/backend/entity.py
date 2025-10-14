@@ -92,11 +92,21 @@ class Entity:
         self.side = side
         self.effects = {}
 
-    def on_damage_taken(self, damage: int) -> int | None:
+    def on_damage_taken(self, game_manager: "GameManager", damage: int) -> int | None:
         pass
 
-    def on_hp_loss(self, hp_loss: int) -> None:
+    def on_hp_loss(self, game_manager: "GameManager", hp_loss: int) -> None:
         pass
+
+    def on_hp_gain(self, game_manager: "GameManager", hp_gain: int) -> None:
+        pass
+
+    def on_heal(self, game_manager: "GameManager", heal: int) -> int | None:
+        pass
+
+    def on_turn_change(
+        self, game_manager: "GameManager", turn_change_to: Side
+    ) -> None: ...
 
     def reset_stamina(self) -> None:
         self.skill_stamina = self.max_skill_stamina
@@ -108,25 +118,44 @@ class Entity:
         """
         return True
 
-    def _take_damage(self, damage: int) -> tuple[bool, int]:
+    def _heal(
+        self, game_manager: "GameManager", heal: int, overheal_cap: int = 0
+    ) -> int:
+        """
+        Heal and increase health accordingly if entity has health
+        :returns: How much it actually healed
+        """
+        new_heal = self.on_heal(game_manager, heal)
+        if new_heal is not None:
+            heal = new_heal
+        if self.health is None or self.max_health is None:
+            raise ValueError("Entity without health just got healed")
+        heal_taken = min(self.max_health + overheal_cap - self.health, heal)
+        self.health += heal_taken
+        self.on_hp_gain(game_manager, heal_taken)
+        return heal_taken
+
+    def _take_damage(
+        self, game_manager: "GameManager", damage: int
+    ) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health
         :param damage: How much damage taken
         :returns: Whether the entity die and hp loss
         """
-        new_damage = self.on_damage_taken(damage)
+        new_damage = self.on_damage_taken(game_manager, damage)
         if new_damage is not None:
             damage = new_damage
         if self.health is None:
             raise ValueError("Entity without health just taken damage")
-        damage_taken = max(MINIMAL_DAMAGE_TAKEN, damage - self.defense)
+        damage_taken = max(MINIMAL_DAMAGE_TAKEN, damage - max(self.defense, 0))
         self.health -= damage_taken
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
-            self.on_hp_loss(damage_taken)
+            self.on_hp_loss(game_manager, damage_taken)
             return True, damage_taken
-        self.on_hp_loss(damage_taken)
+        self.on_hp_loss(game_manager, damage_taken)
         return False, damage_taken
 
     def __repr__(self) -> str:
