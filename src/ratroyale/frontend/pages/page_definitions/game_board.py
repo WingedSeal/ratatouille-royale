@@ -63,6 +63,8 @@ from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
     SpritesheetComponent,
 )
 
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
+
 
 @register_page
 class GameBoard(Page):
@@ -74,6 +76,7 @@ class GameBoard(Page):
         self.ability_panel_id: str | None = None
         self.board: Board | None = None
         self.dragging_element_id: tuple[str, str] | None = None
+        self.prev_mouse_pos: tuple[int, int] | None = None
 
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="start_game"))
@@ -250,6 +253,8 @@ class GameBoard(Page):
     # Called when drag starts; aligns the entity's center to the mouse
     @input_event_bind("entity", GestureType.DRAG_START.to_pygame_event())
     def _on_entity_drag_start(self, msg: pygame.event.Event) -> None:
+        self.start_camera_drag()
+
         entity_element_id = self._get_element_id(msg)
         entity_element = self._element_manager.get_element_wrapper(
             entity_element_id, "ENTITY"
@@ -270,8 +275,9 @@ class GameBoard(Page):
 
     # Called while dragging; moves element regardless of hitbox
     @input_event_bind(None, GestureType.DRAG.to_pygame_event())
-    def _on_entity_drag(self, msg: pygame.event.Event) -> None:
+    def _on_drag(self, msg: pygame.event.Event) -> None:
         if self.dragging_element_id is None:
+            self._move_camera()
             return
 
         category, element_id = self.dragging_element_id
@@ -301,9 +307,39 @@ class GameBoard(Page):
     def _print_test(self, msg: pygame.event.Event) -> None:
         print("Cross page listening")
 
+    @input_event_bind(None, GestureType.CLICK.to_pygame_event())
+    def move_camera_to_mouse(self, msg: pygame.event.Event) -> None:
+        self.camera.move_to(*self.camera.screen_to_world(*pygame.mouse.get_pos()))
+
     # endregion
 
     # region Utilities
+
+    def start_camera_drag(self) -> None:
+        """Call this when the user starts dragging (mouse down)."""
+        self.prev_mouse_pos = pygame.mouse.get_pos()
+
+    def _move_camera(self) -> None:
+        """
+        Call this each frame while dragging.
+        Moves camera based on mouse drag, taking camera scale into account.
+        """
+        # Current mouse position
+        curr_mouse = pygame.mouse.get_pos()
+
+        if not hasattr(self, "prev_mouse_pos") or self.prev_mouse_pos is None:
+            self.prev_mouse_pos = curr_mouse
+            return
+
+        # Screen-space delta
+        dx = curr_mouse[0] - self.prev_mouse_pos[0]
+        dy = curr_mouse[1] - self.prev_mouse_pos[1]
+
+        # Move camera opposite to drag direction
+        self.camera.move_by(-dx, -dy)
+
+        # Update previous mouse
+        self.prev_mouse_pos = curr_mouse
 
     def _close_ability_menu(self) -> None:
         """Close the ability menu if open."""

@@ -47,10 +47,15 @@ class Camera:
         self.world_x = wx - (screen_px - self.screen_offset_x) / self.scale
         self.world_y = wy - (screen_py - self.screen_offset_y) / self.scale
 
-    def move(self, dx: float, dy: float) -> None:
+    def move_by(self, dx: float, dy: float) -> None:
         """Pan camera by screen-space delta."""
         self.world_x += dx / self.scale
         self.world_y += dy / self.scale
+
+    def move_to(self, x: float, y: float) -> None:
+        self.world_x = x
+        self.world_y = y
+        print(self.world_x, self.world_y)
 
 
 @dataclass
