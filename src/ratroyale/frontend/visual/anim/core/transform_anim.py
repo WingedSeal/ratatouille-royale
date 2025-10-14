@@ -10,6 +10,7 @@ from .anim_settings import (
     SkewMode,
     HorizontalAnchor,
     VerticalAnchor,
+    AnimDirection,
 )
 
 
@@ -45,7 +46,10 @@ class MoveAnim(TransformAnim):
         if self.move_mode == MoveAnimMode.MOVE_BY:
             eased_t = (
                 (1 - eased_t)
-                if (self.reverse_pass_per_loop and self._direction < 0)
+                if (
+                    self.reverse_pass_per_loop
+                    and self._direction is AnimDirection.REVERSE
+                )
                 else eased_t
             )
             new_x = start_x + dx * eased_t
@@ -53,7 +57,7 @@ class MoveAnim(TransformAnim):
 
         elif self.move_mode == MoveAnimMode.MOVE_TO:
             target_x, target_y = dx, dy
-            if self.reverse_pass_per_loop and self._direction < 0:
+            if self.reverse_pass_per_loop and self._direction is AnimDirection.REVERSE:
                 new_x = target_x + (start_x - target_x) * eased_t
                 new_y = target_y + (start_y - target_y) * eased_t
             else:
@@ -112,7 +116,7 @@ class ScaleAnim(TransformAnim):
 
         # Compute new size
         if self.scale_mode == ScaleMode.SCALE_TO_SIZE:
-            if self.reverse_pass_per_loop and self._direction < 0:
+            if self.reverse_pass_per_loop and self._direction is AnimDirection.REVERSE:
                 # Interpolate from target back to start
                 new_width = target_width + (start_width - target_width) * eased_t
                 new_height = target_height + (start_height - target_height) * eased_t
@@ -122,7 +126,7 @@ class ScaleAnim(TransformAnim):
                 new_height = start_height + (target_height - start_height) * eased_t
 
         elif self.scale_mode == ScaleMode.SCALE_BY_FACTOR:
-            if self.reverse_pass_per_loop and self._direction < 0:
+            if self.reverse_pass_per_loop and self._direction is AnimDirection.REVERSE:
                 # Scale back down toward original size
                 new_width = start_width * (target_width - (target_width - 1) * eased_t)
                 new_height = start_height * (

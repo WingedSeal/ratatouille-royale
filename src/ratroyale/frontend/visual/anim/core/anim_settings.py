@@ -1,6 +1,11 @@
 from enum import Enum, auto
 
 
+class AnimDirection(Enum):
+    FORWARD = 1
+    REVERSE = -1
+
+
 class MoveAnimMode(Enum):
     MOVE_TO = auto()
     MOVE_BY = auto()

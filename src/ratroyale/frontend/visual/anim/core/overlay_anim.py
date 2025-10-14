@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import pygame
 from .anim_structure import AnimEvent
 from ...asset_management.spritesheet_structure import SpritesheetComponent
+from .anim_settings import AnimDirection
 
 
 @dataclass
@@ -25,7 +26,7 @@ class ColorOverlayAnim(OverlayAnim):
         eased_t = self.get_normalized_time(time_delta)
 
         # Reverse phase for ping-pong
-        if self.reverse_pass_per_loop and self._direction < 0:
+        if self.reverse_pass_per_loop and self._direction is AnimDirection.REVERSE:
             eased_t = 1.0 - eased_t
 
         # Interpolate overlay intensity (0–1)

@@ -3,7 +3,7 @@ from typing import Callable
 from abc import ABC, abstractmethod
 import math
 import pytweening  # type: ignore
-from .anim_settings import TimingMode
+from .anim_settings import TimingMode, AnimDirection
 
 
 # TODO: reintroduce reverse easing.
@@ -22,7 +22,7 @@ class AnimEvent(ABC):
         self._elapsed_time: float = 0.0
         self.loop_count = 1 if self.loop_count is None else self.loop_count
         self._current_loop: int = 0
-        self._direction: int = 1  # 1 = forward, -1 = reversed
+        self._direction: AnimDirection = AnimDirection.FORWARD
         self._is_finished = False
 
     def make_callback(self) -> None:
@@ -76,7 +76,7 @@ class AnimEvent(ABC):
         # Reverse direction on ping pong
         t_mod = self._elapsed_time % loop_period
         reverse = t_mod > adj_loop_period
-        self._direction = -1 if reverse else 1
+        self._direction = AnimDirection.REVERSE if reverse else AnimDirection.FORWARD
 
         return self.easing_func(t)
 
