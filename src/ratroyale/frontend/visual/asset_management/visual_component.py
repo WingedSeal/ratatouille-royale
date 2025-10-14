@@ -1,171 +1,129 @@
-from abc import ABC, abstractmethod
-
-from dataclasses import dataclass, field
 from pygame_gui.core.ui_element import UIElement
-from pygame_gui.core.object_id import ObjectID
-from pygame_gui.ui_manager import UIManager
 import pygame
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.entity import Entity
-from ratroyale.frontend.pages.page_elements.element import Element
-from ratroyale.frontend.visual.asset_management.sprite_registry import (
-    SPRITE_REGISTRY,
-    TYPICAL_TILE_SIZE,
+from .spritesheet_structure import SpritesheetComponent
+from ..anim.core.anim_structure import SequentialAnim, GroupedAnim, AnimEvent
+from ratroyale.frontend.pages.page_elements.spatial_component import (
+    Camera,
+    SpatialComponent,
 )
-from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
-    SpriteRegistryKey,
-    ENTITY_TO_SPRITE_REGISTRY,
-    TILE_TO_SPRITE_REGISTRY,
-)
+from ...pages.page_elements.hitbox import Hitbox
 
 
-class VisualComponent(ABC):
-    """Base class for anything that can be rendered as part of an Element."""
+class VisualComponent:
+    """Base class for anything that can be rendered as part of an Element.
+    The visual component does not need to have a reference to the element itself.
+    The element manager + register form layer will orchestrate the relationship.
+    The positioning of the visual component inherits from the element it is related to.
+    """
 
-    def create(self) -> None:
-        """Create/init the visual.
-        For UI, this might need the gui_manager; for sprites, maybe not."""
+    def __init__(
+        self,
+        spritesheet_component: SpritesheetComponent | None = None,
+        starting_anim: str | None = None,
+    ) -> None:
+        self._default_animation: SequentialAnim | None = None
+        self._override_animation_queue: list[SequentialAnim] = []
+
+        self.highlighted: bool = False
+        self.spritesheet_component: SpritesheetComponent | None = spritesheet_component
+
+        if self.spritesheet_component and starting_anim:
+            self.spritesheet_component.set_frame(starting_anim, 0)
+
+    def _bind(self, spatial_component: SpatialComponent, camera: Camera) -> None:
+        self._spatial_component = spatial_component
+        self._camera = camera
+
+    def on_create(self) -> None:
+        """Placeholder on create"""
         pass
 
-    def destroy(self) -> None:
-        """Optional. Used for triggering the .kill() on pygame_gui elements"""
+    def on_destroy(self) -> None:
+        """Used for triggering the .kill() on pygame_gui elements"""
         pass
 
-    @abstractmethod
-    def render(self, surface: pygame.Surface) -> None:
+    def animate(self, time: float) -> None:
+        if self._override_animation_queue:
+            animation_sequence = self._override_animation_queue[0]
+            if animation_sequence.is_finished() and not animation_sequence.persistent:
+                self._override_animation_queue.pop(0)
+                return
+        elif self._default_animation:
+            animation_sequence = self._default_animation
+        else:
+            return
+
+        if animation_sequence:
+            animation_sequence.update(time)
+
+    def _get_animation(self) -> GroupedAnim | None:
+        if self._override_animation_queue:
+            animation = self._override_animation_queue[0]
+        elif self._default_animation:
+            animation = self._default_animation
+        else:
+            return None
+
+        return animation.get_animation_group()
+
+    def render(
+        self,
+        interactable_comp: UIElement | Hitbox | None,
+        spatial_comp: SpatialComponent,
+        surface: pygame.Surface,
+        camera: Camera,
+    ) -> None:
         """Draw this visual onto the given surface."""
-        ...
+        spatial_rect = spatial_comp.get_screen_rect(camera)
+        if isinstance(interactable_comp, UIElement):
+            gui_rect = interactable_comp.get_relative_rect()
+            if spatial_rect.size != gui_rect.size:
+                # Only rebuild if size has changed. This is an attempt to reduce expensive rebuild calls.
+                interactable_comp.set_dimensions(spatial_rect.size)
+                interactable_comp.rebuild()  # type: ignore
+            if spatial_rect.topleft != gui_rect.topleft:
+                interactable_comp.set_relative_position(spatial_rect.topleft)
+        else:
+            if self.spritesheet_component:
+                frame = self.spritesheet_component.output_frame(
+                    spatial_rect, self._camera
+                )
+                if frame:
+                    surface.blit(frame, spatial_rect.topleft)
+        # RECT DEBUG
+        pygame.draw.rect(surface, (255, 0, 0), spatial_rect, width=2)
 
-    @abstractmethod
-    def set_position(self, topleft_coord: tuple[float, float]) -> None:
-        """Move this visual component to the specified topleft coord"""
-        ...
-
-    @abstractmethod
     def set_highlighted(self, highlighted: bool) -> None:
         """Set whether this visual is highlighted (e.g. selected)"""
-        ...
-
-
-class UIElementVisual(VisualComponent):
-    def __init__(self, ui_element: UIElement) -> None:
-        self.ui_element: UIElement = ui_element
-
-    def destroy(self) -> None:
-        return self.ui_element.kill()  # type: ignore
-
-    def render(self, surface: pygame.Surface) -> None:
-        # pygame_gui handles rendering its own elements
-        pass
-
-    def set_position(self, topleft_coord: tuple[float, float]) -> None:
-        self.ui_element.set_position(topleft_coord)
-
-    def set_highlighted(self, highlighted: bool) -> None:
-        # pygame_gui handles rendering its own elements, including highlighting.
-        pass
-
-
-class ElementVisual(VisualComponent):
-    def __init__(self, element: Element) -> None:
-        self.sprite: pygame.Surface = pygame.Surface(
-            (200, 100)
-        )  # placeholder. revise element to hold a sprite key that can be retrieved here later
-        self.element: Element | None = element
-        self.position: tuple[float, float] = element.get_topleft()
-        self.highlighted: bool = False
-
-    def destroy(self) -> None:
-        self.element = None
-
-    def render(self, surface: pygame.Surface) -> None:
-        surface.blit(self.sprite, self.position)
-
-    def set_position(self, topleft_coord: tuple[float, float]) -> None:
-        self.position = topleft_coord
-
-    def set_highlighted(self, highlighted: bool) -> None:
         self.highlighted = highlighted
 
+    def _to_sequential(
+        self, animation: SequentialAnim | GroupedAnim | AnimEvent
+    ) -> SequentialAnim:
+        match animation:
+            case SequentialAnim():
+                return animation
+            case GroupedAnim():
+                return SequentialAnim(sequential_list=[animation])
+            case AnimEvent():
+                return SequentialAnim(
+                    sequential_list=[GroupedAnim(group_list=[animation])]
+                )
+            case _:
+                raise TypeError("The provided anim object is an incorrect type.")
 
-# class TileVisual(ElementVisual):
-#     def __init__(self, tile: Tile) -> None:
-#         super().__init__(
-#             sprite_enum=TILE_TO_SPRITE_REGISTRY.get(
-#                 type(tile), SpriteRegistryKey.DEFAULT_TILE
-#             ),
-#             position=tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True),
-#         )
+    def set_default_animation(
+        self, default_sequence: SequentialAnim | GroupedAnim | AnimEvent
+    ) -> None:
+        self._default_animation = self._to_sequential(default_sequence)
 
-#     def render(self, surface: pygame.Surface) -> None:
-#         surface.blit(self.sprite, self.position)
+    def queue_override_animation(
+        self, overriding_sequence: SequentialAnim | GroupedAnim | AnimEvent
+    ) -> None:
+        if (
+            isinstance(overriding_sequence, SequentialAnim)
+            and overriding_sequence.interrupts_queue
+        ):
+            self._override_animation_queue.clear()
 
-#         if self.highlighted:
-#             overlay = pygame.Surface(self.sprite.get_size(), pygame.SRCALPHA)
-#             overlay.fill((255, 255, 0, 100))  # yellow with alpha
-#             surface.blit(overlay, self.position)
-
-
-# # TODO: re-implement entity visual offsets
-# class EntityVisual(ElementVisual):
-#     def __init__(self, entity: Entity) -> None:
-#         sprite_key = ENTITY_TO_SPRITE_REGISTRY.get(
-#             type(entity), SpriteRegistryKey.DEFAULT_ENTITY
-#         )
-
-#         pos = entity.pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-
-#         super().__init__(sprite_enum=sprite_key, position=pos)
-
-#     def render(self, surface: pygame.Surface) -> None:
-#         surface.blit(self.sprite, self.position)
-
-#         if self.highlighted:
-#             overlay = pygame.Surface(self.sprite.get_size(), pygame.SRCALPHA)
-#             overlay.fill((255, 255, 0, 100))  # yellow with alpha
-#             surface.blit(overlay, self.position)
-
-
-# class AbilityMenuVisual(ElementVisual):
-#     def __init__(
-#         self,
-#         skill_name: str,
-#         topleft_pos: tuple[float, float],
-#         font: pygame.font.Font | None = None,
-#     ) -> None:
-#         self.skill_name = skill_name
-#         self.topleft_pos = topleft_pos
-
-#         self.width = 100
-#         self.height = 40
-
-#         self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-#         self.rect = self.surface.get_rect(topleft=topleft_pos)
-
-#         self.font = font or pygame.font.SysFont("Arial", 16)
-
-#         self.highlighted = False
-
-#         self._render_surface()
-
-#     def _render_surface(self) -> None:
-#         # Clear the surface
-#         self.surface.fill((0, 0, 0, 0))  # transparent background
-
-#         # Draw button background
-#         bg_color = (200, 200, 200) if not self.highlighted else (255, 255, 100)
-#         pygame.draw.rect(
-#             self.surface, bg_color, (0, 0, self.width, self.height), border_radius=5
-#         )
-
-#         # Draw text
-#         text_surf = self.font.render(self.skill_name, True, (0, 0, 0))
-#         text_rect = text_surf.get_rect(center=(self.width // 2, self.height // 2))
-#         self.surface.blit(text_surf, text_rect)
-
-#     def set_highlight(self, highlighted: bool) -> None:
-#         self.highlighted = highlighted
-#         self._render_surface()
-
-#     def render(self, target_surface: pygame.Surface) -> None:
-#         target_surface.blit(self.surface, self.rect)
+        self._override_animation_queue.append(self._to_sequential(overriding_sequence))

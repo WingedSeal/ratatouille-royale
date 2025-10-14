@@ -1,14 +1,8 @@
 import pygame_gui
 
-from ratroyale.frontend.visual.asset_management.visual_component import (
-    TileVisual,
-    EntityVisual,
-)
-from ratroyale.frontend.pages.page_elements.element import (
-    Element,
-    HexHitbox,
-    RectangleHitbox,
-)
+from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
+from .hitbox import HexHitbox, RectangleHitbox
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from dataclasses import dataclass
@@ -48,9 +42,8 @@ class ParentIdentity:
             - If None, the offset is automatically calculated from the element's rect relative to the parent's top-left.
     """
 
-    parent_id: str
-    parent_type: str | None = None
-    offset: tuple[int, int] | None = (0, 0)
+    parent_registered_name: str
+    parent_grouping_name: str | None = None
 
 
 @dataclass
@@ -76,55 +69,55 @@ class ElementConfig:
     )
 
 
-_ELEMENT_BUILDERS: dict[str, Callable[[ElementConfig], Element]] = {}
+_ELEMENT_BUILDERS: dict[str, Callable[[ElementConfig], ElementWrapper]] = {}
 
 
 def _register_element_creator(
     type_key: str,
 ) -> Callable[
-    [Callable[[ElementConfig], "Element"]],
-    Callable[[ElementConfig], "Element"],
+    [Callable[[ElementConfig], "ElementWrapper"]],
+    Callable[[ElementConfig], "ElementWrapper"],
 ]:
 
     def decorator(
-        fn: Callable[[ElementConfig], "Element"],
-    ) -> Callable[[ElementConfig], "Element"]:
+        fn: Callable[[ElementConfig], "ElementWrapper"],
+    ) -> Callable[[ElementConfig], "ElementWrapper"]:
         _ELEMENT_BUILDERS[type_key] = fn
         return fn
 
     return decorator
 
 
-def create_element(cfg: ElementConfig) -> Element:
+def create_element(cfg: ElementConfig) -> ElementWrapper:
     return _ELEMENT_BUILDERS[cfg.element_type](cfg)
 
 
-@_register_element_creator("tile")
-def create_tile(cfg: ElementConfig) -> Element:
-    if cfg.payload is None:
-        raise ValueError("Tile element must have a Tile payload defined.")
-    tile_payload = cfg.payload
-    assert isinstance(tile_payload, TilePayload)
-    visual = TileVisual(tile_payload.tile)
-    return Element(
-        element_id=cfg.id,
-        hitbox=HexHitbox(cfg.rect),
-        visual=visual,
-        payload=tile_payload,
-    )
+# @_register_element_creator("tile")
+# def create_tile(cfg: ElementConfig) -> ElementWrapper:
+#     if cfg.payload is None:
+#         raise ValueError("Tile element must have a Tile payload defined.")
+#     tile_payload = cfg.payload
+#     assert isinstance(tile_payload, TilePayload)
+#     visual = TileVisual(tile_payload.tile)
+#     return ElementWrapper(
+#         registered_name=cfg.id,
+#         hitbox=HexHitbox(cfg.rect),
+#         visual=visual,
+#         payload=tile_payload,
+#     )
 
 
-@_register_element_creator("entity")
-def create_entity(cfg: ElementConfig) -> Element:
-    if cfg.payload is None:
-        raise ValueError("Entity element must have an Entity payload defined.")
-    entity_payload = cfg.payload
-    assert isinstance(entity_payload, EntityPayload)
-    visual = EntityVisual(entity_payload.entity)
-    return Element(
-        element_id=cfg.id,
-        hitbox=RectangleHitbox(cfg.rect),
-        visual=visual,
-        z_order=cfg.z_order,
-        payload=entity_payload,
-    )
+# @_register_element_creator("entity")
+# def create_entity(cfg: ElementConfig) -> ElementWrapper:
+#     if cfg.payload is None:
+#         raise ValueError("Entity element must have an Entity payload defined.")
+#     entity_payload = cfg.payload
+#     assert isinstance(entity_payload, EntityPayload)
+#     visual = EntityVisual(entity_payload.entity)
+#     return ElementWrapper(
+#         registered_name=cfg.id,
+#         hitbox=RectangleHitbox(cfg.rect),
+#         visual=visual,
+#         z_order=cfg.z_order,
+#         payload=entity_payload,
+#     )

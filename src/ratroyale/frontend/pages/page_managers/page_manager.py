@@ -14,6 +14,8 @@ from ratroyale.event_tokens.page_token import (
 from ratroyale.event_tokens.visual_token import VisualManagerEvent
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
 from ratroyale.event_tokens.input_token import post_gesture_event, InputManagerEvent
+from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 from typing import Any, Callable
 
@@ -31,6 +33,8 @@ class PageManager:
         self.page_stack: list[Page] = []
         """Active page stack.
         First is bottom-most, while last is topmost"""
+
+        self.camera: Camera = Camera(0, 0, 1, SCREEN_SIZE[0] / 2, SCREEN_SIZE[1] / 2)
 
         self.page_actions: dict[PageNavigation, Callable[[type[Page]], None]] = {
             PageNavigation.OPEN: self.open_page,
@@ -56,7 +60,7 @@ class PageManager:
         try:
             self.get_page(page_type)
         except KeyError:
-            opened_page = page_type(self.coordination_manager)
+            opened_page = page_type(self.coordination_manager, self.camera)
             self.page_stack.append(opened_page)
             opened_page.on_open()
 

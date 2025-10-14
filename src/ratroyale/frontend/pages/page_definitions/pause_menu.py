@@ -17,42 +17,43 @@ from ratroyale.frontend.pages.page_elements.element_register_form import (
     ElementRegisterForm,
 )
 
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
+from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+
 import pygame_gui
 import pygame
 
 
 @register_page
 class PauseMenu(Page):
-    def __init__(self, coordination_manager: "CoordinationManager") -> None:
+    def __init__(
+        self, coordination_manager: "CoordinationManager", camera: Camera
+    ) -> None:
         super().__init__(
-            coordination_manager, base_color=(0, 0, 0, 128), theme_name="pause_menu"
+            coordination_manager,
+            base_color=(0, 0, 0, 128),
+            theme_name="pause_menu",
+            camera=camera,
         )
 
-    def define_initial_gui(self) -> list[ElementRegisterForm]:
-        return [
-            ElementRegisterForm(
-                "resume_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(300, 200, 200, 50),
-                    text="Continue",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="PauseMenuButton", object_id="resume_button"
-                    ),
-                ),
+    def define_initial_gui(self) -> list[ElementWrapper]:
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(300, 200, 200, 50),
+            text="Continue",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="PauseMenuButton", object_id="resume_button"
             ),
-            ElementRegisterForm(
-                "quit_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(300, 300, 200, 50),
-                    text="Quit Game",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="PauseMenuButton", object_id="quit_button"
-                    ),
-                ),
+        )
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(300, 300, 200, 50),
+            text="Quit Game",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="PauseMenuButton", object_id="quit_button"
             ),
-        ]
+        )
+        return []
 
     # --- Input Handlers ---
     @input_event_bind("resume_button", pygame_gui.UI_BUTTON_PRESSED)

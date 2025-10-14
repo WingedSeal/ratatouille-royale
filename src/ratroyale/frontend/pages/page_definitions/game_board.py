@@ -1,6 +1,5 @@
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.input_token import (
-    InputManagerEvent,
     get_id,
     get_gesture_data,
     get_payload,
@@ -22,6 +21,9 @@ from ratroyale.frontend.pages.page_managers.backend_adapter import (
     get_name_from_tile,
 )
 
+from ratroyale.frontend.pages.page_elements.hitbox import RectangleHitbox, HexHitbox
+
+
 from ratroyale.frontend.pages.page_elements.element_builder import (
     ElementConfig,
     ParentIdentity,
@@ -29,24 +31,45 @@ from ratroyale.frontend.pages.page_elements.element_builder import (
 from ratroyale.frontend.pages.page_elements.element_register_form import (
     ElementRegisterForm,
 )
-from ratroyale.frontend.pages.page_elements.element import Element
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 
 from ratroyale.backend.board import Board
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 
-from ratroyale.frontend.visual.asset_management.sprite_registry import TYPICAL_TILE_SIZE
+from ratroyale.frontend.visual.asset_management.sprite_key_registry import (
+    TYPICAL_TILE_SIZE,
+)
+
+from ratroyale.frontend.pages.page_elements.spatial_component import (
+    SpatialComponent,
+    Camera,
+)
+from ratroyale.frontend.visual.asset_management.spritesheet_manager import (
+    SpritesheetManager,
+)
+from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
+    SPRITE_METADATA_REGISTRY,
+)
+from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 
 import pygame_gui
 import pygame
 
 from ratroyale.event_tokens.payloads import TilePayload, EntityPayload
 
+from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
+from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
+    SpritesheetComponent,
+)
+
 
 @register_page
 class GameBoard(Page):
-    def __init__(self, coordination_manager: CoordinationManager) -> None:
-        super().__init__(coordination_manager)
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(coordination_manager, camera)
         self.selected_element_id: tuple[str, str] | None = None
         self.ability_panel_id: str | None = None
         self.board: Board | None = None
@@ -55,7 +78,7 @@ class GameBoard(Page):
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="start_game"))
 
-    def define_initial_gui(self) -> list[ElementRegisterForm]:
+    def define_initial_gui(self) -> list[ElementWrapper]:
         return []
 
     # region Input Bindings
@@ -66,28 +89,63 @@ class GameBoard(Page):
 
         if msg.success and msg.payload:
             self.board = msg.payload
-            element_configs: list[ElementConfig] = []
+            element_configs: list[ElementWrapper] = []
             tiles = self.board.tiles
             entities = self.board.cache.entities
 
             for tile_list in tiles:
                 for tile in tile_list:
                     if tile:
-                        tile_element = ElementConfig(
-                            element_type="tile",
-                            id=get_name_from_tile(tile),
-                            rect=self._define_tile_rect(tile),
+                        # tile_element = ElementWrapper(
+                        #     element_type="tile",
+                        #     id=get_name_from_tile(tile),
+                        #     rect=self._define_tile_rect(tile),
+                        #     payload=TilePayload(tile),
+                        # )
+                        sprite_metadata = SPRITE_METADATA_REGISTRY[TailBlazer]
+                        cached_spritesheet_name = (
+                            SpritesheetManager.register_spritesheet(
+                                sprite_metadata
+                            ).get_key()
+                        )
+
+                        tile_element = ElementWrapper(
+                            registered_name=f"tile_{id(tile)}",
+                            grouping_name="TILE",
+                            camera=self.camera,
+                            spatial_component=SpatialComponent(
+                                pygame.Rect(self._define_tile_rect(tile)),
+                                space_mode="WORLD",
+                            ),
+                            interactable_component=HexHitbox(),
+                            visual_component=VisualComponent(
+                                SpritesheetComponent(
+                                    spritesheet_reference=cached_spritesheet_name
+                                ),
+                                "IDLE",
+                            ),
                             payload=TilePayload(tile),
                         )
                         element_configs.append(tile_element)
 
             for entity in entities:
-                entity_element = ElementConfig(
-                    element_type="entity",
-                    id=get_name_from_entity(entity),
-                    rect=self._define_entity_rect(entity),
+                entity_element = ElementWrapper(
+                    registered_name=f"entity_{id(tile)}",
+                    grouping_name="ENTITY",
+                    camera=self.camera,
+                    spatial_component=SpatialComponent(
+                        pygame.Rect(self._define_entity_rect(entity)),
+                        space_mode="WORLD",
+                        z_order=1,
+                    ),
+                    interactable_component=RectangleHitbox(),
+                    visual_component=VisualComponent(
+                        SpritesheetComponent(
+                            spritesheet_reference=cached_spritesheet_name
+                        ),
+                        "IDLE",
+                    ),
                     payload=EntityPayload(entity),
-                    z_order=1,  # Ensure entities are rendered above tiles
                 )
                 element_configs.append(entity_element)
 
@@ -100,39 +158,41 @@ class GameBoard(Page):
     def _on_tile_click(self, msg: pygame.event.Event) -> None:
         tile_element_id = self._get_element_id(msg)
 
-        self._select_element("tile", tile_element_id)
+        self._select_element("TILE", tile_element_id)
         self._close_ability_menu()
 
     @input_event_bind("entity", GestureType.CLICK.to_pygame_event())
     def _on_entity_click(self, msg: pygame.event.Event) -> None:
         entity_element_id = self._get_element_id(msg)
 
-        self._select_element("entity", entity_element_id)
+        self._select_element("ENTITY", entity_element_id)
         self._close_ability_menu()
 
     @input_event_bind("entity", GestureType.HOLD.to_pygame_event())
     def _display_ability_menu(self, msg: pygame.event.Event) -> None:
         """Display the ability menu for the selected entity."""
-        entity = get_payload(msg)
+        entity_payload = get_payload(msg)
         entity_element_id = get_id(msg)
-        if not entity or not entity_element_id:
+        if not entity_payload or not entity_element_id:
             raise ValueError(
                 "Wrong event type received. Make sure it is a gesture type event!"
             )
 
-        entity_element = self._element_manager.get_element("entity", entity_element_id)
+        entity_element = self._element_manager.get_element_wrapper(
+            entity_element_id, "ENTITY"
+        )
         if not entity_element:
             raise ValueError("Something went wrong while trying to get the element.")
 
-        assert isinstance(entity, Entity)
+        assert isinstance(entity_payload, EntityPayload)
+        entity = entity_payload.entity
         # region Create ability panel
         # --- Create a parent panel for all ability buttons ---
-        entity_center_x = (
-            entity_element.get_topleft()[0] + entity_element.get_size()[0] / 2
+        entity_spatial_rect = entity_element.spatial_component.get_screen_rect(
+            self.camera
         )
-        entity_center_y = (
-            entity_element.get_topleft()[1] + entity_element.get_size()[1] / 2
-        )
+        entity_center_x = entity_spatial_rect.x + entity_spatial_rect.width / 2
+        entity_center_y = entity_spatial_rect.y + entity_spatial_rect.height / 2
 
         panel_width = 160
         panel_x = entity_center_x - panel_width / 2
@@ -150,9 +210,15 @@ class GameBoard(Page):
             ),
         )
 
-        panel_element = ElementRegisterForm(panel_id, panel_object)
-
-        self.setup_gui_elements([panel_element])
+        panel_element = ElementWrapper(
+            registered_name=panel_id,
+            grouping_name="UI_ELEMENT",
+            camera=self.camera,
+            spatial_component=SpatialComponent(panel_object.get_abs_rect()),
+            interactable_component=panel_object,
+            visual_component=VisualComponent(),
+        )
+        self.setup_elements([panel_element])
 
         # --- Create ability buttons inside the panel ---
         for i, skill in enumerate(entity.skills):
@@ -185,16 +251,22 @@ class GameBoard(Page):
     @input_event_bind("entity", GestureType.DRAG_START.to_pygame_event())
     def _on_entity_drag_start(self, msg: pygame.event.Event) -> None:
         entity_element_id = self._get_element_id(msg)
-        entity_element = self._element_manager.get_element("entity", entity_element_id)
+        entity_element = self._element_manager.get_element_wrapper(
+            entity_element_id, "ENTITY"
+        )
         gesture_data = get_gesture_data(msg)
 
         if entity_element and gesture_data.mouse_pos and entity_element_id:
             mouse_x, mouse_y = gesture_data.mouse_pos
-            width, height = entity_element.get_size()
+            width, height = entity_element.spatial_component.get_screen_rect(
+                self.camera
+            ).size
             new_x = mouse_x - width // 2
             new_y = mouse_y - height // 2
-            entity_element.set_position((new_x, new_y))
-            self.dragging_element_id = ("entity", entity_element_id)
+            entity_element.spatial_component.set_position(
+                self.camera.screen_to_world(new_x, new_y)
+            )
+            self.dragging_element_id = (entity_element_id, "ENTITY")
 
     # Called while dragging; moves element regardless of hitbox
     @input_event_bind(None, GestureType.DRAG.to_pygame_event())
@@ -203,16 +275,18 @@ class GameBoard(Page):
             return
 
         category, element_id = self.dragging_element_id
-        entity = self._element_manager.get_element(category, element_id)
+        entity = self._element_manager.get_element_wrapper(category, element_id)
         gesture_data = get_gesture_data(msg)
 
         if entity and gesture_data.mouse_pos:
-            width, height = entity.get_size()
+            width, height = entity.spatial_component.get_screen_rect(self.camera).size
             new_topleft = (
                 gesture_data.mouse_pos[0] - width // 2,
                 gesture_data.mouse_pos[1] - height // 2,
             )
-            entity.set_position(new_topleft)
+            entity.spatial_component.set_position(
+                self.camera.screen_to_world(*new_topleft)
+            )
 
     @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
@@ -234,7 +308,7 @@ class GameBoard(Page):
     def _close_ability_menu(self) -> None:
         """Close the ability menu if open."""
         if self.ability_panel_id:
-            self._element_manager.remove_gui_element(self.ability_panel_id)
+            self._element_manager.remove_element("UI_ELEMENT", self.ability_panel_id)
             self.ability_panel_id = None
 
     def _get_element_id(self, msg: pygame.event.Event) -> str:
@@ -247,7 +321,7 @@ class GameBoard(Page):
 
     def _select_element(
         self, element_type: str, element_id: str, toggle: bool = True
-    ) -> Element | None:
+    ) -> ElementWrapper | None:
         """
         Handles single-selection logic for both tiles and entities.
         Only one element can be selected at a time.
@@ -255,25 +329,27 @@ class GameBoard(Page):
         Returns the currently selected element, or None if deselected.
         """
         # Un-highlight previous selection
-        prev_element: Element | None = None
+        prev_element: ElementWrapper | None = None
         if self.selected_element_id:
             prev_type, prev_id = self.selected_element_id
             prev_element = self.get_element(prev_type, prev_id)
-            if prev_element and prev_element.visual:
-                prev_element.visual.set_highlighted(False)
+            if prev_element and prev_element.visual_component:
+                prev_element.visual_component.set_highlighted(False)
 
         # Deselect if same element clicked
-        if self.selected_element_id == (element_type, element_id) and toggle:
+        if self.selected_element_id == (element_id, element_type) and toggle:
             self.selected_element_id = None
             return None
 
         # Highlight new element
-        element = self.get_element(element_type, element_id)
-        if element and element.visual:
-            element.visual.set_highlighted(True)
+        element = self.get_element(element_id, element_type)
+        if element and element.visual_component:
+            element.visual_component.set_highlighted(True)
 
         # Update selection
-        self.selected_element_id = (element_type, element_id)
+        self.selected_element_id = (element_id, element_type)
+
+        print(self.selected_element_id)
 
         return element
 

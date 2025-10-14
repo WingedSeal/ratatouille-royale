@@ -16,64 +16,160 @@ from ratroyale.frontend.pages.page_elements.element_builder import (
 from ratroyale.frontend.pages.page_elements.element_register_form import (
     ElementRegisterForm,
 )
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
+from ratroyale.frontend.pages.page_elements.spatial_component import (
+    SpatialComponent,
+    Camera,
+)
+from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
+from ratroyale.frontend.visual.anim.core.transform_anim import MoveAnim, ScaleAnim
+from ratroyale.frontend.visual.anim.core.sprite_anim import SpriteAnim
+from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
+    SPRITE_METADATA_REGISTRY,
+)
+from ratroyale.frontend.visual.asset_management.spritesheet_manager import (
+    SpritesheetManager,
+)
+
+from ratroyale.frontend.pages.page_elements.hitbox import RectangleHitbox
+
+from ratroyale.backend.entities.rodents.vanguard import TailBlazer
+
+from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
+    SpritesheetComponent,
+)
 
 import pygame_gui
 import pygame
+import pytweening  # type: ignore
 
 
+# TODO: make helpers to make button registration easier
 @register_page
 class MainMenu(Page):
-    def __init__(self, coordination_manager: CoordinationManager) -> None:
-        super().__init__(coordination_manager, theme_name="main_menu")
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(coordination_manager, theme_name="main_menu", camera=camera)
 
-    def define_initial_gui(self) -> list[ElementRegisterForm]:
+    def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the main menu page."""
-        return [
-            ElementRegisterForm(
-                "start_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(100, 100, 200, 50),
-                    text="Start",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="MainMenuButton", object_id="start_button"
-                    ),
-                ),
+
+        elements: list[ElementWrapper] = []
+
+        start_button_id = "start_button"
+        start_button_pos = pygame.Rect(100, 100, 200, 50)
+        start_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(0, 0, 10, 10),
+            text="Start",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="MainMenuButton", object_id=start_button_id
             ),
-            ElementRegisterForm(
-                "quit_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(100, 200, 200, 50),
-                    text="Quit",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="MainMenuButton", object_id="quit_button"
-                    ),
-                ),
+        )
+        start_button_element = ElementWrapper(
+            registered_name=start_button_id,
+            grouping_name="UI_ELEMENTS",
+            camera=self.camera,
+            spatial_component=SpatialComponent(start_button_pos),
+            interactable_component=start_button,
+            visual_component=VisualComponent(),
+        )
+        elements.append(start_button_element)
+
+        # Quit button
+        quit_button_id = "quit_button"
+        quit_button_pos = pygame.Rect(100, 200, 200, 50)
+        quit_button = pygame_gui.elements.UIButton(
+            relative_rect=quit_button_pos,
+            text="Quit",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="MainMenuButton", object_id=quit_button_id
             ),
-            ElementRegisterForm(
-                "gui_demo_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(100, 300, 200, 50),
-                    text="Go to GUI demo",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="MainMenuButton", object_id="gui_demo_button"
-                    ),
-                ),
+        )
+        quit_button_element = ElementWrapper(
+            registered_name=quit_button_id,
+            grouping_name="UI_ELEMENTS",
+            camera=self.camera,
+            spatial_component=SpatialComponent(quit_button_pos),
+            interactable_component=quit_button,
+            visual_component=VisualComponent(),  # optional
+        )
+        elements.append(quit_button_element)
+
+        # GUI Demo button
+        gui_demo_button_id = "gui_demo_button"
+        gui_demo_button_pos = pygame.Rect(100, 300, 200, 50)
+        gui_demo_button = pygame_gui.elements.UIButton(
+            relative_rect=gui_demo_button_pos,
+            text="Go to GUI demo",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="MainMenuButton", object_id=gui_demo_button_id
             ),
-            ElementRegisterForm(
-                "element_demo_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(400, 300, 200, 50),
-                    text="Go to Element demo",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="MainMenuButton", object_id="element_demo_button"
-                    ),
-                ),
+        )
+        gui_demo_element = ElementWrapper(
+            registered_name=gui_demo_button_id,
+            grouping_name="UI_ELEMENTS",
+            camera=self.camera,
+            spatial_component=SpatialComponent(gui_demo_button_pos),
+            interactable_component=gui_demo_button,
+            visual_component=VisualComponent(),
+        )
+        elements.append(gui_demo_element)
+
+        # Element Demo button
+        element_demo_button_id = "element_demo_button"
+        element_demo_button_pos = pygame.Rect(400, 300, 200, 50)
+        element_demo_button = pygame_gui.elements.UIButton(
+            relative_rect=element_demo_button_pos,
+            text="Go to Element demo",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="MainMenuButton", object_id=element_demo_button_id
             ),
+        )
+        element_demo_element = ElementWrapper(
+            registered_name=element_demo_button_id,
+            grouping_name="UI_ELEMENTS",
+            camera=self.camera,
+            spatial_component=SpatialComponent(element_demo_button_pos),
+            interactable_component=element_demo_button,
+            visual_component=VisualComponent(),
+        )
+        elements.append(element_demo_element)
+
+        # Get testing sprite
+        sprite_metadata = SPRITE_METADATA_REGISTRY[TailBlazer]
+        cached_spritesheet_name = SpritesheetManager.register_spritesheet(
+            sprite_metadata
+        ).get_key()
+
+        test_names = [f"entity_test_{i}" for i in range(1, 4)]
+        test_coords = [
+            pygame.Rect(100, 100, 80, 80),
+            pygame.Rect(100, 150, 80, 80),
+            pygame.Rect(-50, -25, 80, 80),
         ]
+
+        for name, coords in zip(test_names, test_coords):
+            tailblazer = ElementWrapper(
+                registered_name=name,
+                grouping_name="RODENT",
+                camera=self.camera,
+                spatial_component=SpatialComponent(
+                    local_rect=pygame.Rect(coords), space_mode="WORLD"
+                ),
+                interactable_component=RectangleHitbox(),
+                visual_component=VisualComponent(
+                    SpritesheetComponent(spritesheet_reference=cached_spritesheet_name),
+                    starting_anim="IDLE",
+                ),
+            )
+            elements.append(tailblazer)
+
+        return elements
 
     # region Input Responses
 
@@ -106,6 +202,56 @@ class MainMenu(Page):
 
     @input_event_bind("element_demo_button", pygame_gui.UI_BUTTON_PRESSED)
     def _on_element_demo_click(self, msg: pygame.event.Event) -> None:
-        print("Element demo button clicked")
+        element_wrapper = self._element_manager.get_element_wrapper(
+            "entity_test_1", "RODENT"
+        )
+        vis = element_wrapper.visual_component
+        if vis:
+            scale_anim = ScaleAnim(
+                easing_func=pytweening.easeOutCirc,
+                timing_mode="DURATION_PER_LOOP",  # or "DURATION_IN_TOTAL"
+                period=1,  # duration of one loop in seconds
+                reverse_pass_per_loop=True,  # whether to reverse direction at the end of each loop
+                compose_with_default=True,  # optional, depends on your AnimEvent logic
+                callback=None,  # optional callback name or None
+                loop_count=5,  # number of loops (None = infinite)
+                spatial_component=element_wrapper.spatial_component,
+                camera=self.camera,
+                align_hitbox_during_anim=False,
+                scale_mode="SCALE_BY_FACTOR",
+                target=(0.8, 1.2),
+                expansion_anchor=("LOWER", "MIDDLE"),
+            )
+
+            move_anim = MoveAnim(
+                easing_func=pytweening.easeOutBack,
+                timing_mode="DURATION_PER_LOOP",  # or "DURATION_IN_TOTAL"
+                period=1.0,  # duration of one loop in seconds
+                reverse_pass_per_loop=True,  # whether to reverse direction at the end of each loop
+                compose_with_default=True,  # optional, depends on your AnimEvent logic
+                callback=None,  # optional callback name or None
+                loop_count=5,  # number of loops (None = infinite)
+                spatial_component=element_wrapper.spatial_component,
+                camera=self.camera,
+                align_hitbox_during_anim=False,
+                move_mode="MOVE_BY",
+                direction_vector=(100, 100),
+            )
+
+            assert vis.spritesheet_component
+            sprite_anim = SpriteAnim(
+                spritesheet_component=vis.spritesheet_component,
+                period=1,
+                reverse_pass_per_loop=True,
+                loop_count=5,
+                animation_name="DIE",
+                timing_mode="DURATION_PER_LOOP",
+            )
+            vis.queue_override_animation(scale_anim)
+
+    @input_event_bind("entity_test_2", GestureType.CLICK.to_pygame_event())
+    def click_test(self, msg: pygame.event.Event) -> None:
+        print("entity clicked")
+        self.camera.zoom_at(self.camera.scale + 0.1)
 
     # endregion

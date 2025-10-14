@@ -4,7 +4,7 @@ import pygame
 
 from ratroyale.event_tokens.input_token import get_id
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.pages.page_elements.element import Element
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
@@ -21,6 +21,7 @@ from ratroyale.frontend.pages.page_elements.element_register_form import (
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 
 from abc import ABC, abstractmethod
 
@@ -39,6 +40,7 @@ class Page(ABC):
     def __init__(
         self,
         coordination_manager: CoordinationManager,
+        camera: Camera,
         is_blocking: bool = True,
         theme_name: str = "",
         base_color: tuple[int, int, int, int] | None = None,
@@ -46,10 +48,11 @@ class Page(ABC):
         self.theme_path = str(resolve_theme_path(theme_name))
         self.gui_manager = pygame_gui.UIManager(SCREEN_SIZE, self.theme_path)
         """ Each page has its own UIManager """
+        self.camera = camera
         self.coordination_manager = coordination_manager
         self.is_blocking: bool = is_blocking
         self._element_manager: ElementManager = ElementManager(
-            self.gui_manager, self.coordination_manager
+            self.gui_manager, self.coordination_manager, camera
         )
         self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
         self.base_color: tuple[int, int, int, int] = (
@@ -68,10 +71,10 @@ class Page(ABC):
         self.setup_event_bindings()
 
         gui_elements = self.define_initial_gui()
-        self.setup_gui_elements(gui_elements)
+        self.setup_elements(gui_elements)
 
     @abstractmethod
-    def define_initial_gui(self) -> list["ElementRegisterForm"]:
+    def define_initial_gui(self) -> list["ElementWrapper"]:
         """
         Return a list of UIRegisterForm (or other GUI element wrappers)
         that belong to this page. Even if the page has no elements,
@@ -83,18 +86,12 @@ class Page(ABC):
     def quit_game(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.stop_game()
 
-    def setup_elements(self, configs: list[ElementConfig]) -> None:
+    def setup_elements(self, configs: list[ElementWrapper]) -> None:
         for config in configs:
-            self._element_manager.create_element(config)
+            self._element_manager.add_element(config)
 
-    def setup_gui_elements(self, ui_elements: list[ElementRegisterForm]) -> None:
-        for ui_element in ui_elements:
-            self._element_manager.add_gui_element(
-                ui_element.element, ui_element.registered_name
-            )
-
-    def get_element(self, element_type: str, element_id: str) -> Element | None:
-        return self._element_manager.get_element(element_type, element_id)
+    def get_element(self, element_type: str, element_id: str) -> ElementWrapper | None:
+        return self._element_manager.get_element_wrapper(element_type, element_id)
 
     def setup_event_bindings(self) -> None:
         """
@@ -199,9 +196,10 @@ class Page(ABC):
         """Called when the page is destroyed. Override in subclasses if needed."""
         pass
 
-    def render(self, time_delta: float) -> pygame.Surface:
+    def render(self, dt: float) -> pygame.Surface:
         if self.is_visible:
-            self.gui_manager.update(time_delta)
+            self.gui_manager.update(dt)
+            self._element_manager.update_all(dt)
             self.canvas.fill(self.base_color)  # Clear with transparent
             self._element_manager.render_all(self.canvas)
             self.gui_manager.draw_ui(self.canvas)

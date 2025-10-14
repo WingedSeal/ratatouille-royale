@@ -1,20 +1,34 @@
-from enum import Enum, auto
-from typing import Type
+from dataclasses import dataclass
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
-from ratroyale.backend.entity import Entity
-from ratroyale.backend.tile import Tile
+from pathlib import Path
+import sys
 
-# TODO: refactor entity/tile sprite drawing into type-based handlers.
+visual_folder = Path(__file__).parent.parent
+sys.path.append(visual_folder.resolve().as_posix())
 
-
-class SpriteRegistryKey(Enum):
-    DEFAULT_TILE = auto()
-    DEFAULT_ENTITY = auto()
-    RODENT_TAILBLAZER = auto()
+ASSET_DIR = visual_folder / "asset"
 
 
-TILE_TO_SPRITE_REGISTRY: dict[Type[Tile], SpriteRegistryKey] = {}
+@dataclass
+class SpritesheetMetadata:
+    key: str
+    path: Path
+    sprite_size: tuple[int, int]
+    animation_list: dict[str, list[int]]
+    frame_rate: float = 60
+    scale: tuple[float, float] = (1.0, 1.0)
 
-ENTITY_TO_SPRITE_REGISTRY: dict[Type[Entity], SpriteRegistryKey] = {
-    TailBlazer: SpriteRegistryKey.RODENT_TAILBLAZER
+
+SPRITE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
+    TailBlazer: SpritesheetMetadata(
+        "TAILBLAZER",
+        ASSET_DIR / "starcatcher.png",
+        (80, 80),
+        {
+            "IDLE": list(range(0, 10)),
+            "HUNGRY": list(range(11, 20)),
+            "DIE": list(range(21, 30)),
+        },
+        60,
+    ),
 }
