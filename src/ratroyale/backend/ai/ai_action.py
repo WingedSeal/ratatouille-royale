@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 
-from ..player_info.squeak import Squeak
 from ..entity import Entity, SkillTargeting
 from ..hexagon import OddRCoord
+from ..player_info.squeak import Squeak
 
 
 @dataclass(frozen=True)

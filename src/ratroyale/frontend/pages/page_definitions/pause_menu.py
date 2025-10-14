@@ -1,19 +1,15 @@
+import pygame
+import pygame_gui
+
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens.visual_token import *
-from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-
-
-from ..page_managers.base_page import Page
+from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.visual_token import *
+from ratroyale.frontend.pages.page_elements.element_builder import UIRegisterForm
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    UIRegisterForm,
-)
-
-import pygame_gui
-import pygame
+from ..page_managers.base_page import Page
 
 
 @register_page

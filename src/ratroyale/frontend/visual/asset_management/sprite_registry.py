@@ -1,4 +1,5 @@
 import pygame
+
 from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
     SpriteRegistryKey,
 )

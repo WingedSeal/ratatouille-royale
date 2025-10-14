@@ -1,19 +1,20 @@
+from dataclasses import dataclass
+from typing import Any, Callable, Generic, ParamSpec, TypeVar
+
 import pygame_gui
 from pygame_gui.core import UIElement
 
-from ratroyale.frontend.visual.asset_management.visual_component import (
-    TileVisual,
-    EntityVisual,
-)
+from ratroyale.backend.entity import Entity
+from ratroyale.backend.tile import Tile
 from ratroyale.frontend.pages.page_elements.element import (
     Element,
     HexHitbox,
     RectangleHitbox,
 )
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.entity import Entity
-from dataclasses import dataclass
-from typing import TypeVar, Generic, ParamSpec, Callable, Any
+from ratroyale.frontend.visual.asset_management.visual_component import (
+    EntityVisual,
+    TileVisual,
+)
 
 T = TypeVar("T")
 P = ParamSpec("P")

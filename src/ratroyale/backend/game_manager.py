@@ -20,8 +20,8 @@ from .error import (
 )
 from .feature import Feature
 from .game_event import (
-    EntityEffectUpdateEvent,
     EndTurnEvent,
+    EntityEffectUpdateEvent,
     EntityMoveEvent,
     GameEvent,
 )
