@@ -3,11 +3,11 @@ from dataclasses import asdict, dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
-from .tags import EntityTag, SkillTag
 from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
 from .side import Side
 from .skill_callback import SkillCallback
+from .tags import EntityTag, SkillTag
 
 if TYPE_CHECKING:
     from .game_manager import GameManager

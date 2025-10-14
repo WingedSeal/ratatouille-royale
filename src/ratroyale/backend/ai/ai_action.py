@@ -1,8 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Sequence
 
-from ..entity import Entity, SkillTargeting
-from ..player_info.squeak import Squeak
 from ..entity import CallableEntitySkill, Entity, SkillTargeting
 from ..hexagon import OddRCoord
 from ..player_info.squeak import Squeak
