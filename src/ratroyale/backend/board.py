@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import Iterable, Iterator
 
 from .timer import Timer
-from ..utils import EventQueue
+from ..utils import EventQueue, is_ellipsis_body
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .entity import CallableEntitySkill, Entity
 from .entity_effect import EntityEffect
@@ -34,6 +34,7 @@ class Cache:
         self.lairs: dict[Side, list[Lair]] = defaultdict(list)
         self.effects: list[EntityEffect] = []
         self.timers: list[Timer] = []
+        self.entities_with_turn_change: list[Entity] = []
 
     def get_all_lairs(self) -> Iterable[Lair]:
         for side_lair in self.lairs.values():
@@ -74,11 +75,25 @@ class Board:
             self.cache.sides_with_hp[entity.side].append(entity)
         if isinstance(entity, Rodent):
             self.cache.rodents.append(entity)
+        if not is_ellipsis_body(entity.on_turn_change):
+            self.cache.entities_with_turn_change.append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.append(entity)
         self.event_queue.put_nowait(EntitySpawnEvent(entity))
+
+    def remove_entity(self, entity: Entity) -> None:
+        """Remove entity from cache"""
+        self.cache.entities.remove(entity)
+        self.cache.sides[entity.side].remove(entity)
+        if entity.health is not None:
+            self.cache.entities_with_hp.remove(entity)
+            self.cache.sides_with_hp[entity.side].remove(entity)
+        if isinstance(entity, Rodent):
+            self.cache.rodents.remove(entity)
+        if not is_ellipsis_body(entity.on_turn_change):
+            self.cache.entities_with_turn_change.remove(entity)
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:

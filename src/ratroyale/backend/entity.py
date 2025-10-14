@@ -108,6 +108,9 @@ class Entity:
         self, game_manager: "GameManager", turn_change_to: Side
     ) -> None: ...
 
+    # This has to be `...` to avoid having GameManager
+    # running on_turn_change on every entity. It'll detect the ellipsis to cache them.
+
     def reset_stamina(self) -> None:
         self.skill_stamina = self.max_skill_stamina
 

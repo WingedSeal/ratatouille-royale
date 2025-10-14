@@ -310,6 +310,8 @@ class GameManager:
                 self.board.cache.timers.remove(timer)
         from_side = self.turn
         self.turn = self.turn.other_side()
+        for entity in self.board.cache.entities_with_turn_change:
+            entity.on_turn_change(self, turn_change_to=self.turn)
         if self.turn == self.first_turn:
             for effect in self.board.cache.effects:
                 if effect.duration is not None:
@@ -433,6 +435,7 @@ class GameManager:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.remove(entity)
+        self.board.remove_entity(entity)
         self.event_queue.put_nowait(EntityDieEvent(entity))
 
     def heal_entity(self, entity: Entity, heal: int, overheal_cap: int = 0) -> None:
