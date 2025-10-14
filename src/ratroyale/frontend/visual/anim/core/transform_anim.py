@@ -41,8 +41,8 @@ class MoveAnim(TransformAnim):
         self._start_pos: tuple[float, float] = (_rect.x, _rect.y)
         self._current_pos: tuple[float, float] = self._start_pos
 
-    def update(self, dt: float) -> None:
-        eased_t = self.get_normalized_time(dt)
+    def update(self, time_delta: float) -> None:
+        eased_t = self.get_normalized_time(time_delta)
         start_x, start_y = self._start_pos
         dx, dy = self.direction_vector
 
@@ -107,9 +107,9 @@ class ScaleAnim(TransformAnim):
 
         self._anchor_pos: tuple[float, float] = (anchor_x, anchor_y)
 
-    def update(self, dt: float) -> None:
+    def update(self, time_delta: float) -> None:
         # Get normalized time (0–1) according to easing and loop logic
-        eased_t = self.get_normalized_time(dt)
+        eased_t = self.get_normalized_time(time_delta)
 
         start_width, start_height = self._start_size
         target_width, target_height = self.target

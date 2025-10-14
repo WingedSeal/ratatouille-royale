@@ -148,10 +148,10 @@ class ElementManager:
 
     # region Rendering
 
-    def update_all(self, dt: float) -> None:
+    def update_all(self, time_delta: float) -> None:
         for element in reversed(self._flattened_collection):
             if element.visual_component:
-                element.visual_component.animate(dt)
+                element.visual_component.animate(time_delta)
 
     def render_all(self, surface: Surface) -> None:
         """Default rendering: renders all elements in z-order."""

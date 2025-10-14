@@ -26,10 +26,10 @@ class SpriteAnim(AnimEvent):
             self.spritesheet_component.get_key(), self.animation_name
         )
 
-    def update(self, dt: float) -> None:
+    def update(self, time_delta: float) -> None:
         """Advance the frame animation according to elapsed time, easing, and direction."""
         # Get normalized time (0–1) and loop completion info
-        eased_t = self.get_normalized_time(dt)
+        eased_t = self.get_normalized_time(time_delta)
 
         # Determine frame progression
         total_frames = self._frame_count

@@ -195,10 +195,10 @@ class Page(ABC):
         """Called when the page is destroyed. Override in subclasses if needed."""
         pass
 
-    def render(self, dt: float) -> pygame.Surface:
+    def render(self, time_delta: float) -> pygame.Surface:
         if self.is_visible:
-            self.gui_manager.update(dt)
-            self._element_manager.update_all(dt)
+            self.gui_manager.update(time_delta)
+            self._element_manager.update_all(time_delta)
             self.canvas.fill(self.base_color)  # Clear with transparent
             self._element_manager.render_all(self.canvas)
             self.gui_manager.draw_ui(self.canvas)

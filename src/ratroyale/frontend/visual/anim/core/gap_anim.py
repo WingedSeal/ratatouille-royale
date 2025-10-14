@@ -9,5 +9,5 @@ class GapAnim(AnimEvent):
     def __post_init__(self) -> None:
         super().__post_init__()
 
-    def update(self, dt: float) -> None:
-        self.get_normalized_time(dt)  # still called to advance time
+    def update(self, time_delta: float) -> None:
+        self.get_normalized_time(time_delta)  # still called to advance time

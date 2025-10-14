@@ -20,9 +20,9 @@ class ColorOverlayAnim(OverlayAnim):
 
         self._current_intensity = 0.0
 
-    def update(self, dt: float) -> None:
+    def update(self, time_delta: float) -> None:
         """Update overlay intensity (alpha) over time."""
-        eased_t = self.get_normalized_time(dt)
+        eased_t = self.get_normalized_time(time_delta)
 
         # Reverse phase for ping-pong
         if self.reverse_pass_per_loop and self._direction < 0:

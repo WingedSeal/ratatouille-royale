@@ -39,7 +39,7 @@ class AnimEvent(ABC):
     def is_finished(self) -> bool:
         return self._is_finished
 
-    def get_normalized_time(self, dt: float) -> float:
+    def get_normalized_time(self, time_delta: float) -> float:
         """
         Update elapsed time, respecting timing mode, reversal, and loop structure.
         Returns normalized_t
@@ -54,7 +54,7 @@ class AnimEvent(ABC):
 
         # Record previous time & updated time.
         prev_time = self._elapsed_time
-        self._elapsed_time += dt
+        self._elapsed_time += time_delta
 
         # If elapsed time crosses loop period threshold, fire callbacks.
         callback_count = math.floor(self._elapsed_time / loop_period) - math.floor(
