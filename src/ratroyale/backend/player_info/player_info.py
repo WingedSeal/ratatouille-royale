@@ -54,7 +54,7 @@ class PlayerInfo:
                     )
         self.squeak_sets = [
             SqueakSet(squeak_set, hand, self)
-            for squeak_set, hand in zip(squeak_sets, hands)
+            for squeak_set, hand in zip(squeak_sets, hands, strict=True)
         ]
         self.selected_squeak_set_index = selected_squeak_set_index
 
@@ -63,8 +63,37 @@ class PlayerInfo:
 
     @classmethod
     def load(cls, data: bytes) -> "PlayerInfo":
-        data_pointer = DataPointer(data, ENDIAN)  # noqa
-        return PlayerInfo([], [], [], 0)
+        data_pointer = DataPointer(data, ENDIAN)
+        all_squeaks_length = data_pointer.get_byte(2)
+
+        all_squeaks: list[Squeak] = []
+        for _ in range(all_squeaks_length):
+            squeak_name_length = data_pointer.get_byte()
+            squeak_name = data_pointer.get_raw_bytes(squeak_name_length).decode()
+            all_squeaks.append(Squeak.SQEAK_MAP[squeak_name])
+
+        squeak_sets: list[set[int]] = []
+        squeak_sets_count = data_pointer.get_byte()
+        for _ in range(squeak_sets_count):
+            squeak_set: list[int] = []
+            squeak_set_length = data_pointer.get_byte()
+            for _ in range(squeak_set_length):
+                squeak_index = data_pointer.get_byte(2)
+                squeak_set.append(squeak_index)
+            squeak_sets.append(set(squeak_set))
+
+        hands: list[set[int]] = []
+        for _ in range(squeak_sets_count):
+            hand: list[int] = []
+            squeak_set_length = data_pointer.get_byte()
+            for _ in range(squeak_set_length):
+                squeak_index = data_pointer.get_byte(2)
+                hand.append(squeak_index)
+            hands.append(set(hand))
+
+        selected_squeak_set_index = data_pointer.get_byte()
+
+        return PlayerInfo(all_squeaks, squeak_sets, hands, selected_squeak_set_index)
 
     def save(self) -> bytes:
         data = bytearray()
