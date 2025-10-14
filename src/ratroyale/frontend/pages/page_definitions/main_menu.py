@@ -187,9 +187,9 @@ class MainMenu(Page):
             scale_anim = ScaleAnim(
                 easing_func=pytweening.easeOutCirc,
                 timing_mode=TimingMode.DURATION_PER_LOOP,
-                period_seconds=1,  # duration of one loop in seconds
+                period=1,  # duration of one loop in seconds
                 reverse_pass_per_loop=True,  # whether to reverse direction at the end of each loop
-                run_together_with_default=True,  # optional, depends on your AnimEvent logic
+                compose_with_default=True,  # optional, depends on your AnimEvent logic
                 callback=None,  # optional callback name or None
                 loop_count=5,  # number of loops (None = infinite)
                 spatial_component=element_wrapper.spatial_component,
