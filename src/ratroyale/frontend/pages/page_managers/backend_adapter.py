@@ -20,6 +20,9 @@ class BackendAdapter:
         self.event_to_action_map: dict[str, Callable[[GameManagerEvent[Any]], None]] = {
             "start_game": self.handle_game_start,
             "entity_list": self.handle_entity_list,
+            "player_info": self.handle_player_info,
+            "inspect_deck": self.handle_inspect_deck,
+            "select_target_prompt": self.handle_select_target_prompt,
         }
 
     def execute_backend_callback(self) -> None:
@@ -62,6 +65,12 @@ class BackendAdapter:
                 callback_action="entity_list", payload=entity_list
             )
         )
+
+    def handle_player_info(self, event: GameManagerEvent[int]) -> None: ...
+
+    def handle_inspect_deck(self, event: GameManagerEvent[int]) -> None: ...
+
+    def handle_select_target_prompt(self, event: GameManagerEvent[None]) -> None: ...
 
 
 def get_name_from_entity(entity: Entity) -> str:
