@@ -281,9 +281,11 @@ class GameManager:
         squeak = self.hands[self.turn][hand_index]
         if self.crumbs < squeak.crumb_cost:
             raise NotEnoughCrumbError()
-        squeak.on_place(self, coord)
+        new_squeak = squeak.on_place(self, coord)
         self.crumbs -= squeak.crumb_cost
-        self.hands[self.turn][hand_index] = self._draw_squeak(self.turn)
+        self.hands[self.turn][hand_index] = (
+            self._draw_squeak(self.turn) if new_squeak is None else new_squeak
+        )
 
     def end_turn(self) -> None:
         self._validate_not_selecting_target()

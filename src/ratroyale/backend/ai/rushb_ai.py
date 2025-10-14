@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from functools import cmp_to_key, lru_cache
 import random
 
-from ratroyale.backend.entity import CallableEntitySkill
-from ratroyale.backend.hexagon import OddRCoord
+from ..entity import CallableEntitySkill
+from ..hexagon import OddRCoord
 from ..player_info.squeak import SqueakType
 from ..tags import SkillTag
 from ..features.commmon import Lair

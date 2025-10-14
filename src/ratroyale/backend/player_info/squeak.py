@@ -16,7 +16,9 @@ class SqueakType(Enum):
 
 
 class SqueakOnPlace(Protocol):
-    def __call__(self, game_manager: "GameManager", coord: OddRCoord) -> None: ...
+    def __call__(
+        self, game_manager: "GameManager", coord: OddRCoord
+    ) -> "Squeak | None": ...
 
 
 class SqueakGetPlacableTiles(Protocol):
