@@ -41,7 +41,11 @@ packages = [
 [tool.poe.tasks]
 render-test = "python ./src/render_test.py"
 format = "black ./src ./tests"
-fix = ["ruff check --fix", "isort .", "black ./src ./tests"]
+fix = [
+  { cmd = "ruff check --fix" },
+  { cmd = "isort ." },
+  { cmd = "black ./src ./tests" },
+]
 check = "pre-commit run --all-files"
 tiled-cli = { cmd = "python ${POE_ROOT}/src/tiled_cli.py", cwd = "${POE_PWD}" }
 
