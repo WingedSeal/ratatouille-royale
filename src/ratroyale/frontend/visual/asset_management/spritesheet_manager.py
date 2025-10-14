@@ -6,11 +6,14 @@ from dataclasses import dataclass, field
 
 @dataclass
 class CachedSpritesheet:
-    """Immutable repository of a spritesheet’s frames and metadata."""
+    """Immutable repository of a spritesheet’s frames and metadata.
+    Frames are sliced according to the given sprite size, and numbered starting from 0, left to right, then top to bottom.
+    """
 
     spritesheet_key: str
     sprite_size: tuple[int, int]
     animation_list: dict[str, list[int]]  # e.g. {"IDLE": [0,1,2,3]}
+    """The animation list maps a set of frames (absolute index) to an animation name. e.g. {"IDLE": [0,1,2,3]}"""
     frame_rate: float
     scale: tuple[float, float] = (1.0, 1.0)
 
