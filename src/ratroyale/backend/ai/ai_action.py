@@ -58,7 +58,7 @@ class AIActions:
         self.place_squeak: list[PlaceSqueak] = []
         self.end_turn: list[EndTurn] = []
 
-    def flattern(self) -> Sequence[AIAction]:
+    def flatten(self) -> Sequence[AIAction]:
         return (
             self.move_ally
             + self.activate_skill
