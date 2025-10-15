@@ -63,7 +63,7 @@ class PlayerInfoPage(Page):
             UIRegisterForm(
                 "view_deck_button",  # <- registered name. for getting & deleting.
                 pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(200, 100, 200, 50),
+                    relative_rect=pygame.Rect(0, 450, 200, 50),
                     text="View Deck",
                     manager=self.gui_manager,
                     object_id=pygame_gui.core.ObjectID(
