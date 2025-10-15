@@ -38,7 +38,7 @@ class Page(ABC):
         self,
         coordination_manager: CoordinationManager,
         is_blocking: bool = True,
-        theme_name: str = "",
+        theme_name: str = "default",
         base_color: tuple[int, int, int, int] | None = None,
     ) -> None:
         self.theme_path = str(resolve_theme_path(theme_name))
