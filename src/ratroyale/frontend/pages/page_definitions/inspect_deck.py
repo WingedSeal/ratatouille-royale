@@ -66,7 +66,7 @@ class InspectDeckPage(Page):
         for card_index, card_id in enumerate(deck):
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(
-                    110 + (card_index // 6) * 60, 110 + (card_index // 6) * 80, 50, 70
+                    10 + card_index * 60, 10 + (card_index // 6) * 80, 50, 70
                 ),
                 text="image placeholder",
                 manager=self.gui_manager,
