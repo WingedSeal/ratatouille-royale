@@ -20,7 +20,8 @@ import pygame
 class PauseButton(Page):
     def __init__(self, coordination_manager: CoordinationManager) -> None:
         super().__init__(
-            coordination_manager, is_blocking=False, theme_name="pause_button"
+            coordination_manager,
+            is_blocking=False,
         )
 
     def define_initial_gui(self) -> list[UIRegisterForm]:
