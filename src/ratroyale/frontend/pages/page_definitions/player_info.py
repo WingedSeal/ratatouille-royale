@@ -50,7 +50,7 @@ class PlayerInfoPage(Page):
 
         gui_elements.append(
             UIRegisterForm(
-                "show_crumbs",
+                "show_crumbs_button",
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(0, 0, 200, 50),
                     text="Crumbs: ",
@@ -72,7 +72,7 @@ class PlayerInfoPage(Page):
                     manager=self.gui_manager,
                     object_id=pygame_gui.core.ObjectID(
                         class_id="EndTurnButton",
-                        object_id="end_turn_button",
+                        object_id="end_turn",
                     ),
                 ),
             )
@@ -114,7 +114,7 @@ class PlayerInfoPage(Page):
 
     def on_open(self) -> None:
         show_crumbs_button = self._element_manager.get_gui_element(
-            "show_crumbs", pygame_gui.elements.UIButton
+            "show_crumbs_button", pygame_gui.elements.UIButton
         )
         show_crumbs_button.set_text(f"Crumbs: {self.crumbs}")
 
@@ -126,6 +126,12 @@ class PlayerInfoPage(Page):
                     (PageNavigation.OPEN, "InspectDeckPage"),
                 ]
             )
+        )
+
+    @input_event_bind("end_turn", pygame_gui.UI_BUTTON_PRESSED)
+    def on_end_turn_click(self, msg: pygame.event.Event) -> None:
+        self.coordination_manager.put_message(
+            GameManagerEvent(game_action="end_turn", payload=None)
         )
 
     @callback_event_bind("tile_hover")

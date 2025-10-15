@@ -24,6 +24,7 @@ class BackendAdapter:
             "inspect_deck": self.handle_inspect_deck_page,
             "select_target_prompt": self.handle_select_target_prompt_page,
             "tile_hover": self.handle_tile_hover,
+            "end_turn": self.handle_end_turn,
         }
 
     def execute_backend_callback(self) -> None:
@@ -92,6 +93,9 @@ class BackendAdapter:
                     payload=tile,
                 )
             )
+
+    def handle_end_turn(self, event: GameManagerEvent[None]) -> None:
+        self.game_manager.end_turn()
 
 
 def get_name_from_entity(entity: Entity) -> str:
