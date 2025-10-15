@@ -17,6 +17,8 @@ from ratroyale.frontend.gesture.gesture_reader import (
 )
 from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
+from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
 
 
 class PageManager:
@@ -33,14 +35,14 @@ class PageManager:
         """Active page stack.
         First is bottom-most, while last is topmost"""
 
+        self.camera: Camera = Camera(
+            0, 0, 1, SCREEN_SIZE_HALVED[0], SCREEN_SIZE_HALVED[1]
+        )
+
         self.page_actions: dict[PageNavigation, Callable[[type[Page]], None]] = {
             PageNavigation.OPEN: self.open_page,
             PageNavigation.CLOSE: self.remove_page,
             PageNavigation.REPLACE_TOP: self.replace_top_page,
-            PageNavigation.HIDE: self.hide_page,
-            PageNavigation.SHOW: self.show_page,
-            PageNavigation.MOVE_UP: self.move_up_page,
-            PageNavigation.MOVE_DOWN: self.move_down_page,
         }
         self.global_actions: dict[PageNavigation, Callable[[], None]] = {
             PageNavigation.CLOSE_ALL: self.remove_all_pages,
@@ -61,7 +63,7 @@ class PageManager:
         try:
             self.get_page(page_type)
         except KeyError:
-            opened_page = page_type(self.coordination_manager)
+            opened_page = page_type(self.coordination_manager, self.camera)
             self.page_stack.append(opened_page)
             opened_page.on_open()
 
