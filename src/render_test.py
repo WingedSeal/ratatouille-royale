@@ -21,6 +21,7 @@ from ratroyale.backend.player_info.squeak import (
     SqueakOnPlace,
     SqueakGetPlacableTiles,
 )
+from ratroyale.backend.features.common import Lair, DeploymentZone
 
 
 def main():
@@ -85,7 +86,17 @@ def main():
         size_y=size_y,
         tiles=tiles,
         entities=entities,
-        features=[],
+        features=[
+            Lair(
+                shape=[
+                    OddRCoord(0, 0),
+                    OddRCoord(0, 1),
+                    OddRCoord(1, 0),
+                    OddRCoord(1, 1),
+                ],
+                side=Side.MOUSE,
+            )
+        ],
     )
     game_manager = GameManager(
         map=map, players_info=(player_info_1, player_info_2), first_turn=Side.MOUSE

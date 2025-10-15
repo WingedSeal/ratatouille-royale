@@ -23,6 +23,7 @@ class BackendAdapter:
             "player_info": self.handle_player_info_page,
             "inspect_deck": self.handle_inspect_deck_page,
             "select_target_prompt": self.handle_select_target_prompt_page,
+            "tile_hover": self.handle_tile_hover,
         }
 
     def execute_backend_callback(self) -> None:
@@ -81,6 +82,16 @@ class BackendAdapter:
     def handle_select_target_prompt_page(
         self, event: GameManagerEvent[None]
     ) -> None: ...
+
+    def handle_tile_hover(self, event: GameManagerEvent[Tile]) -> None:
+        tile = event.payload
+        if tile is not None:
+            self.coordination_manager.put_message(
+                PageCallbackEvent[Tile](
+                    callback_action="tile_hover",
+                    payload=tile,
+                )
+            )
 
 
 def get_name_from_entity(entity: Entity) -> str:

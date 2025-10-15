@@ -106,6 +106,18 @@ class GameBoard(Page):
         self._select_element("entity", entity_element_id)
         self._close_ability_menu()
 
+    @input_event_bind("tile", GestureType.HOVER.to_pygame_event())
+    def _on_tile_hover(self, msg: pygame.event.Event) -> None:
+        tile_element_id = self._get_element_id(msg)
+
+        curr_tile = self._select_element("tile", tile_element_id)
+        self.post(
+            GameManagerEvent(
+                game_action="tile_hover",
+                payload=curr_tile if curr_tile else None,
+            )
+        )
+
     @input_event_bind("entity", GestureType.HOLD.to_pygame_event())
     def _display_ability_menu(self, msg: pygame.event.Event) -> None:
         """Display the ability menu for the selected entity."""
