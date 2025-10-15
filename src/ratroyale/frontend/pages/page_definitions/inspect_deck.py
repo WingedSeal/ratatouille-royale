@@ -40,20 +40,17 @@ class InspectDeckPage(Page):
         )
         gui_elements.append(UIRegisterForm("test_panel", self.deck_panel))
 
-        # for card_index in range(56):
-        #     # Nested button inside the panel
-        #     pygame_gui.elements.UIButton(
-        #         relative_rect=pygame.Rect(
-        #             110 + card_index * 60, 110 + (card_index // 6) * 80, 50, 70
-        #         ),
-        #         text="image placeholder",
-        #         manager=self.gui_manager,
-        #         container=self.deck_panel,
-        #         object_id=pygame_gui.core.ObjectID(
-        #             class_id="Card",
-        #             object_id=f"card{card_index}",
-        #         ),
-        #     )
+        # Nested button inside the panel
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(250, 350, 100, 40),
+            text="Close",
+            manager=self.gui_manager,
+            container=self.deck_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CloseInspectDeckButton",
+                object_id="close_inspect_deck",
+            ),
+        )
 
         # endregion
 
@@ -80,19 +77,12 @@ class InspectDeckPage(Page):
     # all input-listening methods will have this signature
     # e.g. def test(self, msg: pygame.event.Event) -> None:
     #   ...
-    @input_event_bind("event_name", pygame_gui.UI_BUTTON_PRESSED)
+    @input_event_bind("close_inspect_deck", pygame_gui.UI_BUTTON_PRESSED)
     def on_example_click(self, msg: pygame.event.Event) -> None:
-        button = self._element_manager.get_gui_element(
-            "registered_name", pygame_gui.elements.UIButton
-        )
-        button.set_text("Clicked")
-
-        # redirect or open new pages on top
-        # Check out PageNavigation for available commands
         self.coordination_manager.put_message(
             PageNavigationEvent(
                 action_list=[
-                    (PageNavigation.OPEN, "TestCommunicate"),
+                    (PageNavigation.CLOSE, "InspectDeckPage"),
                 ]
             )
         )
