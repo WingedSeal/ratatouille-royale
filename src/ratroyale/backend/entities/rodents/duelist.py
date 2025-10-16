@@ -108,3 +108,41 @@ class SodaKabooma(Rodent):
         return [
             f"Shakes the soda can to make it explode, dealing {self.attack * 2 + 1}(ATK*2+1) damage to all rodents (including its allies) in a {self.SHAKE_THE_CAN_RADIUS}-tile radius. This rodent is then defeated afterwards."
         ]
+
+
+@rodent_data(
+    name="Pea Pea Pool Pool",
+    description="A rodent in a pool with a gun. That is if a cup of water can be called pool and a pea can be called a gun.",
+    health=10,
+    defense=2,
+    speed=10,
+    move_stamina=2,
+    skill_stamina=3,
+    attack=4,
+    move_cost=3,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Pea",
+            method_name="pea",
+            reach=12,
+            altitude=1,
+            crumb_cost=5,
+            tags=[],
+        ),
+    ],
+)
+class PeaPeaPoolPool(Rodent):
+
+    @entity_skill_check
+    def pea(self, game_manager: "GameManager") -> SkillTargeting:
+        return select_targetable(
+            game_manager.board, self, self.skills[0], normal_damage(self.attack, self)
+        )
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            f"Shoot the pea inside the pod at an enemy dealing {self.attack}(ATK) damage."
+        ]
