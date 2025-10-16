@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING, Iterable
 
-from ...error import ShortHandSkillCallbackError
+from ...damage_heal_source import DamageHealSource
+from ...error import InvalidMoveTargetError, ShortHandSkillCallbackError
 from ...timer import Timer, TimerCallback, TimerClearSide
-from ...entity import SkillCompleted, SkillResult, SkillTargeting
+from ...entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from ...entity_effect import EntityEffect
 from ...skill_callback import SkillCallback, skill_callback_check
 from ...entities.rodent import Rodent
@@ -77,7 +78,27 @@ def select_targetable(
     )
 
 
-def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCallback:
+def move(self: Entity, *, custom_jump_height: int | None = None) -> SkillCallback:
+    @skill_callback_check
+    def callback(
+        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+    ) -> SkillCompleted:
+        if len(selected_targets) != 1:
+            raise ValueError("Multiple targets for teleport.")
+        try:
+            game_manager.move_entity_uncheck(
+                self, selected_targets[0], custom_jump_height=custom_jump_height
+            )
+        except InvalidMoveTargetError:
+            return SkillCompleted.CANCELLED
+        return SkillCompleted.SUCCESS
+
+    return callback
+
+
+def normal_damage(
+    damage: int, source: DamageHealSource, *, is_feature_targetable: bool = True
+) -> SkillCallback:
     """
     Apply normal damage
     :param damage: Damage to deal
@@ -90,14 +111,14 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
         for target in selected_targets:
             enemy = game_manager.get_enemy_on_pos(target)
             if enemy is not None:
-                game_manager.damage_entity(enemy, damage)
+                game_manager.damage_entity(enemy, damage, source)
                 continue
             if not is_feature_targetable:
                 raise ValueError("Trying to damage entity that is not there")
             feature = game_manager.get_feature_on_pos(target)
             if feature is None:
                 raise ValueError("Trying to damage nothing")
-            game_manager.damage_feature(feature, damage)
+            game_manager.damage_feature(feature, damage, source)
         return SkillCompleted.SUCCESS
 
     return callback
@@ -178,6 +199,7 @@ def apply_effect(
 def aoe_damage(
     damage: int,
     radius: int,
+    source: DamageHealSource,
     *,
     is_stackable: bool = False,
     is_feature_targetable: bool = True,
@@ -219,14 +241,14 @@ def aoe_damage(
                     continue
                 enemy = game_manager.get_enemy_on_pos(coord)
                 if enemy is not None:
-                    game_manager.damage_entity(enemy, damage)
+                    game_manager.damage_entity(enemy, damage, source)
                     continue
                 if not is_feature_targetable:
                     raise ValueError("Trying to damage entity that is not there")
                 feature = game_manager.get_feature_on_pos(coord)
                 if feature is None:
                     raise ValueError("Trying to damage nothing")
-                game_manager.damage_feature(feature, damage)
+                game_manager.damage_feature(feature, damage, source)
                 if not is_stackable:
                     tagged_coord.add(coord)
         return SkillCompleted.SUCCESS

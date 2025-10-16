@@ -2,9 +2,9 @@ import math
 from random import shuffle
 from typing import Iterator
 
-from ratroyale.backend.features.common import DeploymentZone, Lair
-from ratroyale.backend.timer import Timer
-
+from .features.common import DeploymentZone, Lair
+from .timer import Timer
+from .damage_heal_source import DamageHealSource
 from ..utils import EventQueue
 from .board import Board
 from .entities.rodent import Rodent
@@ -230,7 +230,7 @@ class GameManager:
         path = self.board.path_find(rodent, target)
         if path is None:
             raise InvalidMoveTargetError()
-        is_success = self.board.try_move(rodent, target)
+        is_success = self.board.try_move(rodent, path)
         if not is_success:
             raise InvalidMoveTargetError("Cannot move rodent there")
         self.crumbs -= rodent.move_cost
@@ -238,7 +238,9 @@ class GameManager:
         self.event_queue.put(EntityMoveEvent(path, rodent))
         return path
 
-    def move_entity_uncheck(self, entity: Entity, target: OddRCoord) -> list[OddRCoord]:
+    def move_entity_uncheck(
+        self, entity: Entity, target: OddRCoord, custom_jump_height: int | None = None
+    ) -> list[OddRCoord]:
         """
         Blindly move entity to target. Neither crumbs nor speed was taken into account. But it still considers jump height.
         Raise error if it cannot move there
@@ -246,11 +248,12 @@ class GameManager:
         :param target: Target to move to
         :returns: Path the rodent took to get there
         """
-        self._validate_not_selecting_target()
-        path = self.board.path_find(entity, target)
+        path = self.board.path_find(
+            entity, target, custom_jump_height=custom_jump_height
+        )
         if path is None:
             raise InvalidMoveTargetError()
-        is_success = self.board.try_move(entity, target)
+        is_success = self.board.try_move(entity, path)
         if not is_success:
             raise InvalidMoveTargetError("Cannot move entity there")
         self.event_queue.put(EntityMoveEvent(path, entity))
@@ -420,15 +423,17 @@ class GameManager:
             EntityEffectUpdateEvent(effect, "clear", "force_clear")
         )
 
-    def damage_entity(self, entity: Entity, damage: int) -> None:
+    def damage_entity(
+        self, entity: Entity, damage: int, source: DamageHealSource
+    ) -> None:
         """
         Damage an entity. Throw error if called on entity with no health.
         """
-        is_dead, damage_taken = entity._take_damage(self, damage)
+        is_dead, damage_taken = entity._take_damage(self, damage, source)
         self.event_queue.put_nowait(EntityDamagedEvent(entity, damage, damage_taken))
         if not is_dead:
             return
-        is_dead = entity.on_death()
+        is_dead = entity.on_death(source)
         if not is_dead:
             return
         tile = self.board.get_tile(entity.pos)
@@ -438,24 +443,28 @@ class GameManager:
         self.board.remove_entity(entity)
         self.event_queue.put_nowait(EntityDieEvent(entity))
 
-    def heal_entity(self, entity: Entity, heal: int, overheal_cap: int = 0) -> None:
+    def heal_entity(
+        self, entity: Entity, heal: int, source: DamageHealSource, overheal_cap: int = 0
+    ) -> None:
         """
         Heal an entity. Throw error if called on entity with no health.
         """
-        heal_taken = entity._heal(self, heal, overheal_cap)
+        heal_taken = entity._heal(self, heal, source, overheal_cap)
         self.event_queue.put_nowait(
             EntityHealedEvent(entity, heal, heal_taken, overheal_cap)
         )
 
-    def damage_feature(self, feature: Feature, damage: int) -> None:
+    def damage_feature(
+        self, feature: Feature, damage: int, source: DamageHealSource
+    ) -> None:
         """
         Damage a feature. Throw error if called on feature with no health.
         """
-        is_dead, damage_taken = feature._take_damage(damage)
+        is_dead, damage_taken = feature._take_damage(damage, source)
         self.event_queue.put_nowait(FeatureDamagedEvent(feature, damage, damage_taken))
         if not is_dead:
             return
-        is_dead = feature.on_death()
+        is_dead = feature.on_death(source)
         if not is_dead:
             return
 

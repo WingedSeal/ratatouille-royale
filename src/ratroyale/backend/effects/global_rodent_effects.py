@@ -51,7 +51,7 @@ class Stunned(EntityEffect):
 class Poisoned(EntityEffect):
     def on_turn_change(self, game_manager: "GameManager") -> None:
         if game_manager.turn == self.entity.side:
-            game_manager.damage_entity(self.entity, int(self.intensity))
+            game_manager.damage_entity(self.entity, int(self.intensity), self)
 
     def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
         _ = game_manager
@@ -68,11 +68,11 @@ class Poisoned(EntityEffect):
 @effect_data(EffectClearSide.ALLY, name="Bleeding")
 class Bleeding(EntityEffect):
     def on_turn_change(self, game_manager: "GameManager") -> None:
-        game_manager.damage_entity(self.entity, int(self.intensity))
+        game_manager.damage_entity(self.entity, int(self.intensity), self)
 
     def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
         if not is_overriding:
-            game_manager.damage_entity(self.entity, int(self.intensity))
+            game_manager.damage_entity(self.entity, int(self.intensity), self)
 
     def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
         _ = game_manager

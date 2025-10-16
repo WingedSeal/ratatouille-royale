@@ -48,7 +48,7 @@ class Cracker(Rodent):
     @entity_skill_check
     def bread_slap(self, game_manager: "GameManager") -> SkillTargeting:
         return select_targetable(
-            game_manager.board, self, self.skills[0], normal_damage(self.attack)
+            game_manager.board, self, self.skills[0], normal_damage(self.attack, self)
         )
 
     @entity_skill_check
@@ -71,7 +71,7 @@ class Cracker(Rodent):
             if entity is self:
                 continue
             if entity.side == self.side:
-                game_manager.heal_entity(self, 1)
+                game_manager.heal_entity(self, 1, self)
                 return
         for neighbor in self.pos.get_reachable_coords(3):
             tile = game_manager.board.get_tile(neighbor)
@@ -79,7 +79,7 @@ class Cracker(Rodent):
                 continue
             for entity in tile.entities:
                 if entity.side == self.side:
-                    game_manager.heal_entity(self, 1)
+                    game_manager.heal_entity(self, 1, self)
                     return
 
     def skill_descriptions(self) -> list[str]:

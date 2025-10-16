@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
+from .damage_heal_source import DamageHealSource
 from .tags import EntityTag, SkillTag
 from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
@@ -92,16 +93,24 @@ class Entity:
         self.side = side
         self.effects = {}
 
-    def on_damage_taken(self, game_manager: "GameManager", damage: int) -> int | None:
+    def on_damage_taken(
+        self, game_manager: "GameManager", damage: int, source: DamageHealSource
+    ) -> int | None:
         pass
 
-    def on_hp_loss(self, game_manager: "GameManager", hp_loss: int) -> None:
+    def on_hp_loss(
+        self, game_manager: "GameManager", hp_loss: int, source: DamageHealSource
+    ) -> None:
         pass
 
-    def on_hp_gain(self, game_manager: "GameManager", hp_gain: int) -> None:
+    def on_hp_gain(
+        self, game_manager: "GameManager", hp_gain: int, source: DamageHealSource
+    ) -> None:
         pass
 
-    def on_heal(self, game_manager: "GameManager", heal: int) -> int | None:
+    def on_heal(
+        self, game_manager: "GameManager", heal: int, source: DamageHealSource
+    ) -> int | None:
         pass
 
     def on_turn_change(
@@ -114,7 +123,7 @@ class Entity:
     def reset_stamina(self) -> None:
         self.skill_stamina = self.max_skill_stamina
 
-    def on_death(self) -> bool:
+    def on_death(self, source: DamageHealSource) -> bool:
         """
         Method called when entity dies
         :returns: Whether the entity actually dies
@@ -122,31 +131,35 @@ class Entity:
         return True
 
     def _heal(
-        self, game_manager: "GameManager", heal: int, overheal_cap: int = 0
+        self,
+        game_manager: "GameManager",
+        heal: int,
+        source: DamageHealSource,
+        overheal_cap: int = 0,
     ) -> int:
         """
         Heal and increase health accordingly if entity has health
         :returns: How much it actually healed
         """
-        new_heal = self.on_heal(game_manager, heal)
+        new_heal = self.on_heal(game_manager, heal, source)
         if new_heal is not None:
             heal = new_heal
         if self.health is None or self.max_health is None:
             raise ValueError("Entity without health just got healed")
         heal_taken = min(self.max_health + overheal_cap - self.health, heal)
         self.health += heal_taken
-        self.on_hp_gain(game_manager, heal_taken)
+        self.on_hp_gain(game_manager, heal_taken, source)
         return heal_taken
 
     def _take_damage(
-        self, game_manager: "GameManager", damage: int
+        self, game_manager: "GameManager", damage: int, source: DamageHealSource
     ) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health
         :param damage: How much damage taken
         :returns: Whether the entity die and hp loss
         """
-        new_damage = self.on_damage_taken(game_manager, damage)
+        new_damage = self.on_damage_taken(game_manager, damage, source)
         if new_damage is not None:
             damage = new_damage
         if self.health is None:
@@ -156,9 +169,9 @@ class Entity:
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
-            self.on_hp_loss(game_manager, damage_taken)
+            self.on_hp_loss(game_manager, damage_taken, source)
             return True, damage_taken
-        self.on_hp_loss(game_manager, damage_taken)
+        self.on_hp_loss(game_manager, damage_taken, source)
         return False, damage_taken
 
     def __repr__(self) -> str:

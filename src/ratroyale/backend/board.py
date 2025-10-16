@@ -102,7 +102,12 @@ class Board:
             return None
         return self.tiles[coord.y][coord.x]
 
-    def is_coord_blocked(self, entity: Entity | type[Entity]) -> IsCoordBlocked:
+    def is_coord_blocked(
+        self, entity: Entity | type[Entity], custom_jump_height: int | None = None
+    ) -> IsCoordBlocked:
+        if custom_jump_height is None:
+            custom_jump_height = ENTITY_JUMP_HEIGHT
+
         def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
@@ -119,7 +124,7 @@ class Board:
             return (
                 target_tile.get_total_height(entity.side)
                 - previous_tile.get_total_height(entity.side)
-                > ENTITY_JUMP_HEIGHT
+                > custom_jump_height
             )
 
         return is_coord_blocked
@@ -146,30 +151,32 @@ class Board:
                 return False
         return True
 
-    def try_move(self, entity: Entity, target: OddRCoord) -> bool:
+    def try_move(self, entity: Entity, path: list[OddRCoord]) -> bool:
         """
         Check collision and move an entity from 1 tile to another.
         Not responsible for handling reach.
         Does not trigger EntityMoveEvent.
 
         :param entity: Entity to move
-        :param end: Target coordinate. If there's already an entity, the function will fail.
+        :param path: Path coordinates. If there's already an entity, the function will fail.
         :returns: Whether the move succeeded
         """
         start_coord = entity.pos
         start_tile = self.get_tile(start_coord)
         if start_tile is None:
             raise EntityInvalidPosError()
-        end_tile = self.get_tile(target)
-        if end_tile is None:
-            return False
-        if entity.collision and any(_entity.collision for _entity in end_tile.entities):
-            return False
-        if any(feature.is_collision() for feature in end_tile.features):
-            return False
+        path_tile = None
+        for path_coord in path:
+            path_tile = self.get_tile(path_coord)
+            if path_tile is None:
+                return False
+            if path_tile.is_collision(entity.collision):
+                return False
+        end_tile = path_tile
+        assert end_tile is not None
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)
-        entity.pos = target
+        entity.pos = path[-1]
         return True
 
     def get_reachable_coords(
@@ -188,8 +195,12 @@ class Board:
             is_include_self=is_include_self,
         )
 
-    def path_find(self, entity: Entity, goal: OddRCoord) -> list[OddRCoord] | None:
-        return entity.pos.path_find(goal, self.is_coord_blocked(entity))
+    def path_find(
+        self, entity: Entity, goal: OddRCoord, custom_jump_height: int | None = None
+    ) -> list[OddRCoord] | None:
+        return entity.pos.path_find(
+            goal, self.is_coord_blocked(entity, custom_jump_height)
+        )
 
     def get_attackable_coords(
         self, rodent: Rodent, skill: CallableEntitySkill

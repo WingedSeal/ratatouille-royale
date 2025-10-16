@@ -13,3 +13,4 @@ class RodentClassTag(Enum):
     VANGUARD = "Vanguard"
     DUELIST = "Duelist"
     TANK = "Tank"
+    SPECIALIST = "Specialist"
