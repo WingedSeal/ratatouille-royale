@@ -31,6 +31,9 @@ from .game_event import (
     FeatureDieEvent,
     GameEvent,
     GameOverEvent,
+    SqueakDrawnEvent,
+    SqueakPlacedEvent,
+    SqueakSetResetEvent,
 )
 from .hexagon import OddRCoord
 from .map import Map
@@ -293,6 +296,7 @@ class GameManager:
         """
         if self.decks[side]:
             return self.decks[side].pop()
+        self.event_queue.put_nowait(SqueakSetResetEvent())
         self.decks[side] = self.players_info[side].get_squeak_set().get_new_deck()
         shuffle(self.decks[side])
         return self.decks[side].pop()
@@ -304,11 +308,13 @@ class GameManager:
         squeak = self.hands[self.turn][hand_index]
         if self.crumbs < squeak.crumb_cost:
             raise NotEnoughCrumbError()
+        self.event_queue.put_nowait(SqueakPlacedEvent(hand_index, squeak, coord))
         new_squeak = squeak.on_place(self, coord)
         self.crumbs -= squeak.crumb_cost
-        self.hands[self.turn][hand_index] = (
-            self._draw_squeak(self.turn) if new_squeak is None else new_squeak
-        )
+        if new_squeak is None:
+            new_squeak = self._draw_squeak(self.turn)
+        self.event_queue.put_nowait(SqueakDrawnEvent(hand_index, new_squeak))
+        self.hands[self.turn][hand_index] = new_squeak
 
     def end_turn(self) -> None:
         self._validate_not_selecting_target()
@@ -344,6 +350,7 @@ class GameManager:
             entity.reset_stamina()
         self.event_queue.put_nowait(
             EndTurnEvent(
+                is_from_first_turn_side=self.first_turn == from_side,
                 from_side=from_side,
                 to_side=self.turn,
                 leftover_crumbs=leftover_crumbs,
@@ -444,7 +451,9 @@ class GameManager:
         Damage an entity. Throw error if called on entity with no health.
         """
         is_dead, damage_taken = entity._take_damage(self, damage, source)
-        self.event_queue.put_nowait(EntityDamagedEvent(entity, damage, damage_taken))
+        self.event_queue.put_nowait(
+            EntityDamagedEvent(entity, damage, damage_taken, source)
+        )
         if not is_dead:
             return
         is_dead = entity.on_death(source)
@@ -465,7 +474,7 @@ class GameManager:
         """
         heal_taken = entity._heal(self, heal, source, overheal_cap)
         self.event_queue.put_nowait(
-            EntityHealedEvent(entity, heal, heal_taken, overheal_cap)
+            EntityHealedEvent(entity, heal, heal_taken, overheal_cap, source)
         )
 
     def damage_feature(
@@ -475,7 +484,9 @@ class GameManager:
         Damage a feature. Throw error if called on feature with no health.
         """
         is_dead, damage_taken = feature._take_damage(damage, source)
-        self.event_queue.put_nowait(FeatureDamagedEvent(feature, damage, damage_taken))
+        self.event_queue.put_nowait(
+            FeatureDamagedEvent(feature, damage, damage_taken, source)
+        )
         if not is_dead:
             return
         is_dead = feature.on_death(source)
@@ -495,7 +506,10 @@ class GameManager:
                 raise ValueError("Lair cannot have side of None")
             self.board.cache.lairs[feature.side].remove(feature)
             if len(self.board.cache.lairs[feature.side]) == 0:
-                game_over_event = GameOverEvent(feature.side.other_side())
+                game_over_event = GameOverEvent(
+                    feature.side.other_side() == self.first_turn,
+                    feature.side.other_side(),
+                )
                 self.event_queue.put_nowait(game_over_event)
                 self.game_over_event = game_over_event
         self.event_queue.put_nowait(FeatureDieEvent(feature))
