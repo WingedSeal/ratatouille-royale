@@ -1,13 +1,13 @@
+import random
 from dataclasses import dataclass
 from functools import cmp_to_key, lru_cache
-import random
 
+from ..entities.rodent import Rodent
 from ..entity import CallableEntitySkill
+from ..features.common import Lair
 from ..hexagon import OddRCoord
 from ..player_info.squeak import SqueakType
 from ..tags import SkillTag
-from ..features.common import Lair
-from ..entities.rodent import Rodent
 from .ai_action import AIAction, AIActions, EndTurn, MoveAlly, PlaceSqueak
 from .base_ai import BaseAI
 

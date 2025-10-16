@@ -2,11 +2,9 @@ import math
 from random import shuffle
 from typing import Iterator
 
-from .features.common import DeploymentZone, Lair
-from .timer import Timer
-from .damage_heal_source import DamageHealSource
 from ..utils import EventQueue
 from .board import Board
+from .damage_heal_source import DamageHealSource
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EntityEffect
@@ -20,11 +18,12 @@ from .error import (
     NotEnoughSkillStaminaError,
 )
 from .feature import Feature
+from .features.common import DeploymentZone, Lair
 from .game_event import (
+    EndTurnEvent,
     EntityDamagedEvent,
     EntityDieEvent,
     EntityEffectUpdateEvent,
-    EndTurnEvent,
     EntityHealedEvent,
     EntityMoveEvent,
     FeatureDamagedEvent,
@@ -37,6 +36,7 @@ from .map import Map
 from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
 from .side import Side
+from .timer import Timer
 
 HAND_LENGTH = 5
 

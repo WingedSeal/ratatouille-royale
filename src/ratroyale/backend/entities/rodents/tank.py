@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
+from ...entity import EntitySkill, SkillCompleted, SkillTargeting, entity_skill_check
 from ...side import Side
 from ...tags import RodentClassTag
-from ...entity import EntitySkill, SkillCompleted, SkillTargeting, entity_skill_check
 from ..rodent import Rodent, rodent_data
 from .common_skills import normal_damage, select_targetable
 

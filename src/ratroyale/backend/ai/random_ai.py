@@ -1,6 +1,7 @@
+from random import choice
+
 from .ai_action import AIAction, AIActions, EndTurn
 from .base_ai import BaseAI
-from random import choice
 
 
 class RandomAI(BaseAI):

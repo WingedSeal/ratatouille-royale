@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Iterable, Protocol
 
-
 from ..hexagon import OddRCoord
 
 if TYPE_CHECKING:

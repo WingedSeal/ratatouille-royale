@@ -1,9 +1,9 @@
-from ratroyale.frontend.pages.page_managers.base_page import Page
-
-import sys
-from pathlib import Path
 import importlib
+import sys
 import traceback
+from pathlib import Path
+
+from ratroyale.frontend.pages.page_managers.base_page import Page
 
 # region Path Configuration
 

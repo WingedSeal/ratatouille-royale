@@ -1,2 +1,1 @@
-from . import vanguard
-from . import duelist
+from . import duelist, vanguard

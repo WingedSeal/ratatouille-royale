@@ -1,16 +1,17 @@
 from abc import ABC, abstractmethod
 
 import pygame
-from ratroyale.backend.tile import Tile
+
 from ratroyale.backend.entity import Entity
+from ratroyale.backend.tile import Tile
+from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
+    ENTITY_TO_SPRITE_REGISTRY,
+    TILE_TO_SPRITE_REGISTRY,
+    SpriteRegistryKey,
+)
 from ratroyale.frontend.visual.asset_management.sprite_registry import (
     SPRITE_REGISTRY,
     TYPICAL_TILE_SIZE,
-)
-from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
-    SpriteRegistryKey,
-    ENTITY_TO_SPRITE_REGISTRY,
-    TILE_TO_SPRITE_REGISTRY,
 )
 
 

@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from ...timer import Timer, TimerClearSide
 from ...effects.global_rodent_effects import Stunned
-from ...tags import RodentClassTag
 from ...entity import EntitySkill, SkillTargeting, entity_skill_check
+from ...tags import RodentClassTag
+from ...timer import Timer, TimerClearSide
 from ..rodent import Rodent, rodent_data
 from .common_skills import apply_effect, apply_timer, normal_damage, select_targetable
 

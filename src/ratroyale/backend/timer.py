@@ -1,12 +1,11 @@
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Protocol, TypeVar
 
-
 from .side import Side
 
 if TYPE_CHECKING:
-    from .game_manager import GameManager
     from .entity import Entity
+    from .game_manager import GameManager
 
 
 class TimerClearSide(Enum):

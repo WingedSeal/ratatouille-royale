@@ -3,9 +3,7 @@ import pytest
 from ratroyale.backend.board import Board
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.features.common import Lair
-from ratroyale.backend.game_event import (
-    EntitySpawnEvent,
-)
+from ratroyale.backend.game_event import EntitySpawnEvent
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map
 from ratroyale.backend.side import Side

@@ -2,7 +2,6 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Iterable, Iterator
 
-from .timer import Timer
 from ..utils import EventQueue, is_ellipsis_body
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .entity import CallableEntitySkill, Entity
@@ -10,14 +9,12 @@ from .entity_effect import EntityEffect
 from .error import EntityInvalidPosError
 from .feature import Feature
 from .features.common import DeploymentZone, Lair
-from .game_event import (
-    EntitySpawnEvent,
-    GameEvent,
-)
+from .game_event import EntitySpawnEvent, GameEvent
 from .hexagon import IsCoordBlocked, OddRCoord
 from .map import Map
 from .side import Side
 from .tile import Tile
+from .timer import Timer
 
 
 class Cache:
