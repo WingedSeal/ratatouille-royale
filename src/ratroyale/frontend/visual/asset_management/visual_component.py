@@ -43,18 +43,41 @@ class VisualComponent:
         pass
 
     def animate(self, time: float) -> None:
+        animation_sequence: SequentialAnim | None = None
+
+        # Determine which animation sequence to run
         if self._override_animation_queue:
             animation_sequence = self._override_animation_queue[0]
+
+            # Remove finished non-persistent overrides
             if animation_sequence.is_finished() and not animation_sequence.persistent:
                 self._override_animation_queue.pop(0)
-                return
-        elif self._default_animation:
-            animation_sequence = self._default_animation
-        else:
-            return
+                # Recheck for next override in queue
+                if self._override_animation_queue:
+                    animation_sequence = self._override_animation_queue[0]
+                else:
+                    animation_sequence = None
 
+        # If no override, fall back to default animation
+        if animation_sequence is None and self._default_animation:
+            animation_sequence = self._default_animation
+            if animation_sequence.is_finished():
+                animation_sequence.reset()
+
+        # Run the animation if available
         if animation_sequence:
             animation_sequence.update(time)
+
+            # If the sequence does NOT want to run together with default,
+            # skip running the default animation this frame
+            if not animation_sequence.run_together_with_default():
+                return
+
+        # Optionally run default animation if allowed
+        if self._default_animation and (
+            animation_sequence is None or animation_sequence.run_together_with_default()
+        ):
+            self._default_animation.update(time)
 
     def _get_animation(self) -> GroupedAnim | None:
         if self._override_animation_queue:
@@ -69,12 +92,11 @@ class VisualComponent:
     def render(
         self,
         interactable_comp: UIElement | Hitbox | None,
-        spatial_comp: SpatialComponent,
+        spatial_rect: pygame.Rect | pygame.FRect,
         surface: pygame.Surface,
         camera: Camera,
     ) -> None:
         """Draw this visual onto the given surface."""
-        spatial_rect = spatial_comp.get_screen_rect(camera)
         if isinstance(interactable_comp, UIElement):
             gui_rect = interactable_comp.get_relative_rect()
             if spatial_rect.size != gui_rect.size:
@@ -91,6 +113,7 @@ class VisualComponent:
                 if frame:
                     surface.blit(frame, spatial_rect.topleft)
 
+        # DRAW RECT DEBUG
         pygame.draw.rect(surface, (255, 0, 0), spatial_rect, width=2)
 
     def set_highlighted(self, highlighted: bool) -> None:

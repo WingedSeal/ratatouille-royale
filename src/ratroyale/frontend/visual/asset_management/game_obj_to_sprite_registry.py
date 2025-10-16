@@ -29,7 +29,7 @@ SPRITE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
     ),
 }
 
-CARD_IMAGE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
+SQUEAK_IMAGE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
     TailBlazer: SpritesheetMetadata(
         "TAILBLAZER_CARD",
         ASSET_DIR / "snow_pea_card.png",

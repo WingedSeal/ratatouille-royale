@@ -1,4 +1,3 @@
-from .element_builder import ParentIdentity
 from .element import ElementWrapper
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.coordination_manager import CoordinationManager
@@ -51,11 +50,7 @@ class ElementManager:
             raise KeyError(f'"{element_type}" collection does not exist.')
         return self._element_collections[element_type]
 
-    def add_element(
-        self,
-        element: ElementWrapper,
-        parent_identity: ParentIdentity | None = None,
-    ) -> None:
+    def add_element(self, element: ElementWrapper) -> None:
         """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
         try:
             collection = self.get_collection(element.grouping_name)
@@ -67,13 +62,10 @@ class ElementManager:
                 f"Element with name '{element.registered_name}' already exists in collection '{element.grouping_name}'"
             )
         collection[element.registered_name] = element
-        print(
-            f"Added element with name '{element.registered_name}' in collection '{element.grouping_name}'"
-        )
 
-        if parent_identity:
-            parent_id = parent_identity.parent_registered_name
-            parent_type = parent_identity.parent_grouping_name
+        if element.element_parent:
+            parent_id = element.element_parent.parent_registered_name
+            parent_type = element.element_parent.parent_grouping_name
 
             parent_collection = self.get_collection(
                 parent_type if parent_type else element.grouping_name

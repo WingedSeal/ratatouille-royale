@@ -6,7 +6,7 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureType
-from ratroyale.event_tokens.input_token import get_id
+from ratroyale.event_tokens.input_token import get_id, get_gesture_data
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
@@ -29,7 +29,7 @@ from ratroyale.frontend.visual.asset_management.spritesheet_manager import (
     SpritesheetManager,
 )
 from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
-    CARD_IMAGE_METADATA_REGISTRY,
+    SQUEAK_IMAGE_METADATA_REGISTRY,
 )
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 
@@ -46,7 +46,8 @@ class SqueakOverlay(Page):
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
         super().__init__(coordination_manager, camera, is_blocking=False)
-        self.selected_card: str | None = None
+        self.CARD_GROUPING_NAME = "UI_CARD"
+        self.selected_squeak: str | None = None
 
     def on_open(self) -> None:
         pass
@@ -67,7 +68,7 @@ class SqueakOverlay(Page):
         LEFT_MARGIN = 0
         TOP_MARGIN = 80
 
-        sprite_metadata = CARD_IMAGE_METADATA_REGISTRY[TailBlazer]
+        sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY[TailBlazer]
         cached_spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
         ).get_key()
@@ -82,7 +83,7 @@ class SqueakOverlay(Page):
 
             card_element = ElementWrapper(
                 registered_name=f"card_{i}",  # Replace with Squeak ID?
-                grouping_name="UI_CARD",
+                grouping_name=self.CARD_GROUPING_NAME,
                 camera=self.camera,
                 spatial_component=SpatialComponent(
                     card_rect,
@@ -101,14 +102,47 @@ class SqueakOverlay(Page):
         self.setup_elements(card_elements)
 
     @input_event_bind("card", GestureType.CLICK.to_pygame_event())
-    def card_clicked(self, msg: pygame.event.Event) -> None:
-        card_id = get_id(msg)
-        if card_id:
-            self.selected_card = card_id
-            print(self.selected_card)
+    def squeak_clicked(self, msg: pygame.event.Event) -> None:
+        squeak_id = get_id(msg)
+        if squeak_id:
+            self.selected_squeak = squeak_id
 
     @callback_event_bind("has_selected_squeak")
     def place_squeak(self, msg: pygame.event.Event) -> None:
         # send data back to game board to place new rodent element
-        print(f"{self.selected_card} placed")
-        self.selected_card = None
+
+        self.selected_squeak = None
+
+    @input_event_bind("card", GestureType.DRAG_START.to_pygame_event())
+    def squeak_drag_start(self, msg: pygame.event.Event) -> None:
+        squeak_id = get_id(msg)
+        gesture_data = get_gesture_data(msg)
+        if squeak_id:
+            squeak_element = self._element_manager.get_element_wrapper(
+                squeak_id, self.CARD_GROUPING_NAME
+            )
+
+        if squeak_element and gesture_data.mouse_pos and squeak_id:
+            squeak_element.spatial_component.center_to_screen_pos(
+                gesture_data.mouse_pos, self.camera
+            )
+            self.selected_squeak = squeak_id
+
+    @input_event_bind(None, GestureType.DRAG.to_pygame_event())
+    def _on_drag(self, msg: pygame.event.Event) -> None:
+        if self.selected_squeak is None:
+            return
+
+        element_id = self.selected_squeak
+        entity = self._element_manager.get_element_wrapper(
+            element_id, self.CARD_GROUPING_NAME
+        )
+        gesture_data = get_gesture_data(msg)
+
+        if entity and gesture_data.mouse_pos:
+            entity.spatial_component.set_position(gesture_data.mouse_pos)
+
+    @input_event_bind("card", GestureType.DRAG_END.to_pygame_event())
+    def _on_drag_end(self, msg: pygame.event.Event) -> None:
+        self.selected_squeak = None
+        self.camera.end_drag()

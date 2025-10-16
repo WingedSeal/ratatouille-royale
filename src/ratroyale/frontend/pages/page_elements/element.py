@@ -1,5 +1,6 @@
 import pygame
 
+from dataclasses import dataclass
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
@@ -10,6 +11,20 @@ from .spatial_component import SpatialComponent, Camera
 from .hitbox import Hitbox
 
 T = TypeVar("T")
+
+
+@dataclass
+class ElementParent:
+    """
+    Represents the parent relationship for an element.
+
+    Attributes:
+        parent_id: The unique identifier of the parent element.
+        parent_type: The type of the parent element, defined in the ElementType enum. Optional.
+    """
+
+    parent_registered_name: str
+    parent_grouping_name: str | None = None
 
 
 class ElementWrapper:
@@ -31,6 +46,7 @@ class ElementWrapper:
         visual_component: VisualComponent | None = None,
         payload: Payload | None = None,
         is_blocking: bool = True,
+        element_parent: ElementParent | None = None,
     ) -> None:
         # Identification info
         self.registered_name: str = registered_name
@@ -40,6 +56,7 @@ class ElementWrapper:
         self.spatial_component: SpatialComponent = spatial_component
 
         # Hierachical info
+        self.element_parent: ElementParent | None = element_parent
         self.parent: ElementWrapper | None = None
         self.children: list[ElementWrapper] = []
 
@@ -130,11 +147,22 @@ class ElementWrapper:
         self.children.remove(child)
         child.parent = None
 
+    def _get_absolute_rect(self) -> pygame.Rect | pygame.FRect:
+        my_rect = self.spatial_component.get_screen_rect(self.camera).copy()
+
+        if self.parent:
+            parent_rect = self.parent._get_absolute_rect()
+            my_rect.x += parent_rect.x
+            my_rect.y += parent_rect.y
+
+        return my_rect
+
     def render(self, surface: pygame.Surface) -> None:
+        abs_rect = self._get_absolute_rect()
         if self.visual_component:
             self.visual_component.render(
                 self.interactable_component,
-                self.spatial_component,
+                abs_rect,
                 surface,
                 self.camera,
             )

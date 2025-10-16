@@ -186,8 +186,7 @@ class PageManager:
 
         for event in events:
             for page in reversed(self.page_stack):
-                if page.execute_input_callback(event):
-                    break
+                page.execute_input_callback(event)
 
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)
