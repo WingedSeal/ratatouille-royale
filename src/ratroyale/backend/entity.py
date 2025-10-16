@@ -7,6 +7,7 @@ from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
 from .side import Side
 from .skill_callback import SkillCallback
+from .tags import EntityTag, SkillTag
 
 if TYPE_CHECKING:
     from .game_manager import GameManager
@@ -19,6 +20,7 @@ class EntitySkill:
     reach: int | None
     crumb_cost: int
     altitude: int | None
+    tags: list[SkillTag]
 
 
 @dataclass
@@ -61,6 +63,7 @@ class Entity:
     movable: bool
     skill_stamina: int | None
     max_skill_stamina: int | None
+    entity_tags: list[EntityTag]
     collision: bool
     description: str
     height: int
@@ -144,6 +147,7 @@ def entity_data(
     movable: bool = False,
     collision: bool = False,
     height: int = 0,
+    entity_tags: list[EntityTag] = [],
     description: str = "",
     skills: list[EntitySkill] = [],
     name: str = "",
@@ -160,6 +164,7 @@ def entity_data(
         cls.description = description
         cls.height = height
         cls.name = name
+        cls.entity_tags = entity_tags
         for skill in skills:
             if not hasattr(cls, skill.method_name):
                 raise ValueError(f"{skill} is not an attribute of {cls.__name__}")
