@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
-from ...instant_kill import INSTANT_KILL
+from ...damage_heal_source import DamageHealSource
+from ...instant_kill import INSTANT_KILL, InstantKill
 from ...effects.global_rodent_effects import Stunned
 from ...entity import EntitySkill, SkillCompleted, SkillTargeting, entity_skill_check
 from ...tags import RodentClassTag, SkillTag
@@ -89,7 +90,7 @@ class RatbertBrewbelly(Rodent):
             reach=0,
             altitude=0,
             crumb_cost=5,
-            tags=[SkillTag.SELF_DEFEATED],
+            tags=[SkillTag.SELF_DEFEATED, SkillTag.AOE],
         ),
     ],
 )
@@ -146,3 +147,89 @@ class PeaPeaPoolPool(Rodent):
         return [
             f"Shoot the pea inside the pod at an enemy dealing {self.attack}(ATK) damage."
         ]
+
+
+@rodent_data(
+    name="Mortar",
+    description="A coward with an access to artillery strike.",
+    health=12,
+    defense=3,
+    speed=3,
+    move_stamina=2,
+    skill_stamina=2,
+    attack=5,
+    move_cost=2,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Artillery Strike",
+            method_name="artillery_strike",
+            reach=7,
+            altitude=3,
+            crumb_cost=10,
+            tags=[SkillTag.AOE],
+        ),
+        EntitySkill(
+            name="Artillery Strikes",
+            method_name="artillery_strikes",
+            reach=7,
+            altitude=3,
+            crumb_cost=30,
+            tags=[SkillTag.AOE],
+        ),
+    ],
+)
+class Mortar(Rodent):
+    double_speed_timer: Timer | None
+
+    @entity_skill_check
+    def artillery_strike(self, game_manager: "GameManager") -> SkillTargeting:
+        return select_targetable(
+            game_manager.board,
+            self,
+            self.skills[0],
+            aoe_damage(self.attack + 4, 2, self),
+        )
+
+    @entity_skill_check
+    def artillery_strikes(self, game_manager: "GameManager") -> SkillTargeting:
+        return select_targetable(
+            game_manager.board,
+            self,
+            self.skills[1],
+            aoe_damage(self.attack + 8, 3, self),
+        )
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            f"Launch the artillery at any tile damaging all enemy within 2-tiles radius dealing {self.attack + 4}(ATK+4) damage.",
+            f"Launch multiple artilleries at any tile damaging all enemy within 3-tiles radius dealing {self.attack + 8}(ATK+8) damage.",
+        ]
+
+    def __clear_double_speed(self, timer: "Timer", game_manager: "GameManager") -> None:
+        self.speed -= type(self).speed
+        self.double_speed_timer = None
+
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return [("A Coward", "After taking damage, gain 100% speed for 1 turn.")]
+
+    def on_damage_taken(
+        self,
+        game_manager: "GameManager",
+        damage: int | InstantKill,
+        source: DamageHealSource,
+    ) -> int | None:
+        if self.double_speed_timer is not None:
+            return None
+        self.speed += type(self).speed
+        self.double_speed_timer = Timer(
+            self,
+            TimerClearSide.ALLY,
+            on_timer_over=self.__clear_double_speed,
+            on_turn_change=None,
+            duration=1,
+        )
+        game_manager.apply_timer(self.double_speed_timer)
+        return None

@@ -38,6 +38,7 @@ def select_targetable(
     target_count: int = 1,
     *,
     is_feature_targetable: bool = True,
+    is_any_tile: bool = False,
     can_cancel: bool = True,
 ) -> SkillTargeting:
 
@@ -60,6 +61,9 @@ def select_targetable(
     for coord in coords:
         tile = board.get_tile(coord)
         if tile is None:
+            continue
+        if is_any_tile:
+            targets.append(coord)
             continue
         if any(
             entity.side != rodent.side and entity.health is not None
@@ -211,6 +215,7 @@ def aoe_damage(
     :param radius: Radius of the aoe damage, this number is also altitude for checking line of sight
     :param is_stackable: Whether the same tile should get hit multiple times when selected area overlaps,
         defaults to `False`
+    :param is_friendly_fire: Whether the damage also affect ally
     :returns: SkillCallback
     """
 
