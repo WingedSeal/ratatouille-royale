@@ -82,12 +82,6 @@ class GameBoard(Page):
             for tile_list in tiles:
                 for tile in tile_list:
                     if tile:
-                        # tile_element = ElementWrapper(
-                        #     element_type="tile",
-                        #     id=get_name_from_tile(tile),
-                        #     rect=self._define_tile_rect(tile),
-                        #     payload=TilePayload(tile),
-                        # )
                         sprite_metadata = SPRITE_METADATA_REGISTRY[TailBlazer]
                         cached_spritesheet_name = (
                             SpritesheetManager.register_spritesheet(
@@ -141,6 +135,7 @@ class GameBoard(Page):
 
     @input_event_bind("tile", GestureType.CLICK.to_pygame_event())
     def _on_tile_click(self, msg: pygame.event.Event) -> None:
+        self._try_placing_squeak()
         tile_element_id = self._get_element_id(msg)
 
         self._select_element("TILE", tile_element_id)
@@ -231,13 +226,9 @@ class GameBoard(Page):
                 "Wrong event type received. Make sure it is a gesture type event!"
             )
 
-        # self._select_element("entity", entity_element_id)
-
     # Called when drag starts; aligns the entity's center to the mouse
     @input_event_bind("entity", GestureType.DRAG_START.to_pygame_event())
     def _on_entity_drag_start(self, msg: pygame.event.Event) -> None:
-        self.start_camera_drag()
-
         entity_element_id = self._get_element_id(msg)
         entity_element = self._element_manager.get_element_wrapper(
             entity_element_id, "ENTITY"
@@ -245,14 +236,8 @@ class GameBoard(Page):
         gesture_data = get_gesture_data(msg)
 
         if entity_element and gesture_data.mouse_pos and entity_element_id:
-            mouse_x, mouse_y = gesture_data.mouse_pos
-            width, height = entity_element.spatial_component.get_screen_rect(
-                self.camera
-            ).size
-            new_x = mouse_x - width // 2
-            new_y = mouse_y - height // 2
-            entity_element.spatial_component.set_position(
-                self.camera.screen_to_world(new_x, new_y)
+            entity_element.spatial_component.center_to_screen_pos(
+                gesture_data.mouse_pos, self.camera
             )
             self.dragging_element_id = (entity_element_id, "ENTITY")
 
@@ -260,7 +245,7 @@ class GameBoard(Page):
     @input_event_bind(None, GestureType.DRAG.to_pygame_event())
     def _on_drag(self, msg: pygame.event.Event) -> None:
         if self.dragging_element_id is None:
-            self._move_camera()
+            self.camera.drag_to(pygame.mouse.get_pos())
             return
 
         category, element_id = self.dragging_element_id
@@ -268,61 +253,25 @@ class GameBoard(Page):
         gesture_data = get_gesture_data(msg)
 
         if entity and gesture_data.mouse_pos:
-            width, height = entity.spatial_component.get_screen_rect(self.camera).size
-            new_topleft = (
-                gesture_data.mouse_pos[0] - width // 2,
-                gesture_data.mouse_pos[1] - height // 2,
-            )
-            entity.spatial_component.set_position(
-                self.camera.screen_to_world(*new_topleft)
+            entity.spatial_component.center_to_screen_pos(
+                gesture_data.mouse_pos, self.camera
             )
 
     @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
         self.dragging_element_id = None
+        self.camera.end_drag()
 
-    # TODO: fix swipe (very inconsistent ATM)
-    @input_event_bind(None, GestureType.SWIPE.to_pygame_event())
-    def _on_swipe_test(self, msg: pygame.event.Event) -> None:
-        print("Swipe test")
-
-    @callback_event_bind("entity_list")
-    def _print_test(self, msg: pygame.event.Event) -> None:
-        print("Cross page listening")
-
-    @input_event_bind(None, GestureType.CLICK.to_pygame_event())
-    def move_camera_to_mouse(self, msg: pygame.event.Event) -> None:
-        self.camera.move_to(*self.camera.screen_to_world(*pygame.mouse.get_pos()))
+    @input_event_bind(None, pygame.MOUSEWHEEL)
+    def _on_scroll(self, msg: pygame.event.Event) -> None:
+        if msg.y == 1:
+            self.camera.zoom_at(self.camera.scale + 0.1, pygame.mouse.get_pos())
+        elif msg.y == -1:
+            self.camera.zoom_at(self.camera.scale - 0.1, pygame.mouse.get_pos())
 
     # endregion
 
     # region Utilities
-
-    def start_camera_drag(self) -> None:
-        """Call this when the user starts dragging (mouse down)."""
-        self.prev_mouse_pos = pygame.mouse.get_pos()
-
-    def _move_camera(self) -> None:
-        """
-        Call this each frame while dragging.
-        Moves camera based on mouse drag, taking camera scale into account.
-        """
-        # Current mouse position
-        curr_mouse = pygame.mouse.get_pos()
-
-        if not hasattr(self, "prev_mouse_pos") or self.prev_mouse_pos is None:
-            self.prev_mouse_pos = curr_mouse
-            return
-
-        # Screen-space delta
-        dx = curr_mouse[0] - self.prev_mouse_pos[0]
-        dy = curr_mouse[1] - self.prev_mouse_pos[1]
-
-        # Move camera opposite to drag direction
-        self.camera.move_by(-dx, -dy)
-
-        # Update previous mouse
-        self.prev_mouse_pos = curr_mouse
 
     def _close_ability_menu(self) -> None:
         """Close the ability menu if open."""
@@ -391,5 +340,8 @@ class GameBoard(Page):
         pixel_x, pixel_y = entity.pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         width, height = (40, 40)  # Placeholder size for entity
         return (pixel_x, pixel_y, width, height)
+
+    def _try_placing_squeak(self) -> None:
+        self.coordination_manager.put_message(PageCallbackEvent("has_selected_squeak"))
 
     # endregion

@@ -197,7 +197,6 @@ class ElementManager:
                 if element.handle_gesture(
                     gesture, self._is_processing_input, self._camera
                 ):
-                    print(element)
                     consumed = True
                     break
 

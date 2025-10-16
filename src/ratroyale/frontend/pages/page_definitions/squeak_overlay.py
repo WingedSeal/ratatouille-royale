@@ -6,6 +6,7 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureType
+from ratroyale.event_tokens.input_token import get_id
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
@@ -45,6 +46,7 @@ class SqueakOverlay(Page):
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
         super().__init__(coordination_manager, camera, is_blocking=False)
+        self.selected_card: str | None = None
 
     def on_open(self) -> None:
         pass
@@ -61,7 +63,7 @@ class SqueakOverlay(Page):
         card_elements: list[ElementWrapper] = []
 
         CARD_WIDTH, CARD_HEIGHT = 143, 90
-        CARD_SPACING = 10  # smaller spacing vertically
+        CARD_SPACING = 10
         LEFT_MARGIN = 0
         TOP_MARGIN = 80
 
@@ -79,7 +81,7 @@ class SqueakOverlay(Page):
             )
 
             card_element = ElementWrapper(
-                registered_name=f"card_{i}",
+                registered_name=f"card_{i}",  # Replace with Squeak ID?
                 grouping_name="UI_CARD",
                 camera=self.camera,
                 spatial_component=SpatialComponent(
@@ -99,5 +101,14 @@ class SqueakOverlay(Page):
         self.setup_elements(card_elements)
 
     @input_event_bind("card", GestureType.CLICK.to_pygame_event())
-    def card_click_test(self, msg: pygame.event.Event) -> None:
-        print("card clicked")
+    def card_clicked(self, msg: pygame.event.Event) -> None:
+        card_id = get_id(msg)
+        if card_id:
+            self.selected_card = card_id
+            print(self.selected_card)
+
+    @callback_event_bind("has_selected_squeak")
+    def place_squeak(self, msg: pygame.event.Event) -> None:
+        # send data back to game board to place new rodent element
+        print(f"{self.selected_card} placed")
+        self.selected_card = None
