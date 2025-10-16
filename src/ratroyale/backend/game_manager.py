@@ -2,6 +2,7 @@ import math
 from random import shuffle
 from typing import Iterator
 
+from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
 from .damage_heal_source import DamageHealSource
@@ -159,6 +160,19 @@ class GameManager:
                 return SkillCompleted.CANCELLED
             self.skill_targeting = skill_result
         return skill_result
+
+    def get_both_side_on_pos(self, pos: OddRCoord) -> Entity | None:
+        """
+        Get enemy or ally at the end of the list (top) at position or None if there's nothing there
+        """
+        tile = self.board.get_tile(pos)
+        if tile is None:
+            raise ValueError("There is no tile on the coord")
+        for entity in reversed(tile.entities):
+            if entity.health is None:
+                continue
+            return entity
+        return None
 
     def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
         """
@@ -424,7 +438,7 @@ class GameManager:
         )
 
     def damage_entity(
-        self, entity: Entity, damage: int, source: DamageHealSource
+        self, entity: Entity, damage: int | InstantKill, source: DamageHealSource
     ) -> None:
         """
         Damage an entity. Throw error if called on entity with no health.

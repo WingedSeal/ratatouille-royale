@@ -203,6 +203,7 @@ def aoe_damage(
     *,
     is_stackable: bool = False,
     is_feature_targetable: bool = True,
+    is_friendly_fire: bool = False,
 ) -> SkillCallback:
     """
     Deal aoe damage
@@ -239,7 +240,10 @@ def aoe_damage(
             ):
                 if not is_stackable and coord in tagged_coord:
                     continue
-                enemy = game_manager.get_enemy_on_pos(coord)
+                if is_friendly_fire:
+                    enemy = game_manager.get_both_side_on_pos(coord)
+                else:
+                    enemy = game_manager.get_enemy_on_pos(coord)
                 if enemy is not None:
                     game_manager.damage_entity(enemy, damage, source)
                     continue

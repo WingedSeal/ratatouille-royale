@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
+from .instant_kill import InstantKill
 from .damage_heal_source import DamageHealSource
 from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
@@ -94,7 +95,10 @@ class Entity:
         self.effects = {}
 
     def on_damage_taken(
-        self, game_manager: "GameManager", damage: int, source: DamageHealSource
+        self,
+        game_manager: "GameManager",
+        damage: int | InstantKill,
+        source: DamageHealSource,
     ) -> int | None:
         pass
 
@@ -152,13 +156,20 @@ class Entity:
         return heal_taken
 
     def _take_damage(
-        self, game_manager: "GameManager", damage: int, source: DamageHealSource
+        self,
+        game_manager: "GameManager",
+        damage: int | InstantKill,
+        source: DamageHealSource,
     ) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health
         :param damage: How much damage taken
         :returns: Whether the entity die and hp loss
         """
+        if isinstance(damage, InstantKill):
+            self.on_damage_taken(game_manager, damage, source)
+            self.on_hp_loss(game_manager, self.health or 0, source)
+            return True, self.health or 0
         new_damage = self.on_damage_taken(game_manager, damage, source)
         if new_damage is not None:
             damage = new_damage

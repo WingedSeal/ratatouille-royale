@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
+from .instant_kill import InstantKill
 from .entity import Entity
 from .entity_effect import EntityEffect
 from .feature import Feature
@@ -37,7 +38,7 @@ class EntitySpawnEvent(GameEvent):
 @dataclass
 class EntityDamagedEvent(GameEvent):
     entity: Entity
-    damage: int
+    damage: int | InstantKill
     hp_loss: int
 
 
