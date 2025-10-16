@@ -14,7 +14,7 @@ class RandomAI(BaseAI):
 
     def select_action(self, actions: AIActions) -> AIAction:
         actions.end_turn = []
-        flatten_actions = actions.flattern()
+        flatten_actions = actions.flatten()
         if len(flatten_actions) == 0:
             return EndTurn()
         return choice(flatten_actions)

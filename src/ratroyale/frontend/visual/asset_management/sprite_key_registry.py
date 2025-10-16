@@ -1,8 +1,5 @@
 import pygame
 
-from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
-    SpriteRegistryKey,
-)
 
 # TODO: refactor entity/tile sprite drawing into type-based handlers
 
@@ -78,10 +75,10 @@ def make_surface(
 
 TYPICAL_TILE_SIZE = (64, 64)
 
-SPRITE_REGISTRY = {
-    SpriteRegistryKey.DEFAULT_TILE: make_surface(TYPICAL_TILE_SIZE, (0, 255, 0, 128)),
-    SpriteRegistryKey.DEFAULT_ENTITY: make_surface((32, 32), (255, 0, 0, 255)),
-    SpriteRegistryKey.RODENT_TAILBLAZER: make_labeled_box(
-        (32, 32), (255, 0, 0, 255), "TailBlazer"
-    ),
-}
+# SPRITE_REGISTRY = {
+#     SpriteRegistryKey.DEFAULT_TILE: make_surface(TYPICAL_TILE_SIZE, (0, 255, 0, 128)),
+#     SpriteRegistryKey.DEFAULT_ENTITY: make_surface((32, 32), (255, 0, 0, 255)),
+#     SpriteRegistryKey.RODENT_TAILBLAZER: make_labeled_box(
+#         (32, 32), (255, 0, 0, 255), "TailBlazer"
+#     ),
+# }

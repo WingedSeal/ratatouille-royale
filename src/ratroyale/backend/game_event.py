@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from ratroyale.backend.damage_heal_source import DamageHealSource
-
+from .damage_heal_source import DamageHealSource
 from .player_info.squeak import Squeak
 from .instant_kill import InstantKill
 from .entity import Entity
