@@ -184,12 +184,10 @@ class PageManager:
         if not events:
             return
 
-        # TODO: toggleable handler_found debugging.
-        handler_found: bool = False
-
         for event in events:
-            for page in self.page_stack:
-                handler_found = handler_found or page.execute_input_callback(event)
+            for page in reversed(self.page_stack):
+                if page.execute_input_callback(event):
+                    break
 
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)
@@ -220,8 +218,7 @@ class PageManager:
     def _delegate(self, msg: PageCallbackEvent[Any]) -> None:
         """Delegate a PageCallbackEvent to the appropriate page."""
         for page in self.page_stack:
-            if page:
-                page.execute_page_callback(msg)
+            page.execute_page_callback(msg)
 
     # TODO: implement visual events properly
     def execute_visual_callback(self) -> None:

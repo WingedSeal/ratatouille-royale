@@ -77,24 +77,22 @@ class ElementWrapper:
         if not isinstance(self.interactable_component, Hitbox):
             return False
 
-        # Else, for our custom hitbox.
-        else:
-            # For elements which cannot be interacted with (e.g. particles)
-            if not is_processing_input:
-                return False
+        if not is_processing_input:
+            return False
 
-            pos = gesture.mouse_pos
-            if pos is None or not self.interactable_component.contains_point(pos):
-                return False
+        pos = gesture.mouse_pos
+        if pos is None or not self.interactable_component.contains_point(pos):
+            return False
 
-            post_gesture_event(
-                InputManagerEvent(
-                    element_id=self.registered_name,
-                    gesture_data=gesture,
-                    payload=self.payload,
-                )
+        post_gesture_event(
+            InputManagerEvent(
+                element_id=self.registered_name,
+                gesture_data=gesture,
+                payload=self.payload,
             )
-            return True
+        )
+
+        return self.is_blocking
 
     def destroy(self) -> None:
         if isinstance(self.interactable_component, UIElement):

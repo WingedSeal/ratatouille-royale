@@ -157,6 +157,7 @@ class MainMenu(Page):
                 action_list=[
                     (PageNavigation.CLOSE_ALL, None),
                     (PageNavigation.OPEN, "GameBoard"),
+                    (PageNavigation.OPEN, "SqueakOverlay"),
                     (PageNavigation.OPEN, "PauseButton"),
                 ]
             )
