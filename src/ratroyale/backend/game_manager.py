@@ -1,6 +1,8 @@
 import math
 from random import shuffle
 from typing import Iterator
+from dataclasses import dataclass, field
+from collections import defaultdict
 
 from .instant_kill import InstantKill
 from ..utils import EventQueue
@@ -48,6 +50,14 @@ def crumb_per_turn(turn_count: int) -> int:
     return min(math.ceil(turn_count / 4) * 10, 50)
 
 
+@dataclass
+class GameStats:
+    squeak_placed: dict[Side, int] = field(default_factory=lambda: defaultdict(int))
+    enemy_rodent_killed: dict[Side, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
+
+
 class GameManager:
     """
     Class responsible for main game logic, such as whose turn it is,
@@ -68,6 +78,7 @@ class GameManager:
     crumbs: int
     """Crumbs of the current side"""
     first_turn: Side
+    game_stats: GameStats
 
     def __init__(
         self,
@@ -96,6 +107,7 @@ class GameManager:
         If it is currently in selecting target mode. It'll have the detail of skill targeting.
         """
         self.game_over_event: GameOverEvent | None = None
+        self.game_stats = GameStats()
 
     @property
     def is_selecting_target(self) -> bool:
@@ -309,6 +321,7 @@ class GameManager:
         if self.crumbs < squeak.crumb_cost:
             raise NotEnoughCrumbError()
         self.event_queue.put_nowait(SqueakPlacedEvent(hand_index, squeak, coord))
+        self.game_stats.squeak_placed[self.turn] += 1
         new_squeak = squeak.on_place(self, coord)
         self.crumbs -= squeak.crumb_cost
         if new_squeak is None:
@@ -461,6 +474,8 @@ class GameManager:
             return
         if isinstance(source, Entity):
             source.on_kill_entity(self, entity)
+            if source.side is not None and entity.side == source.side.other_side():
+                self.game_stats.enemy_rodent_killed[source.side] += 1
         tile = self.board.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
