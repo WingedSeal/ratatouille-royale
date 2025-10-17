@@ -1,3 +1,6 @@
+import hmac
+import hashlib
+from fernet import Fernet
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 from math import floor, sqrt
@@ -222,6 +225,7 @@ class PlayerInfo:
     ) -> "PlayerInfo | None":
         with file_path.open("rb") as file:
             data = file.read()
+        data = unprotect(data)
         try:
             return cls.load(data, is_progression_frozen=is_progression_frozen)
         except Exception:
@@ -229,5 +233,36 @@ class PlayerInfo:
 
     def to_file(self, file_path: Path) -> None:
         data = self.save()
+        data = protect(data)
         with file_path.open("wb") as file:
             file.write(data)
+
+
+SHA256_SIGNATURE_SIZE = 32
+FERNET_KEY_SIZE = 44
+"""Fernet key is base64-encoded 32 bytes = 44 bytes"""
+
+
+def protect(data: bytes) -> bytes:
+    key = Fernet.generate_key()
+    assert len(key) == FERNET_KEY_SIZE
+    cipher = Fernet(key)
+    encrypted = cipher.encrypt(data)
+    signature = hmac.new(key, encrypted, hashlib.sha256).digest()
+    assert len(signature) == SHA256_SIGNATURE_SIZE
+    return key + signature + encrypted
+
+
+def unprotect(protected_data: bytes) -> bytes:
+    key = protected_data[:FERNET_KEY_SIZE]
+    signature = protected_data[
+        FERNET_KEY_SIZE : FERNET_KEY_SIZE + SHA256_SIGNATURE_SIZE
+    ]
+    encrypted = protected_data[FERNET_KEY_SIZE + SHA256_SIGNATURE_SIZE :]
+    expected_sig = hmac.new(key, encrypted, hashlib.sha256).digest()
+    if not hmac.compare_digest(signature, expected_sig):
+        raise ValueError("Data has been tampered with")
+    cipher = Fernet(key)
+    decrypted = cipher.decrypt(encrypted)
+    assert isinstance(decrypted, bytes)
+    return decrypted
