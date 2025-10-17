@@ -459,6 +459,8 @@ class GameManager:
         is_dead = entity.on_death(source)
         if not is_dead:
             return
+        if isinstance(source, Entity):
+            source.on_kill_entity(self, entity)
         tile = self.board.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
@@ -492,6 +494,9 @@ class GameManager:
         is_dead = feature.on_death(source)
         if not is_dead:
             return
+
+        if isinstance(source, Entity):
+            source.on_kill_feature(self, feature)
 
         for pos in feature.shape:
             tile = self.board.get_tile(pos)
