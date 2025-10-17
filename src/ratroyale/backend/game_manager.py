@@ -25,7 +25,8 @@ from .game_event import (
 )
 from .hexagon import OddRCoord
 from .map import Map
-from .player_info.player_info import PlayerInfo, HAND_LENGTH
+from .player_info.player_info import PlayerInfo
+from .player_info.squeak_set import HAND_LENGTH
 from .player_info.squeak import Squeak
 from .side import Side
 

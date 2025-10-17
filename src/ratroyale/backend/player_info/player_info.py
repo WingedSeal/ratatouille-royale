@@ -4,16 +4,15 @@ from typing import Final
 from ratroyale.utils import DataPointer
 
 from .squeak import Squeak
-from .squeak_set import SqueakSet
+from .squeak_set import SqueakSet, HAND_LENGTH
 from . import squeaks  # noqa
 
-HAND_LENGTH = 5
 SAVE_FILE_EXTENSION = "rrsave"
 ENDIAN: Final = "big"
 
 
 class PlayerInfo:
-    all_squeaks: list[Squeak]
+    all_squeaks: dict[Squeak, int]
     squeak_sets: list[SqueakSet]
     selected_squeak_set_index: int
 
@@ -23,17 +22,20 @@ class PlayerInfo:
     loop all_squeaks_length times {
         1 byte for squeak_name_length
         squeak_name_length bytes for squeak_name
+        1 + large_all_squeaks_length bytes for squeak_count
     }
     1 bytes for squeak_sets_count
     loop squeak_sets_count times {
         1 byte for squeak_set_length
-        loop squeak_set_length times {
-            (1 + large_all_squeaks_length) bytes for squeak_index
+        loop squeak_set_length times 
+            (1 + large_all_squeaks_length) bytes for squeak
+            1 + large_all_squeaks_length bytes for squeak_count
         }
     }
     loop squeak_sets_count times {
         loop 5 times {
-            (1 + large_all_squeaks_length) bytes for squeak_index
+            (1 + large_all_squeaks_length) bytes for squeak
+            1 + large_all_squeaks_length bytes for squeak_count
         }
     }
     2 bytes for select_squeak_set_index
@@ -41,9 +43,9 @@ class PlayerInfo:
 
     def __init__(
         self,
-        all_squeaks: list[Squeak],
-        squeak_sets: list[set[int]],
-        hands: list[set[int]],
+        all_squeaks: dict[Squeak, int],
+        squeak_sets: list[dict[Squeak, int]],
+        hands: list[dict[Squeak, int]],
         selected_squeak_set_index: int,
     ) -> None:
         self.all_squeaks = all_squeaks
@@ -69,30 +71,34 @@ class PlayerInfo:
 
         large_all_squeaks_length = all_squeaks_length > 255
 
-        all_squeaks: list[Squeak] = []
+        all_squeaks: dict[Squeak, int] = {}
         for _ in range(all_squeaks_length):
             squeak_name_length = data_pointer.get_byte()
             squeak_name = data_pointer.get_raw_bytes(squeak_name_length).decode()
-            all_squeaks.append(Squeak.SQEAK_MAP[squeak_name])
+            squeak_count = data_pointer.get_byte(1 + large_all_squeaks_length)
+            all_squeaks[(Squeak.SQEAK_MAP[squeak_name])] = squeak_count
+        all_squeaks_list = list(all_squeaks.keys())
 
-        squeak_sets: list[set[int]] = []
+        squeak_sets: list[dict[Squeak, int]] = []
         squeak_sets_count = data_pointer.get_byte()
         for _ in range(squeak_sets_count):
-            squeak_set: list[int] = []
+            squeak_set: dict[Squeak, int] = {}
             squeak_set_length = data_pointer.get_byte()
             for _ in range(squeak_set_length):
-                squeak_index = data_pointer.get_byte(1 + large_all_squeaks_length)
-                squeak_set.append(squeak_index)
-            squeak_sets.append(set(squeak_set))
+                squeak = data_pointer.get_byte(1 + large_all_squeaks_length)
+                squeak_count = data_pointer.get_byte(1 + large_all_squeaks_length)
+                squeak_set[all_squeaks_list[squeak]] = squeak_count
+            squeak_sets.append(squeak_set)
 
-        hands: list[set[int]] = []
+        hands: list[dict[Squeak, int]] = []
         for _ in range(squeak_sets_count):
-            hand: list[int] = []
+            hand: dict[Squeak, int] = {}
             squeak_set_length = data_pointer.get_byte()
             for _ in range(squeak_set_length):
-                squeak_index = data_pointer.get_byte(1 + large_all_squeaks_length)
-                hand.append(squeak_index)
-            hands.append(set(hand))
+                squeak = data_pointer.get_byte(1 + large_all_squeaks_length)
+                squeak_count = data_pointer.get_byte(1 + large_all_squeaks_length)
+                hand[all_squeaks_list[squeak]] = squeak_count
+            hands.append(hand)
 
         selected_squeak_set_index = data_pointer.get_byte()
 
@@ -103,22 +109,34 @@ class PlayerInfo:
         all_squeaks_length = len(self.all_squeaks)
         data.extend(all_squeaks_length.to_bytes(2, ENDIAN))
         large_all_squeaks_length = 1 if all_squeaks_length > 255 else 0
-        for squeak in self.all_squeaks:
+        for squeak, squeak_count in self.all_squeaks.items():
             encoded_squeak_name = squeak.name.encode()
             data.append(len(encoded_squeak_name))
             data.extend(encoded_squeak_name)
+            data.append(squeak_count)
 
+        all_squeaks_list = list(self.all_squeaks.keys())
         squeak_sets_count = len(self.squeak_sets)
         data.append(squeak_sets_count)
         for squeak_set in self.squeak_sets:
-            squeak_set_length = len(squeak_set.deck_index)
+            squeak_set_length = len(squeak_set.deck)
             data.append(squeak_set_length)
-            for squeak_index in squeak_set.deck_index:
-                data.extend(squeak_index.to_bytes(1 + large_all_squeaks_length, ENDIAN))
+            for squeak, squeak_count in squeak_set.deck.items():
+                data.extend(
+                    all_squeaks_list.index(squeak).to_bytes(
+                        1 + large_all_squeaks_length, ENDIAN
+                    )
+                )
+                data.extend(squeak_count.to_bytes(1 + large_all_squeaks_length))
         for squeak_set in self.squeak_sets:
-            assert len(squeak_set.hands_index) == HAND_LENGTH
-            for squeak_index in squeak_set.hands_index:
-                data.extend(squeak_index.to_bytes(1 + large_all_squeaks_length, ENDIAN))
+            assert len(squeak_set.hands) == HAND_LENGTH
+            for squeak, squeak_count in squeak_set.hands.items():
+                data.extend(
+                    all_squeaks_list.index(squeak).to_bytes(
+                        1 + large_all_squeaks_length, ENDIAN
+                    )
+                )
+                data.extend(squeak_count.to_bytes(1 + large_all_squeaks_length))
 
         data.append(self.selected_squeak_set_index)
 
