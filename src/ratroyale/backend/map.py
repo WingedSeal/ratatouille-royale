@@ -3,6 +3,8 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any, Final
 
+from ratroyale.utils import DataPointer
+
 from .entity import Entity
 from .feature import Feature
 from .hexagon import OddRCoord
@@ -12,26 +14,6 @@ from .tile import Tile
 MAP_FILE_EXTENSION = "rrmap"
 
 ENDIAN: Final = "big"
-
-
-class _DataPointer:
-    data: bytes
-    pointer: int
-
-    def __init__(self, data: bytes) -> None:
-        self.data = data
-        self.pointer = 0
-
-    def get_byte(self, size: int = 1) -> int:
-        return int.from_bytes(self.get_raw_bytes(size), ENDIAN)
-
-    def get_raw_bytes(self, size: int = 1) -> bytes:
-        value = self.data[self.pointer : self.pointer + size]
-        self.pointer += size
-        return value
-
-    def verify_end(self) -> bool:
-        return self.pointer == len(self.data)
 
 
 class Map:
@@ -158,8 +140,9 @@ class Map:
 
     def save(self) -> bytes:
         data = bytearray()
-        data.append(len(self.name))
-        data.extend(self.name.encode())
+        encoded_name = self.name.encode()
+        data.append(len(encoded_name))
+        data.extend(encoded_name)
 
         large_map_flag = 1 if self.size_x > 255 or self.size_y > 255 else 0
         many_features_flag = 1 if len(self.features) > 255 else 0
@@ -234,7 +217,7 @@ class Map:
 
     @classmethod
     def load(cls, data: bytes) -> "Map":
-        data_pointer = _DataPointer(data)
+        data_pointer = DataPointer(data, ENDIAN)
         map_name_length = data_pointer.get_byte()
         name = data_pointer.get_raw_bytes(map_name_length).decode()
         flags = data_pointer.get_byte()
