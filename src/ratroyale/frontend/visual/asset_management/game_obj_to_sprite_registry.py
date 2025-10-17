@@ -28,3 +28,13 @@ SPRITE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
         60,
     ),
 }
+
+SQUEAK_IMAGE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
+    TailBlazer: SpritesheetMetadata(
+        "TAILBLAZER_CARD",
+        ASSET_DIR / "snow_pea_card.png",
+        (238, 150),
+        {"NONE": [0]},
+        60,
+    )
+}

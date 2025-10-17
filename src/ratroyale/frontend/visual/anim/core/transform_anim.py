@@ -82,72 +82,65 @@ class ScaleAnim(TransformAnim):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-
-        # Track starting position and size
-        self._rect = self.spatial_component.get_rect().copy()
-        self._start_size: tuple[float, float] = self._rect.size
-        self._current_size: tuple[float, float] = self._start_size
-
-        # Compute the anchor point based on expansion_anchor
-        anchor_x, anchor_y = self._rect.x, self._rect.y  # default: top-left
-
-        # Vertical anchor
-        if self.expansion_anchor[0] == VerticalAnchor.MIDDLE:
-            anchor_y = self._rect.centery
-        elif self.expansion_anchor[0] == VerticalAnchor.LOWER:
-            anchor_y = self._rect.bottom
-        # else UPPER: keep as _rect.y
-
-        # Horizontal anchor
-        if self.expansion_anchor[1] == HorizontalAnchor.MIDDLE:
-            anchor_x = self._rect.centerx
-        elif self.expansion_anchor[1] == HorizontalAnchor.RIGHT:
-            anchor_x = self._rect.right
-        # else LEFT: keep as _rect.x
-
-        self._anchor_pos: tuple[float, float] = (anchor_x, anchor_y)
+        rect = self.spatial_component.get_rect()
+        self._start_size = rect.size
 
     def update(self, time_delta: float) -> None:
-        # Get normalized time (0–1) according to easing and loop logic
         eased_t = self.get_normalized_time(time_delta)
 
+        # Use original start size
         start_width, start_height = self._start_size
         target_width, target_height = self.target
 
         # Compute new size
         if self.scale_mode == ScaleMode.SCALE_TO_SIZE:
             if self.reverse_pass_per_loop and self._direction is AnimDirection.REVERSE:
-                # Interpolate from target back to start
-                new_width = target_width + (start_width - target_width) * eased_t
-                new_height = target_height + (start_height - target_height) * eased_t
+                new_width = start_width + (target_width - start_width) * (1 - eased_t)
+                new_height = start_height + (target_height - start_height) * (
+                    1 - eased_t
+                )
             else:
-                # Interpolate from start to target
                 new_width = start_width + (target_width - start_width) * eased_t
                 new_height = start_height + (target_height - start_height) * eased_t
 
         elif self.scale_mode == ScaleMode.SCALE_BY_FACTOR:
             if self.reverse_pass_per_loop and self._direction is AnimDirection.REVERSE:
-                # Scale back down toward original size
-                new_width = start_width * (target_width - (target_width - 1) * eased_t)
-                new_height = start_height * (
-                    target_height - (target_height - 1) * eased_t
-                )
+                new_width = start_width * (1 + (target_width - 1) * (1 - eased_t))
+                new_height = start_height * (1 + (target_height - 1) * (1 - eased_t))
             else:
-                # Scale up by factor
                 new_width = start_width * (1 + (target_width - 1) * eased_t)
                 new_height = start_height * (1 + (target_height - 1) * eased_t)
 
-        else:
-            raise ValueError(f"Unknown scale_mode: {self.scale_mode}")
+        # Clamp to small minimum to avoid division by zero
+        new_width = max(new_width, 1.0)
+        new_height = max(new_height, 1.0)
 
-        # Anchor-aware position
-        anchor_x, anchor_y = self._anchor_pos
-        new_x = anchor_x - (anchor_x - self._rect.x) * (new_width / self._start_size[0])
-        new_y = anchor_y - (anchor_y - self._rect.y) * (
-            new_height / self._start_size[1]
-        )
+        # current_rect = current top-left + size
+        curr_rect = self.spatial_component.get_rect()
+        curr_width, curr_height = curr_rect.size
 
-        # Apply new size and position
+        # Compute the anchor position dynamically each frame
+        anchor_x, anchor_y = curr_rect.centerx, curr_rect.centery
+        if self.expansion_anchor[0] == VerticalAnchor.UPPER:
+            anchor_y = curr_rect.top
+        elif self.expansion_anchor[0] == VerticalAnchor.LOWER:
+            anchor_y = curr_rect.bottom
+
+        if self.expansion_anchor[1] == HorizontalAnchor.LEFT:
+            anchor_x = curr_rect.left
+        elif self.expansion_anchor[1] == HorizontalAnchor.RIGHT:
+            anchor_x = curr_rect.right
+
+        # Interpolate size
+        new_width = start_width + (target_width - start_width) * eased_t
+        new_height = start_height + (target_height - start_height) * eased_t
+
+        # Top-left = anchor minus proportional offset from anchor to current top-left
+        offset_x = anchor_x - curr_rect.x
+        offset_y = anchor_y - curr_rect.y
+        new_x = anchor_x - offset_x * (new_width / curr_width)
+        new_y = anchor_y - offset_y * (new_height / curr_height)
+
         self.spatial_component.set_position((new_x, new_y))
         self.spatial_component.set_size((new_width, new_height))
 

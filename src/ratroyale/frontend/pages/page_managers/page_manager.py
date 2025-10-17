@@ -36,7 +36,7 @@ class PageManager:
         First is bottom-most, while last is topmost"""
 
         self.camera: Camera = Camera(
-            0, 0, 1, SCREEN_SIZE_HALVED[0], SCREEN_SIZE_HALVED[1]
+            0, 0, SCREEN_SIZE_HALVED[0], SCREEN_SIZE_HALVED[1], 1
         )
 
         self.page_actions: dict[PageNavigation, Callable[[type[Page]], None]] = {
@@ -184,12 +184,9 @@ class PageManager:
         if not events:
             return
 
-        # TODO: toggleable handler_found debugging.
-        handler_found: bool = False
-
         for event in events:
-            for page in self.page_stack:
-                handler_found = handler_found or page.execute_input_callback(event)
+            for page in reversed(self.page_stack):
+                page.execute_input_callback(event)
 
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)
@@ -220,8 +217,7 @@ class PageManager:
     def _delegate(self, msg: PageCallbackEvent[Any]) -> None:
         """Delegate a PageCallbackEvent to the appropriate page."""
         for page in self.page_stack:
-            if page:
-                page.execute_page_callback(msg)
+            page.execute_page_callback(msg)
 
     # TODO: implement visual events properly
     def execute_visual_callback(self) -> None:
@@ -241,4 +237,17 @@ class PageManager:
             if page.is_visible:
                 self.screen.blit(page.render(delta), (0, 0))
 
-    # endregion
+        font = pygame.font.SysFont(None, 24)  # None = default font, 24 = size
+
+        # Create a surface with the text
+        text_surf = font.render(
+            f"Camera: ({self.camera.world_x:.2f}, {self.camera.world_y:.2f})",
+            True,  # anti-aliasing
+            (255, 255, 255),  # color: white
+        )
+
+        # Blit it somewhere on the screen (e.g., top-left)
+        self.screen.blit(text_surf, (10, 10))
+
+
+# endregion
