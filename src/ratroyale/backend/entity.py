@@ -65,8 +65,8 @@ class Entity:
     movable: bool
     skill_stamina: int | None
     max_skill_stamina: int | None
-    collision: bool
     entity_tags: list[EntityTag]
+    collision: bool
     description: str
     height: int
     side: Side | None
