@@ -15,6 +15,8 @@ class PlayerInfo:
     all_squeaks: dict[Squeak, int]
     squeak_sets: list[SqueakSet]
     selected_squeak_set_index: int
+    exp: int
+    cheese: int
 
     _FORMAT_SPEC = """
     2 bytes for all_squeaks_length
@@ -38,7 +40,9 @@ class PlayerInfo:
             1 + large_all_squeaks_length bytes for squeak_count
         }
     }
-    2 bytes for select_squeak_set_index
+    1 byte for select_squeak_set_index
+    4 bytes for exp
+    4 bytes for cheese
     """
 
     def __init__(
@@ -48,6 +52,8 @@ class PlayerInfo:
         hands: list[dict[Squeak, int]],
         *,
         selected_squeak_set_index: int,
+        exp: int,
+        cheese: int,
     ) -> None:
         self.all_squeaks = all_squeaks
         for i, (squeak_set, hand) in enumerate(zip(squeak_sets, hands)):
@@ -61,6 +67,8 @@ class PlayerInfo:
             for squeak_set, hand in zip(squeak_sets, hands, strict=True)
         ]
         self.selected_squeak_set_index = selected_squeak_set_index
+        self.exp = exp
+        self.cheese = cheese
 
     def get_squeak_set(self) -> SqueakSet:
         return self.squeak_sets[self.selected_squeak_set_index]
@@ -106,11 +114,16 @@ class PlayerInfo:
 
         selected_squeak_set_index = data_pointer.get_byte()
 
+        exp = data_pointer.get_byte(4)
+        cheese = data_pointer.get_byte(4)
+
         return PlayerInfo(
             all_squeaks,
             squeak_sets,
             hands,
             selected_squeak_set_index=selected_squeak_set_index,
+            exp=exp,
+            cheese=cheese,
         )
 
     def save(self) -> bytes:
@@ -148,6 +161,8 @@ class PlayerInfo:
                 data.extend(squeak_count.to_bytes(1 + large_all_squeaks_length))
 
         data.append(self.selected_squeak_set_index)
+        data.extend(self.exp.to_bytes(4, ENDIAN))
+        data.extend(self.cheese.to_bytes(4, ENDIAN))
 
         return bytes(data)
 
