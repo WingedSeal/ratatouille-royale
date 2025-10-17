@@ -29,12 +29,22 @@ def small_map() -> Map:
 
 @pytest.mark.integration
 @pytest.mark.parametrize("ai_type", [RandomAI, RushBAI])
-def test_random_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
+def test_all_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
     game_manager = GameManager(
         small_map,
         players_info=(
-            PlayerInfo([TAIL_BLAZER] * 5, [{0, 1, 2, 3, 4}], [{0, 1, 2, 3, 4}], 0),
-            PlayerInfo([TAIL_BLAZER] * 5, [{0, 1, 2, 3, 4}], [{0, 1, 2, 3, 4}], 0),
+            PlayerInfo(
+                {TAIL_BLAZER: 5},
+                [{TAIL_BLAZER: 5}],
+                [{TAIL_BLAZER: 5}],
+                selected_squeak_set_index=0,
+            ),
+            PlayerInfo(
+                {TAIL_BLAZER: 5},
+                [{TAIL_BLAZER: 5}],
+                [{TAIL_BLAZER: 5}],
+                selected_squeak_set_index=0,
+            ),
         ),
         first_turn=Side.RAT,
     )

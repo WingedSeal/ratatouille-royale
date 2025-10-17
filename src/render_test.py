@@ -50,35 +50,14 @@ def main():
     dummy_get_placable: SqueakGetPlacableTiles = lambda game_manager: []
 
     # Create 5 dummy squeaks
-    dummy_squeaks = [
-        Squeak(
-            name="Test Card",
-            crumb_cost=1,
-            squeak_type=SqueakType.RODENT,
-            on_place=dummy_on_place,
-            get_placable_tiles=dummy_get_placable,
-            rodent=TailBlazer,
-        )
-        for i in range(5)
-    ]
-
-    # Example squeak sets (just indices into dummy_squeaks)
-    dummy_squeak_sets = [set(range(len(dummy_squeaks)))]
-    selected_index = 0
 
     # PlayerInfo
     player_info_1 = PlayerInfo(
-        hands=[[0, 1, 2, 3, 4]],
-        all_squeaks=dummy_squeaks,
-        squeak_sets=dummy_squeak_sets,
-        selected_squeak_set_index=selected_index,
+        {TAIL_BLAZER: 5}, [{TAIL_BLAZER: 5}], [{TAIL_BLAZER: 5}], 0
     )
 
     player_info_2 = PlayerInfo(
-        hands=[[0, 1, 2, 3, 4]],
-        all_squeaks=dummy_squeaks,
-        squeak_sets=dummy_squeak_sets,
-        selected_squeak_set_index=selected_index,
+        {TAIL_BLAZER: 5}, [{TAIL_BLAZER: 5}], [{TAIL_BLAZER: 5}], 0
     )
 
     map = Map(
