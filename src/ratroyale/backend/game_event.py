@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from .entity_effect import EntityEffect
-from .side import Side
 from .entity import Entity
+from .entity_effect import EntityEffect
 from .feature import Feature
 from .hexagon import OddRCoord
+from .side import Side
 
 
 @dataclass

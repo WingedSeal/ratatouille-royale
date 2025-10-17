@@ -28,6 +28,10 @@ class Feature(ABC):
     @abstractmethod
     def is_collision() -> bool: ...
 
+    @staticmethod
+    @abstractmethod
+    def get_name() -> str: ...
+
     def __init_subclass__(cls) -> None:
         if cls.FEATURE_ID() in Feature.ALL_FEATURES:
             raise Exception(

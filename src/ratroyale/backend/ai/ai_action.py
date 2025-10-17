@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Sequence
 
-from ..player_info.squeak import Squeak
 from ..entity import CallableEntitySkill, Entity, SkillTargeting
 from ..hexagon import OddRCoord
+from ..player_info.squeak import Squeak
 
 
 @dataclass(frozen=True)
@@ -58,7 +58,7 @@ class AIActions:
         self.place_squeak: list[PlaceSqueak] = []
         self.end_turn: list[EndTurn] = []
 
-    def flattern(self) -> Sequence[AIAction]:
+    def flatten(self) -> Sequence[AIAction]:
         return (
             self.move_ally
             + self.activate_skill
