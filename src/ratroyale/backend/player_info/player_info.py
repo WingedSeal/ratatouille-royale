@@ -85,6 +85,28 @@ class PlayerInfo:
     def get_squeak_set(self) -> SqueakSet:
         return self.squeak_sets[self.selected_squeak_set_index]
 
+    def find_not_enough_squeak_in_sets(self, squeak: Squeak, count: int) -> int | None:
+        """Return the first squeak set index that there's not enough squeak for removing.
+        Return None if it can be savely removed. This already assumed there's enough squeak
+        in the all_squeaks"""
+        for i, squeak_set in enumerate(self.squeak_sets):
+            if squeak not in squeak_set.deck:
+                continue
+            if squeak_set.deck[squeak] < count:
+                return i
+        return None
+
+    def find_not_enough_squeak_in_hands(self, squeak: Squeak, count: int) -> int | None:
+        """Return the first squeak set index that there's not enough squeak in hand for removing.
+        Return None if it can be savely removed. This already assumed there's enough squeak
+        in the all_squeaks and in squeak sets"""
+        for i, squeak_set in enumerate(self.squeak_sets):
+            if squeak not in squeak_set.hands:
+                continue
+            if squeak_set.hands[squeak] < count:
+                return i
+        return None
+
     def game_won(self, game_manager: "GameManager") -> None:
         if self.is_progression_frozen:
             return None
