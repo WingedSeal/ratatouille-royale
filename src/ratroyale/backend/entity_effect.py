@@ -29,6 +29,7 @@ class EntityEffect(metaclass=EffectMeta):
     name: str
     entity: "Entity"
     duration: int | None
+    turn_passed: int
     effect_clear_side: EffectClearSide
     intensity: float
     overridden_effects: list["EntityEffect"]
@@ -38,6 +39,7 @@ class EntityEffect(metaclass=EffectMeta):
     ) -> None:
         self.entity = entity
         self.duration = duration
+        self.turn_passed = 0
         self.intensity = intensity
         self.overridden_effects = []
 

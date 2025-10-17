@@ -300,6 +300,7 @@ class GameManager:
         self.turn = self.turn.other_side()
         if self.turn == self.first_turn:
             for effect in self.board.cache.effects:
+                effect.turn_passed += 1
                 if effect.duration is not None:
                     effect.duration -= 1
             self.turn_count += 1
