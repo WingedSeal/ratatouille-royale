@@ -25,11 +25,9 @@ from .game_event import (
 )
 from .hexagon import OddRCoord
 from .map import Map
-from .player_info.player_info import PlayerInfo
+from .player_info.player_info import PlayerInfo, HAND_LENGTH
 from .player_info.squeak import Squeak
 from .side import Side
-
-HAND_LENGTH = 5
 
 
 def crumb_per_turn(turn_count: int) -> int:
@@ -76,6 +74,7 @@ class GameManager:
         self.hands: dict[Side, list[Squeak]] = {}
         for side in Side:
             decks, hands = self.players_info[side].get_squeak_set().get_deck_and_hand()
+            assert len(hands) == HAND_LENGTH
             self.decks[side] = decks
             self.hands[side] = hands
         self.skill_targeting: SkillTargeting | None = None
