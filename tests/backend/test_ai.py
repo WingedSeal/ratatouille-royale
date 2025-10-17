@@ -29,7 +29,7 @@ def small_map() -> Map:
 
 @pytest.mark.integration
 @pytest.mark.parametrize("ai_type", [RandomAI, RushBAI])
-def test_random_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
+def test_all_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
     game_manager = GameManager(
         small_map,
         players_info=(

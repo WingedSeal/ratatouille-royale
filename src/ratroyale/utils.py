@@ -1,5 +1,6 @@
+import dis
 from queue import Empty, Queue
-from typing import Literal, TypeVar, cast
+from typing import Literal, Any, Callable, TypeVar, cast
 
 T = TypeVar("T")
 
@@ -41,3 +42,19 @@ class DataPointer:
 
     def verify_end(self) -> bool:
         return self.pointer == len(self.data)
+
+
+def is_ellipsis_body(func: Callable[..., Any]) -> bool:
+    """Checks if a function's body is solely the ellipsis (...)"""
+    instructions = list(dis.get_instructions(func))
+
+    if len(instructions) != 4:
+        return False
+    return (
+        instructions[0].opname == "LOAD_CONST"
+        and instructions[0].argval is Ellipsis
+        and instructions[1].opname == "POP_TOP"
+        and instructions[2].opname == "LOAD_CONST"
+        and instructions[2].argval is None
+        and instructions[3].opname == "RETURN_VALUE"
+    )

@@ -13,6 +13,7 @@ class Rodent(Entity):
     _has_rodent_data = False
     speed: int
     move_stamina: int
+    max_move_stamina: int
     move_cost: int
     attack: int
     class_tag: RodentClassTag
@@ -27,6 +28,13 @@ class Rodent(Entity):
 
     @abstractmethod
     def skill_descriptions(self) -> list[str]: ...
+
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return []
+
+    def reset_stamina(self) -> None:
+        self.move_stamina = self.max_move_stamina
+        super().reset_stamina()
 
 
 T = TypeVar("T", bound=type[Rodent])
@@ -69,6 +77,7 @@ def rodent_data(
         cls.description = description
         cls.speed = speed
         cls.move_stamina = move_stamina
+        cls.max_move_stamina = move_stamina
         cls.skill_stamina = skill_stamina
         cls.move_cost = move_cost
         cls.attack = attack

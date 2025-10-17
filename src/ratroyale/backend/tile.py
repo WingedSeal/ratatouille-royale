@@ -23,6 +23,15 @@ class Tile:
             default=0,
         )
 
+    def is_collision(self, is_source_entity_collision: bool) -> bool:
+        if is_source_entity_collision and any(
+            entity.collision for entity in self.entities
+        ):
+            return True
+        if any(feature.is_collision() for feature in self.features):
+            return True
+        return False
+
     def __repr__(self) -> str:
         return f"""Tile(
     tile_id={self.tile_id}
