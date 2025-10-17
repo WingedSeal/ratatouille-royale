@@ -24,6 +24,18 @@ def _make_ai_player_info(
     )
 
 
+def get_default_player_info() -> PlayerInfo:
+    return PlayerInfo(
+        {TAIL_BLAZER: 4, PEA_PEA_POOL_POOL: 1},
+        [{TAIL_BLAZER: 4, PEA_PEA_POOL_POOL: 1}],
+        [{TAIL_BLAZER: 4, PEA_PEA_POOL_POOL: 1}],
+        selected_squeak_set_index=0,
+        exp=0,
+        cheese=0,
+        is_progression_frozen=False,
+    )
+
+
 AI_PLAYER_INFO = {
     "Balanced": _make_ai_player_info(
         {
