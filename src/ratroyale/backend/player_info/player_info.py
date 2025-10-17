@@ -46,6 +46,7 @@ class PlayerInfo:
         all_squeaks: dict[Squeak, int],
         squeak_sets: list[dict[Squeak, int]],
         hands: list[dict[Squeak, int]],
+        *,
         selected_squeak_set_index: int,
     ) -> None:
         self.all_squeaks = all_squeaks
@@ -77,6 +78,7 @@ class PlayerInfo:
             squeak_name = data_pointer.get_raw_bytes(squeak_name_length).decode()
             squeak_count = data_pointer.get_byte(1 + large_all_squeaks_length)
             all_squeaks[(Squeak.SQEAK_MAP[squeak_name])] = squeak_count
+
         all_squeaks_list = list(all_squeaks.keys())
 
         squeak_sets: list[dict[Squeak, int]] = []
@@ -93,16 +95,23 @@ class PlayerInfo:
         hands: list[dict[Squeak, int]] = []
         for _ in range(squeak_sets_count):
             hand: dict[Squeak, int] = {}
-            squeak_set_length = data_pointer.get_byte()
-            for _ in range(squeak_set_length):
+            total_squeak_count = 0
+            while total_squeak_count < 5:
                 squeak = data_pointer.get_byte(1 + large_all_squeaks_length)
                 squeak_count = data_pointer.get_byte(1 + large_all_squeaks_length)
+                assert squeak_count > 0
                 hand[all_squeaks_list[squeak]] = squeak_count
+                total_squeak_count += squeak_count
             hands.append(hand)
 
         selected_squeak_set_index = data_pointer.get_byte()
 
-        return PlayerInfo(all_squeaks, squeak_sets, hands, selected_squeak_set_index)
+        return PlayerInfo(
+            all_squeaks,
+            squeak_sets,
+            hands,
+            selected_squeak_set_index=selected_squeak_set_index,
+        )
 
     def save(self) -> bytes:
         data = bytearray()
@@ -129,7 +138,7 @@ class PlayerInfo:
                 )
                 data.extend(squeak_count.to_bytes(1 + large_all_squeaks_length))
         for squeak_set in self.squeak_sets:
-            assert len(squeak_set.hands) == HAND_LENGTH
+            assert sum(squeak_set.hands.values()) == HAND_LENGTH
             for squeak, squeak_count in squeak_set.hands.items():
                 data.extend(
                     all_squeaks_list.index(squeak).to_bytes(

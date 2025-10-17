@@ -25,7 +25,7 @@ class SqueakSet:
         self.hands = hands
 
     def _validate_deck(self) -> None:
-        if len(self.hands) != HAND_LENGTH:
+        if sum(self.hands.values()) != HAND_LENGTH:
             raise InvalidDeckError(f"hands's length is not {HAND_LENGTH}")
         for squeak_dict in (self.hands, self.deck):
             for squeak, count in squeak_dict.items():
