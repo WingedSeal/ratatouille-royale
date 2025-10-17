@@ -65,12 +65,12 @@ class Entity:
     movable: bool
     skill_stamina: int | None
     max_skill_stamina: int | None
-    collision: bool
     entity_tags: list[EntityTag]
+    collision: bool
     description: str
     height: int
     side: Side | None
-    skills: list[CallableEntitySkill] = []
+    skills: list[CallableEntitySkill]
     PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
     """Map of preplaced-able entities' IDs to the entity class"""
 
@@ -221,6 +221,7 @@ def entity_data(
         cls.height = height
         cls.name = name
         cls.entity_tags = entity_tags
+        cls.skills = []
         for skill in skills:
             if not hasattr(cls, skill.method_name):
                 raise ValueError(f"{skill} is not an attribute of {cls.__name__}")
