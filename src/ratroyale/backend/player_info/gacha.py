@@ -11,6 +11,7 @@ from .squeaks.rodents.specialist import MAYO
 from .squeak import Squeak
 
 
+CHEESE_PER_ROLL = 10
 GACHA_POOL_WEIGHTS: dict[Squeak, float] = {
     TAIL_BLAZER: 1,
     MAYO: 0.5,

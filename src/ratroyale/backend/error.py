@@ -10,6 +10,10 @@ class NotEnoughCrumbError(RatRoyaleBackendError):
     pass
 
 
+class NotEnoughCheeseError(RatRoyaleBackendError):
+    pass
+
+
 class NotEnoughSkillStaminaError(RatRoyaleBackendError):
     pass
 

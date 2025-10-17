@@ -3,12 +3,13 @@ import hashlib
 from fernet import Fernet
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
-from math import floor, sqrt
+from math import exp, floor, sqrt
 
+from ratroyale.backend.error import NotEnoughCrumbError
 from ratroyale.utils import DataPointer
 
 from .squeak import Squeak
-from .gacha import gacha_squeak
+from .gacha import CHEESE_PER_ROLL, gacha_squeak
 from .squeak_set import SqueakSet, HAND_LENGTH
 from . import squeaks as _squeaks  # noqa
 
@@ -17,6 +18,17 @@ if TYPE_CHECKING:
 
 SAVE_FILE_EXTENSION = "rrsave"
 ENDIAN: Final = "big"
+
+
+def progression_curve(
+    x: float, multiplier: float, estimated_linear_start: int, estimated_linear_end: int
+) -> int:
+    """y=floor(A(x/(x+B))(1-e^{-(x/C)^2}))"""
+    return floor(
+        multiplier
+        * (x / (x + estimated_linear_start))
+        * (1 - exp(-((x / estimated_linear_end) ** 2)))
+    )
 
 
 class PlayerInfo:
@@ -110,16 +122,19 @@ class PlayerInfo:
     def game_won(self, game_manager: "GameManager") -> None:
         if self.is_progression_frozen:
             return None
-        self.cheese += 10
-        self.exp += 10
+        self.cheese += progression_curve(game_manager.turn_count, 20, 20, 80)
+        self.exp += progression_curve(game_manager.turn_count, 200, 20, 80)
 
     def game_lost(self, game_manager: "GameManager") -> None:
         if self.is_progression_frozen:
             return None
-        self.cheese += 5
-        self.exp += 2
+        self.cheese += progression_curve(game_manager.turn_count, 5, 20, 80)
+        self.exp += progression_curve(game_manager.turn_count, 200, 20, 80)
 
     def gacha_squeak(self, count: int = 1) -> list[Squeak]:
+        if self.cheese < count * CHEESE_PER_ROLL:
+            raise NotEnoughCrumbError("Not enough chess to roll")
+        self.cheese -= count * CHEESE_PER_ROLL
         squeaks = gacha_squeak(count)
         self._apply_gacha_squeak(squeaks)
         return squeaks
@@ -131,20 +146,25 @@ class PlayerInfo:
     def get_level(self) -> int:
         """
         Level 1->2 EXP required: 100
-        Level 2->3 EXP required: 200
-        Level 3->4 EXP required: 300
+        Level 2->3 EXP required: 110
+        Level 3->4 EXP required: 120
         ...
-        Level N->N+1 EXP required: 100*N
+        Level N->N+1 EXP required: 100 + 10*(N-1)
 
-        Level 1->N EXP required: 50*N*(N-1)
-        k EXP = Level (1+sqrt(1+0.08k))//2
+        Level 1->N EXP required: 5*N^2 + 85*N - 90
+        k EXP = Level floor((-85 + sqrt(9025 + 20*k))/10)
         """
-        return floor((1 + sqrt(1 + 0.08 * self.exp)) / 2)
+        if self.exp == 0:
+            return 1
+
+        return floor((-85 + sqrt(9025 + 20 * self.exp)) / 10)
 
     def get_exp_progress(self) -> tuple[int, int]:
         level = self.get_level()
-        exp_leftover = self.exp - 50 * level * (level - 1)
-        exp_required_in_this_level = 100 * level
+        exp_to_current_level = (5 * level * level) + (85 * level) - 90
+        exp_leftover = self.exp - exp_to_current_level
+        exp_required_in_this_level = 100 + 10 * (level - 1)
+
         return exp_leftover, exp_required_in_this_level
 
     @classmethod
