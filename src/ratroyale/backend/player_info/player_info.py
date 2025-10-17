@@ -5,8 +5,9 @@ from math import floor, sqrt
 from ratroyale.utils import DataPointer
 
 from .squeak import Squeak
+from .gacha import gacha_squeak
 from .squeak_set import SqueakSet, HAND_LENGTH
-from . import squeaks  # noqa
+from . import squeaks as _squeaks  # noqa
 
 if TYPE_CHECKING:
     from ..game_manager import GameManager
@@ -92,6 +93,15 @@ class PlayerInfo:
             return None
         self.cheese += 5
         self.exp += 2
+
+    def gacha_squeak(self, count: int = 1) -> list[Squeak]:
+        squeaks = gacha_squeak(count)
+        self._apply_gacha_squeak(squeaks)
+        return squeaks
+
+    def _apply_gacha_squeak(self, squeaks: list[Squeak]) -> None:
+        for squeak in squeaks:
+            self.all_squeaks[squeak] = self.all_squeaks.get(squeak, 0) + 1
 
     def get_level(self) -> int:
         """
