@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Final
+from math import floor, sqrt
 
 from ratroyale.utils import DataPointer
 
@@ -72,6 +73,25 @@ class PlayerInfo:
 
     def get_squeak_set(self) -> SqueakSet:
         return self.squeak_sets[self.selected_squeak_set_index]
+
+    def get_level(self) -> int:
+        """
+        Level 1->2 EXP required: 100
+        Level 2->3 EXP required: 200
+        Level 3->4 EXP required: 300
+        ...
+        Level N->N+1 EXP required: 100*N
+
+        Level 1->N EXP required: 50*N*(N-1)
+        k EXP = Level (1+sqrt(1+0.08k))//2
+        """
+        return floor((1 + sqrt(1 + 0.08 * self.exp)) / 2)
+
+    def get_exp_progress(self) -> tuple[int, int]:
+        level = self.get_level()
+        exp_leftover = self.exp - 50 * level * (level - 1)
+        exp_required_in_this_level = 100 * level
+        return exp_leftover, exp_required_in_this_level
 
     @classmethod
     def load(cls, data: bytes) -> "PlayerInfo":
