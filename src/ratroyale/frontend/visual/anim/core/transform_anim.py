@@ -144,8 +144,6 @@ class ScaleAnim(TransformAnim):
         self.spatial_component.set_position((new_x, new_y))
         self.spatial_component.set_size((new_width, new_height))
 
-        print((new_x, new_y))
-
         if self.align_hitbox_during_anim:
             self.align_hitbox()
 

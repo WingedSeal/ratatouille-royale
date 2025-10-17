@@ -115,20 +115,6 @@ class ElementWrapper:
         if isinstance(self.interactable_component, UIElement):
             self.interactable_component.kill()  # type: ignore
 
-    def set_position(self, topleft: tuple[float, float]) -> None:
-        """Move this interactable and reposition all children accordingly."""
-        self.spatial_component.set_position(topleft)
-
-        for child in self.children:
-            self._align_child(child)
-
-    def _align_child(self, child: "ElementWrapper") -> None:
-        parent_x = self.spatial_component.local_rect.x
-        parent_y = self.spatial_component.local_rect.y
-        child_x = parent_x + child.spatial_component.local_rect.x
-        child_y = parent_y + child.spatial_component.local_rect.y
-        child.spatial_component.set_position((child_x, child_y))
-
     def add_child(self, child: "ElementWrapper") -> None:
         if child in self.children:
             raise ValueError(
@@ -137,7 +123,6 @@ class ElementWrapper:
 
         self.children.append(child)
         child.parent = self
-        self._align_child(child)
 
     def remove_child(self, child: "ElementWrapper") -> None:
         if child not in self.children:
@@ -147,6 +132,7 @@ class ElementWrapper:
         self.children.remove(child)
         child.parent = None
 
+    # TODO: somethings wrong here
     def _get_absolute_rect(self) -> pygame.Rect | pygame.FRect:
         my_rect = self.spatial_component.get_screen_rect(self.camera).copy()
 

@@ -55,25 +55,31 @@ from ratroyale.frontend.visual.anim.presets.presets import (
     return_squeak_to_normal,
     default_idle_for_entity,
 )
+from enum import Enum
 
 # Load a font, size 48, italic
 italic_bold_arial = pygame.font.SysFont("Arial", 48, bold=True, italic=True)
 
 
-# TODO: lots of refactorable spaghetti code
+class SavedKey(Enum):
+    SELECTED_TILE = "TILE"
+    SELECTED_ENTITY = "ENTITY"
+    SELECTED_SQUEAK = "SQUEAK"
+
+
 @register_page
 class GameBoard(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
         super().__init__(coordination_manager, camera)
-        self.selected_element_id: tuple[str, str] | None = None
-        self.hovered_tile_id: tuple[str, str] | None = None
-        self.dragging_element_id: tuple[str, str] | None = None
+        self.saved_element_ids: dict[SavedKey, str | None] = {
+            SavedKey.SELECTED_TILE: None,
+            SavedKey.SELECTED_ENTITY: None,
+            SavedKey.SELECTED_SQUEAK: None,
+        }
 
         self.ability_panel_id: str | None = None
-
-        self.selected_squeak: str | None = None
 
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="start_game"))
@@ -187,12 +193,13 @@ class GameBoard(Page):
                 )
                 # Compute cost rect anchored to bottom-right of card
                 cost_width, cost_height = squeak_cost_text.get_size()
+                print(cost_width, cost_height)
                 PADDING = 5
 
                 # --- Local position relative to the card (bottom-right corner) ---
                 cost_rect = pygame.Rect(
-                    squeak_rect.right - cost_width - PADDING,
-                    squeak_rect.bottom - squeak_rect.height,
+                    SQUEAK_WIDTH - cost_width - PADDING,
+                    SQUEAK_HEIGHT - cost_height - PADDING,
                     cost_width,
                     cost_height,
                 )
@@ -225,9 +232,9 @@ class GameBoard(Page):
 
     @input_event_bind("tile", GestureType.CLICK.to_pygame_event())
     def _on_tile_click(self, msg: pygame.event.Event) -> None:
-        tile_element_id = self._get_element_id(msg)
+        id = get_id(msg)
+        self._select_deselect_logic(SavedKey.SELECTED_TILE, id, True)
 
-        self._select_element("TILE", tile_element_id, toggle=True)
         self._close_ability_menu()
 
     # endregion
@@ -236,23 +243,24 @@ class GameBoard(Page):
 
     @input_event_bind("entity", GestureType.CLICK.to_pygame_event())
     def _on_entity_click(self, msg: pygame.event.Event) -> None:
-        entity_element_id = self._get_element_id(msg)
-
-        self._select_element("ENTITY", entity_element_id)
+        id = get_id(msg)
+        self._select_deselect_logic(SavedKey.SELECTED_ENTITY, id, True)
         self._close_ability_menu()
 
     @input_event_bind("entity", GestureType.HOLD.to_pygame_event())
     def _display_ability_menu(self, msg: pygame.event.Event) -> None:
         """Display the ability menu for the selected entity."""
         entity_payload = get_payload(msg)
-        entity_element_id = get_id(msg)
-        if not entity_payload or not entity_element_id:
+        id = get_id(msg)
+        if not entity_payload or not id:
             raise ValueError(
                 "Wrong event type received. Make sure it is a gesture type event!"
             )
 
+        self._select_deselect_logic(SavedKey.SELECTED_TILE, id, False)
+
         entity_element = self._element_manager.get_element_wrapper(
-            entity_element_id, "ENTITY"
+            id, SavedKey.SELECTED_ENTITY.value
         )
         if not entity_element:
             raise ValueError("Something went wrong while trying to get the element.")
@@ -295,7 +303,7 @@ class GameBoard(Page):
 
         # --- Create ability buttons inside the panel ---
         for i, skill in enumerate(entity.skills):
-            element_id = f"ability_{i}_from_{entity_element_id}"
+            element_id = f"ability_{i}"
 
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(0, i * 30, 150, 30),
@@ -318,45 +326,29 @@ class GameBoard(Page):
                 "Wrong event type received. Make sure it is a gesture type event!"
             )
 
-    # Called when drag starts; aligns the entity's center to the mouse
-    @input_event_bind("entity", GestureType.DRAG_START.to_pygame_event())
-    def _on_entity_drag_start(self, msg: pygame.event.Event) -> None:
-        entity_element_id = self._get_element_id(msg)
-        entity_element = self._element_manager.get_element_wrapper(
-            entity_element_id, "ENTITY"
-        )
-        gesture_data = get_gesture_data(msg)
-
-        if entity_element and gesture_data.mouse_pos and entity_element_id:
-            entity_element.spatial_component.center_to_screen_pos(
-                gesture_data.mouse_pos, self.camera
-            )
-            self.dragging_element_id = (entity_element_id, "ENTITY")
-
     # endregion
 
     # region Squeak Related Events
 
     @input_event_bind("squeak", GestureType.CLICK.to_pygame_event())
     def squeak_clicked(self, msg: pygame.event.Event) -> None:
-        squeak_id = get_id(msg)
-        if squeak_id:
-            self.selected_squeak = squeak_id
+        id = get_id(msg)
+        self._select_deselect_logic(SavedKey.SELECTED_SQUEAK, id, True)
 
     @input_event_bind("squeak", GestureType.DRAG_START.to_pygame_event())
     def squeak_drag_start(self, msg: pygame.event.Event) -> None:
-        squeak_id = get_id(msg)
+        squeak_element_id = get_id(msg)
         gesture_data = get_gesture_data(msg)
-        if squeak_id:
+        if squeak_element_id:
             squeak_element = self._element_manager.get_element_wrapper(
-                squeak_id, "SQUEAK"
+                squeak_element_id, "SQUEAK"
             )
 
-        if squeak_element and gesture_data.mouse_pos and squeak_id:
+        if squeak_element and gesture_data.mouse_pos and squeak_element_id:
             squeak_element.spatial_component.center_to_screen_pos(
                 gesture_data.mouse_pos, self.camera
             )
-            self.dragging_element_id = (squeak_id, "SQUEAK")
+            self.saved_element_ids[SavedKey.SELECTED_SQUEAK] = squeak_element_id
             vis = squeak_element.visual_component
             spatial = squeak_element.spatial_component
             if vis and vis.spritesheet_component:
@@ -369,12 +361,14 @@ class GameBoard(Page):
     # Called while dragging; moves element regardless of hitbox
     @input_event_bind(None, GestureType.DRAG.to_pygame_event())
     def _on_drag(self, msg: pygame.event.Event) -> None:
-        if self.dragging_element_id is None:
+        element_id = self.saved_element_ids[SavedKey.SELECTED_SQUEAK]
+        if element_id is None:
             self.camera.drag_to(pygame.mouse.get_pos())
             return
 
-        category, element_id = self.dragging_element_id
-        entity = self._element_manager.get_element_wrapper(category, element_id)
+        entity = self._element_manager.get_element_wrapper(
+            element_id, SavedKey.SELECTED_SQUEAK.value
+        )
         gesture_data = get_gesture_data(msg)
 
         if entity and gesture_data.mouse_pos:
@@ -382,31 +376,20 @@ class GameBoard(Page):
                 gesture_data.mouse_pos, self.camera
             )
 
-        if element_id and element_id.split("_")[0] == "tile":
-            self._update_tile_hover(element_id)
-        else:
-            # If no tile under mouse, remove previous highlight
-            if self.hovered_tile_id:
-                prev_id, prev_type = self.hovered_tile_id
-                prev_tile = self.get_element(prev_id, prev_type)
-                if prev_tile and prev_tile.visual_component:
-                    vis = prev_tile.visual_component
-                    if vis and vis.spritesheet_component:
-                        vis.queue_override_animation(
-                            on_select_color_fade_out(
-                                vis.spritesheet_component,
-                                color=pygame.Color(255, 255, 255),
-                            )
-                        )
-                self.hovered_tile_id = None
+        tile_element_id = get_id(msg)
+        self._select_deselect_logic(SavedKey.SELECTED_TILE, tile_element_id, False)
 
     @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
-        self.dragging_element_id = None
+        print(
+            f"Playing {self.saved_element_ids[SavedKey.SELECTED_SQUEAK]} on {self.saved_element_ids[SavedKey.SELECTED_TILE]}"
+        )  # TODO: Hook gameplay here
+        self._deselection(SavedKey.SELECTED_SQUEAK)
+        self._deselection(SavedKey.SELECTED_TILE)
         self.camera.end_drag()
 
     @input_event_bind("squeak", GestureType.DRAG_END.to_pygame_event())
-    def squeak_drag_end(self, msg: pygame.event.Event) -> None:
+    def return_squeak_to_size_end_drag(self, msg: pygame.event.Event) -> None:
         squeak_id = get_id(msg)
         if squeak_id:
             squeak_elem = self.get_element(squeak_id, "SQUEAK")
@@ -435,6 +418,79 @@ class GameBoard(Page):
 
     # region Utilities
 
+    def _select_deselect_logic(
+        self,
+        saved_key: SavedKey,
+        element_id: str | None,
+        deselect_on_repeat_selection: bool,
+        trigger_anim: bool = True,
+    ) -> None:
+        if element_id:
+            if element_id.split("_")[0] == saved_key.value.lower():
+                saved_element_id = self.saved_element_ids[saved_key]
+                if not saved_element_id:
+                    self._selection(saved_key, element_id, trigger_anim)
+                else:
+                    if saved_element_id == element_id:
+                        if deselect_on_repeat_selection:
+                            self._deselection(saved_key, trigger_anim)
+                    else:
+                        self._deselection(saved_key)
+                        self._selection(saved_key, element_id, trigger_anim)
+        else:
+            saved_element_id = self.saved_element_ids[saved_key]
+            if saved_element_id:
+                self._deselection(saved_key, trigger_anim)
+
+    def _selection(
+        self, saved_key: SavedKey, element_id: str, trigger_anim: bool = True
+    ) -> None:
+        self.saved_element_ids[saved_key] = element_id
+        if not element_id:
+            return
+
+        element = self._element_manager.get_element_wrapper(element_id, saved_key.value)
+
+        if not trigger_anim:
+            return
+
+        if element and element.visual_component:
+            vis = element.visual_component
+            if vis and vis.spritesheet_component:
+                vis.queue_override_animation(
+                    on_select_color_fade_in(
+                        vis.spritesheet_component,
+                        color=pygame.Color(255, 255, 255),
+                    )
+                )
+
+    def _deselection(
+        self, saved_element_key: SavedKey, trigger_anim: bool = True
+    ) -> None:
+        element_id, element_type = (
+            self.saved_element_ids[saved_element_key],
+            saved_element_key.value,
+        )
+        if not element_id:
+            return
+
+        element = self._element_manager.get_element_wrapper(element_id, element_type)
+
+        if not trigger_anim:
+            return
+
+        if element and element.visual_component:
+            vis = element.visual_component
+            if vis and vis.spritesheet_component:
+                vis.queue_override_animation(
+                    on_select_color_fade_out(
+                        vis.spritesheet_component,
+                        color=pygame.Color(255, 255, 255),
+                    )
+                )
+
+        self.saved_element_ids[saved_element_key] = None
+
     def _close_ability_menu(self) -> None:
         """Close the ability menu if open."""
         if self.ability_panel_id:
@@ -448,84 +504,6 @@ class GameBoard(Page):
                 "Wrong event type received. Make sure it is a gesture type event!"
             )
         return element_id
-
-    def _select_element(
-        self, element_type: str, element_id: str, toggle: bool = True
-    ) -> ElementWrapper | None:
-        """
-        Handles single-selection logic for both tiles and entities.
-        Only one element can be selected at a time.
-
-        Returns the currently selected element, or None if deselected.
-        """
-        # Un-highlight previous selection
-        prev_element: ElementWrapper | None = None
-        if self.selected_element_id:
-            prev_type, prev_id = self.selected_element_id
-            prev_element = self.get_element(prev_type, prev_id)
-            if prev_element and prev_element.visual_component:
-                vis = prev_element.visual_component
-                if vis and vis.spritesheet_component:
-                    vis.queue_override_animation(
-                        on_select_color_fade_out(
-                            vis.spritesheet_component, color=pygame.Color(255, 255, 255)
-                        )
-                    )
-
-        # Deselect if same element clicked
-        if self.selected_element_id == (element_id, element_type) and toggle:
-            self.selected_element_id = None
-            return None
-
-        # Highlight new element
-        element = self.get_element(element_id, element_type)
-        if element and element.visual_component:
-            vis = element.visual_component
-            if vis and vis.spritesheet_component:
-                vis.queue_override_animation(
-                    on_select_color_fade_in(
-                        vis.spritesheet_component, color=pygame.Color(255, 255, 255)
-                    )
-                )
-
-        # Update selection
-        self.selected_element_id = (element_id, element_type)
-
-        return element
-
-    def _update_tile_hover(self, tile_id: str) -> None:
-        """
-        Called whenever a card is being dragged. Highlights the tile under the card.
-        """
-        # If the hovered tile hasn't changed, do nothing
-        if self.hovered_tile_id and self.hovered_tile_id[0] == tile_id:
-            return
-
-        # Un-highlight previous tile
-        if self.hovered_tile_id:
-            prev_id, prev_type = self.hovered_tile_id
-            prev_tile = self.get_element(prev_id, prev_type)
-            if prev_tile and prev_tile.visual_component:
-                vis = prev_tile.visual_component
-                if vis and vis.spritesheet_component:
-                    vis.queue_override_animation(
-                        on_select_color_fade_out(
-                            vis.spritesheet_component, color=pygame.Color(255, 255, 255)
-                        )
-                    )
-
-        # Highlight new tile
-        tile = self.get_element(tile_id, "TILE")
-        if tile and tile.visual_component:
-            vis = tile.visual_component
-            if vis and vis.spritesheet_component:
-                vis.queue_override_animation(
-                    on_select_color_fade_in(
-                        vis.spritesheet_component, color=pygame.Color(255, 255, 255)
-                    )
-                )
-
-        self.hovered_tile_id = (tile_id, "TILE")
 
     def _get_ability_id(self, msg: pygame.event.Event) -> int:
         ability_button_elem_id = self.get_leaf_object_id(self._get_element_id(msg))
