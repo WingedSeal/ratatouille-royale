@@ -56,16 +56,17 @@ class Entity:
 
     pos: OddRCoord
     effects: dict[str, EntityEffect]
-    name: str = ""
-    max_health: int | None = None
-    health: int | None = None
-    defense: int = 0
-    movable: bool = False
-    skill_stamina: int | None = None
-    collision: bool = False
-    entity_tags: list[EntityTag] = []
-    description: str = ""
-    height: int = 0
+    name: str
+    max_health: int | None
+    health: int | None
+    defense: int
+    movable: bool
+    skill_stamina: int | None
+    max_skill_stamina: int | None
+    entity_tags: list[EntityTag]
+    collision: bool
+    description: str
+    height: int
     skills: list[CallableEntitySkill] = []
     side: Side | None
     PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
@@ -96,6 +97,9 @@ class Entity:
 
     def on_hp_loss(self, hp_loss: int) -> None:
         pass
+
+    def reset_stamina(self) -> None:
+        self.skill_stamina = self.max_skill_stamina
 
     def on_death(self) -> bool:
         """
@@ -154,6 +158,7 @@ def entity_data(
         cls.max_health = health
         cls.defense = defense
         cls.skill_stamina = skill_stamina
+        cls.max_skill_stamina = skill_stamina
         cls.movable = movable
         cls.collision = collision
         cls.description = description
