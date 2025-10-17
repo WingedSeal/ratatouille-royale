@@ -99,6 +99,7 @@ class GameManager:
         self.hands: dict[Side, list[Squeak]] = {}
         for side in Side:
             decks, hands = self.players_info[side].get_squeak_set().get_deck_and_hand()
+            shuffle(decks)
             assert len(hands) == HAND_LENGTH
             self.decks[side] = decks
             self.hands[side] = hands
