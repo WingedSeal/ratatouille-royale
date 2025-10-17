@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 from math import floor, sqrt
 
 from ratroyale.utils import DataPointer
@@ -7,6 +7,9 @@ from ratroyale.utils import DataPointer
 from .squeak import Squeak
 from .squeak_set import SqueakSet, HAND_LENGTH
 from . import squeaks  # noqa
+
+if TYPE_CHECKING:
+    from ..game_manager import GameManager
 
 SAVE_FILE_EXTENSION = "rrsave"
 ENDIAN: Final = "big"
@@ -18,6 +21,8 @@ class PlayerInfo:
     selected_squeak_set_index: int
     exp: int
     cheese: int
+    is_progression_frozen: bool
+    """Whether to not update exp and cheese upon game won. Used for AI."""
 
     _FORMAT_SPEC = """
     2 bytes for all_squeaks_length
@@ -55,6 +60,7 @@ class PlayerInfo:
         selected_squeak_set_index: int,
         exp: int,
         cheese: int,
+        is_progression_frozen: bool,
     ) -> None:
         self.all_squeaks = all_squeaks
         for i, (squeak_set, hand) in enumerate(zip(squeak_sets, hands)):
@@ -70,9 +76,22 @@ class PlayerInfo:
         self.selected_squeak_set_index = selected_squeak_set_index
         self.exp = exp
         self.cheese = cheese
+        self.is_progression_frozen = is_progression_frozen
 
     def get_squeak_set(self) -> SqueakSet:
         return self.squeak_sets[self.selected_squeak_set_index]
+
+    def game_won(self, game_manager: "GameManager") -> None:
+        if self.is_progression_frozen:
+            return None
+        self.cheese += 10
+        self.exp += 10
+
+    def game_lost(self, game_manager: "GameManager") -> None:
+        if self.is_progression_frozen:
+            return None
+        self.cheese += 5
+        self.exp += 2
 
     def get_level(self) -> int:
         """
@@ -94,7 +113,7 @@ class PlayerInfo:
         return exp_leftover, exp_required_in_this_level
 
     @classmethod
-    def load(cls, data: bytes) -> "PlayerInfo":
+    def load(cls, data: bytes, *, is_progression_frozen: bool = False) -> "PlayerInfo":
         data_pointer = DataPointer(data, ENDIAN)
         all_squeaks_length = data_pointer.get_byte(2)
 
@@ -144,6 +163,7 @@ class PlayerInfo:
             selected_squeak_set_index=selected_squeak_set_index,
             exp=exp,
             cheese=cheese,
+            is_progression_frozen=is_progression_frozen,
         )
 
     def save(self) -> bytes:
@@ -187,11 +207,13 @@ class PlayerInfo:
         return bytes(data)
 
     @classmethod
-    def from_file(cls, file_path: Path) -> "PlayerInfo | None":
+    def from_file(
+        cls, file_path: Path, *, is_progression_frozen: bool = False
+    ) -> "PlayerInfo | None":
         with file_path.open("rb") as file:
             data = file.read()
         try:
-            return cls.load(data)
+            return cls.load(data, is_progression_frozen=is_progression_frozen)
         except Exception:
             return None
 

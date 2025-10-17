@@ -512,4 +512,6 @@ class GameManager:
                 )
                 self.event_queue.put_nowait(game_over_event)
                 self.game_over_event = game_over_event
+                self.players_info[feature.side.other_side()].game_won(self)
+                self.players_info[feature.side].game_lost(self)
         self.event_queue.put_nowait(FeatureDieEvent(feature))

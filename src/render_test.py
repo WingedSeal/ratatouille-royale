@@ -59,6 +59,7 @@ def main():
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,
+        is_progression_frozen=True,
     )
 
     player_info_2 = PlayerInfo(
@@ -68,6 +69,7 @@ def main():
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,
+        is_progression_frozen=True,
     )
 
     map = Map(

@@ -40,6 +40,7 @@ def test_all_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
                 selected_squeak_set_index=0,
                 exp=0,
                 cheese=0,
+                is_progression_frozen=True,
             ),
             PlayerInfo(
                 {TAIL_BLAZER: 5},
@@ -48,6 +49,7 @@ def test_all_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
                 selected_squeak_set_index=0,
                 exp=0,
                 cheese=0,
+                is_progression_frozen=True,
             ),
         ),
         first_turn=Side.RAT,
