@@ -4,7 +4,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
 from .instant_kill import InstantKill
-from .damage_heal_source import DamageHealSource
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
 from .side import Side
@@ -98,22 +98,22 @@ class Entity:
         self,
         game_manager: "GameManager",
         damage: int | InstantKill,
-        source: DamageHealSource,
+        source: SourceOfDamageOrHeal,
     ) -> int | None:
         pass
 
     def on_hp_loss(
-        self, game_manager: "GameManager", hp_loss: int, source: DamageHealSource
+        self, game_manager: "GameManager", hp_loss: int, source: SourceOfDamageOrHeal
     ) -> None:
         pass
 
     def on_hp_gain(
-        self, game_manager: "GameManager", hp_gain: int, source: DamageHealSource
+        self, game_manager: "GameManager", hp_gain: int, source: SourceOfDamageOrHeal
     ) -> None:
         pass
 
     def on_heal(
-        self, game_manager: "GameManager", heal: int, source: DamageHealSource
+        self, game_manager: "GameManager", heal: int, source: SourceOfDamageOrHeal
     ) -> int | None:
         pass
 
@@ -127,7 +127,7 @@ class Entity:
     def reset_stamina(self) -> None:
         self.skill_stamina = self.max_skill_stamina
 
-    def on_death(self, source: DamageHealSource) -> bool:
+    def on_death(self, source: SourceOfDamageOrHeal) -> bool:
         """
         Method called when entity dies
         :returns: Whether the entity actually dies
@@ -138,7 +138,7 @@ class Entity:
         self,
         game_manager: "GameManager",
         heal: int,
-        source: DamageHealSource,
+        source: SourceOfDamageOrHeal,
         overheal_cap: int = 0,
     ) -> int:
         """
@@ -159,7 +159,7 @@ class Entity:
         self,
         game_manager: "GameManager",
         damage: int | InstantKill,
-        source: DamageHealSource,
+        source: SourceOfDamageOrHeal,
     ) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health

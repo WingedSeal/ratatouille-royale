@@ -2,7 +2,7 @@ import random
 from typing import TYPE_CHECKING
 
 from ...instant_kill import InstantKill
-from ...damage_heal_source import DamageHealSource
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...entity import Entity, EntitySkill, SkillTargeting, entity_skill_check
 from ...tags import RodentClassTag
 from ..rodent import Rodent, rodent_data
@@ -61,7 +61,7 @@ class Mayo(Rodent):
         self,
         game_manager: "GameManager",
         damage: int | InstantKill,
-        source: DamageHealSource,
+        source: SourceOfDamageOrHeal,
     ) -> int | None:
         if not isinstance(source, Entity):
             return None

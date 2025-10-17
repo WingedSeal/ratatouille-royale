@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pprint import pformat
 from typing import ClassVar
 
-from .damage_heal_source import DamageHealSource
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .hexagon import OddRCoord
 from .side import Side
 
@@ -40,20 +40,22 @@ class Feature(ABC):
             )
         Feature.ALL_FEATURES[cls.FEATURE_ID()] = cls
 
-    def on_damage_taken(self, damage: int, source: DamageHealSource) -> int | None:
+    def on_damage_taken(self, damage: int, source: SourceOfDamageOrHeal) -> int | None:
         pass
 
-    def on_hp_loss(self, hp_loss: int, source: DamageHealSource) -> None:
+    def on_hp_loss(self, hp_loss: int, source: SourceOfDamageOrHeal) -> None:
         pass
 
-    def on_death(self, source: DamageHealSource) -> bool:
+    def on_death(self, source: SourceOfDamageOrHeal) -> bool:
         """
         Method called when entity dies
         :returns: Whether the entity actually dies
         """
         return True
 
-    def _take_damage(self, damage: int, source: DamageHealSource) -> tuple[bool, int]:
+    def _take_damage(
+        self, damage: int, source: SourceOfDamageOrHeal
+    ) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health
         :param damage: How much damage taken

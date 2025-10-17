@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Iterable
 
-from ...damage_heal_source import DamageHealSource
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...entities.rodent import Rodent
 from ...entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from ...entity_effect import EntityEffect
@@ -101,7 +101,7 @@ def move(self: Entity, *, custom_jump_height: int | None = None) -> SkillCallbac
 
 
 def normal_damage(
-    damage: int, source: DamageHealSource, *, is_feature_targetable: bool = True
+    damage: int, source: SourceOfDamageOrHeal, *, is_feature_targetable: bool = True
 ) -> SkillCallback:
     """
     Apply normal damage
@@ -203,7 +203,7 @@ def apply_effect(
 def aoe_damage(
     damage: int,
     radius: int,
-    source: DamageHealSource,
+    source: SourceOfDamageOrHeal,
     *,
     is_stackable: bool = False,
     is_feature_targetable: bool = True,
