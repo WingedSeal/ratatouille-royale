@@ -54,9 +54,7 @@ class PlaceSqueak(AIAction):
     squeak: Squeak
 
     def __str__(self) -> str:
-        return (
-            f"Place Sqeak {self.hand_index} ({self.squeak.name}) at {self.target_coord}"
-        )
+        return f"Place Squeak {self.hand_index} ({self.squeak.name}) at {self.target_coord}"
 
 
 @dataclass(frozen=True)
