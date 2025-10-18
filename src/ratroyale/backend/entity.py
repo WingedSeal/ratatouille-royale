@@ -3,12 +3,12 @@ from dataclasses import asdict, dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
-from .instant_kill import InstantKill
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
+from .instant_kill import InstantKill
 from .side import Side
 from .skill_callback import SkillCallback
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .tags import EntityTag, SkillTag
 
 if TYPE_CHECKING:

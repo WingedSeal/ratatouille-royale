@@ -2,51 +2,42 @@ import pygame
 import pygame_gui
 
 from ratroyale.backend.board import Board
+from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.tile import Tile
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.input_token import get_gesture_data, get_id, get_payload
 from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.payloads import EntityPayload, TilePayload
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureType
-
-from ..page_managers.base_page import Page
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
+from ratroyale.frontend.pages.page_elements.hitbox import HexHitbox, RectangleHitbox
+from ratroyale.frontend.pages.page_elements.spatial_component import (
+    Camera,
+    SpatialComponent,
+)
 from ratroyale.frontend.pages.page_managers.event_binder import (
-    input_event_bind,
     callback_event_bind,
+    input_event_bind,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-
-from ratroyale.frontend.pages.page_elements.hitbox import RectangleHitbox, HexHitbox
-
-
-from ratroyale.frontend.pages.page_elements.element import ElementWrapper
-
-
+from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
+    SPRITE_METADATA_REGISTRY,
+)
 from ratroyale.frontend.visual.asset_management.sprite_key_registry import (
     TYPICAL_TILE_SIZE,
-)
-
-from ratroyale.frontend.pages.page_elements.spatial_component import (
-    SpatialComponent,
-    Camera,
 )
 from ratroyale.frontend.visual.asset_management.spritesheet_manager import (
     SpritesheetManager,
 )
-from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
-    SPRITE_METADATA_REGISTRY,
-)
-from ratroyale.backend.entities.rodents.vanguard import TailBlazer
-
-
-from ratroyale.event_tokens.payloads import TilePayload, EntityPayload
-
-from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
     SpritesheetComponent,
 )
+from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
+
+from ..page_managers.base_page import Page
 
 
 @register_page

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from ratroyale.backend.tile import Tile
+
 from ratroyale.backend.entity import Entity
+from ratroyale.backend.tile import Tile
 
 
 @dataclass

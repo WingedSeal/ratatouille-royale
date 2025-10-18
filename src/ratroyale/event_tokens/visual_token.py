@@ -1,7 +1,7 @@
 from dataclasses import dataclass
+from enum import Enum, auto
 
 from .base import EventToken
-from enum import Enum, auto
 
 
 # TODO: figure the visual domain out more concretely.

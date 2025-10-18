@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from ...entity import EntitySkill, SkillTargeting, entity_skill_check
 from ...tags import RodentClassTag
 from ..rodent import Rodent, rodent_data
-from .common_skills import normal_damage, select_targetable
+from .common_skills import normal_damage, select_targets
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 class TailBlazer(Rodent):
     @entity_skill_check
     def stab(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
+        return select_targets(
             game_manager.board,
             self,
             self.skills[0],
@@ -48,7 +48,7 @@ class TailBlazer(Rodent):
 
     @entity_skill_check
     def spear_launching(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
+        return select_targets(
             game_manager.board, self, self.skills[1], normal_damage(self.attack, self)
         )
 

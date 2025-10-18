@@ -16,3 +16,4 @@ class RodentClassTag(Enum):
     DUELIST = "Duelist"
     TANK = "Tank"
     SPECIALIST = "Specialist"
+    SUPPORT = "Support"

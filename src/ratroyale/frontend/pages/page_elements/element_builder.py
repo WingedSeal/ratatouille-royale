@@ -3,8 +3,8 @@ from typing import Callable, ParamSpec, TypeVar
 
 import pygame_gui
 
-from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 from ratroyale.event_tokens.payloads import Payload
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 
 T = TypeVar("T")
 P = ParamSpec("P")

@@ -1,11 +1,12 @@
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Iterable
 
-from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...entities.rodent import Rodent
 from ...entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from ...entity_effect import EntityEffect
 from ...error import InvalidMoveTargetError, ShortHandSkillCallbackError
 from ...skill_callback import SkillCallback, skill_callback_check
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...timer import Timer, TimerCallback, TimerClearSide
 
 if TYPE_CHECKING:
@@ -15,22 +16,16 @@ if TYPE_CHECKING:
     from ...hexagon import OddRCoord
 
 
-def select_any_tile(
-    board: "Board",
-    rodent: "Rodent",
-    skill: "CallableEntitySkill",
-    callback: "SkillCallback",
-    target_count: int = 1,
-    *,
-    can_cancel: bool = True,
-) -> SkillTargeting:
-    coords = board.get_attackable_coords(rodent, skill)
-    return SkillTargeting(
-        target_count, rodent, skill, list(coords), callback, can_cancel
-    )
+class SelectTargetMode(Enum):
+    ENEMY_WITH_HP = auto()
+    ENEMY = auto()
+    ALLY = auto()
+    ANY = auto()
+    """Any entity or feature (if is_feature_targetable is True)"""
+    ANY_TILE = auto()
 
 
-def select_targetable(
+def select_targets(
     board: "Board",
     rodent: "Rodent",
     skill: "CallableEntitySkill",
@@ -38,7 +33,7 @@ def select_targetable(
     target_count: int = 1,
     *,
     is_feature_targetable: bool = True,
-    is_any_tile: bool = False,
+    target_mode: SelectTargetMode = SelectTargetMode.ENEMY_WITH_HP,
     can_cancel: bool = True,
 ) -> SkillTargeting:
 
@@ -51,7 +46,7 @@ def select_targetable(
                 result_enum = c(game_manager, selected_targets)
                 if result_enum != SkillCompleted.SUCCESS:
                     raise ShortHandSkillCallbackError(
-                        f"{select_targetable.__name__} is used with shorthand callback (iterable of callback) but one of them didn't succeed instantly."
+                        f"{select_targets.__name__} is used with shorthand callback (iterable of callback) but one of them didn't succeed instantly."
                     )
             return SkillCompleted.SUCCESS
         return callback(game_manager, selected_targets)
@@ -62,21 +57,50 @@ def select_targetable(
         tile = board.get_tile(coord)
         if tile is None:
             continue
-        if is_any_tile:
-            targets.append(coord)
-            continue
-        if any(
-            entity.side != rodent.side and entity.health is not None
-            for entity in tile.entities
-        ):
-            targets.append(coord)
-            continue
-        if is_feature_targetable and any(
-            feature.side != rodent.side and feature.health is not None
-            for feature in tile.features
-        ):
-            targets.append(coord)
-            continue
+        match target_mode:
+            case SelectTargetMode.ANY_TILE:
+                targets.append(coord)
+            case SelectTargetMode.ANY:
+                if tile.entities:
+                    targets.append(coord)
+                    continue
+                if is_feature_targetable and tile.features:
+                    targets.append(coord)
+                    continue
+            case SelectTargetMode.ENEMY_WITH_HP:
+                if any(
+                    entity.side != rodent.side and entity.health is not None
+                    for entity in tile.entities
+                ):
+                    targets.append(coord)
+                    continue
+                if is_feature_targetable and any(
+                    feature.side != rodent.side and feature.health is not None
+                    for feature in tile.features
+                ):
+                    targets.append(coord)
+                    continue
+            case SelectTargetMode.ENEMY:
+                if any(entity.side != rodent.side for entity in tile.entities):
+                    targets.append(coord)
+                    continue
+                if is_feature_targetable and any(
+                    feature.side != rodent.side for feature in tile.features
+                ):
+                    targets.append(coord)
+                    continue
+            case SelectTargetMode.ALLY:
+                if any(entity.side == rodent.side for entity in tile.entities):
+                    targets.append(coord)
+                    continue
+                if is_feature_targetable and any(
+                    feature.side == rodent.side for feature in tile.features
+                ):
+                    targets.append(coord)
+                    continue
+            case _:
+                raise ValueError(f"SelectTargetMode not handled: {target_mode}")
+
     return SkillTargeting(
         target_count, rodent, skill, targets, skill_callback, can_cancel
     )
@@ -119,10 +143,38 @@ def normal_damage(
                 continue
             if not is_feature_targetable:
                 raise ValueError("Trying to damage entity that is not there")
-            feature = game_manager.get_feature_on_pos(target)
+            feature = game_manager.get_enemy_feature_on_pos(target)
             if feature is None:
                 raise ValueError("Trying to damage nothing")
             game_manager.damage_feature(feature, damage, source)
+        return SkillCompleted.SUCCESS
+
+    return callback
+
+
+def normal_heal(
+    heal: int, source: SourceOfDamageOrHeal, *, is_feature_targetable: bool = False
+) -> SkillCallback:
+    """
+    Apply normal heal
+    :param heal: Amount to heal
+    """
+
+    @skill_callback_check
+    def callback(
+        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+    ) -> SkillCompleted:
+        for target in selected_targets:
+            ally = game_manager.get_ally_on_pos(target)
+            if ally is not None:
+                game_manager.heal_entity(ally, heal, source)
+                continue
+            if not is_feature_targetable:
+                raise ValueError("Trying to damage entity that is not there")
+            feature = game_manager.get_ally_feature_on_pos(target)
+            if feature is None:
+                raise ValueError("Trying to damage nothing")
+            game_manager.damage_feature(feature, heal, source)
         return SkillCompleted.SUCCESS
 
     return callback
@@ -169,7 +221,7 @@ def apply_effect(
     effect: type[EntityEffect],
     *,
     duration: int | None,
-    intensity: float,
+    intensity: float = 0,
     is_ally_instead: bool = False,
     stack_intensity: bool = False,
 ) -> SkillCallback:
@@ -253,7 +305,7 @@ def aoe_damage(
                     continue
                 if not is_feature_targetable:
                     raise ValueError("Trying to damage entity that is not there")
-                feature = game_manager.get_feature_on_pos(coord)
+                feature = game_manager.get_enemy_feature_on_pos(coord)
                 if feature is None:
                     raise ValueError("Trying to damage nothing")
                 game_manager.damage_feature(feature, damage, source)

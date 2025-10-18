@@ -1,10 +1,5 @@
 from typing import TYPE_CHECKING
 
-from ...hexagon import OddRCoord
-from ...skill_callback import SkillCallback, skill_callback_check
-from ...entity_effect import EffectClearSide, EntityEffect, effect_data
-from ...source_of_damage_or_heal import SourceOfDamageOrHeal
-from ...instant_kill import INSTANT_KILL, InstantKill
 from ...effects.global_rodent_effects import Stunned
 from ...entity import (
     EntitySkill,
@@ -13,15 +8,21 @@ from ...entity import (
     SkillTargeting,
     entity_skill_check,
 )
+from ...entity_effect import EffectClearSide, EntityEffect, effect_data
+from ...hexagon import OddRCoord
+from ...instant_kill import INSTANT_KILL, InstantKill
+from ...skill_callback import SkillCallback, skill_callback_check
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...tags import RodentClassTag, SkillTag
 from ...timer import Timer, TimerClearSide
 from ..rodent import Rodent, rodent_data
 from .common_skills import (
+    SelectTargetMode,
     aoe_damage,
     apply_effect,
     apply_timer,
     normal_damage,
-    select_targetable,
+    select_targets,
 )
 
 if TYPE_CHECKING:
@@ -58,13 +59,13 @@ class RatbertBrewbelly(Rodent):
 
     @entity_skill_check
     def projectile_vomit(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
+        return select_targets(
             game_manager.board,
             self,
             self.skills[0],
             [
                 normal_damage(self.attack + 3, self),
-                apply_effect(Stunned, duration=2, intensity=0),
+                apply_effect(Stunned, duration=2),
                 apply_timer(
                     TimerClearSide.ENEMY,
                     on_timer_over=self.vomit_timer_callback,
@@ -148,7 +149,7 @@ class PeaPeaPoolPool(Rodent):
 
     @entity_skill_check
     def pea(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
+        return select_targets(
             game_manager.board, self, self.skills[0], normal_damage(self.attack, self)
         )
 
@@ -195,26 +196,28 @@ class Mortar(Rodent):
 
     @entity_skill_check
     def artillery_strike(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
+        return select_targets(
             game_manager.board,
             self,
             self.skills[0],
             aoe_damage(self.attack + 4, 2, self),
+            target_mode=SelectTargetMode.ANY_TILE,
         )
 
     @entity_skill_check
     def artillery_strikes(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
+        return select_targets(
             game_manager.board,
             self,
             self.skills[1],
             aoe_damage(self.attack + 8, 3, self),
+            target_mode=SelectTargetMode.ANY_TILE,
         )
 
     def skill_descriptions(self) -> list[str]:
         return [
             f"Launch the artillery at any tile damaging all enemy within 2-tiles radius dealing {self.attack + 4}(ATK+4) damage.",
-            f"Launch multiple artilleries at any tile damaging all enemy within 3-tiles radius dealing {self.attack + 8}(ATK+8) damage.",
+            f"Launch multiple artilleries at any tile damaging all enemy within 3-tiles radius dealing non-stackable {self.attack + 8}(ATK+8) damage.",
         ]
 
     def __clear_double_speed(self, timer: "Timer", game_manager: "GameManager") -> None:
@@ -304,7 +307,7 @@ class RailRodent(Rodent):
     def railgun(self, game_manager: "GameManager") -> SkillResult:
         if RailgunCharged.name not in self.effects:
             return SkillCompleted.CANCELLED
-        return select_targetable(
+        return select_targets(
             game_manager.board,
             self,
             self.skills[0],

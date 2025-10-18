@@ -1,8 +1,8 @@
 from ....entities.rodents.duelist import (
-    RatbertBrewbelly,
-    SodaKabooma,
     Mortar,
     PeaPeaPoolPool,
+    RatbertBrewbelly,
+    SodaKabooma,
 )
 from ...squeak import Squeak, SqueakType, rodent_placable_tile, summon_on_place
 

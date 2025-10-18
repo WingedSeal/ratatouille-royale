@@ -1,9 +1,9 @@
 import random
 from typing import TYPE_CHECKING
 
+from ...entity import Entity, EntitySkill, SkillTargeting, entity_skill_check
 from ...instant_kill import InstantKill
 from ...source_of_damage_or_heal import SourceOfDamageOrHeal
-from ...entity import Entity, EntitySkill, SkillTargeting, entity_skill_check
 from ...tags import RodentClassTag
 from ..rodent import Rodent, rodent_data
 from .common_skills import move

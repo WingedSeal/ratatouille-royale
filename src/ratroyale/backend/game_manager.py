@@ -2,10 +2,8 @@ import math
 from random import shuffle
 from typing import Iterator
 
-from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EntityEffect
@@ -36,10 +34,12 @@ from .game_event import (
     SqueakSetResetEvent,
 )
 from .hexagon import OddRCoord
+from .instant_kill import InstantKill
 from .map import Map
-from .player_info.player_info import PlayerInfo, HAND_LENGTH
+from .player_info.player_info import HAND_LENGTH, PlayerInfo
 from .player_info.squeak import Squeak
 from .side import Side
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .timer import Timer
 
 
@@ -176,47 +176,70 @@ class GameManager:
             return entity
         return None
 
-    def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
+    def get_enemy_on_pos(
+        self, pos: OddRCoord, *, exclude_without_hp: bool = True
+    ) -> Entity | None:
         """
-        Get enemy at the end of the list (top) at position or None if there's nothing there
+        Get enemy or neutral at the end of the list (top) at position or None if there's nothing there
         """
         tile = self.board.get_tile(pos)
         if tile is None:
             raise ValueError("There is no tile on the coord")
         for entity in reversed(tile.entities):
-            if entity.health is None:
+            if exclude_without_hp and entity.health is None:
                 continue
             if entity.side == self.turn:
                 continue
             return entity
         return None
 
-    def get_ally_on_pos(self, pos: OddRCoord) -> Entity | None:
+    def get_ally_on_pos(
+        self, pos: OddRCoord, *, exclude_without_hp: bool = True
+    ) -> Entity | None:
         """
-        Get ally at the end of the list (top) at position or None if there's nothing there
+        Get ally or neutral at the end of the list (top) at position or None if there's nothing there
         """
         tile = self.board.get_tile(pos)
         if tile is None:
             raise ValueError("There is no tile on the coord")
         for entity in reversed(tile.entities):
-            if entity.health is None:
+            if exclude_without_hp and entity.health is None:
                 continue
-            if entity.side != self.turn:
+            if entity.side == self.turn.other_side():
                 continue
             return entity
         return None
 
-    def get_feature_on_pos(self, pos: OddRCoord) -> Feature | None:
+    def get_enemy_feature_on_pos(
+        self, pos: OddRCoord, *, exclude_without_hp: bool = True
+    ) -> Feature | None:
         """
-        Get feature at the end of the list (top) at position or None if there's nothing there
+        Get enemy or neutral feature at the end of the list (top) at position or None if there's nothing there
         """
         tile = self.board.get_tile(pos)
         if tile is None:
             raise ValueError("There is no tile on the coord")
         for feature in reversed(tile.features):
-            if feature.health is None:
+            if exclude_without_hp and feature.health is None:
                 continue
             if feature.side == self.turn:
+                continue
+            return feature
+        return None
+
+    def get_ally_feature_on_pos(
+        self, pos: OddRCoord, *, exclude_without_hp: bool = True
+    ) -> Feature | None:
+        """
+        Get ally or neutral feature at the end of the list (top) at position or None if there's nothing there
+        """
+        tile = self.board.get_tile(pos)
+        if tile is None:
+            raise ValueError("There is no tile on the coord")
+        for feature in reversed(tile.features):
+            if exclude_without_hp and feature.health is None:
+                continue
+            if feature.side == self.turn.other_side():
                 continue
             return feature
         return None

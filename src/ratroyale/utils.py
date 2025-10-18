@@ -1,6 +1,6 @@
 import dis
 from queue import Empty, Queue
-from typing import Any, Callable, TypeVar, cast, Literal
+from typing import Any, Callable, Literal, TypeVar, cast
 
 T = TypeVar("T")
 

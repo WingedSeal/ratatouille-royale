@@ -1,9 +1,11 @@
+import math
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Callable
-from abc import ABC, abstractmethod
-import math
+
 import pytweening  # type: ignore
-from .anim_settings import TimingMode, AnimDirection
+
+from .anim_settings import AnimDirection, TimingMode
 
 
 # TODO: reintroduce reverse easing.

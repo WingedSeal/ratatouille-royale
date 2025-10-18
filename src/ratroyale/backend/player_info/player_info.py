@@ -3,9 +3,9 @@ from typing import Final
 
 from ratroyale.utils import DataPointer
 
+from . import squeaks  # noqa
 from .squeak import Squeak
 from .squeak_set import SqueakSet
-from . import squeaks  # noqa
 
 HAND_LENGTH = 5
 SAVE_FILE_EXTENSION = "rrsave"

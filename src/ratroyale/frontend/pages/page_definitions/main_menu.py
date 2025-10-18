@@ -1,23 +1,30 @@
 import pygame
 import pygame_gui
+import pytweening  # type: ignore
 
+from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
-from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
-from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.gesture.gesture_data import GestureType
-
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
 )
+from ratroyale.frontend.pages.page_elements.hitbox import RectangleHitbox
 from ratroyale.frontend.pages.page_elements.spatial_component import (
-    SpatialComponent,
     Camera,
+    SpatialComponent,
 )
-from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
+from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_managers.page_registry import register_page
+from ratroyale.frontend.visual.anim.core.anim_settings import (
+    HorizontalAnchor,
+    ScaleMode,
+    TimingMode,
+    VerticalAnchor,
+)
 from ratroyale.frontend.visual.anim.core.transform_anim import ScaleAnim
 from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
     SPRITE_METADATA_REGISTRY,
@@ -25,24 +32,12 @@ from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry impo
 from ratroyale.frontend.visual.asset_management.spritesheet_manager import (
     SpritesheetManager,
 )
-
-from ratroyale.frontend.pages.page_elements.hitbox import RectangleHitbox
-
-from ratroyale.backend.entities.rodents.vanguard import TailBlazer
-
 from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
     SpritesheetComponent,
 )
-from ratroyale.frontend.visual.anim.core.anim_settings import (
-    ScaleMode,
-    TimingMode,
-    VerticalAnchor,
-    HorizontalAnchor,
-)
+from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 
 from ..page_managers.base_page import Page
-
-import pytweening  # type: ignore
 
 
 # TODO: make helpers to make button registration easier

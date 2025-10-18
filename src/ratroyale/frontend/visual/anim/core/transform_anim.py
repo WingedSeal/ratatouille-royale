@@ -1,17 +1,19 @@
 from dataclasses import dataclass
-from .anim_structure import AnimEvent
+
 from ratroyale.frontend.pages.page_elements.spatial_component import (
-    SpatialComponent,
     Camera,
+    SpatialComponent,
 )
+
 from .anim_settings import (
+    AnimDirection,
+    HorizontalAnchor,
     MoveAnimMode,
     ScaleMode,
     SkewMode,
-    HorizontalAnchor,
     VerticalAnchor,
-    AnimDirection,
 )
+from .anim_structure import AnimEvent
 
 
 @dataclass(kw_only=True)

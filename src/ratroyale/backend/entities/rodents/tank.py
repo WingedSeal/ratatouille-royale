@@ -4,7 +4,7 @@ from ...entity import EntitySkill, SkillCompleted, SkillTargeting, entity_skill_
 from ...side import Side
 from ...tags import RodentClassTag
 from ..rodent import Rodent, rodent_data
-from .common_skills import normal_damage, select_targetable
+from .common_skills import normal_damage, select_targets
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
@@ -47,7 +47,7 @@ class Cracker(Rodent):
 
     @entity_skill_check
     def bread_slap(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
+        return select_targets(
             game_manager.board, self, self.skills[0], normal_damage(self.attack, self)
         )
 

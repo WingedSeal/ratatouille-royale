@@ -3,9 +3,9 @@ from dataclasses import dataclass
 from pprint import pformat
 from typing import ClassVar
 
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .hexagon import OddRCoord
 from .side import Side
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 
 MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 

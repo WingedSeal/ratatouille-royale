@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from pathlib import Path
+
+from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 
 ASSET_DIR = Path(__file__).resolve().parent.parent / "asset"
 

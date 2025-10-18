@@ -1,8 +1,10 @@
 from dataclasses import dataclass
-from pygame_gui.core import UIElement
 from typing import Literal
-from ratroyale.frontend.pages.page_elements.element import ElementWrapper
+
+from pygame_gui.core import UIElement
+
 from ratroyale.event_tokens.payloads import Payload
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 
 GroupingName = Literal["UI_ELEMENT", "TILE", "ENTITY", "CARD"]

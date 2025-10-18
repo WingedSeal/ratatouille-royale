@@ -15,9 +15,9 @@ from ratroyale.frontend.gesture.gesture_reader import (
     GESTURE_READER_CARES,
     GestureReader,
 )
+from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
-from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
 
 

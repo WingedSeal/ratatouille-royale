@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
-from .player_info.squeak import Squeak
-from .instant_kill import InstantKill
 from .entity import Entity
 from .entity_effect import EffectClearSide, EntityEffect
 from .feature import Feature
 from .hexagon import OddRCoord
+from .instant_kill import InstantKill
+from .player_info.squeak import Squeak
 from .side import Side
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 
 STR_PREFIX = "Event: "
 _PRINT_EVENTS = False
