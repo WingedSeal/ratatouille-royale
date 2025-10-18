@@ -1,8 +1,14 @@
 from ..core.overlay_anim import ColorOverlayAnim
 from ..core.anim_structure import SequentialAnim, GroupedAnim
-from ..core.transform_anim import ScaleAnim
+from ..core.transform_anim import ScaleAnim, MoveAnim
 from ..core.sprite_anim import SpriteAnim
-from ..core.anim_settings import TimingMode, ScaleMode, VerticalAnchor, HorizontalAnchor
+from ..core.anim_settings import (
+    TimingMode,
+    ScaleMode,
+    VerticalAnchor,
+    HorizontalAnchor,
+    MoveAnimMode,
+)
 from ...asset_management.spritesheet_structure import SpritesheetComponent
 from ....pages.page_elements.spatial_component import SpatialComponent, Camera
 
@@ -55,8 +61,8 @@ def shrink_squeak(
         period_in_seconds=0.2,
         spatial_component=spatial_component,
         camera=camera,
-        scale_mode=ScaleMode.SCALE_TO_SIZE,
-        target=(71, 45),
+        scale_mode=ScaleMode.SCALE_BY_FACTOR,
+        target=(0.5, 0.5),
         expansion_anchor=(VerticalAnchor.MIDDLE, HorizontalAnchor.MIDDLE),
     )
     result = SequentialAnim([GroupedAnim([scale_anim])], interrupts_queue=True)
@@ -64,7 +70,10 @@ def shrink_squeak(
 
 
 def return_squeak_to_normal(
-    spatial_component: SpatialComponent, camera: Camera
+    spatial_component: SpatialComponent,
+    camera: Camera,
+    direction_vector: tuple[float, float],
+    target_size: tuple[int, int],
 ) -> SequentialAnim:
     scale_anim = ScaleAnim(
         easing_func=pytweening.easeOutCirc,
@@ -73,10 +82,21 @@ def return_squeak_to_normal(
         spatial_component=spatial_component,
         camera=camera,
         scale_mode=ScaleMode.SCALE_TO_SIZE,
-        target=(143, 90),
+        target=target_size,
         expansion_anchor=(VerticalAnchor.MIDDLE, HorizontalAnchor.MIDDLE),
     )
-    result = SequentialAnim([GroupedAnim([scale_anim])], interrupts_queue=True)
+    move_anim = MoveAnim(
+        easing_func=pytweening.easeOutCirc,
+        timing_mode=TimingMode.DURATION_PER_LOOP,
+        period_in_seconds=0.2,
+        spatial_component=spatial_component,
+        camera=camera,
+        move_mode=MoveAnimMode.MOVE_TO,
+        direction_vector=direction_vector,
+    )
+    result = SequentialAnim(
+        [GroupedAnim([scale_anim, move_anim])], interrupts_queue=True
+    )
     return result
 
 

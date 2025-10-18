@@ -9,6 +9,14 @@ from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.utils import EventQueue
+from ratroyale.event_tokens.payloads import (
+    SqueakPlacementPayload,
+    SqueakPayload,
+    GameSetupPayload,
+    SqueakPlacableTilesPayload,
+    CrumbUpdatePayload,
+)
+from ratroyale.backend.side import Side
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -20,7 +28,8 @@ class BackendAdapter:
         self.coordination_manager = coordination_manager
         self.event_to_action_map: dict[str, Callable[[GameManagerEvent[Any]], None]] = {
             "start_game": self.handle_game_start,
-            "entity_list": self.handle_entity_list,
+            "squeak_tile_interaction": self.handle_squeak_tile_interaction,
+            "get_squeak_placable_tiles": self.handld_squeak_placable_tiles,
         }
 
     def execute_backend_callback(self) -> None:
@@ -40,29 +49,56 @@ class BackendAdapter:
 
     def handle_game_start(self, event: GameManagerEvent[None]) -> None:
         board = self.game_manager.board
-        if board:
-            self.coordination_manager.put_message(
-                PageCallbackEvent[Board](callback_action="start_game", payload=board)
+        # TODO: Which side is the player's side?
+        player_info = self.game_manager.players_info[Side.RAT]
+        squeak_in_hand_list = player_info.get_squeak_set().get_deck_and_hand()[1]
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="start_game",
+                payload=GameSetupPayload(
+                    board=board,
+                    hand_squeaks=squeak_in_hand_list,
+                    starting_crumbs=self.game_manager.crumbs,
+                ),
             )
-        else:
+        )
+
+    def handle_squeak_tile_interaction(
+        self, event: GameManagerEvent[SqueakPlacementPayload]
+    ) -> None:
+        payload = event.payload
+        if payload:
+            hand_index = payload.hand_index
+            coord = payload.tile_coord
+
+            # Validate crumb on frontend by disabling unplayable cards.
+            self.game_manager.place_squeak(hand_index, coord)
             self.coordination_manager.put_message(
                 PageCallbackEvent(
-                    callback_action="start_game",
-                    success=False,
-                    error_msg="Failed to start game: Board not initialized",
-                    payload=None,
+                    callback_action="crumb_update",
+                    payload=CrumbUpdatePayload(self.game_manager.crumbs),
                 )
             )
 
-    def handle_entity_list(self, event: GameManagerEvent[None]) -> None:
-        board = self.game_manager.board
-        entity_list = board.cache.entities
+    def handld_squeak_placable_tiles(
+        self, event: GameManagerEvent[SqueakPayload]
+    ) -> None:
+        payload = event.payload
+        assert payload
+        squeak = payload.squeak
 
-        self.coordination_manager.put_message(
-            PageCallbackEvent[list[Entity]](
-                callback_action="entity_list", payload=entity_list
+        # Get placable tiles when the user clicks or drags a squeak card
+        placable_tiles = squeak.get_placable_tiles(self.game_manager)
+        print("Placable tiles for selected squeak:")
+        for coord in placable_tiles:
+            print(f"Placable tile at {coord}")
+        if placable_tiles:
+            self.coordination_manager.put_message(
+                PageCallbackEvent(
+                    callback_action="handle_squeak_placable_tiles",
+                    payload=SqueakPlacableTilesPayload(placable_tiles),
+                )
             )
-        )
 
 
 def get_name_from_entity(entity: Entity) -> str:

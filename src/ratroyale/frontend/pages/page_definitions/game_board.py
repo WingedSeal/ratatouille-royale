@@ -1,7 +1,6 @@
 import pygame
 import pygame_gui
 
-from ratroyale.backend.board import Board
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.tile import Tile
 from ratroyale.coordination_manager import CoordinationManager
@@ -10,6 +9,7 @@ from ratroyale.event_tokens.input_token import get_gesture_data, get_id, get_pay
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureType
+from ratroyale.event_tokens.payloads import SqueakPlacementPayload, SqueakPayload
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
@@ -38,11 +38,19 @@ from ratroyale.frontend.visual.asset_management.spritesheet_manager import (
 from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
     SPRITE_METADATA_REGISTRY,
     SQUEAK_IMAGE_METADATA_REGISTRY,
+    TILE_SPRITE_METADATA,
 )
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
+from ratroyale.backend.player_info.squeak import Squeak
 
 
-from ratroyale.event_tokens.payloads import TilePayload, EntityPayload
+from ratroyale.event_tokens.payloads import (
+    TilePayload,
+    EntityPayload,
+    GameSetupPayload,
+    CrumbUpdatePayload,
+    SqueakPlacableTilesPayload,
+)
 
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
 from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
@@ -67,6 +75,14 @@ class SavedKey(Enum):
     SELECTED_SQUEAK = "SQUEAK"
 
 
+SQUEAK_WIDTH, SQUEAK_HEIGHT = 112, 70
+SQUEAK_SPACING = 5
+LEFT_MARGIN = 0
+TOP_MARGIN = 80
+
+CARD_RECT = pygame.Rect(LEFT_MARGIN, TOP_MARGIN, SQUEAK_WIDTH, SQUEAK_HEIGHT)
+
+
 @register_page
 class GameBoard(Page):
     def __init__(
@@ -79,6 +95,10 @@ class GameBoard(Page):
             SavedKey.SELECTED_SQUEAK: None,
         }
 
+        self.squeak_in_hand: list[str] = []
+        self.hand_slots_element: list[str] = []
+        self.player_crumbs: int = 0
+
         self.ability_panel_id: str | None = None
 
     def on_open(self) -> None:
@@ -87,146 +107,75 @@ class GameBoard(Page):
     def define_initial_gui(self) -> list[ElementWrapper]:
         return []
 
-    # region Input Bindings
+    # region Callbacks from Backend
 
     @callback_event_bind("start_game")
-    def _start_game(self, msg: PageCallbackEvent[Board]) -> None:
+    def _start_game(self, msg: PageCallbackEvent) -> None:
         """Handle the response from starting a game."""
 
         if msg.success and msg.payload:
-            self.board = msg.payload
+            assert isinstance(msg.payload, GameSetupPayload)
+            board = msg.payload.board
             element_configs: list[ElementWrapper] = []
-            tiles = self.board.tiles
-            entities = self.board.cache.entities
+            tiles = board.tiles
+            entities = board.cache.entities
 
             for tile_list in tiles:
                 for tile in tile_list:
                     if tile:
-                        sprite_metadata = SPRITE_METADATA_REGISTRY[TailBlazer]
-                        cached_spritesheet_name = (
-                            SpritesheetManager.register_spritesheet(
-                                sprite_metadata
-                            ).get_key()
-                        )
-
-                        tile_element = ElementWrapper(
-                            registered_name=f"tile_{id(tile)}",
-                            grouping_name="TILE",
-                            camera=self.camera,
-                            spatial_component=SpatialComponent(
-                                pygame.Rect(self._define_tile_rect(tile)),
-                                space_mode="WORLD",
-                            ),
-                            interactable_component=HexHitbox(),
-                            visual_component=VisualComponent(
-                                SpritesheetComponent(
-                                    spritesheet_reference=cached_spritesheet_name
-                                ),
-                                "IDLE",
-                            ),
-                            payload=TilePayload(tile),
-                        )
+                        tile_element = self.tile_element_creator(tile)
                         element_configs.append(tile_element)
 
             for entity in entities:
-                spritesheet_component = SpritesheetComponent(cached_spritesheet_name)
-                visual_component = VisualComponent(spritesheet_component, "IDLE")
-                visual_component.set_default_animation(
-                    default_idle_for_entity(spritesheet_component)
-                )
-                entity_element = ElementWrapper(
-                    registered_name=f"entity_{id(tile)}",
-                    grouping_name="ENTITY",
-                    camera=self.camera,
-                    spatial_component=SpatialComponent(
-                        pygame.Rect(self._define_entity_rect(entity)),
-                        space_mode="WORLD",
-                        z_order=1,
-                    ),
-                    interactable_component=RectangleHitbox(),
-                    visual_component=visual_component,
-                    payload=EntityPayload(entity),
-                )
-
+                entity_element = self.entity_element_creator(entity)
                 element_configs.append(entity_element)
 
-            SQUEAK_WIDTH, SQUEAK_HEIGHT = 143, 90
-            SQUEAK_SPACING = 10
-            LEFT_MARGIN = 0
-            TOP_MARGIN = 80
+            squeak_list = msg.payload.hand_squeaks
 
-            sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY[TailBlazer]
-            cached_spritesheet_name = SpritesheetManager.register_spritesheet(
-                sprite_metadata
-            ).get_key()
-
-            for i in range(5):
-                # Base card rect
-                squeak_rect = pygame.Rect(
-                    LEFT_MARGIN,
-                    TOP_MARGIN + i * (SQUEAK_HEIGHT + SQUEAK_SPACING),
-                    SQUEAK_WIDTH,
-                    SQUEAK_HEIGHT,
+            for i, squeak in enumerate(squeak_list):
+                squeak_element, squeak_cost_element = self.squeak_element_creator(
+                    squeak, i
                 )
 
-                # Create card element
-                squeak_element = ElementWrapper(
-                    registered_name=f"squeak_{i}",
-                    grouping_name="SQUEAK",
+                card_rect = CARD_RECT.copy()
+                card_rect.y += i * (SQUEAK_HEIGHT + SQUEAK_SPACING)
+
+                slot_id = f"hand_slot_{i}"
+                slot = ElementWrapper(
+                    registered_name=slot_id,
+                    grouping_name="HANDSLOT",
                     camera=self.camera,
                     spatial_component=SpatialComponent(
-                        squeak_rect, space_mode="SCREEN", z_order=100
-                    ),
-                    interactable_component=RectangleHitbox(),
-                    is_blocking=False,
-                    visual_component=VisualComponent(
-                        SpritesheetComponent(
-                            spritesheet_reference=cached_spritesheet_name
-                        ),
-                        "NONE",
+                        local_rect=card_rect,
+                        z_order=99,
                     ),
                 )
-
-                # Render cost text
-                squeak_cost_text = italic_bold_arial.render(
-                    "100", False, pygame.Color(255, 255, 255)
-                )
-                # Compute cost rect anchored to bottom-right of card
-                cost_width, cost_height = squeak_cost_text.get_size()
-                print(cost_width, cost_height)
-                PADDING = 5
-
-                # --- Local position relative to the card (bottom-right corner) ---
-                cost_rect = pygame.Rect(
-                    SQUEAK_WIDTH - cost_width - PADDING,
-                    SQUEAK_HEIGHT - cost_height - PADDING,
-                    cost_width,
-                    cost_height,
-                )
-
-                # Create cost element
-                squeak_cost_element = ElementWrapper(
-                    registered_name=f"squeakCost_{i}",
-                    grouping_name="SQUEAKCOST",
-                    camera=self.camera,
-                    spatial_component=SpatialComponent(
-                        cost_rect, space_mode="SCREEN", z_order=101
-                    ),
-                    interactable_component=None,
-                    is_blocking=False,
-                    visual_component=VisualComponent(
-                        SpritesheetComponent(spritesheet_reference=squeak_cost_text),
-                        "NONE",
-                    ),
-                    element_parent=ElementParent(f"squeak_{i}", "SQUEAK"),
-                )
+                self.hand_slots_element.append(slot_id)
 
                 element_configs.append(squeak_element)
                 element_configs.append(squeak_cost_element)
+                element_configs.append(slot)
 
             self.setup_elements(element_configs)
+
+            self.player_crumbs = msg.payload.starting_crumbs
         else:
             raise RuntimeError(f"Failed to start game: {msg.error_msg}")
+
+    @callback_event_bind("crumb_update")
+    def _crumb_update(self, msg: PageCallbackEvent) -> None:
+        """Handle crumb update from backend."""
+        if msg.success and msg.payload:
+            assert isinstance(msg.payload, CrumbUpdatePayload)
+            self.player_crumbs = msg.payload.new_crumb_amount
+
+    @callback_event_bind("handle_squeak_placable_tiles")
+    def _handle_squeak_placable_tiles(self, msg: PageCallbackEvent) -> None:
+        """Handle squeak placable tiles from backend."""
+        if msg.success and msg.payload:
+            assert isinstance(msg.payload, SqueakPlacableTilesPayload)
+
+    # endregion
 
     # region Tile Related Events
 
@@ -262,8 +211,6 @@ class GameBoard(Page):
         entity_element = self._element_manager.get_element_wrapper(
             id, SavedKey.SELECTED_ENTITY.value
         )
-        if not entity_element:
-            raise ValueError("Something went wrong while trying to get the element.")
 
         assert isinstance(entity_payload, EntityPayload)
         entity = entity_payload.entity
@@ -354,6 +301,13 @@ class GameBoard(Page):
             if vis and vis.spritesheet_component:
                 vis.queue_override_animation(shrink_squeak(spatial, self.camera))
 
+        squeak = squeak_element.get_payload(SqueakPayload)
+        self.coordination_manager.put_message(
+            GameManagerEvent[SqueakPayload](
+                game_action="get_squeak_placable_tiles", payload=squeak
+            )
+        )
+
     # endregion
 
     # region Dragging logic
@@ -381,9 +335,23 @@ class GameBoard(Page):
 
     @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
-        print(
-            f"Playing {self.saved_element_ids[SavedKey.SELECTED_SQUEAK]} on {self.saved_element_ids[SavedKey.SELECTED_TILE]}"
-        )  # TODO: Hook gameplay here
+        selected_squeak_id = self.saved_element_ids[SavedKey.SELECTED_SQUEAK]
+        selected_tile_id = self.saved_element_ids[SavedKey.SELECTED_TILE]
+
+        if selected_squeak_id and selected_tile_id:
+            tile_element = self.get_element(selected_tile_id, "TILE")
+            tile_payload: TilePayload = tile_element.get_payload(TilePayload)
+
+            self.coordination_manager.put_message(
+                GameManagerEvent[SqueakPlacementPayload](
+                    game_action="squeak_tile_interaction",
+                    payload=SqueakPlacementPayload(
+                        hand_index=self.squeak_in_hand.index(selected_squeak_id),
+                        tile_coord=tile_payload.tile.coord,
+                    ),
+                )
+            )
+
         self._deselection(SavedKey.SELECTED_SQUEAK)
         self._deselection(SavedKey.SELECTED_TILE)
         self.camera.end_drag()
@@ -391,15 +359,22 @@ class GameBoard(Page):
     @input_event_bind("squeak", GestureType.DRAG_END.to_pygame_event())
     def return_squeak_to_size_end_drag(self, msg: pygame.event.Event) -> None:
         squeak_id = get_id(msg)
-        if squeak_id:
-            squeak_elem = self.get_element(squeak_id, "SQUEAK")
-            if squeak_elem and squeak_elem.visual_component:
-                vis = squeak_elem.visual_component
-                if vis and vis.spritesheet_component:
-                    spatial = squeak_elem.spatial_component
-                    vis.queue_override_animation(
-                        return_squeak_to_normal(spatial, self.camera)
-                    )
+        assert squeak_id
+
+        squeak_hand_index = self.squeak_in_hand.index(squeak_id)
+        hand_slot_id = self.hand_slots_element[squeak_hand_index]
+        hand_slot_element = self.get_element(hand_slot_id, "HANDSLOT")
+        hand_slot_topleft = hand_slot_element.spatial_component.get_screen_rect(
+            self.camera
+        ).topleft
+
+        squeak_elem = self.get_element(squeak_id, "SQUEAK")
+        spatial = squeak_elem.spatial_component
+        squeak_elem.queue_override_animation(
+            return_squeak_to_normal(
+                spatial, self.camera, hand_slot_topleft, CARD_RECT.size
+            )
+        )
 
     # endregion
 
@@ -414,9 +389,127 @@ class GameBoard(Page):
 
     # endregion
 
-    # endregion
+    # region UTILITY METHODS
 
-    # region Utilities
+    def tile_element_creator(self, tile: Tile) -> ElementWrapper:
+        # TODO: change the hardcoded tile number to tile sprite number
+        sprite_metadata = TILE_SPRITE_METADATA[0]
+        cached_spritesheet_name = SpritesheetManager.register_spritesheet(
+            sprite_metadata
+        ).get_key()
+
+        tile_element = ElementWrapper(
+            registered_name=f"tile_{id(tile)}",
+            grouping_name="TILE",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                pygame.Rect(self._define_tile_rect(tile)), space_mode="WORLD"
+            ),
+            interactable_component=HexHitbox(),
+            visual_component=VisualComponent(
+                SpritesheetComponent(spritesheet_reference=cached_spritesheet_name),
+                "NONE",
+            ),
+            payload=TilePayload(tile),
+        )
+        return tile_element
+
+    def entity_element_creator(self, entity: Entity) -> ElementWrapper:
+        # TODO: change the hardcoded type to entity type
+        sprite_metadata = SPRITE_METADATA_REGISTRY[TailBlazer]
+        cached_spritesheet_name = SpritesheetManager.register_spritesheet(
+            sprite_metadata
+        ).get_key()
+        spritesheet_component = SpritesheetComponent(cached_spritesheet_name)
+        visual_component = VisualComponent(spritesheet_component, "IDLE")
+        visual_component.set_default_animation(
+            default_idle_for_entity(spritesheet_component)
+        )
+        entity_element = ElementWrapper(
+            registered_name=f"entity_{id(entity)}",
+            grouping_name="ENTITY",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                pygame.Rect(self._define_entity_rect(entity)),
+                space_mode="WORLD",
+                z_order=1,
+            ),
+            interactable_component=RectangleHitbox(),
+            visual_component=visual_component,
+            payload=EntityPayload(entity),
+        )
+
+        return entity_element
+
+    def squeak_element_creator(
+        self, squeak: Squeak, i: int
+    ) -> tuple[ElementWrapper, ElementWrapper]:
+        squeak_type = squeak.rodent
+        assert squeak_type
+        sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY[squeak_type]
+        cached_spritesheet_name = SpritesheetManager.register_spritesheet(
+            sprite_metadata
+        ).get_key()
+
+        squeak_element_id = f"squeak_{id(squeak)}"
+
+        # Base card rect
+        card_rect = CARD_RECT.copy()
+        card_rect.y += i * (SQUEAK_HEIGHT + SQUEAK_SPACING)
+
+        squeak_element = ElementWrapper(
+            registered_name=squeak_element_id,
+            grouping_name="SQUEAK",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                card_rect, space_mode="SCREEN", z_order=100
+            ),
+            interactable_component=RectangleHitbox(),
+            is_blocking=False,
+            visual_component=VisualComponent(
+                SpritesheetComponent(spritesheet_reference=cached_spritesheet_name),
+                "NONE",
+            ),
+            payload=SqueakPayload(squeak),
+        )
+
+        # Render cost text
+        squeak_cost = squeak.crumb_cost
+        squeak_cost_text = italic_bold_arial.render(
+            str(squeak_cost), False, pygame.Color(255, 255, 255)
+        )
+        # Compute cost rect anchored to bottom-right of card
+        cost_width, cost_height = squeak_cost_text.get_size()
+        PADDING = 5
+
+        # --- Local position relative to the card (bottom-right corner) ---
+        cost_rect = pygame.Rect(
+            SQUEAK_WIDTH - cost_width - PADDING,
+            SQUEAK_HEIGHT - cost_height - PADDING,
+            cost_width,
+            cost_height,
+        )
+
+        # Create cost element
+        squeak_cost_element = ElementWrapper(
+            registered_name=f"squeakCost_{id(squeak)}",
+            grouping_name="SQUEAKCOST",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                cost_rect, space_mode="SCREEN", z_order=101
+            ),
+            interactable_component=None,
+            is_blocking=False,
+            visual_component=VisualComponent(
+                SpritesheetComponent(spritesheet_reference=squeak_cost_text),
+                "NONE",
+            ),
+            element_parent=ElementParent(squeak_element_id, "SQUEAK"),
+        )
+
+        self.squeak_in_hand.append(f"squeak_{(id(squeak))}")
+
+        return squeak_element, squeak_cost_element
 
     def _select_deselect_logic(
         self,
@@ -511,6 +604,8 @@ class GameBoard(Page):
             return int(ability_button_elem_id.split("_")[1])
         else:
             raise ValueError("Ability button elem id is None.")
+
+    # region Element Definition Helpers
 
     # TODO: could be moved to elsewhere
     def _define_tile_rect(self, tile: Tile) -> tuple[float, float, float, float]:

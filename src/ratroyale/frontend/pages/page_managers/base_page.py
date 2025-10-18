@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Protocol, cast
+from typing import Protocol, cast
 
 import pygame
 import pygame_gui
@@ -30,7 +30,7 @@ class InputHandler(Protocol):
 
 
 class CallbackHandler(Protocol):
-    def __call__(self, event: PageCallbackEvent[Any]) -> None: ...
+    def __call__(self, event: PageCallbackEvent) -> None: ...
 
 
 class Page(ABC):
@@ -89,7 +89,7 @@ class Page(ABC):
         for config in configs:
             self._element_manager.add_element(config)
 
-    def get_element(self, element_type: str, element_id: str) -> ElementWrapper | None:
+    def get_element(self, element_type: str, element_id: str) -> ElementWrapper:
         return self._element_manager.get_element_wrapper(element_type, element_id)
 
     def setup_event_bindings(self) -> None:
@@ -156,7 +156,7 @@ class Page(ABC):
                 executed = True
         return executed
 
-    def execute_page_callback(self, msg: PageCallbackEvent[Any]) -> bool:
+    def execute_page_callback(self, msg: PageCallbackEvent) -> bool:
         """
         Executes the callback associated with the given PageCallbackEvent.
         """

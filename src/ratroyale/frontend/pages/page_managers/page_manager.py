@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Callable
 
 import pygame
 
@@ -214,7 +214,7 @@ class PageManager:
                     f"Unsupported navigation action {action} for page {page_name}"
                 )
 
-    def _delegate(self, msg: PageCallbackEvent[Any]) -> None:
+    def _delegate(self, msg: PageCallbackEvent) -> None:
         """Delegate a PageCallbackEvent to the appropriate page."""
         for page in self.page_stack:
             page.execute_page_callback(msg)
@@ -236,18 +236,6 @@ class PageManager:
         for page in self.page_stack:
             if page.is_visible:
                 self.screen.blit(page.render(delta), (0, 0))
-
-        font = pygame.font.SysFont(None, 24)  # None = default font, 24 = size
-
-        # Create a surface with the text
-        text_surf = font.render(
-            f"Camera: ({self.camera.world_x:.2f}, {self.camera.world_y:.2f})",
-            True,  # anti-aliasing
-            (255, 255, 255),  # color: white
-        )
-
-        # Blit it somewhere on the screen (e.g., top-left)
-        self.screen.blit(text_surf, (10, 10))
 
 
 # endregion

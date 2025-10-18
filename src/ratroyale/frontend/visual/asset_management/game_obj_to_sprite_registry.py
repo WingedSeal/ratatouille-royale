@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from pathlib import Path
+from ratroyale.backend.entities.rodent import Rodent
 
 ASSET_DIR = Path(__file__).resolve().parent.parent / "asset"
 
@@ -15,7 +16,7 @@ class SpritesheetMetadata:
     scale: tuple[float, float] = (1.0, 1.0)
 
 
-SPRITE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
+SPRITE_METADATA_REGISTRY: dict[type[Rodent], SpritesheetMetadata] = {
     TailBlazer: SpritesheetMetadata(
         "TAILBLAZER",
         ASSET_DIR / "starcatcher.png",
@@ -29,12 +30,23 @@ SPRITE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
     ),
 }
 
-SQUEAK_IMAGE_METADATA_REGISTRY: dict[type, SpritesheetMetadata] = {
+SQUEAK_IMAGE_METADATA_REGISTRY: dict[type[Rodent], SpritesheetMetadata] = {
     TailBlazer: SpritesheetMetadata(
         "TAILBLAZER_CARD",
         ASSET_DIR / "snow_pea_card.png",
         (238, 150),
         {"NONE": [0]},
         60,
+    )
+}
+
+# TODO: how does tile hold drawing data?
+# Assuming all tiles are static, the animation list will be used to index into the spritesheet
+TILE_SPRITE_METADATA: dict[int, SpritesheetMetadata] = {
+    0: SpritesheetMetadata(
+        "GRASS_TILE",
+        ASSET_DIR / "terrain32x32.png",
+        (32, 32),
+        {"NONE": [156]},
     )
 }

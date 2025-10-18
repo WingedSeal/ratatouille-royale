@@ -25,7 +25,6 @@ class SpriteAnim(AnimEvent):
         self._direction: AnimDirection = self.start_direction
         self._frame_count: int = 0
         key_or_surface = self.spritesheet_component.spritesheet_reference
-        print(key_or_surface)
         if isinstance(key_or_surface, str):
             self._frame_count = SpritesheetManager.get_frame_count(
                 key_or_surface, self.animation_name

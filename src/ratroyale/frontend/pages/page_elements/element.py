@@ -9,6 +9,11 @@ from pygame_gui.core import UIElement
 from ratroyale.event_tokens.payloads import Payload
 from .spatial_component import SpatialComponent, Camera
 from .hitbox import Hitbox
+from ratroyale.frontend.visual.anim.core.anim_structure import (
+    AnimEvent,
+    SequentialAnim,
+    GroupedAnim,
+)
 
 T = TypeVar("T")
 
@@ -88,6 +93,16 @@ class ElementWrapper:
         else:
             return self.interactable_component
 
+    def get_payload(self, cls: type[T]) -> T:
+        if not self.payload:
+            raise AttributeError("This element wrapper does not have a payload.")
+        if not isinstance(self.payload, cls):
+            raise TypeError(
+                f"The type provided {cls.__name__} was incorrect. The actual type was {type(self.payload).__name__}"
+            )
+        else:
+            return self.payload
+
     def handle_gesture(
         self, gesture: GestureData, is_processing_input: bool, camera: Camera
     ) -> bool:
@@ -151,6 +166,29 @@ class ElementWrapper:
                 abs_rect,
                 surface,
                 self.camera,
+            )
+
+        # DRAW RECT DEBUG
+        pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
+
+    def queue_override_animation(
+        self, anim_event: AnimEvent | SequentialAnim | GroupedAnim
+    ) -> None:
+        if self.visual_component:
+            self.visual_component.queue_override_animation(anim_event)
+        else:
+            raise AttributeError(
+                "This element wrapper does not have a visual component."
+            )
+
+    def set_default_animation(
+        self, anim_event: AnimEvent | SequentialAnim | GroupedAnim
+    ) -> None:
+        if self.visual_component:
+            self.visual_component.set_default_animation(anim_event)
+        else:
+            raise AttributeError(
+                "This element wrapper does not have a visual component."
             )
 
     # --- Debug Utility ---

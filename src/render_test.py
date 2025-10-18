@@ -1,5 +1,5 @@
 # ruff: noqa
-# type: ignore
+
 import pygame
 
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
@@ -13,7 +13,10 @@ from ratroyale.backend.player_info.squeak import (
     SqueakGetPlacableTiles,
     SqueakOnPlace,
     SqueakType,
+    rodent_placable_tile,
+    summon_on_place,
 )
+from ratroyale.backend.features.common import DeploymentZone
 from ratroyale.backend.side import Side
 from ratroyale.backend.tile import Tile
 from ratroyale.coordination_manager import CoordinationManager
@@ -21,6 +24,9 @@ from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEven
 from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
 from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.backend.player_info.squeak_set import SqueakSet
+
+import random
 
 
 def main():
@@ -45,40 +51,41 @@ def main():
         tiles.append(row)
     entities: list[Entity] = [TailBlazer(OddRCoord(1, 3))]
 
-    # Dummy callables
-    dummy_on_place: SqueakOnPlace = lambda game_manager, coord: None
-    dummy_get_placable: SqueakGetPlacableTiles = lambda game_manager: []
-
-    # Create 5 dummy squeaks
+    # Create dummy squeaks that interact with the game manager
     dummy_squeaks = [
         Squeak(
-            name="Test Card",
-            crumb_cost=1,
+            name=f"Test Card {i}",
+            crumb_cost=random.randint(5, 20) * 10,
             squeak_type=SqueakType.RODENT,
-            on_place=dummy_on_place,
-            get_placable_tiles=dummy_get_placable,
+            on_place=summon_on_place(TailBlazer),  # uses actual summon_on_place
+            get_placable_tiles=rodent_placable_tile,  # uses actual placement logic
             rodent=TailBlazer,
         )
         for i in range(5)
     ]
 
-    # Example squeak sets (just indices into dummy_squeaks)
-    dummy_squeak_sets = [set(range(len(dummy_squeaks)))]
-    selected_index = 0
+    mouse_zone = DeploymentZone(
+        shape=[OddRCoord(0, 0), OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE
+    )
+    rat_zone = DeploymentZone(shape=[OddRCoord(4, 9), OddRCoord(3, 9)], side=Side.RAT)
 
-    # PlayerInfo
+    # Indices for deck and hand
+    all_indices = set(range(len(dummy_squeaks)))
+
+    # Player 1: create a SqueakSet directly in the constructor
     player_info_1 = PlayerInfo(
-        hands=[[0, 1, 2, 3, 4]],
         all_squeaks=dummy_squeaks,
-        squeak_sets=dummy_squeak_sets,
-        selected_squeak_set_index=selected_index,
+        squeak_sets=[all_indices],  # deck indices for SqueakSet
+        hands=[all_indices],  # hand indices for SqueakSet
+        selected_squeak_set_index=0,
     )
 
+    # Player 2: separate SqueakSet instance
     player_info_2 = PlayerInfo(
-        hands=[[0, 1, 2, 3, 4]],
         all_squeaks=dummy_squeaks,
-        squeak_sets=dummy_squeak_sets,
-        selected_squeak_set_index=selected_index,
+        squeak_sets=[all_indices],
+        hands=[all_indices],
+        selected_squeak_set_index=0,
     )
 
     map = Map(
@@ -87,11 +94,13 @@ def main():
         size_y=size_y,
         tiles=tiles,
         entities=entities,
-        features=[],
+        features=[mouse_zone, rat_zone],
     )
     game_manager = GameManager(
         map=map, players_info=(player_info_1, player_info_2), first_turn=Side.MOUSE
     )
+    game_manager.board.cache.deployment_zones = {Side.RAT: [], Side.MOUSE: []}
+    game_manager.crumbs = 1000
     # endregion
 
     backend_adapter = BackendAdapter(

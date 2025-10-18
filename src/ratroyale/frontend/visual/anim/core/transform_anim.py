@@ -131,10 +131,6 @@ class ScaleAnim(TransformAnim):
         elif self.expansion_anchor[1] == HorizontalAnchor.RIGHT:
             anchor_x = curr_rect.right
 
-        # Interpolate size
-        new_width = start_width + (target_width - start_width) * eased_t
-        new_height = start_height + (target_height - start_height) * eased_t
-
         # Top-left = anchor minus proportional offset from anchor to current top-left
         offset_x = anchor_x - curr_rect.x
         offset_y = anchor_y - curr_rect.y

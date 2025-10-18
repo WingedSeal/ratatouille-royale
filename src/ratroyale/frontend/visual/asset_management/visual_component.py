@@ -113,9 +113,6 @@ class VisualComponent:
                 if frame:
                     surface.blit(frame, spatial_rect.topleft)
 
-        # DRAW RECT DEBUG
-        pygame.draw.rect(surface, (255, 0, 0), spatial_rect, width=2)
-
     def set_highlighted(self, highlighted: bool) -> None:
         """Set whether this visual is highlighted (e.g. selected)"""
         self.highlighted = highlighted
