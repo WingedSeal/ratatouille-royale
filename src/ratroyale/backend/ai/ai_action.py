@@ -17,6 +17,9 @@ class MoveAlly(AIAction):
     target_coord: OddRCoord
     custom_path: list[OddRCoord] | None = None
 
+    def __str__(self) -> str:
+        return f"Move {self.ally.name} from {self.ally.pos} to {self.target_coord}."
+
 
 @dataclass(frozen=True)
 class ActivateSkill(AIAction):
@@ -25,6 +28,9 @@ class ActivateSkill(AIAction):
 
     def get_skill(self) -> CallableEntitySkill:
         return self.entity.skills[self.skill_index]
+
+    def __str__(self) -> str:
+        return f"Activate skill {self.skill_index} ({self.get_skill().name}) of {self.entity.name} at {self.entity.pos}"
 
 
 @dataclass(frozen=True)
@@ -37,6 +43,9 @@ class SelectTargets(AIAction):
     skill_targeting: SkillTargeting
     selected_targets: tuple["OddRCoord", ...]
 
+    def __str__(self) -> str:
+        return f"Select {self.skill_targeting.target_count} target(s): {', '.join(str(target) for target in self.selected_targets)}"
+
 
 @dataclass(frozen=True)
 class PlaceSqueak(AIAction):
@@ -44,10 +53,16 @@ class PlaceSqueak(AIAction):
     hand_index: int
     squeak: Squeak
 
+    def __str__(self) -> str:
+        return f"Place Squeak {self.hand_index} ({self.squeak.name}) at {self.target_coord}"
+
 
 @dataclass(frozen=True)
 class EndTurn(AIAction):
     crumb_cost: int = field(default=0, init=False)
+
+    def __str__(self) -> str:
+        return "End turn"
 
 
 class AIActions:

@@ -2,12 +2,15 @@ import math
 from random import shuffle
 from typing import Iterator
 
+from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EntityEffect
 from .error import (
+    EntityInvalidPosError,
     GameManagerActionPerformedInSelectingMode,
     GameManagerSkillCallBackInNonSelectingMode,
     InvalidMoveTargetError,
@@ -16,18 +19,28 @@ from .error import (
     NotEnoughSkillStaminaError,
 )
 from .feature import Feature
+from .features.common import DeploymentZone, Lair
 from .game_event import (
     EndTurnEvent,
+    EntityDamagedEvent,
+    EntityDieEvent,
     EntityEffectUpdateEvent,
+    EntityHealedEvent,
     EntityMoveEvent,
+    FeatureDamagedEvent,
+    FeatureDieEvent,
     GameEvent,
     GameOverEvent,
+    SqueakDrawnEvent,
+    SqueakPlacedEvent,
+    SqueakSetResetEvent,
 )
 from .hexagon import OddRCoord
 from .map import Map
 from .player_info.player_info import PlayerInfo, HAND_LENGTH
 from .player_info.squeak import Squeak
 from .side import Side
+from .timer import Timer
 
 
 def crumb_per_turn(turn_count: int) -> int:
@@ -81,10 +94,7 @@ class GameManager:
         """
         If it is currently in selecting target mode. It'll have the detail of skill targeting.
         """
-
-    @property
-    def game_over_event(self) -> GameOverEvent | None:
-        return self.board.game_over_event
+        self.game_over_event: GameOverEvent | None = None
 
     @property
     def is_selecting_target(self) -> bool:
@@ -152,6 +162,19 @@ class GameManager:
                 return SkillCompleted.CANCELLED
             self.skill_targeting = skill_result
         return skill_result
+
+    def get_both_side_on_pos(self, pos: OddRCoord) -> Entity | None:
+        """
+        Get enemy or ally at the end of the list (top) at position or None if there's nothing there
+        """
+        tile = self.board.get_tile(pos)
+        if tile is None:
+            raise ValueError("There is no tile on the coord")
+        for entity in reversed(tile.entities):
+            if entity.health is None:
+                continue
+            return entity
+        return None
 
     def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
         """
@@ -223,7 +246,7 @@ class GameManager:
         path = self.board.path_find(rodent, target)
         if path is None:
             raise InvalidMoveTargetError()
-        is_success = self.board.try_move(rodent, target)
+        is_success = self.board.try_move(rodent, path)
         if not is_success:
             raise InvalidMoveTargetError("Cannot move rodent there")
         self.crumbs -= rodent.move_cost
@@ -231,7 +254,9 @@ class GameManager:
         self.event_queue.put(EntityMoveEvent(path, rodent))
         return path
 
-    def move_entity_uncheck(self, entity: Entity, target: OddRCoord) -> list[OddRCoord]:
+    def move_entity_uncheck(
+        self, entity: Entity, target: OddRCoord, custom_jump_height: int | None = None
+    ) -> list[OddRCoord]:
         """
         Blindly move entity to target. Neither crumbs nor speed was taken into account. But it still considers jump height.
         Raise error if it cannot move there
@@ -239,11 +264,12 @@ class GameManager:
         :param target: Target to move to
         :returns: Path the rodent took to get there
         """
-        self._validate_not_selecting_target()
-        path = self.board.path_find(entity, target)
+        path = self.board.path_find(
+            entity, target, custom_jump_height=custom_jump_height
+        )
         if path is None:
             raise InvalidMoveTargetError()
-        is_success = self.board.try_move(entity, target)
+        is_success = self.board.try_move(entity, path)
         if not is_success:
             raise InvalidMoveTargetError("Cannot move entity there")
         self.event_queue.put(EntityMoveEvent(path, entity))
@@ -269,6 +295,7 @@ class GameManager:
         """
         if self.decks[side]:
             return self.decks[side].pop()
+        self.event_queue.put_nowait(SqueakSetResetEvent())
         self.decks[side] = self.players_info[side].get_squeak_set().get_new_deck()
         shuffle(self.decks[side])
         return self.decks[side].pop()
@@ -280,28 +307,40 @@ class GameManager:
         squeak = self.hands[self.turn][hand_index]
         if self.crumbs < squeak.crumb_cost:
             raise NotEnoughCrumbError()
+        self.event_queue.put_nowait(SqueakPlacedEvent(hand_index, squeak, coord))
         new_squeak = squeak.on_place(self, coord)
         self.crumbs -= squeak.crumb_cost
-        self.hands[self.turn][hand_index] = (
-            self._draw_squeak(self.turn) if new_squeak is None else new_squeak
-        )
+        if new_squeak is None:
+            new_squeak = self._draw_squeak(self.turn)
+        self.event_queue.put_nowait(SqueakDrawnEvent(hand_index, new_squeak))
+        self.hands[self.turn][hand_index] = new_squeak
 
     def end_turn(self) -> None:
         self._validate_not_selecting_target()
         for effect in self.board.cache.effects:
             effect.on_turn_change(self)
-            if effect.duration == 1 and effect._should_clear(self.turn):
+            if effect.duration == 1 and effect.should_clear(self.turn):
                 active_effect = effect.entity.effects[effect.name]
                 if active_effect != effect:
                     active_effect.overridden_effects.remove(effect)
                 else:
                     self.effect_duration_over(effect)
+        for timer in self.board.cache.timers:
+            timer.on_turn_change(timer, self)
+            if timer.duration == 1 and timer.should_clear(self.turn):
+                timer.on_timer_over(timer, self)
+                self.board.cache.timers.remove(timer)
         from_side = self.turn
         self.turn = self.turn.other_side()
+        for entity in self.board.cache.entities_with_turn_change:
+            entity.on_turn_change(self, turn_change_to=self.turn)
         if self.turn == self.first_turn:
             for effect in self.board.cache.effects:
+                effect.turn_passed += 1
                 if effect.duration is not None:
                     effect.duration -= 1
+            for timer in self.board.cache.timers:
+                timer.duration -= 1
             self.turn_count += 1
         leftover_crumbs = self.crumbs
         self.crumbs = crumb_per_turn(self.turn_count)
@@ -311,6 +350,7 @@ class GameManager:
             entity.reset_stamina()
         self.event_queue.put_nowait(
             EndTurnEvent(
+                is_from_first_turn_side=self.first_turn == from_side,
                 from_side=from_side,
                 to_side=self.turn,
                 leftover_crumbs=leftover_crumbs,
@@ -318,8 +358,17 @@ class GameManager:
             )
         )
 
-    def apply_effect(self, entity: Entity, effect: EntityEffect) -> None:
+    def apply_timer(self, timer: Timer) -> None:
+        self.board.cache.timers.append(timer)
+
+    def apply_effect(
+        self, entity: Entity, effect: EntityEffect, stack_intensity: bool = False
+    ) -> None:
         old_effect = entity.effects.get(effect.name)
+        if stack_intensity and old_effect is not None:
+            old_effect.intensity += effect.intensity
+            old_effect.duration = effect.duration
+            return
         if old_effect is None:
             entity.effects[effect.name] = effect
             self.board.cache.effects.append(effect)
@@ -394,3 +443,77 @@ class GameManager:
         self.event_queue.put_nowait(
             EntityEffectUpdateEvent(effect, "clear", "force_clear")
         )
+
+    def damage_entity(
+        self, entity: Entity, damage: int | InstantKill, source: SourceOfDamageOrHeal
+    ) -> None:
+        """
+        Damage an entity. Throw error if called on entity with no health.
+        """
+        is_dead, damage_taken = entity._take_damage(self, damage, source)
+        self.event_queue.put_nowait(
+            EntityDamagedEvent(entity, damage, damage_taken, source)
+        )
+        if not is_dead:
+            return
+        is_dead = entity.on_death(source)
+        if not is_dead:
+            return
+        tile = self.board.get_tile(entity.pos)
+        if tile is None:
+            raise EntityInvalidPosError()
+        tile.entities.remove(entity)
+        self.board.remove_entity(entity)
+        self.event_queue.put_nowait(EntityDieEvent(entity))
+
+    def heal_entity(
+        self,
+        entity: Entity,
+        heal: int,
+        source: SourceOfDamageOrHeal,
+        overheal_cap: int = 0,
+    ) -> None:
+        """
+        Heal an entity. Throw error if called on entity with no health.
+        """
+        heal_taken = entity._heal(self, heal, source, overheal_cap)
+        self.event_queue.put_nowait(
+            EntityHealedEvent(entity, heal, heal_taken, overheal_cap, source)
+        )
+
+    def damage_feature(
+        self, feature: Feature, damage: int, source: SourceOfDamageOrHeal
+    ) -> None:
+        """
+        Damage a feature. Throw error if called on feature with no health.
+        """
+        is_dead, damage_taken = feature._take_damage(damage, source)
+        self.event_queue.put_nowait(
+            FeatureDamagedEvent(feature, damage, damage_taken, source)
+        )
+        if not is_dead:
+            return
+        is_dead = feature.on_death(source)
+        if not is_dead:
+            return
+
+        for pos in feature.shape:
+            tile = self.board.get_tile(pos)
+            if tile is None:
+                raise ValueError("Feature is existing on invalid tile")
+            tile.features.remove(feature)
+        self.board.cache.features.remove(feature)
+        if isinstance(feature, DeploymentZone):
+            self.board.cache.deployment_zones[feature.side].remove(feature)
+        elif isinstance(feature, Lair):
+            if feature.side is None:
+                raise ValueError("Lair cannot have side of None")
+            self.board.cache.lairs[feature.side].remove(feature)
+            if len(self.board.cache.lairs[feature.side]) == 0:
+                game_over_event = GameOverEvent(
+                    feature.side.other_side() == self.first_turn,
+                    feature.side.other_side(),
+                )
+                self.event_queue.put_nowait(game_over_event)
+                self.game_over_event = game_over_event
+        self.event_queue.put_nowait(FeatureDieEvent(feature))

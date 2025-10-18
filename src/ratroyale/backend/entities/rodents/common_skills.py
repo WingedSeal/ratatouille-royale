@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING, Iterable
 
-from ratroyale.backend.error import ShortHandSkillCallbackError
-
-from ...entity import SkillCompleted, SkillResult, SkillTargeting
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
+from ...entities.rodent import Rodent
+from ...entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from ...entity_effect import EntityEffect
+from ...error import InvalidMoveTargetError, ShortHandSkillCallbackError
 from ...skill_callback import SkillCallback, skill_callback_check
+from ...timer import Timer, TimerCallback, TimerClearSide
 
 if TYPE_CHECKING:
     from ...board import Board
-    from ...entities.rodent import Rodent
     from ...entity import CallableEntitySkill
     from ...game_manager import GameManager
     from ...hexagon import OddRCoord
@@ -37,6 +38,7 @@ def select_targetable(
     target_count: int = 1,
     *,
     is_feature_targetable: bool = True,
+    is_any_tile: bool = False,
     can_cancel: bool = True,
 ) -> SkillTargeting:
 
@@ -60,6 +62,9 @@ def select_targetable(
         tile = board.get_tile(coord)
         if tile is None:
             continue
+        if is_any_tile:
+            targets.append(coord)
+            continue
         if any(
             entity.side != rodent.side and entity.health is not None
             for entity in tile.entities
@@ -77,7 +82,27 @@ def select_targetable(
     )
 
 
-def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCallback:
+def move(self: Entity, *, custom_jump_height: int | None = None) -> SkillCallback:
+    @skill_callback_check
+    def callback(
+        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+    ) -> SkillCompleted:
+        if len(selected_targets) != 1:
+            raise ValueError("Multiple targets for teleport.")
+        try:
+            game_manager.move_entity_uncheck(
+                self, selected_targets[0], custom_jump_height=custom_jump_height
+            )
+        except InvalidMoveTargetError:
+            return SkillCompleted.CANCELLED
+        return SkillCompleted.SUCCESS
+
+    return callback
+
+
+def normal_damage(
+    damage: int, source: SourceOfDamageOrHeal, *, is_feature_targetable: bool = True
+) -> SkillCallback:
     """
     Apply normal damage
     :param damage: Damage to deal
@@ -90,29 +115,29 @@ def normal_damage(damage: int, *, is_feature_targetable: bool = True) -> SkillCa
         for target in selected_targets:
             enemy = game_manager.get_enemy_on_pos(target)
             if enemy is not None:
-                game_manager.board.damage_entity(enemy, damage)
+                game_manager.damage_entity(enemy, damage, source)
                 continue
             if not is_feature_targetable:
                 raise ValueError("Trying to damage entity that is not there")
             feature = game_manager.get_feature_on_pos(target)
             if feature is None:
                 raise ValueError("Trying to damage nothing")
-            game_manager.board.damage_feature(feature, damage)
+            game_manager.damage_feature(feature, damage, source)
         return SkillCompleted.SUCCESS
 
     return callback
 
 
-def apply_effect(
-    effect: type[EntityEffect],
+def apply_timer(
+    timer_clear_side: TimerClearSide,
     *,
-    duration: int | None,
-    intensity: float,
+    duration: int,
+    on_turn_change: TimerCallback | None = None,
+    on_timer_over: TimerCallback | None = None,
     is_ally_instead: bool = False,
 ) -> SkillCallback:
     """
-    Apply effect on enemy (or ally if `is_ally_instead`) rodent
-    :param effect: EntityEffect to apply to enemy
+    Apply timer on enemy (or ally if `is_ally_instead`) rodent
     :is_ally_instead: Target ally instead of enemy
     """
 
@@ -126,8 +151,49 @@ def apply_effect(
             else:
                 entity = game_manager.get_enemy_on_pos(target)
             assert entity is not None
+            game_manager.apply_timer(
+                Timer(
+                    entity,
+                    timer_clear_side,
+                    duration=duration,
+                    on_turn_change=on_turn_change,
+                    on_timer_over=on_timer_over,
+                ),
+            )
+        return SkillCompleted.SUCCESS
+
+    return callback
+
+
+def apply_effect(
+    effect: type[EntityEffect],
+    *,
+    duration: int | None,
+    intensity: float,
+    is_ally_instead: bool = False,
+    stack_intensity: bool = False,
+) -> SkillCallback:
+    """
+    Apply effect on enemy (or ally if `is_ally_instead`) rodent
+    :param effect: EntityEffect to apply to enemy
+    :is_ally_instead: Target ally instead of enemy
+    :stack_intensity: Whether to stack intensity and extend the duration instead (Note that it'll not recall on_apply)
+    """
+
+    @skill_callback_check
+    def callback(
+        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+    ) -> SkillCompleted:
+        for target in selected_targets:
+            if is_ally_instead:
+                entity = game_manager.get_ally_on_pos(target)
+            else:
+                entity = game_manager.get_enemy_on_pos(target)
+            assert entity is not None
             game_manager.apply_effect(
-                entity, effect(entity, duration=duration, intensity=intensity)
+                entity,
+                effect(entity, duration=duration, intensity=intensity),
+                stack_intensity=stack_intensity,
             )
         return SkillCompleted.SUCCESS
 
@@ -137,9 +203,11 @@ def apply_effect(
 def aoe_damage(
     damage: int,
     radius: int,
+    source: SourceOfDamageOrHeal,
     *,
     is_stackable: bool = False,
     is_feature_targetable: bool = True,
+    is_friendly_fire: bool = False,
 ) -> SkillCallback:
     """
     Deal aoe damage
@@ -147,6 +215,7 @@ def aoe_damage(
     :param radius: Radius of the aoe damage, this number is also altitude for checking line of sight
     :param is_stackable: Whether the same tile should get hit multiple times when selected area overlaps,
         defaults to `False`
+    :param is_friendly_fire: Whether the damage also affect ally
     :returns: SkillCallback
     """
 
@@ -176,16 +245,19 @@ def aoe_damage(
             ):
                 if not is_stackable and coord in tagged_coord:
                     continue
-                enemy = game_manager.get_enemy_on_pos(coord)
+                if is_friendly_fire:
+                    enemy = game_manager.get_both_side_on_pos(coord)
+                else:
+                    enemy = game_manager.get_enemy_on_pos(coord)
                 if enemy is not None:
-                    game_manager.board.damage_entity(enemy, damage)
+                    game_manager.damage_entity(enemy, damage, source)
                     continue
                 if not is_feature_targetable:
                     raise ValueError("Trying to damage entity that is not there")
                 feature = game_manager.get_feature_on_pos(coord)
                 if feature is None:
                     raise ValueError("Trying to damage nothing")
-                game_manager.board.damage_feature(feature, damage)
+                game_manager.damage_feature(feature, damage, source)
                 if not is_stackable:
                     tagged_coord.add(coord)
         return SkillCompleted.SUCCESS

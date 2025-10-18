@@ -18,6 +18,10 @@ class IsCoordBlocked(Protocol):
         ...
 
 
+def _coord_never_blocked(target_coord: "OddRCoord", source_coord: "OddRCoord") -> bool:
+    return False
+
+
 @dataclass(frozen=True)
 class OddRCoord:
     """
@@ -120,7 +124,7 @@ class OddRCoord:
     def get_reachable_coords(
         self,
         reach: int,
-        is_coord_blocked: IsCoordBlocked,
+        is_coord_blocked: IsCoordBlocked = _coord_never_blocked,
         *,
         is_include_self: bool = False,
     ) -> set["OddRCoord"]:
