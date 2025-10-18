@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from ...damage_heal_source import DamageHealSource
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...instant_kill import INSTANT_KILL, InstantKill
 from ...effects.global_rodent_effects import Stunned
 from ...entity import EntitySkill, SkillCompleted, SkillTargeting, entity_skill_check
@@ -219,7 +219,7 @@ class Mortar(Rodent):
         self,
         game_manager: "GameManager",
         damage: int | InstantKill,
-        source: DamageHealSource,
+        source: SourceOfDamageOrHeal,
     ) -> int | None:
         if self.double_speed_timer is not None:
             return None
