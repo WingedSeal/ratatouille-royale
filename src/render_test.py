@@ -99,7 +99,6 @@ def main():
     game_manager = GameManager(
         map=map, players_info=(player_info_1, player_info_2), first_turn=Side.MOUSE
     )
-    game_manager.board.cache.deployment_zones = {Side.RAT: [], Side.MOUSE: []}
     game_manager.crumbs = 1000
     # endregion
 
