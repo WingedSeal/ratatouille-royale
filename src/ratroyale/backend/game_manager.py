@@ -5,7 +5,7 @@ from typing import Iterator
 from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
-from .damage_heal_source import DamageHealSource
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EntityEffect
@@ -445,7 +445,7 @@ class GameManager:
         )
 
     def damage_entity(
-        self, entity: Entity, damage: int | InstantKill, source: DamageHealSource
+        self, entity: Entity, damage: int | InstantKill, source: SourceOfDamageOrHeal
     ) -> None:
         """
         Damage an entity. Throw error if called on entity with no health.
@@ -467,7 +467,11 @@ class GameManager:
         self.event_queue.put_nowait(EntityDieEvent(entity))
 
     def heal_entity(
-        self, entity: Entity, heal: int, source: DamageHealSource, overheal_cap: int = 0
+        self,
+        entity: Entity,
+        heal: int,
+        source: SourceOfDamageOrHeal,
+        overheal_cap: int = 0,
     ) -> None:
         """
         Heal an entity. Throw error if called on entity with no health.
@@ -478,7 +482,7 @@ class GameManager:
         )
 
     def damage_feature(
-        self, feature: Feature, damage: int, source: DamageHealSource
+        self, feature: Feature, damage: int, source: SourceOfDamageOrHeal
     ) -> None:
         """
         Damage a feature. Throw error if called on feature with no health.

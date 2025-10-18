@@ -6,4 +6,4 @@ if TYPE_CHECKING:
     from .feature import Feature
 
 
-DamageHealSource: TypeAlias = "Entity | EntityEffect | Feature | None"
+SourceOfDamageOrHeal: TypeAlias = "Entity | EntityEffect | Feature | None"
