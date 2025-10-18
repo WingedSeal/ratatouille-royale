@@ -31,17 +31,17 @@ class Stunned(EntityEffect):
 
     def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
         if self.entity.max_skill_stamina is not None:
-            self.entity.max_skill_stamina *= -1
+            self.entity.max_skill_stamina -= 999
         if isinstance(self.entity, Rodent):
             if self.entity.max_move_stamina is not None:
-                self.entity.max_move_stamina *= -1
+                self.entity.max_move_stamina -= 999
 
     def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
         if self.entity.max_skill_stamina is not None:
-            self.entity.max_skill_stamina *= -1
+            self.entity.max_skill_stamina += 999
         if isinstance(self.entity, Rodent):
             if self.entity.max_move_stamina is not None:
-                self.entity.max_move_stamina *= -1
+                self.entity.max_move_stamina += 999
 
     def effect_descriptions(self) -> str:
         return "TODO"
