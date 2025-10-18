@@ -51,7 +51,7 @@ class Mayo(Rodent):
                 neighbor
                 for neighbor in self.pos.get_neighbors()
                 if (tile := game_manager.board.get_tile(neighbor)) is not None
-                and tile.is_collision(True)
+                and not tile.is_collision(True)
             ],
             move(self, custom_jump_height=self.ROCKET_BOOST_HEIGHT_LIMIT),
             can_cancel=True,
