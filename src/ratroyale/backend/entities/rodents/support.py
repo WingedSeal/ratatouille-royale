@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
-from ratroyale.backend.hexagon import OddRCoord
-from ratroyale.backend.skill_callback import SkillCallback, skill_callback_check
-
+from ...hexagon import OddRCoord
+from ...skill_callback import SkillCallback, skill_callback_check
+from ...effects.global_rodent_effects import MoraleBoost
 from ...entity import (
     Entity,
     EntitySkill,
@@ -25,25 +25,6 @@ from .common_skills import (
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
-
-
-@effect_data(EffectClearSide.ALLY, name="Quartermaster's Body")
-class QuartermasterBody(EntityEffect):
-    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
-        if not isinstance(self.entity, Rodent):
-            return None
-        self.entity.attack -= 1
-
-    def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
-        if not isinstance(self.entity, Rodent):
-            return None
-        self.entity.attack += 1
-
-    def on_turn_change(self, game_manager: "GameManager") -> None:
-        pass
-
-    def effect_descriptions(self) -> str:
-        return "Attack increased by 1"
 
 
 @effect_data(EffectClearSide.ALLY, name="Quartermaster's Soul")
@@ -114,7 +95,7 @@ class Quartermaster(Rodent):
             game_manager.board,
             self,
             self.skills[0],
-            apply_effect(QuartermasterBody, duration=2),
+            apply_effect(MoraleBoost, duration=2),
         )
 
     @entity_skill_check
@@ -160,3 +141,10 @@ class Quartermaster(Rodent):
             return SkillCompleted.SUCCESS
 
         return skill_callback
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            'Boost an ally\'s morale by giving them "Morale Boost" status effect increasing its attack by 1 for 3 of ally turns.',
+            f"Distribute food to an ally healing it by {self.attack}(ATK) HP.",
+            f'Its last breath has come. Give "Quartermaster\'s Soul" status effect to an ally rodent. When activated again, said rodent will deal {self.attack}(ATK) damage to all enemy within 2-tile radius and this rodent will then be defeated.',
+        ]

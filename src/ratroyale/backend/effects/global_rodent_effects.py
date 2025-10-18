@@ -80,3 +80,22 @@ class Bleeding(EntityEffect):
 
     def effect_descriptions(self) -> str:
         return "TODO"
+
+
+@effect_data(EffectClearSide.ALLY, name="MoraleBoost")
+class MoraleBoost(EntityEffect):
+    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
+        if not isinstance(self.entity, Rodent):
+            return None
+        self.entity.attack -= 1
+
+    def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
+        if not isinstance(self.entity, Rodent):
+            return None
+        self.entity.attack += 1
+
+    def on_turn_change(self, game_manager: "GameManager") -> None:
+        pass
+
+    def effect_descriptions(self) -> str:
+        return f"Attack increased by {self.intensity:.0f}"
