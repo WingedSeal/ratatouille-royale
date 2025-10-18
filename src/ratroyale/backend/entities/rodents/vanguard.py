@@ -40,13 +40,16 @@ class TailBlazer(Rodent):
     @entity_skill_check
     def stab(self, game_manager: "GameManager") -> SkillTargeting:
         return select_targetable(
-            game_manager.board, self, self.skills[0], normal_damage(self.attack + 1)
+            game_manager.board,
+            self,
+            self.skills[0],
+            normal_damage(self.attack + 1, self),
         )
 
     @entity_skill_check
     def spear_launching(self, game_manager: "GameManager") -> SkillTargeting:
         return select_targetable(
-            game_manager.board, self, self.skills[1], normal_damage(self.attack)
+            game_manager.board, self, self.skills[1], normal_damage(self.attack, self)
         )
 
     def skill_descriptions(self) -> list[str]:
