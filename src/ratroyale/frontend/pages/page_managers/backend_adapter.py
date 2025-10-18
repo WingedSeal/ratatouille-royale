@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Callable
 
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.coordination_manager import CoordinationManager
@@ -11,8 +11,10 @@ from ratroyale.event_tokens.payloads import (
     GameSetupPayload,
     SqueakPlacableTilesPayload,
     CrumbUpdatePayload,
+    EntityPayload,
 )
 from ratroyale.backend.side import Side
+from ratroyale.backend.game_event import GameEvent, EntitySpawnEvent
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -22,28 +24,49 @@ class BackendAdapter:
     ) -> None:
         self.game_manager = game_manager
         self.coordination_manager = coordination_manager
-        self.event_to_action_map: dict[str, Callable[[GameManagerEvent[Any]], None]] = {
+        self.game_manager_response: dict[str, Callable[[GameManagerEvent], None]] = {
             "start_game": self.handle_game_start,
             "squeak_tile_interaction": self.handle_squeak_tile_interaction,
             "get_squeak_placable_tiles": self.handld_squeak_placable_tiles,
         }
+        self.game_manager_issued_events: dict[
+            type[GameEvent], Callable[[GameEvent], None]
+        ] = {
+            EntitySpawnEvent: self.spawn_entity_event_handler,
+        }
 
     def execute_backend_callback(self) -> None:
-        msg_queue: EventQueue[GameManagerEvent[Any]] | None = (
+        # Get the page -> backend queue
+        msg_queue_from_page: EventQueue[GameManagerEvent] | None = (
             self.coordination_manager.mailboxes.get(GameManagerEvent, None)
         )
-        if not msg_queue:
+        # Get the backend -> page queue
+        msg_queue_from_backend: EventQueue[GameEvent] = self.game_manager.event_queue
+
+        if msg_queue_from_page is None:
             return
 
-        while not msg_queue.empty():
-            msg = msg_queue.get()
-            handler = self.event_to_action_map.get(msg.game_action, None)
-            if handler:
-                handler(msg)
-            else:
-                print(f"No handler for event type {type(msg)}")
+        # Process all messages currently in both queues
+        while not msg_queue_from_page.empty() or not msg_queue_from_backend.empty():
+            # Process page -> backend messages
+            if not msg_queue_from_page.empty():
+                msg_from_page: GameManagerEvent = msg_queue_from_page.get()
+                page_handler = self.game_manager_response.get(msg_from_page.game_action)
+                if page_handler:
+                    page_handler(msg_from_page)
+                else:
+                    print(f"No handler for page event type: {type(msg)}")
 
-    def handle_game_start(self, event: GameManagerEvent[None]) -> None:
+            # Process backend -> page messages
+            if not msg_queue_from_backend.empty():
+                msg: GameEvent = msg_queue_from_backend.get()
+                handler = self.game_manager_issued_events.get(type(msg))
+                if handler:
+                    handler(msg)
+                else:
+                    print(f"No handler for backend event type: {type(msg)}")
+
+    def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
         # TODO: Which side is the player's side?
         player_info = self.game_manager.players_info[Side.RAT]
@@ -59,11 +82,10 @@ class BackendAdapter:
             )
         )
 
-    def handle_squeak_tile_interaction(
-        self, event: GameManagerEvent[SqueakPlacementPayload]
-    ) -> None:
+    def handle_squeak_tile_interaction(self, event: GameManagerEvent) -> None:
         payload = event.payload
         if payload:
+            assert isinstance(payload, SqueakPlacementPayload)
             hand_index = payload.hand_index
             coord = payload.tile_coord
 
@@ -76,18 +98,13 @@ class BackendAdapter:
                 )
             )
 
-    def handld_squeak_placable_tiles(
-        self, event: GameManagerEvent[SqueakPayload]
-    ) -> None:
+    def handld_squeak_placable_tiles(self, event: GameManagerEvent) -> None:
         payload = event.payload
-        assert payload
+        assert isinstance(payload, SqueakPayload)
         squeak = payload.squeak
 
         # Get placable tiles when the user clicks or drags a squeak card
         placable_tiles = squeak.get_placable_tiles(self.game_manager)
-        print("Placable tiles for selected squeak:")
-        for coord in placable_tiles:
-            print(f"Placable tile at {coord}")
         if placable_tiles:
             self.coordination_manager.put_message(
                 PageCallbackEvent(
@@ -95,3 +112,13 @@ class BackendAdapter:
                     payload=SqueakPlacableTilesPayload(placable_tiles),
                 )
             )
+
+    def spawn_entity_event_handler(self, event: GameEvent) -> None:
+        assert isinstance(event, EntitySpawnEvent)
+        entity = event.entity
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="spawn_entity",
+                payload=EntityPayload(entity),
+            )
+        )

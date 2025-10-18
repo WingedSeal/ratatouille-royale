@@ -174,7 +174,9 @@ class ElementWrapper:
     def queue_override_animation(
         self, anim_event: AnimEvent | SequentialAnim | GroupedAnim
     ) -> None:
+        print("Queueing override animation in element wrapper")
         if self.visual_component:
+            print("Queueing override animation")
             self.visual_component.queue_override_animation(anim_event)
         else:
             raise AttributeError(

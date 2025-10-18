@@ -99,6 +99,10 @@ class GameBoard(Page):
         self.squeak_in_hand: list[str] = []
         self.hand_slots_element: list[str] = []
         self.player_crumbs: int = 0
+        self.current_hovered_element_id: str | None = None
+
+        self.coord_to_tile_mapping: dict[OddRCoord, str] = {}
+        self.temporary_placable_coords: list[OddRCoord] = []
 
         self.ability_panel_id: str | None = None
 
@@ -119,17 +123,12 @@ class GameBoard(Page):
             board = msg.payload.board
             element_configs: list[ElementWrapper] = []
             tiles = board.tiles
-            entities = board.cache.entities
 
             for tile_list in tiles:
                 for tile in tile_list:
                     if tile:
                         tile_element = self.tile_element_creator(tile)
                         element_configs.append(tile_element)
-
-            for entity in entities:
-                entity_element = self.entity_element_creator(entity, entity.pos)
-                element_configs.append(entity_element)
 
             squeak_list = msg.payload.hand_squeaks
 
@@ -175,6 +174,22 @@ class GameBoard(Page):
         """Handle squeak placable tiles from backend."""
         if msg.success and msg.payload:
             assert isinstance(msg.payload, SqueakPlacableTilesPayload)
+            for coord in msg.payload.coord_list:
+                self.temporary_placable_coords.append(coord)
+                tile_element = self.get_element(
+                    self.coord_to_tile_mapping[coord], "TILE"
+                )
+                self._highlight(tile_element)
+                print(self.temporary_placable_coords)
+
+    @callback_event_bind("spawn_entity")
+    def _spawn_entity(self, msg: PageCallbackEvent) -> None:
+        """Handle spawning entity from backend."""
+        if msg.success and msg.payload:
+            assert isinstance(msg.payload, EntityPayload)
+            entity = msg.payload.entity
+            entity_element = self.entity_element_creator(entity, entity.pos)
+            self.setup_elements([entity_element])
 
     # endregion
 
@@ -187,17 +202,15 @@ class GameBoard(Page):
 
         self._close_ability_menu()
 
+    @input_event_bind("tile", GestureType.HOVER.to_pygame_event())
+    def _tile_hover_test(self, msg: pygame.event.Event) -> None:
+        """Test hover event on tile."""
+        # For testing purposes, we just print the hover info
+        # Will send data over to player info layer later
+
     # endregion
 
     # region Entity Related Events
-
-    @input_event_bind("entity", GestureType.HOVER.to_pygame_event())
-    def _entity_hover_test(self, msg: pygame.event.Event) -> None:
-        """Test hover event on entity."""
-        id = get_id(msg)
-        duration = get_gesture_data(msg).duration if get_gesture_data(msg) else 0.0
-        # For testing purposes, we just print the hover info
-        print(f"Hovering over entity {id} for {duration:.2f} seconds.")
 
     @input_event_bind("entity", GestureType.CLICK.to_pygame_event())
     def _on_entity_click(self, msg: pygame.event.Event) -> None:
@@ -276,20 +289,10 @@ class GameBoard(Page):
     def _activate_ability(self, msg: pygame.event.Event) -> None:
         """Activate selected ability."""
         self._close_ability_menu()
-        entity_element_id = get_id(msg)
-        if not entity_element_id:
-            raise ValueError(
-                "Wrong event type received. Make sure it is a gesture type event!"
-            )
 
     # endregion
 
     # region Squeak Related Events
-
-    @input_event_bind("squeak", GestureType.CLICK.to_pygame_event())
-    def squeak_clicked(self, msg: pygame.event.Event) -> None:
-        id = get_id(msg)
-        self._select_deselect_logic(SavedKey.SELECTED_SQUEAK, id, True)
 
     @input_event_bind("squeak", GestureType.DRAG_START.to_pygame_event())
     def squeak_drag_start(self, msg: pygame.event.Event) -> None:
@@ -312,9 +315,7 @@ class GameBoard(Page):
 
         squeak = squeak_element.get_payload(SqueakPayload)
         self.coordination_manager.put_message(
-            GameManagerEvent[SqueakPayload](
-                game_action="get_squeak_placable_tiles", payload=squeak
-            )
+            GameManagerEvent(game_action="get_squeak_placable_tiles", payload=squeak)
         )
 
     # endregion
@@ -340,7 +341,8 @@ class GameBoard(Page):
             )
 
         tile_element_id = get_id(msg)
-        self._select_deselect_logic(SavedKey.SELECTED_TILE, tile_element_id, False)
+        if tile_element_id and tile_element_id.split("_")[0] == "tile":
+            self.saved_element_ids[SavedKey.SELECTED_TILE] = tile_element_id
 
     @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
@@ -351,42 +353,27 @@ class GameBoard(Page):
             tile_element = self.get_element(selected_tile_id, "TILE")
             tile_payload: TilePayload = tile_element.get_payload(TilePayload)
 
-            self.coordination_manager.put_message(
-                GameManagerEvent[SqueakPlacementPayload](
-                    game_action="squeak_tile_interaction",
-                    payload=SqueakPlacementPayload(
-                        hand_index=self.squeak_in_hand.index(selected_squeak_id),
-                        tile_coord=tile_payload.tile.coord,
-                    ),
-                )
-            )
+            # Check if selected tiles are valid or not and return to hand if not
+            tile_coord = tile_payload.tile.coord
+            if tile_coord not in self.temporary_placable_coords:
+                squeak_elem = self.get_element(selected_squeak_id, "SQUEAK")
+                self.return_squeak_to_hand(squeak_elem)
+            else:
+                self.trigger_squeak_placement(selected_squeak_id, tile_coord)
+        else:
+            if selected_squeak_id:
+                squeak_elem = self.get_element(selected_squeak_id, "SQUEAK")
+                self.return_squeak_to_hand(squeak_elem)
 
-        self._deselection(SavedKey.SELECTED_SQUEAK)
-        self._deselection(SavedKey.SELECTED_TILE)
+        self._deselection(SavedKey.SELECTED_SQUEAK, False)
+        self._deselection(SavedKey.SELECTED_TILE, False)
 
-        # Remove squeak element and spawn a rodent
+        for coord in self.temporary_placable_coords:
+            tile_element = self.get_element(self.coord_to_tile_mapping[coord], "TILE")
+            self._unhighlight(tile_element)
+        self.temporary_placable_coords.clear()
 
         self.camera.end_drag()
-
-    @input_event_bind("squeak", GestureType.DRAG_END.to_pygame_event())
-    def return_squeak_to_size_end_drag(self, msg: pygame.event.Event) -> None:
-        squeak_id = get_id(msg)
-        assert squeak_id
-
-        squeak_hand_index = self.squeak_in_hand.index(squeak_id)
-        hand_slot_id = self.hand_slots_element[squeak_hand_index]
-        hand_slot_element = self.get_element(hand_slot_id, "HANDSLOT")
-        hand_slot_topleft = hand_slot_element.spatial_component.get_screen_rect(
-            self.camera
-        ).topleft
-
-        squeak_elem = self.get_element(squeak_id, "SQUEAK")
-        spatial = squeak_elem.spatial_component
-        squeak_elem.queue_override_animation(
-            return_squeak_to_normal(
-                spatial, self.camera, hand_slot_topleft, CARD_RECT.size
-            )
-        )
 
     # endregion
 
@@ -402,6 +389,60 @@ class GameBoard(Page):
     # endregion
 
     # region UTILITY METHODS
+
+    def trigger_squeak_placement(
+        self, selected_squeak_id: str, tile_coord: OddRCoord
+    ) -> None:
+        """Trigger the squeak placement animation."""
+        self.coordination_manager.put_message(
+            GameManagerEvent(
+                game_action="squeak_tile_interaction",
+                payload=SqueakPlacementPayload(
+                    hand_index=self.squeak_in_hand.index(selected_squeak_id),
+                    tile_coord=tile_coord,
+                ),
+            )
+        )
+        # Kill the squeak element after placement
+        self._element_manager.remove_element("SQUEAK", selected_squeak_id)
+        # Remove selected squeak element id from saved keys & hand list
+        self.saved_element_ids[SavedKey.SELECTED_SQUEAK] = None
+        self.squeak_in_hand.remove(selected_squeak_id)
+        # Move up other squeaks in hand
+        self.move_other_squeak_up()
+
+    def return_squeak_to_hand(self, squeak_element: ElementWrapper) -> None:
+        """Return the squeak element back to the player's hand."""
+        squeak_hand_index = self.squeak_in_hand.index(squeak_element.registered_name)
+        hand_slot_id = self.hand_slots_element[squeak_hand_index]
+        hand_slot_element = self.get_element(hand_slot_id, "HANDSLOT")
+        target_rect = hand_slot_element.spatial_component.get_screen_rect(self.camera)
+        spatial = squeak_element.spatial_component
+        vis = squeak_element.visual_component
+        if vis:
+            vis.queue_override_animation(
+                return_squeak_to_normal(
+                    spatial, self.camera, target_rect.topleft, CARD_RECT.size
+                )
+            )
+
+    def move_other_squeak_up(self) -> None:
+        """Move the squeak element up in the hand display."""
+        for i, squeak_id in enumerate(self.squeak_in_hand):
+            squeak_element = self.get_element(squeak_id, "SQUEAK")
+            hand_slot_id = self.hand_slots_element[i]
+            hand_slot_element = self.get_element(hand_slot_id, "HANDSLOT")
+            target_rect = hand_slot_element.spatial_component.get_screen_rect(
+                self.camera
+            )
+            spatial = squeak_element.spatial_component
+            vis = squeak_element.visual_component
+            if vis:
+                vis.queue_override_animation(
+                    return_squeak_to_normal(
+                        spatial, self.camera, target_rect.topleft, CARD_RECT.size
+                    )
+                )
 
     def tile_element_creator(self, tile: Tile) -> ElementWrapper:
         # TODO: change the hardcoded tile number to tile sprite number
@@ -424,6 +465,8 @@ class GameBoard(Page):
             ),
             payload=TilePayload(tile),
         )
+
+        self.coord_to_tile_mapping[tile.coord] = tile_element.registered_name
         return tile_element
 
     def entity_element_creator(self, entity: Entity, pos: OddRCoord) -> ElementWrapper:
@@ -528,7 +571,7 @@ class GameBoard(Page):
         self,
         saved_key: SavedKey,
         element_id: str | None,
-        deselect_on_repeat_selection: bool,
+        deselect_on_repeat_selection: bool = True,
         trigger_anim: bool = True,
     ) -> None:
         if element_id:
@@ -560,15 +603,7 @@ class GameBoard(Page):
         if not trigger_anim:
             return
 
-        if element and element.visual_component:
-            vis = element.visual_component
-            if vis and vis.spritesheet_component:
-                vis.queue_override_animation(
-                    on_select_color_fade_in(
-                        vis.spritesheet_component,
-                        color=pygame.Color(255, 255, 255),
-                    )
-                )
+        self._highlight(element)
 
     def _deselection(
         self, saved_element_key: SavedKey, trigger_anim: bool = True
@@ -582,20 +617,34 @@ class GameBoard(Page):
 
         element = self._element_manager.get_element_wrapper(element_id, element_type)
 
+        self.saved_element_ids[saved_element_key] = None
+
         if not trigger_anim:
             return
 
+        self._unhighlight(element)
+
+    def _highlight(self, element: ElementWrapper) -> None:
+        if element and element.visual_component:
+            vis = element.visual_component
+            if vis and vis.spritesheet_component:
+                vis.queue_override_animation(
+                    on_select_color_fade_in(
+                        vis.spritesheet_component,
+                        color=pygame.Color(200, 200, 0),
+                    )
+                )
+
+    def _unhighlight(self, element: ElementWrapper) -> None:
         if element and element.visual_component:
             vis = element.visual_component
             if vis and vis.spritesheet_component:
                 vis.queue_override_animation(
                     on_select_color_fade_out(
                         vis.spritesheet_component,
-                        color=pygame.Color(255, 255, 255),
+                        color=pygame.Color(200, 200, 0),
                     )
                 )
-
-        self.saved_element_ids[saved_element_key] = None
 
     def _close_ability_menu(self) -> None:
         """Close the ability menu if open."""
@@ -629,7 +678,11 @@ class GameBoard(Page):
     def _define_entity_rect(self, pos: OddRCoord) -> tuple[float, float, float, float]:
         """Given an Entity, return its bounding rectangle as (x, y, width, height)."""
         pixel_x, pixel_y = pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-        width, height = (40, 40)  # Placeholder size for entity
+        width, height = (50, 50)
+        pixel_x += (TYPICAL_TILE_SIZE[0] - width) / 2
+        pixel_y += (TYPICAL_TILE_SIZE[1] - height) / 2
         return (pixel_x, pixel_y, width, height)
+
+    # endregion
 
     # endregion

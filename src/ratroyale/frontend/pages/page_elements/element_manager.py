@@ -80,13 +80,13 @@ class ElementManager:
         self._flattened_collection.append(element)
         self._sort_flattened_by_z_order()
 
-    def remove_element(self, element_type: str, key: str) -> None:
+    def remove_element(self, grouping_name: str, registered_name: str) -> None:
         """Removes an element and all its children from the collection and flattened list."""
-        collection = self.get_collection(element_type)
-        if key not in collection:
+        collection = self.get_collection(grouping_name)
+        if registered_name not in collection:
             return
 
-        element: ElementWrapper = collection[key]
+        element: ElementWrapper = collection[registered_name]
 
         # Remove from parent's children list if applicable
         if element.parent is not None:
@@ -95,9 +95,14 @@ class ElementManager:
 
         # Remove the element itself
         element.destroy()
+        if element.children:
+            for child in element.children[
+                :
+            ]:  # Copy to avoid modification during iteration
+                self.remove_element(child.grouping_name, child.registered_name)
         if element in self._flattened_collection:
             self._flattened_collection.remove(element)
-        collection.pop(key)
+        collection.pop(registered_name)
 
         self._sort_flattened_by_z_order()
 
