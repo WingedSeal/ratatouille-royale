@@ -42,6 +42,7 @@ from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry impo
 )
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.player_info.squeak import Squeak
+from ratroyale.backend.hexagon import OddRCoord
 
 
 from ratroyale.event_tokens.payloads import (
@@ -127,7 +128,7 @@ class GameBoard(Page):
                         element_configs.append(tile_element)
 
             for entity in entities:
-                entity_element = self.entity_element_creator(entity)
+                entity_element = self.entity_element_creator(entity, entity.pos)
                 element_configs.append(entity_element)
 
             squeak_list = msg.payload.hand_squeaks
@@ -354,6 +355,9 @@ class GameBoard(Page):
 
         self._deselection(SavedKey.SELECTED_SQUEAK)
         self._deselection(SavedKey.SELECTED_TILE)
+
+        # Remove squeak element and spawn a rodent
+
         self.camera.end_drag()
 
     @input_event_bind("squeak", GestureType.DRAG_END.to_pygame_event())
@@ -414,8 +418,9 @@ class GameBoard(Page):
         )
         return tile_element
 
-    def entity_element_creator(self, entity: Entity) -> ElementWrapper:
+    def entity_element_creator(self, entity: Entity, pos: OddRCoord) -> ElementWrapper:
         # TODO: change the hardcoded type to entity type
+        # TODO: when I place squeaks how do I know what entity to create?
         sprite_metadata = SPRITE_METADATA_REGISTRY[TailBlazer]
         cached_spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
@@ -430,7 +435,7 @@ class GameBoard(Page):
             grouping_name="ENTITY",
             camera=self.camera,
             spatial_component=SpatialComponent(
-                pygame.Rect(self._define_entity_rect(entity)),
+                pygame.Rect(self._define_entity_rect(pos)),
                 space_mode="WORLD",
                 z_order=1,
             ),
@@ -607,16 +612,15 @@ class GameBoard(Page):
 
     # region Element Definition Helpers
 
-    # TODO: could be moved to elsewhere
     def _define_tile_rect(self, tile: Tile) -> tuple[float, float, float, float]:
         """Given a Tile, return its bounding rectangle as (x, y, width, height)."""
         pixel_x, pixel_y = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         width, height = TYPICAL_TILE_SIZE
         return (pixel_x, pixel_y, width, height)
 
-    def _define_entity_rect(self, entity: Entity) -> tuple[float, float, float, float]:
+    def _define_entity_rect(self, pos: OddRCoord) -> tuple[float, float, float, float]:
         """Given an Entity, return its bounding rectangle as (x, y, width, height)."""
-        pixel_x, pixel_y = entity.pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
+        pixel_x, pixel_y = pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         width, height = (40, 40)  # Placeholder size for entity
         return (pixel_x, pixel_y, width, height)
 

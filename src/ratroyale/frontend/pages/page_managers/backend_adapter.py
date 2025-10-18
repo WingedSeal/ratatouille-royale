@@ -1,10 +1,6 @@
 from typing import Any, Callable
 
-from ratroyale.backend.board import Board
-from ratroyale.backend.entity import Entity
 from ratroyale.backend.game_manager import GameManager
-from ratroyale.backend.hexagon import OddRCoord
-from ratroyale.backend.tile import Tile
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
@@ -99,50 +95,3 @@ class BackendAdapter:
                     payload=SqueakPlacableTilesPayload(placable_tiles),
                 )
             )
-
-
-def get_name_from_entity(entity: Entity) -> str:
-    """Translate an Entity instance to a representative string name"""
-    return f"entity_{entity.name}_{entity.pos.x}_{entity.pos.y}"
-
-
-def get_name_from_tile(tile: Tile) -> str:
-    """Translate a Tile instance to a representative string name"""
-    return f"tile_{tile.coord.x}_{tile.coord.y}"
-
-
-def get_entity_from_name(board: Board, name: str) -> Entity | None:
-    """Translate a string name to an Entity instance. \n
-    Format: entity_{entity.name}_{entity.pos.x}_{entity.pos.y}"""
-    name_parts = name.split("_")
-    entity_name = name_parts[1]
-    pos_x = int(name_parts[-2])
-    pos_y = int(name_parts[-1])
-    coord = OddRCoord(pos_x, pos_y)
-
-    tile = board.get_tile(coord)
-    if tile is not None:
-        entities_here = tile.entities
-        for entity in entities_here:
-            if entity.name == entity_name and entity.pos == coord:
-                return entity
-            else:
-                raise ValueError(f"Entity with name {name} not found on board.")
-
-    return None
-
-
-def get_tile_from_name(board: Board, name: str) -> Tile:
-    """Translate a string name to an Tile instance. \n
-    Format: tile_{tile.coord.x}_{tile.coord.y}"""
-    name_parts = name.split("_")
-    pos_x = int(name_parts[-2])
-    pos_y = int(name_parts[-1])
-    coord = OddRCoord(pos_x, pos_y)
-
-    tile = board.get_tile(coord)
-
-    if tile:
-        return tile
-    else:
-        raise ValueError(f"No tile found at {coord}")

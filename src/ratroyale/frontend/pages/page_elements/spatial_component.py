@@ -6,15 +6,16 @@ from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
 SpaceMode = Literal["WORLD", "SCREEN"]
 
 
+# TODO: Move camera class to element?
 @dataclass
 class Camera:
     world_x: float
     world_y: float
-    """Upper and lower bound for zooming scale"""
     screen_offset_x: float
     screen_offset_y: float
     scale: float = 1.0
     scale_constraints: tuple[float, float] = (1.5, 0.5)
+    """Upper and lower bound for zooming scale"""
 
     # Temporary drag state
     _prev_drag_mouse: tuple[float, float] | None = None
