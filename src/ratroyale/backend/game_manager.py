@@ -361,9 +361,8 @@ class GameManager:
     def apply_timer(self, timer: Timer) -> None:
         self.board.cache.timers.append(timer)
 
-    def apply_effect(
-        self, entity: Entity, effect: EntityEffect, stack_intensity: bool = False
-    ) -> None:
+    def apply_effect(self, effect: EntityEffect, stack_intensity: bool = False) -> None:
+        entity = effect.entity
         old_effect = entity.effects.get(effect.name)
         if stack_intensity and old_effect is not None:
             old_effect.intensity += effect.intensity

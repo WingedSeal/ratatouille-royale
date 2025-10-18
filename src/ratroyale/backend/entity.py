@@ -58,6 +58,7 @@ class Entity:
 
     pos: OddRCoord
     effects: dict[str, EntityEffect]
+    """Dictionary of its effect name and its effect"""
     name: str
     max_health: int | None
     health: int | None

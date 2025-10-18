@@ -1,9 +1,18 @@
 from typing import TYPE_CHECKING
 
+from ...hexagon import OddRCoord
+from ...skill_callback import SkillCallback, skill_callback_check
+from ...entity_effect import EffectClearSide, EntityEffect, effect_data
 from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...instant_kill import INSTANT_KILL, InstantKill
 from ...effects.global_rodent_effects import Stunned
-from ...entity import EntitySkill, SkillCompleted, SkillTargeting, entity_skill_check
+from ...entity import (
+    EntitySkill,
+    SkillCompleted,
+    SkillResult,
+    SkillTargeting,
+    entity_skill_check,
+)
 from ...tags import RodentClassTag, SkillTag
 from ...timer import Timer, TimerClearSide
 from ..rodent import Rodent, rodent_data
@@ -233,3 +242,91 @@ class Mortar(Rodent):
         )
         game_manager.apply_timer(self.double_speed_timer)
         return None
+
+
+@effect_data(EffectClearSide.ALLY, name="Railgun Charged")
+class RailgunCharged(EntityEffect):
+    def on_turn_change(self, game_manager: "GameManager") -> None:
+        pass
+
+    def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
+        pass
+
+    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
+        pass
+
+    def effect_descriptions(self) -> str:
+        return "Railgun is charged and is ready to fire."
+
+
+@rodent_data(
+    name="Rail Rodent",
+    description="A little over confident rodent that happens to have giant weapon of mass destruction in its hands.",
+    health=7,
+    defense=3,
+    speed=3,
+    move_stamina=2,
+    skill_stamina=1,
+    attack=10,
+    move_cost=3,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Railgun Charge",
+            method_name="railgun_charge",
+            reach=20,
+            altitude=0,
+            crumb_cost=20,
+            tags=[],
+        ),
+        EntitySkill(
+            name="Railgun",
+            method_name="railgun",
+            reach=20,
+            altitude=0,
+            crumb_cost=5,
+            tags=[SkillTag.NO_TARGET_FEATURE],
+        ),
+    ],
+)
+class RailRodent(Rodent):
+
+    @entity_skill_check
+    def railgun_charge(self, game_manager: "GameManager") -> SkillCompleted:
+        if RailgunCharged.name in self.effects:
+            return SkillCompleted.CANCELLED
+        game_manager.apply_effect(RailgunCharged(self, duration=3))
+        return SkillCompleted.SUCCESS
+
+    @entity_skill_check
+    def railgun(self, game_manager: "GameManager") -> SkillResult:
+        if RailgunCharged.name not in self.effects:
+            return SkillCompleted.CANCELLED
+        return select_targetable(
+            game_manager.board,
+            self,
+            self.skills[0],
+            self.railgun_callback(),
+            is_feature_targetable=False,
+        )
+
+    def railgun_callback(self) -> SkillCallback:
+        @skill_callback_check
+        def skill_callback(
+            game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        ) -> SkillResult:
+            normal_damage(self.attack * 2, self, is_feature_targetable=False)(
+                game_manager, selected_targets
+            )
+            game_manager.force_clear_effect(self.effects[RailgunCharged.name])
+            return SkillCompleted.SUCCESS
+
+        return skill_callback
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            'Charge its railgun and give itself "Railgun Charged" status effect for 3 of ally turn.',
+            f'If it has "Railgun Charged" status effect, fire the railgun at an enemy dealing {self.attack*2}(ATK*2) damage and clear said effect.',
+        ]

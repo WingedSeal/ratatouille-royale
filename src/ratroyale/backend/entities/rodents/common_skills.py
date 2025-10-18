@@ -191,7 +191,6 @@ def apply_effect(
                 entity = game_manager.get_enemy_on_pos(target)
             assert entity is not None
             game_manager.apply_effect(
-                entity,
                 effect(entity, duration=duration, intensity=intensity),
                 stack_intensity=stack_intensity,
             )
