@@ -191,6 +191,14 @@ class GameBoard(Page):
 
     # region Entity Related Events
 
+    @input_event_bind("entity", GestureType.HOVER.to_pygame_event())
+    def _entity_hover_test(self, msg: pygame.event.Event) -> None:
+        """Test hover event on entity."""
+        id = get_id(msg)
+        duration = get_gesture_data(msg).duration if get_gesture_data(msg) else 0.0
+        # For testing purposes, we just print the hover info
+        print(f"Hovering over entity {id} for {duration:.2f} seconds.")
+
     @input_event_bind("entity", GestureType.CLICK.to_pygame_event())
     def _on_entity_click(self, msg: pygame.event.Event) -> None:
         id = get_id(msg)

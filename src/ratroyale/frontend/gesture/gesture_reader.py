@@ -142,6 +142,14 @@ class GestureReader:
     ) -> None:
         """Handle pointer motion and generate drag gestures if threshold exceeded."""
 
+        # Always emit hover before any other motion logic
+        duration = time.time() - self.start_time if self.start_time else 0.0
+        self.on_hover(
+            pos=pos,
+            duration=duration,
+            raw_event=raw_event,
+        )
+
         if self.start_pos is None:
             return
 
@@ -173,7 +181,7 @@ class GestureReader:
                 dy=dy_frame,
                 current_pos=pos,
                 start_pos=self.start_pos,
-                duration=time.time() - self.start_time if self.start_time else 0.0,
+                duration=duration,
                 raw_event=raw_event,
             )
 
