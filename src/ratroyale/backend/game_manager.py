@@ -336,6 +336,7 @@ class GameManager:
             entity.on_turn_change(self, turn_change_to=self.turn)
         if self.turn == self.first_turn:
             for effect in self.board.cache.effects:
+                effect.turn_passed += 1
                 if effect.duration is not None:
                     effect.duration -= 1
             for timer in self.board.cache.timers:
