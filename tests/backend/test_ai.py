@@ -1,16 +1,15 @@
 import pytest
 
+from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.ai.random_ai import RandomAI
+from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.features.common import DeploymentZone, Lair
-from ratroyale.backend.game_event import GameOverEvent
+from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.player_info.player_info import PlayerInfo
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
 from ratroyale.backend.side import Side
-from ratroyale.backend.game_manager import GameManager
-from ratroyale.backend.player_info.squeaks.rodents.vanguard import (
-    TAIL_BLAZER,
-)
 
 
 @pytest.fixture
@@ -29,7 +28,8 @@ def small_map() -> Map:
 
 
 @pytest.mark.integration
-def test_random_ai(small_map: Map) -> None:
+@pytest.mark.parametrize("ai_type", [RandomAI, RushBAI])
+def test_random_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
     game_manager = GameManager(
         small_map,
         players_info=(
@@ -38,14 +38,14 @@ def test_random_ai(small_map: Map) -> None:
         ),
         first_turn=Side.RAT,
     )
-    ai = RandomAI(game_manager, Side.MOUSE)
+    ai = ai_type(game_manager, Side.MOUSE)
     for _ in range(100):
+        assert game_manager.turn == Side.RAT
         # Player Turn
         game_manager.end_turn()
         # AI Turn
         ai.run_ai_and_update_game_manager()
-        event = game_manager.event_queue.get_or_none()
-        if isinstance(event, GameOverEvent):
-            assert event.victory_side == ai.ai_side
+        if game_manager.game_over_event is not None:
+            assert game_manager.game_over_event.victory_side == ai.ai_side
             return
     assert False

@@ -10,13 +10,14 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
     callback_event_bind,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    UIRegisterForm,
+from ratroyale.frontend.pages.page_elements.spatial_component import (
+    Camera,
 )
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.entity import Entity
-from ratroyale.frontend.pages.page_elements.element import Element
-
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+    ui_element_wrapper,
+)
+from ratroyale.event_tokens.payloads import TilePayload
 
 import pygame_gui
 import pygame
@@ -24,99 +25,104 @@ import pygame
 
 @register_page
 class PlayerInfoPage(Page):
-    def __init__(self, coordination_manager: CoordinationManager) -> None:
-        super().__init__(coordination_manager, is_blocking=False)
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(coordination_manager, camera, is_blocking=False)
         self.crumbs = 0
 
-    def define_initial_gui(self) -> list[UIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
-        gui_elements: list[UIRegisterForm] = []
+        gui_elements: list[ElementWrapper] = []
 
-        # region Permanent buttons/panels
-        gui_elements.append(
-            UIRegisterForm(
-                "view_deck_button",  # <- registered name. for getting & deleting.
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(0, 450, 200, 50),
-                    text="View Deck",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="ViewDeckButton",  # <- theming name.
-                        object_id="view_deck",  # <- event name. used for listening.
-                    ),
-                ),
-            )
+        # region Perm buttons/panels
+        view_deck_button_id = (
+            "view_deck_button"  # <- registered name. for getting & deleting.
         )
-
-        gui_elements.append(
-            UIRegisterForm(
-                "show_crumbs_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(0, 0, 200, 50),
-                    text="Crumbs: ",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="ShowCrumbsButton",
-                        object_id="show_crumbs",
-                    ),
-                ),
-            )
+        view_deck_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(0, 450, 200, 50),
+            text="View Deck",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="ViewDeckButton",  # <- theming name.
+                object_id="view_deck",  # <- event name. used for listening.
+            ),
         )
-
-        gui_elements.append(
-            UIRegisterForm(
-                "end_turn_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(700, 500, 100, 50),
-                    text="End Turn",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="EndTurnButton",
-                        object_id="end_turn",
-                    ),
-                ),
-            )
+        view_deck_button_element = ui_element_wrapper(
+            view_deck_button, view_deck_button_id, self.camera
         )
+        gui_elements.append(view_deck_button_element)
 
+        show_crumbs_button_id = "show_crumbs_button"
+        show_crumbs_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(0, 0, 200, 50),
+            text="Crumbs: ",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="ShowCrumbsButton",
+                object_id="show_crumbs",
+            ),
+        )
+        show_crumbs_button_element = ui_element_wrapper(
+            show_crumbs_button, show_crumbs_button_id, self.camera
+        )
+        gui_elements.append(show_crumbs_button_element)
+
+        end_turn_button_id = "end_turn_button"
+        end_turn_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(700, 500, 100, 50),
+            text="End Turn",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="EndTurnButton",
+                object_id="end_turn",
+            ),
+        )
+        end_turn_button_element = ui_element_wrapper(
+            end_turn_button, end_turn_button_id, self.camera
+        )
+        gui_elements.append(end_turn_button_element)
         # end region
 
         # region Panels visible on hover
-        gui_elements.append(
-            UIRegisterForm(
-                "tile_hover_data_panel",
-                pygame_gui.elements.UIPanel(
-                    relative_rect=pygame.Rect(200, 0, 400, 100),
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="TileHoverDataPanel", object_id="tile_hover_data_panel"
-                    ),
-                ),
-            )
+        tile_hover_data_panel_id = "tile_hover_data_panel"
+        tile_hover_data_panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(200, 0, 400, 100),
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="TileHoverDataPanel", object_id="tile_hover_data_panel"
+            ),
         )
+        tile_hover_data_panel_element = ui_element_wrapper(
+            tile_hover_data_panel, tile_hover_data_panel_id, self.camera
+        )
+        gui_elements.append(tile_hover_data_panel_element)
 
-        gui_elements.append(
-            UIRegisterForm(
-                "entity_hover_data_panel",
-                pygame_gui.elements.UIPanel(
-                    relative_rect=pygame.Rect(200, 500, 400, 100),
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="EntityHoverDataPanel",
-                        object_id="entity_hover_data_panel",
-                    ),
-                ),
-            )
+        entity_hover_data_panel_id = "entity_hover_data_panel"
+        entity_hover_data_panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(200, 500, 400, 100),
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="EntityHoverDataPanel",
+                object_id="entity_hover_data_panel",
+            ),
         )
+        entity_hover_data_panel_element = ui_element_wrapper(
+            entity_hover_data_panel, entity_hover_data_panel_id, self.camera
+        )
+        gui_elements.append(entity_hover_data_panel_element)
 
         # end region
 
         return gui_elements
 
     def on_open(self) -> None:
-        show_crumbs_button = self._element_manager.get_gui_element(
-            "show_crumbs_button", pygame_gui.elements.UIButton
+        show_crumbs_button = self._element_manager.get_element_wrapper(
+            "show_crumbs_button", "UI_ELEMENT"
         )
-        show_crumbs_button.set_text(f"Crumbs: {self.crumbs}")
+        show_crumbs_button.get_interactable(pygame_gui.elements.UIButton).set_text(
+            f"Crumbs: {self.crumbs}"
+        )
 
     @input_event_bind("view_deck", pygame_gui.UI_BUTTON_PRESSED)
     def on_view_deck_click(self, msg: pygame.event.Event) -> None:
@@ -135,49 +141,56 @@ class PlayerInfoPage(Page):
         )
 
     @callback_event_bind("tile_hover")
-    def on_tile_hover(self, msg: PageCallbackEvent[Element[Tile | Entity]]) -> None:
+    def on_tile_hover(self, msg: PageCallbackEvent[ElementWrapper]) -> None:
         received_element = msg.payload
-        if received_element is None or not isinstance(received_element, Element):
+        if received_element is None or not isinstance(received_element, ElementWrapper):
             return
 
-        tile_hover_data_panel = self._element_manager.get_gui_element(
-            "tile_hover_data_panel", pygame_gui.elements.UIPanel
+        tile_hover_data_panel = self._element_manager.get_element_wrapper(
+            "tile_hover_data_panel", "UI_ELEMENT"
         )
-        entity_hover_data_panel = self._element_manager.get_gui_element(
-            "entity_hover_data_panel", pygame_gui.elements.UIPanel
+        entity_hover_data_panel = self._element_manager.get_element_wrapper(
+            "entity_hover_data_panel", "UI_ELEMENT"
         )
 
-        if isinstance(received_element.payload, Tile):
+        tile_hover_data_panel_object = tile_hover_data_panel.get_interactable(
+            pygame_gui.elements.UIPanel
+        )
+        entity_hover_data_panel_object = entity_hover_data_panel.get_interactable(
+            pygame_gui.elements.UIPanel
+        )
+
+        if isinstance(received_element.payload, TilePayload):
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(0, 0, 100, 20),
-                text=f"Odd-R: {received_element.payload.coord}",
+                text=f"Odd-R: {received_element.payload.tile.coord}",
                 manager=self.gui_manager,
-                container=tile_hover_data_panel,
+                container=tile_hover_data_panel_object,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="OddRCoordButton",
                     object_id="odd_r_coord_button",
                 ),
             )
 
-            for index, feature in enumerate(received_element.payload.features):
+            for index, feature in enumerate(received_element.payload.tile.features):
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100 + index * 60, (index // 6), 50, 20),
                     text=f"{feature.FEATURE_ID()}",
                     manager=self.gui_manager,
-                    container=tile_hover_data_panel,
+                    container=tile_hover_data_panel_object,
                     object_id=pygame_gui.core.ObjectID(
                         class_id="ShowFeatureButton",
                         object_id=f"ShowFeatureButton{index}",
                     ),
                 )
-            for index, entity in enumerate(received_element.payload.entities):
+            for index, entity in enumerate(received_element.payload.tile.entities):
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(
                         10 + index * 60, 10 + (index // 6) * 80, 50, 20
                     ),
                     text=f"{entity.name}",
                     manager=self.gui_manager,
-                    container=entity_hover_data_panel,
+                    container=entity_hover_data_panel_object,
                     object_id=pygame_gui.core.ObjectID(
                         class_id="ShowEntityButton",
                         object_id=f"ShowEntityButton{index}",

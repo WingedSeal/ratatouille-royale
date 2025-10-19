@@ -7,9 +7,12 @@ from ratroyale.event_tokens.game_token import *
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    UIRegisterForm,
+from ratroyale.frontend.pages.page_elements.spatial_component import (
+    Camera,
+)
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+    ui_element_wrapper,
 )
 
 import pygame_gui
@@ -18,15 +21,18 @@ import pygame
 
 @register_page
 class SelectTargetPromptPage(Page):
-    def __init__(self, coordination_manager: CoordinationManager) -> None:
-        super().__init__(coordination_manager)
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(coordination_manager, camera)
         # if page is strangely not responsive, check is_blocking status of open pages.
 
-    def define_initial_gui(self) -> list[UIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
-        gui_elements: list[UIRegisterForm] = []
+        gui_elements: list[ElementWrapper] = []
 
         # region Panel + nested button
+        select_target_panel_id = "select_target_panel"
         select_target_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(200, 100, 400, 100),
             manager=self.gui_manager,
@@ -34,7 +40,10 @@ class SelectTargetPromptPage(Page):
                 class_id="SelectTargetPanel", object_id="select_target_panel"
             ),
         )
-        gui_elements.append(UIRegisterForm("test_panel", select_target_panel))
+        select_target_panel_element = ui_element_wrapper(
+            select_target_panel, select_target_panel_id, self.camera
+        )
+        gui_elements.append(select_target_panel_element)
 
         # Nested button inside the panel
         pygame_gui.elements.UIButton(
@@ -86,22 +95,6 @@ class SelectTargetPromptPage(Page):
     # all input-listening methods will have this signature
     # e.g. def test(self, msg: pygame.event.Event) -> None:
     #   ...
-    @input_event_bind("event_name", pygame_gui.UI_BUTTON_PRESSED)
-    def on_example_click(self, msg: pygame.event.Event) -> None:
-        button = self._element_manager.get_gui_element(
-            "registered_name", pygame_gui.elements.UIButton
-        )
-        button.set_text("Clicked")
-
-        # redirect or open new pages on top
-        # Check out PageNavigation for available commands
-        self.coordination_manager.put_message(
-            PageNavigationEvent(
-                action_list=[
-                    (PageNavigation.OPEN, "TestCommunicate"),
-                ]
-            )
-        )
 
     @input_event_bind("cancel_skill_button", pygame_gui.UI_BUTTON_PRESSED)
     def close_panel(self, msg: pygame.event.Event) -> None:

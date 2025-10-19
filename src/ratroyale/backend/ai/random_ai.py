@@ -1,14 +1,20 @@
-from .ai_action import AIAction, EndTurn
-from .base_ai import BaseAI
 from random import choice
+
+from .ai_action import AIAction, AIActions, EndTurn
+from .base_ai import BaseAI
 
 
 class RandomAI(BaseAI):
-    def select_action(self, actions: list[AIAction]) -> AIAction:
-        try:
-            actions.remove(EndTurn())
-        except ValueError:
-            pass
-        if len(actions) == 0:
+    """
+    It choose actions randomly except EndTurn. It only EndTurn when there's no other option.
+    """
+
+    def get_name_and_description(self) -> tuple[str, str]:
+        return "Random-AI", "Exactly as the name said."
+
+    def select_action(self, actions: AIActions) -> AIAction:
+        actions.end_turn = []
+        flatten_actions = actions.flatten()
+        if len(flatten_actions) == 0:
             return EndTurn()
-        return choice(actions)
+        return choice(flatten_actions)

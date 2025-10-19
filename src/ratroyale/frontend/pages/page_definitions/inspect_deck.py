@@ -10,8 +10,12 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
     callback_event_bind,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    UIRegisterForm,
+from ratroyale.frontend.pages.page_elements.spatial_component import (
+    Camera,
+)
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+    ui_element_wrapper,
 )
 
 import pygame_gui
@@ -20,32 +24,40 @@ import pygame
 
 @register_page
 class InspectDeckPage(Page):
-    def __init__(self, coordination_manager: CoordinationManager) -> None:
-        super().__init__(coordination_manager, base_color=(0, 0, 0, 128))
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(
+            coordination_manager,
+            camera,
+            base_color=(0, 0, 0, 128),
+        )
         # if page is strangely not responsive, check is_blocking status of open pages.
 
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="inspect_deck"))
 
-    def define_initial_gui(self) -> list[UIRegisterForm]:
+    def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
-        gui_elements: list[UIRegisterForm] = []
+        gui_elements: list[ElementWrapper] = []
         # region Card Panel + Card buttons
-        self.deck_panel = pygame_gui.elements.UIPanel(
+        deck_panel_id = "inspect_deck_panel"
+        deck_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(100, 100, 600, 400),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="InspectDeckPanel", object_id="panel_event"
             ),
         )
-        gui_elements.append(UIRegisterForm("test_panel", self.deck_panel))
+        deck_panel_element = ui_element_wrapper(deck_panel, deck_panel_id, self.camera)
+        gui_elements.append(deck_panel_element)
 
         # Nested button inside the panel
         pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(250, 350, 100, 40),
             text="Close",
             manager=self.gui_manager,
-            container=self.deck_panel,
+            container=deck_panel,
             object_id=pygame_gui.core.ObjectID(
                 class_id="CloseInspectDeckButton",
                 object_id="close_inspect_deck",
@@ -59,6 +71,10 @@ class InspectDeckPage(Page):
     @callback_event_bind("inspect_deck")
     def show_deck(self, msg: PageCallbackEvent[list[int]]) -> None:
         deck = msg.payload
+        deck_panel = self._element_manager.get_element_wrapper(
+            "inspect_deck_panel", "UI_ELEMENT"
+        )
+        deck_panel_object = deck_panel.get_interactable(pygame_gui.elements.UIPanel)
         assert deck is not None
         for card_index, card_id in enumerate(deck):
             pygame_gui.elements.UIButton(
@@ -67,7 +83,7 @@ class InspectDeckPage(Page):
                 ),
                 text="image placeholder",
                 manager=self.gui_manager,
-                container=self.deck_panel,
+                container=deck_panel_object,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="Card",
                     object_id=f"card{card_index}",
@@ -87,12 +103,12 @@ class InspectDeckPage(Page):
             )
         )
 
-    @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
-    def close_panel(self, msg: pygame.event.Event) -> None:
-        self._element_manager.remove_gui_element("test_panel")
+    # @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
+    # def close_panel(self, msg: pygame.event.Event) -> None:
+    #     self._element_manager.remove_gui_element("test_panel")
 
-    @input_event_bind("event_name_2", pygame_gui.UI_BUTTON_PRESSED)
-    def communicate(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
-            PageCallbackEvent[int]("action_name", payload=3)
-        )
+    # @input_event_bind("event_name_2", pygame_gui.UI_BUTTON_PRESSED)
+    # def communicate(self, msg: pygame.event.Event) -> None:
+    #     self.coordination_manager.put_message(
+    #         PageCallbackEvent[int]("action_name", payload=3)
+    #     )

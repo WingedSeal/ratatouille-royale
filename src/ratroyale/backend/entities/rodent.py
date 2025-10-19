@@ -4,6 +4,7 @@ from typing import Callable, TypeVar
 from ..entity import Entity, EntitySkill, entity_data
 from ..hexagon import OddRCoord
 from ..side import Side
+from ..tags import EntityTag, RodentClassTag
 
 ENTITY_JUMP_HEIGHT = 1
 
@@ -14,6 +15,7 @@ class Rodent(Entity):
     move_stamina: int
     move_cost: int
     attack: int
+    class_tag: RodentClassTag
     side: Side | None
 
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
@@ -43,6 +45,8 @@ def rodent_data(
     defense: int,
     description: str,
     skills: list[EntitySkill],
+    entity_tags: list[EntityTag],
+    class_tag: RodentClassTag,
     movable: bool = True,
     collision: bool = True,
 ) -> Callable[[T], T]:
@@ -57,6 +61,7 @@ def rodent_data(
             description=description,
             skills=skills,
             name=name,
+            entity_tags=entity_tags,
         )(cls)
         cls._has_rodent_data = True
         cls.health = health
@@ -70,6 +75,7 @@ def rodent_data(
         cls.height = height
         cls.movable = movable
         cls.collision = collision
+        cls.class_tag = class_tag
         return cls
 
     return wrapper

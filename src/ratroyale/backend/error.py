@@ -48,3 +48,7 @@ class GameManagerActionPerformedInSelectingMode(RatRoyaleBackendError):
 
 class GameManagerSkillCallBackInNonSelectingMode(RatRoyaleBackendError):
     pass
+
+
+class AICantPathfind(RatRoyaleBackendError):
+    pass

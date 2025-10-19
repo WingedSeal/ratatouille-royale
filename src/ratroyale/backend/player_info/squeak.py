@@ -15,7 +15,9 @@ class SqueakType(Enum):
 
 
 class SqueakOnPlace(Protocol):
-    def __call__(self, game_manager: "GameManager", coord: OddRCoord) -> None: ...
+    def __call__(
+        self, game_manager: "GameManager", coord: OddRCoord
+    ) -> "Squeak | None": ...
 
 
 class SqueakGetPlacableTiles(Protocol):
@@ -24,10 +26,12 @@ class SqueakGetPlacableTiles(Protocol):
 
 @dataclass(frozen=True, kw_only=True)
 class Squeak:
+    name: str
     crumb_cost: int
     squeak_type: SqueakType
     on_place: SqueakOnPlace
     get_placable_tiles: SqueakGetPlacableTiles
+    rodent: "type[Rodent] | None"
 
 
 def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:

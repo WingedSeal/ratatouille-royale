@@ -1,43 +1,41 @@
+import pygame
+import pygame_gui
+
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.event_tokens.visual_token import *
-from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-
-
-from ..page_managers.base_page import Page
+from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    UIRegisterForm,
-)
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
+from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 
-import pygame_gui
-import pygame
+from ..page_managers.base_page import Page
 
 
 @register_page
 class PauseButton(Page):
-    def __init__(self, coordination_manager: CoordinationManager) -> None:
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
         super().__init__(
             coordination_manager,
             is_blocking=False,
+            theme_name="pause_button",
+            camera=camera,
         )
 
-    def define_initial_gui(self) -> list[UIRegisterForm]:
-        return [
-            UIRegisterForm(
-                "pause_button",
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(700, 20, 80, 40),
-                    text="Pause",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="PauseButton", object_id="pause_button"
-                    ),
-                ),
+    def define_initial_gui(self) -> list[ElementWrapper]:
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(700, 20, 80, 40),
+            text="Pause",
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="PauseButton", object_id="pause_button"
             ),
-        ]
+        )
+        return []
 
     # --- Input Responses ---
     @input_event_bind("pause_button", pygame_gui.UI_BUTTON_PRESSED)

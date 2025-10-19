@@ -1,5 +1,6 @@
+from typing import Callable, ParamSpec, TypeVar
+
 from ratroyale.event_tokens.page_token import *
-from typing import Callable, TypeVar, ParamSpec
 
 P = ParamSpec("P")
 R = TypeVar("R")

@@ -1,7 +1,9 @@
-import pygame
 import time
-from ratroyale.frontend.gesture.gesture_data import GestureType, GestureData
 from enum import Enum, auto
+
+import pygame
+
+from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 
 # Don't ask me about the gesture detection logic inside this. It is borderline arcane.
 
