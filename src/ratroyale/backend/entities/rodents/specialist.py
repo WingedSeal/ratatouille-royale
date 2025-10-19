@@ -1,6 +1,7 @@
 import random
 from typing import TYPE_CHECKING
 
+from ...hexagon import OddRCoord
 from ...entity_effect import EffectClearSide, EntityEffect, effect_data
 from ...entity import (
     Entity,
@@ -141,6 +142,9 @@ class TheOneBrace(EntityEffect):
     ],
 )
 class TheOne(Rodent):
+    PASSIVE_DISTANCE = 3
+    PASSIVE_DEFENSE = 2
+
     @entity_skill_check
     def the_punch(self, game_manager: "GameManager") -> SkillTargeting:
         return select_targets(
@@ -162,12 +166,34 @@ class TheOne(Rodent):
     ) -> int | None:
         return 0
 
+    def on_ally_move(
+        self,
+        game_manager: "GameManager",
+        ally: "Entity",
+        path: list[OddRCoord],
+        origin: OddRCoord,
+    ) -> None:
+        if (
+            origin.get_distance(self.pos) <= self.PASSIVE_DISTANCE
+            and path[-1].get_distance(self.pos) > self.PASSIVE_DISTANCE
+        ):
+            ally.defense -= self.PASSIVE_DEFENSE
+        elif (
+            origin.get_distance(self.pos) > self.PASSIVE_DISTANCE
+            and path[-1].get_distance(self.pos) <= self.PASSIVE_DISTANCE
+        ):
+            ally.defense += self.PASSIVE_DEFENSE
+
     def passive_descriptions(self) -> list[tuple[str, str]]:
         return [
             (
+                "Hope and Dream",
+                f"All allies within {self.PASSIVE_DISTANCE}-tiles radius gain +{self.PASSIVE_DEFENSE} defense",
+            ),
+            (
                 "Lonely",
                 "Cannot regain HP through any mean and only 1 The One can be on the field at any given time.",
-            )
+            ),
         ]
 
     def skill_descriptions(self) -> list[str]:
