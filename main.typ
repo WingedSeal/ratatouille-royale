@@ -8,7 +8,7 @@
     "Peepo TheGoat 1234", 
     "Pond CodingFrontEnd 777",
     "Cheewanont Chuleekorn 6522781846", 
-    "Pin IsRichAf 9999999", 
+    "Kamolpat Thananopavarn 6522790045", 
     "Aek Egg 12345"
   ),
 )
