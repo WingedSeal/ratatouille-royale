@@ -1,6 +1,5 @@
 import pygame
 
-from dataclasses import dataclass
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
@@ -16,20 +15,6 @@ from ratroyale.frontend.visual.anim.core.anim_structure import (
 )
 
 T = TypeVar("T")
-
-
-@dataclass
-class ElementParent:
-    """
-    Represents the parent relationship for an element.
-
-    Attributes:
-        parent_id: The unique identifier of the parent element.
-        parent_type: The type of the parent element, defined in the ElementType enum. Optional.
-    """
-
-    parent_registered_name: str
-    parent_grouping_name: str | None = None
 
 
 class ElementWrapper:
@@ -51,7 +36,7 @@ class ElementWrapper:
         visual_component: VisualComponent | None = None,
         payload: Payload | None = None,
         is_blocking: bool = True,
-        element_parent: ElementParent | None = None,
+        parent_element: str | None = None,
     ) -> None:
         # Identification info
         self.registered_name: str = registered_name
@@ -61,7 +46,7 @@ class ElementWrapper:
         self.spatial_component: SpatialComponent = spatial_component
 
         # Hierachical info
-        self.element_parent: ElementParent | None = element_parent
+        self.parent_element: str | None = parent_element
         self.parent: ElementWrapper | None = None
         self.children: list[ElementWrapper] = []
 
@@ -69,6 +54,7 @@ class ElementWrapper:
         self.interactable_component: UIElement | Hitbox | None = interactable_component
         self.payload: Payload | None = payload
         self.is_blocking: bool = is_blocking
+        self.is_interactable: bool = True
 
         # Visual info
         self.visual_component: VisualComponent | None = visual_component
@@ -103,14 +89,15 @@ class ElementWrapper:
         else:
             return self.payload
 
-    def handle_gesture(
-        self, gesture: GestureData, is_processing_input: bool, camera: Camera
-    ) -> bool:
+    def handle_gesture(self, gesture: GestureData, is_processing_input: bool) -> bool:
         if not isinstance(self.interactable_component, Hitbox):
             return False
 
         if not is_processing_input:
             return False
+
+        if not self.is_interactable:
+            return self.is_blocking
 
         pos = gesture.mouse_pos
         if pos is None or not self.interactable_component.contains_point(pos):
@@ -206,6 +193,24 @@ class ElementWrapper:
         self.interactable_component.draw(surface, color)
         for child in self.children:
             child.draw_hitbox(surface, color)
+
+    def on_select(self) -> bool:
+        return False
+
+    def on_deselect(self) -> bool:
+        return False
+
+    def on_highlight(self) -> bool:
+        return False
+
+    def on_unhighlight(self) -> bool:
+        return False
+
+    def get_registered_name(self) -> str:
+        return self.registered_name
+
+    def get_grouping_name(self) -> str:
+        return self.grouping_name
 
 
 def ui_element_wrapper(

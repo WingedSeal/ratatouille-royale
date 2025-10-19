@@ -40,12 +40,19 @@ class EntityPayload(Payload):
 
 
 @dataclass
+class AbilityActivationPayload(Payload):
+    ability_index: int
+    entity: Entity
+
+
+@dataclass
 class SqueakPayload(Payload):
+    hand_index: int
     squeak: Squeak
 
 
 @dataclass
-class SqueakPlacableTilesPayload(Payload):
+class PlayableTiles(Payload):
     coord_list: Iterable[OddRCoord]
 
 
@@ -53,3 +60,9 @@ class SqueakPlacableTilesPayload(Payload):
 class SqueakPlacementPayload(Payload):
     hand_index: int
     tile_coord: OddRCoord
+
+
+@dataclass
+class EntityMovementPayload(Payload):
+    entity: Entity
+    target: OddRCoord

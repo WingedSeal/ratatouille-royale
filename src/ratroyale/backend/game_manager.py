@@ -100,7 +100,6 @@ class GameManager:
     def is_selecting_target(self) -> bool:
         return self.skill_targeting is not None
 
-    @property
     def cancel_selecting_target(self) -> None:
         self.skill_targeting = None
 

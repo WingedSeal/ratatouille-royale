@@ -216,6 +216,7 @@ class PageManager:
 
     def _delegate(self, msg: PageCallbackEvent) -> None:
         """Delegate a PageCallbackEvent to the appropriate page."""
+        print("Callback action:", msg.callback_action)
         for page in self.page_stack:
             page.execute_page_callback(msg)
 

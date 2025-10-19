@@ -24,6 +24,10 @@ from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
+from typing import TypeVar
+
+T = TypeVar("T", bound="ElementWrapper")
+
 
 class InputHandler(Protocol):
     def __call__(self, event: pygame.event.Event) -> None: ...
@@ -89,8 +93,24 @@ class Page(ABC):
         for config in configs:
             self._element_manager.add_element(config)
 
-    def get_element(self, element_type: str, element_id: str) -> ElementWrapper:
-        return self._element_manager.get_element_wrapper(element_type, element_id)
+    def get_element(
+        self,
+        element_id: str,
+        element_group: str,
+        cls: type[T] | None = None,
+    ) -> T:
+        element = self._element_manager.get_element(element_id, element_group)
+
+        if cls is None:
+            # type hint fallback
+            return cast(T, element)
+
+        if isinstance(element, cls):
+            return element
+        else:
+            raise TypeError(
+                f"Element is of type {type(element).__name__}, expected {cls.__name__}"
+            )
 
     def setup_event_bindings(self) -> None:
         """

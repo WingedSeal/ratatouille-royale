@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from pathlib import Path
-from ratroyale.backend.entities.rodent import Rodent
+from ratroyale.backend.entity import Entity
 
 ASSET_DIR = Path(__file__).resolve().parent.parent / "asset"
 
@@ -16,7 +16,7 @@ class SpritesheetMetadata:
     scale: tuple[float, float] = (1.0, 1.0)
 
 
-SPRITE_METADATA_REGISTRY: dict[type[Rodent], SpritesheetMetadata] = {
+SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
     TailBlazer: SpritesheetMetadata(
         "TAILBLAZER",
         ASSET_DIR / "starcatcher.png",
@@ -30,7 +30,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Rodent], SpritesheetMetadata] = {
     ),
 }
 
-SQUEAK_IMAGE_METADATA_REGISTRY: dict[type[Rodent], SpritesheetMetadata] = {
+SQUEAK_IMAGE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
     TailBlazer: SpritesheetMetadata(
         "TAILBLAZER_CARD",
         ASSET_DIR / "snow_pea_card.png",

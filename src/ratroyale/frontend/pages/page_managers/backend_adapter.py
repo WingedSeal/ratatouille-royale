@@ -1,6 +1,7 @@
 from typing import Callable
 
 from ratroyale.backend.game_manager import GameManager
+from ratroyale.backend.entities.rodent import Rodent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
@@ -9,12 +10,24 @@ from ratroyale.event_tokens.payloads import (
     SqueakPlacementPayload,
     SqueakPayload,
     GameSetupPayload,
-    SqueakPlacableTilesPayload,
+    PlayableTiles,
     CrumbUpdatePayload,
     EntityPayload,
+    AbilityActivationPayload,
+    EntityMovementPayload,
 )
+from ratroyale.backend.game_event import (
+    GameEvent,
+    EntitySpawnEvent,
+    SqueakDrawnEvent,
+    EntityMoveEvent,
+    EndTurnEvent,
+    SqueakPlacedEvent,
+    SqueakSetResetEvent,
+)
+from ratroyale.backend.ai.base_ai import BaseAI
+from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.side import Side
-from ratroyale.backend.game_event import GameEvent, EntitySpawnEvent
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -24,15 +37,25 @@ class BackendAdapter:
     ) -> None:
         self.game_manager = game_manager
         self.coordination_manager = coordination_manager
+        self.ai: BaseAI = RandomAI(self.game_manager, Side.MOUSE)
+        self._ai_turn: bool = False
         self.game_manager_response: dict[str, Callable[[GameManagerEvent], None]] = {
             "start_game": self.handle_game_start,
             "squeak_tile_interaction": self.handle_squeak_tile_interaction,
-            "get_squeak_placable_tiles": self.handld_squeak_placable_tiles,
+            "get_squeak_placable_tiles": self.handle_squeak_placable_tiles,
+            "ability_activation": self.handle_ability_activation,
+            "resolve_movement": self.handle_resolve_movement,
+            "end_turn": self.handle_end_turn,
         }
         self.game_manager_issued_events: dict[
             type[GameEvent], Callable[[GameEvent], None]
         ] = {
-            EntitySpawnEvent: self.spawn_entity_event_handler,
+            EntitySpawnEvent: self.handle_spawn_entity_event,
+            SqueakDrawnEvent: self.handle_squeak_drawn_event,
+            EntityMoveEvent: self.handle_entity_move_event,
+            EndTurnEvent: self.handle_end_turn_event,
+            SqueakPlacedEvent: self.handle_squeak_placed_event,
+            SqueakSetResetEvent: self.handle_squeak_set_reset_event,
         }
 
     def execute_backend_callback(self) -> None:
@@ -51,11 +74,14 @@ class BackendAdapter:
             # Process page -> backend messages
             if not msg_queue_from_page.empty():
                 msg_from_page: GameManagerEvent = msg_queue_from_page.get()
+                print(msg_from_page.game_action)
                 page_handler = self.game_manager_response.get(msg_from_page.game_action)
                 if page_handler:
                     page_handler(msg_from_page)
                 else:
-                    print(f"No handler for page event type: {type(msg)}")
+                    print(
+                        f"No handler for page event type: {msg_from_page.game_action}"
+                    )
 
             # Process backend -> page messages
             if not msg_queue_from_backend.empty():
@@ -69,7 +95,8 @@ class BackendAdapter:
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
         # TODO: Which side is the player's side?
-        player_info = self.game_manager.players_info[Side.RAT]
+        first_side = self.game_manager.first_turn
+        player_info = self.game_manager.players_info[first_side]
         squeak_in_hand_list = player_info.get_squeak_set().get_deck_and_hand()[1]
         self.coordination_manager.put_message(
             PageCallbackEvent(
@@ -98,7 +125,7 @@ class BackendAdapter:
                 )
             )
 
-    def handld_squeak_placable_tiles(self, event: GameManagerEvent) -> None:
+    def handle_squeak_placable_tiles(self, event: GameManagerEvent) -> None:
         payload = event.payload
         assert isinstance(payload, SqueakPayload)
         squeak = payload.squeak
@@ -109,11 +136,55 @@ class BackendAdapter:
             self.coordination_manager.put_message(
                 PageCallbackEvent(
                     callback_action="handle_squeak_placable_tiles",
-                    payload=SqueakPlacableTilesPayload(placable_tiles),
+                    payload=PlayableTiles(placable_tiles),
                 )
             )
 
-    def spawn_entity_event_handler(self, event: GameEvent) -> None:
+    def handle_ability_activation(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, AbilityActivationPayload)
+        entity = payload.entity
+        ability_index = payload.ability_index
+
+        assert isinstance(entity, Rodent)
+
+        print(ability_index)
+
+        if ability_index == -1:
+            coord_set = self.game_manager.board.get_reachable_coords(entity)
+            self.coordination_manager.put_message(
+                PageCallbackEvent(
+                    callback_action="reachable_coords",
+                    payload=PlayableTiles(list(coord_set)),
+                )
+            )
+
+    def handle_resolve_movement(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, EntityMovementPayload)
+        entity = payload.entity
+        # coord = payload.target
+
+        assert isinstance(entity, Rodent)
+
+        # self.game_manager.move_rodent(entity, coord)
+
+    def handle_end_turn(self, event: GameManagerEvent) -> None:
+        self.game_manager.end_turn()
+        self.ai.run_ai_and_update_game_manager()
+
+    # region Backend-produced messages
+
+    def handle_entity_move_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityMoveEvent)
+        entity = event.entity
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="move_entity", payload=EntityPayload(entity)
+            )
+        )
+
+    def handle_spawn_entity_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntitySpawnEvent)
         entity = event.entity
         self.coordination_manager.put_message(
@@ -122,3 +193,36 @@ class BackendAdapter:
                 payload=EntityPayload(entity),
             )
         )
+
+    def handle_squeak_drawn_event(self, event: GameEvent) -> None:
+        assert isinstance(event, SqueakDrawnEvent)
+        hand_index = event.hand_index
+        squeak = event.squeak
+        if not self.ai.is_ai_turn():
+            self.coordination_manager.put_message(
+                PageCallbackEvent(
+                    callback_action="squeak_drawn",
+                    payload=SqueakPayload(hand_index, squeak),
+                )
+            )
+
+    def handle_end_turn_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EndTurnEvent)
+        print(event.__str__())
+        self.coordination_manager.put_message(
+            PageCallbackEvent(callback_action="end_turn")
+        )
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="crumb_update",
+                payload=CrumbUpdatePayload(self.game_manager.crumbs),
+            )
+        )
+
+    def handle_squeak_placed_event(self, event: GameEvent) -> None:
+        assert isinstance(event, SqueakPlacedEvent)
+        print(event.__str__())
+
+    def handle_squeak_set_reset_event(self, event: GameEvent) -> None:
+        assert isinstance(event, SqueakSetResetEvent)
+        print(event.__str__())
