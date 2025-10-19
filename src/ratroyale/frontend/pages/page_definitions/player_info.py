@@ -112,6 +112,19 @@ class PlayerInfoPage(Page):
         )
         gui_elements.append(entity_hover_data_panel_element)
 
+        move_history_panel_id = "move_history_panel"
+        move_history_panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(600, 200, 200, 300),
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="MoveHistoryPanel",
+                object_id="move_history_panel",
+            ),
+        )
+        move_history_panel_element = ui_element_wrapper(
+            move_history_panel, move_history_panel_id, self.camera
+        )
+        gui_elements.append(move_history_panel_element)
         # end region
 
         return gui_elements
@@ -196,6 +209,26 @@ class PlayerInfoPage(Page):
                         object_id=f"ShowEntityButton{index}",
                     ),
                 )
+
+    @callback_event_bind("move_history")
+    def _move_history(self, msg: PageCallbackEvent[list[str]]) -> None:
+        move_history_panel = self._element_manager.get_element_wrapper(
+            "move_history_panel", "UI_ELEMENT"
+        )
+        move_history_panel_object = move_history_panel.get_interactable(
+            pygame_gui.elements.UIPanel
+        )
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(0, 0, 100, 20),
+            text="dummy button for move history panel",
+            manager=self.gui_manager,
+            container=move_history_panel_object,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="OddRCoordButton",
+                object_id="odd_r_coord_button",
+            ),
+        )
+        ...
 
     # @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
     # def close_panel(self, msg: pygame.event.Event) -> None:

@@ -26,6 +26,7 @@ class BackendAdapter:
             "select_target_prompt": self.handle_select_target_prompt_page,
             "tile_hover": self.handle_tile_hover,
             "end_turn": self.handle_end_turn,
+            "move_history": self.handle_move_history,
         }
 
     def execute_backend_callback(self) -> None:
@@ -97,6 +98,8 @@ class BackendAdapter:
 
     def handle_end_turn(self, event: GameManagerEvent[None]) -> None:
         self.game_manager.end_turn()
+
+    def handle_move_history(self, event: GameManagerEvent[list[str]]) -> None: ...
 
 
 def get_name_from_entity(entity: Entity) -> str:
