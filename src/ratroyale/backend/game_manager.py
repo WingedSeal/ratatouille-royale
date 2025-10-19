@@ -258,6 +258,7 @@ class GameManager:
         :returns: Path the rodent took to get there
         """
         self._validate_not_selecting_target()
+        origin = rodent.pos
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
         if rodent.move_stamina <= 0:
@@ -275,6 +276,13 @@ class GameManager:
         self.crumbs -= rodent.move_cost
         rodent.move_stamina -= 1
         self.event_queue.put(EntityMoveEvent(path, rodent))
+        if rodent.side is not None:
+            for entity in self.board.cache.entities_with_on_ally_move[rodent.side]:
+                entity.on_ally_move(self, rodent, path, origin)
+            for entity in self.board.cache.entities_with_on_enemy_move[
+                rodent.side.other_side()
+            ]:
+                entity.on_enemy_move(self, rodent, path, origin)
         return path
 
     def move_entity_uncheck(
@@ -287,6 +295,7 @@ class GameManager:
         :param target: Target to move to
         :returns: Path the rodent took to get there
         """
+        origin = entity.pos
         path = self.board.path_find(
             entity, target, custom_jump_height=custom_jump_height
         )
@@ -296,6 +305,13 @@ class GameManager:
         if not is_success:
             raise InvalidMoveTargetError("Cannot move entity there")
         self.event_queue.put(EntityMoveEvent(path, entity))
+        if entity.side is not None:
+            for _entity in self.board.cache.entities_with_on_ally_move[entity.side]:
+                _entity.on_ally_move(self, entity, path, origin)
+            for _entity in self.board.cache.entities_with_on_enemy_move[
+                entity.side.other_side()
+            ]:
+                entity.on_enemy_move(self, entity, path, origin)
         return path
 
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:

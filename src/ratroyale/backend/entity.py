@@ -118,6 +118,22 @@ class Entity:
     ) -> int | None:
         pass
 
+    def on_ally_move(
+        self,
+        game_manager: "GameManager",
+        ally: "Entity",
+        path: list[OddRCoord],
+        origin: OddRCoord,
+    ) -> None: ...
+
+    def on_enemy_move(
+        self,
+        game_manager: "GameManager",
+        enemy: "Entity",
+        path: list[OddRCoord],
+        origin: OddRCoord,
+    ) -> None: ...
+
     def on_turn_change(
         self, game_manager: "GameManager", turn_change_to: Side
     ) -> None: ...

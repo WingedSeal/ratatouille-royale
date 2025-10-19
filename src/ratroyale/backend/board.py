@@ -34,6 +34,8 @@ class Cache:
         self.effects: list[EntityEffect] = []
         self.timers: list[Timer] = []
         self.entities_with_turn_change: list[Entity] = []
+        self.entities_with_on_enemy_move: dict[Side, list[Entity]] = defaultdict(list)
+        self.entities_with_on_ally_move: dict[Side, list[Entity]] = defaultdict(list)
         self.the_ones: dict[Side, TheOne | None] = defaultdict(lambda: None)
 
     def get_all_lairs(self) -> Iterable[Lair]:
@@ -77,6 +79,14 @@ class Board:
             self.cache.rodents.append(entity)
         if not is_ellipsis_body(entity.on_turn_change):
             self.cache.entities_with_turn_change.append(entity)
+        if not is_ellipsis_body(entity.on_ally_move):
+            if entity.side is None:
+                raise ValueError("Entity with no side can't trigger on ally move")
+            self.cache.entities_with_on_ally_move[entity.side].append(entity)
+        if not is_ellipsis_body(entity.on_enemy_move):
+            if entity.side is None:
+                raise ValueError("Entity with no side can't trigger on ally move")
+            self.cache.entities_with_on_enemy_move[entity.side].append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
@@ -94,6 +104,12 @@ class Board:
             self.cache.rodents.remove(entity)
         if not is_ellipsis_body(entity.on_turn_change):
             self.cache.entities_with_turn_change.remove(entity)
+        if not is_ellipsis_body(entity.on_ally_move):
+            assert entity.side is not None
+            self.cache.entities_with_on_ally_move[entity.side].remove(entity)
+        if not is_ellipsis_body(entity.on_enemy_move):
+            assert entity.side is not None
+            self.cache.entities_with_on_enemy_move[entity.side].remove(entity)
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
