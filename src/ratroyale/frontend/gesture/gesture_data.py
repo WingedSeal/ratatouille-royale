@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-import pygame
 from enum import Enum
+
+import pygame
 
 _BASE = pygame.USEREVENT + 10000
 

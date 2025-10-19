@@ -1,9 +1,11 @@
+from dataclasses import dataclass
+from typing import Any
+
 import pygame
 
-from dataclasses import dataclass
-from .base import EventToken
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
-from typing import Any
+
+from .base import EventToken
 
 
 @dataclass

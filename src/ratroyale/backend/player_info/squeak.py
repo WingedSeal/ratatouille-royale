@@ -1,13 +1,12 @@
-from enum import Enum, auto
-from typing import TYPE_CHECKING, Iterable, Protocol
 from dataclasses import dataclass
-
+from enum import Enum, auto
+from typing import TYPE_CHECKING, ClassVar, Iterable, Protocol
 
 from ..hexagon import OddRCoord
 
 if TYPE_CHECKING:
-    from ..game_manager import GameManager
     from ..entities.rodent import Rodent
+    from ..game_manager import GameManager
 
 
 class SqueakType(Enum):
@@ -16,7 +15,9 @@ class SqueakType(Enum):
 
 
 class SqueakOnPlace(Protocol):
-    def __call__(self, game_manager: "GameManager", coord: OddRCoord) -> None: ...
+    def __call__(
+        self, game_manager: "GameManager", coord: OddRCoord
+    ) -> "Squeak | None": ...
 
 
 class SqueakGetPlacableTiles(Protocol):
@@ -25,10 +26,18 @@ class SqueakGetPlacableTiles(Protocol):
 
 @dataclass(frozen=True, kw_only=True)
 class Squeak:
+    name: str
     crumb_cost: int
     squeak_type: SqueakType
     on_place: SqueakOnPlace
     get_placable_tiles: SqueakGetPlacableTiles
+    rodent: "type[Rodent] | None"
+    SQEAK_MAP: ClassVar[dict[str, "Squeak"]] = {}
+    REVERSED_SQEAK_MAP: ClassVar[dict["Squeak", str]] = {}
+
+    def __post_init__(self) -> None:
+        type(self).SQEAK_MAP[self.name] = self
+        type(self).REVERSED_SQEAK_MAP[self] = self.name
 
 
 def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
@@ -43,6 +52,8 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
             if tile is None:
                 continue
             if any(entity.collision for entity in tile.entities):
+                continue
+            if any(feature.is_collision() for feature in tile.features):
                 continue
             yield pos
 

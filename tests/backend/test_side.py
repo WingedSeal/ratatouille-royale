@@ -1,4 +1,5 @@
 import pytest
+
 from ratroyale.backend.side import Side
 
 

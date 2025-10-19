@@ -1,26 +1,28 @@
 from __future__ import annotations
-import pygame_gui
-import pygame
 
-from ratroyale.event_tokens.input_token import get_id
+from abc import ABC, abstractmethod
+from typing import Any, Protocol, cast
+
+import pygame
+import pygame_gui
+
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.pages.page_elements.element import Element
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.base import EventToken
-from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
-from typing import Protocol, cast, Any
-from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    ElementConfig,
-    UIRegisterForm,
-)
+from ratroyale.event_tokens.game_token import *
+from ratroyale.event_tokens.input_token import get_id
+from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.visual_token import *
+from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
-from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
+from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 
-from abc import ABC, abstractmethod
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 class InputHandler(Protocol):
@@ -37,6 +39,7 @@ class Page(ABC):
     def __init__(
         self,
         coordination_manager: CoordinationManager,
+        camera: Camera,
         is_blocking: bool = True,
         theme_name: str = "",
         base_color: tuple[int, int, int, int] | None = None,
@@ -44,10 +47,11 @@ class Page(ABC):
         self.theme_path = str(resolve_theme_path(theme_name))
         self.gui_manager = pygame_gui.UIManager(SCREEN_SIZE, self.theme_path)
         """ Each page has its own UIManager """
+        self.camera = camera
         self.coordination_manager = coordination_manager
         self.is_blocking: bool = is_blocking
         self._element_manager: ElementManager = ElementManager(
-            self.gui_manager, self.coordination_manager
+            self.gui_manager, self.coordination_manager, camera
         )
         self.canvas = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
         self.base_color: tuple[int, int, int, int] = (
@@ -66,10 +70,10 @@ class Page(ABC):
         self.setup_event_bindings()
 
         gui_elements = self.define_initial_gui()
-        self.setup_gui_elements(gui_elements)
+        self.setup_elements(gui_elements)
 
     @abstractmethod
-    def define_initial_gui(self) -> list["UIRegisterForm"]:
+    def define_initial_gui(self) -> list["ElementWrapper"]:
         """
         Return a list of UIRegisterForm (or other GUI element wrappers)
         that belong to this page. Even if the page has no elements,
@@ -81,18 +85,12 @@ class Page(ABC):
     def quit_game(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.stop_game()
 
-    def setup_elements(self, configs: list[ElementConfig[Any]]) -> None:
+    def setup_elements(self, configs: list[ElementWrapper]) -> None:
         for config in configs:
-            self._element_manager.create_element(config)
+            self._element_manager.add_element(config)
 
-    def setup_gui_elements(self, ui_elements: list[UIRegisterForm]) -> None:
-        for ui_element in ui_elements:
-            self._element_manager.add_gui_element(
-                ui_element.ui_element, ui_element.registered_name
-            )
-
-    def get_element(self, element_type: str, element_id: str) -> Element[Any] | None:
-        return self._element_manager.get_element(element_type, element_id)
+    def get_element(self, element_type: str, element_id: str) -> ElementWrapper | None:
+        return self._element_manager.get_element_wrapper(element_type, element_id)
 
     def setup_event_bindings(self) -> None:
         """
@@ -125,9 +123,10 @@ class Page(ABC):
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
         Dispatch a GestureData object to the appropriate Elements(s).
-        Elements then produces the corresponding InputManagerEvent, which is
-        handled by the page.
-        If the page is hidden, it will not process any gestures.
+
+        - Elements always process gestures to update internal state.
+        - If the page is hidden or not receiving input, no InputManagerEvent is produced.
+        - Returns gestures that are unconsumed (for other pages).
         """
         if not self.is_visible:
             return gestures
@@ -199,6 +198,7 @@ class Page(ABC):
     def render(self, time_delta: float) -> pygame.Surface:
         if self.is_visible:
             self.gui_manager.update(time_delta)
+            self._element_manager.update_all(time_delta)
             self.canvas.fill(self.base_color)  # Clear with transparent
             self._element_manager.render_all(self.canvas)
             self.gui_manager.draw_ui(self.canvas)

@@ -1,12 +1,13 @@
+from typing import Any, Callable
+
+from ratroyale.backend.board import Board
+from ratroyale.backend.entity import Entity
 from ratroyale.backend.game_manager import GameManager
+from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.backend.tile import Tile
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
-from typing import Callable, Any
-from ratroyale.backend.board import Board
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.entity import Entity
-from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.utils import EventQueue
 
 

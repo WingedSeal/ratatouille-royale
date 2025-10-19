@@ -1,10 +1,10 @@
-from abc import ABCMeta, abstractmethod
-from ..entity import Entity, entity_data
-from ..hexagon import OddRCoord
-from ..entity import EntitySkill
-from typing import Any, Callable, TypeVar
-from ..side import Side
+from abc import abstractmethod
+from typing import Callable, TypeVar
 
+from ..entity import Entity, EntitySkill, entity_data
+from ..hexagon import OddRCoord
+from ..side import Side
+from ..tags import EntityTag, RodentClassTag
 
 ENTITY_JUMP_HEIGHT = 1
 
@@ -13,8 +13,10 @@ class Rodent(Entity):
     _has_rodent_data = False
     speed: int
     move_stamina: int
+    max_move_stamina: int
     move_cost: int
     attack: int
+    class_tag: RodentClassTag
     side: Side | None
 
     def __init__(self, pos: OddRCoord, side: Side | None = None) -> None:
@@ -26,6 +28,13 @@ class Rodent(Entity):
 
     @abstractmethod
     def skill_descriptions(self) -> list[str]: ...
+
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return []
+
+    def reset_stamina(self) -> None:
+        self.move_stamina = self.max_move_stamina
+        super().reset_stamina()
 
 
 T = TypeVar("T", bound=type[Rodent])
@@ -44,6 +53,8 @@ def rodent_data(
     defense: int,
     description: str,
     skills: list[EntitySkill],
+    entity_tags: list[EntityTag],
+    class_tag: RodentClassTag,
     movable: bool = True,
     collision: bool = True,
 ) -> Callable[[T], T]:
@@ -58,6 +69,7 @@ def rodent_data(
             description=description,
             skills=skills,
             name=name,
+            entity_tags=entity_tags,
         )(cls)
         cls._has_rodent_data = True
         cls.health = health
@@ -65,12 +77,14 @@ def rodent_data(
         cls.description = description
         cls.speed = speed
         cls.move_stamina = move_stamina
+        cls.max_move_stamina = move_stamina
         cls.skill_stamina = skill_stamina
         cls.move_cost = move_cost
         cls.attack = attack
         cls.height = height
         cls.movable = movable
         cls.collision = collision
+        cls.class_tag = class_tag
         return cls
 
     return wrapper

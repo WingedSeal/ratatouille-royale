@@ -1,25 +1,26 @@
+# ruff: noqa
 # type: ignore
 import pygame
-from ratroyale.frontend.pages.page_managers.page_manager import PageManager
-from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
-from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
-from ratroyale.event_tokens.page_token import PageNavigationEvent, PageNavigation
 
-from ratroyale.backend.game_manager import GameManager
-from ratroyale.backend.map import Map
-from ratroyale.backend.player_info.player_info import PlayerInfo
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.entity import Entity
-from ratroyale.backend.side import Side
+from ratroyale.backend.game_manager import GameManager
+from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.backend.map import Map
+from ratroyale.backend.player_info.player_info import PlayerInfo
 from ratroyale.backend.player_info.squeak import (
     Squeak,
-    SqueakType,
-    SqueakOnPlace,
     SqueakGetPlacableTiles,
+    SqueakOnPlace,
+    SqueakType,
 )
+from ratroyale.backend.side import Side
+from ratroyale.backend.tile import Tile
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEvent
+from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
+from ratroyale.frontend.pages.page_managers.page_manager import PageManager
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 def main():
@@ -34,9 +35,9 @@ def main():
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
     tiles: list[list[Tile | None]] = []
-    for q in range(size_x):
+    for q in range(size_y):
         row = []
-        for r in range(size_y):
+        for r in range(size_x):
             tile = Tile(
                 tile_id=1, coord=OddRCoord(q, r), entities=[], height=0, features=[]
             )
@@ -49,31 +50,14 @@ def main():
     dummy_get_placable: SqueakGetPlacableTiles = lambda game_manager: []
 
     # Create 5 dummy squeaks
-    dummy_squeaks = [
-        Squeak(
-            crumb_cost=1,
-            squeak_type=SqueakType.RODENT,
-            on_place=dummy_on_place,
-            get_placable_tiles=dummy_get_placable,
-        )
-        for i in range(5)
-    ]
-
-    # Example squeak sets (just indices into dummy_squeaks)
-    dummy_squeak_sets = [set(range(len(dummy_squeaks)))]
-    selected_index = 0
 
     # PlayerInfo
     player_info_1 = PlayerInfo(
-        all_squeaks=dummy_squeaks,
-        squeak_sets=dummy_squeak_sets,
-        selected_squeak_set_index=selected_index,
+        {TailBlazer: 5}, [{TailBlazer: 5}], [{TailBlazer: 5}], selected_squeak_set_index=0
     )
 
     player_info_2 = PlayerInfo(
-        all_squeaks=dummy_squeaks,
-        squeak_sets=dummy_squeak_sets,
-        selected_squeak_set_index=selected_index,
+        {TailBlazer: 5}, [{TailBlazer: 5}], [{TailBlazer: 5}], selected_squeak_set_index=0
     )
 
     map = Map(

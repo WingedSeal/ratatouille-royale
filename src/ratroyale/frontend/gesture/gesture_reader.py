@@ -1,7 +1,9 @@
-import pygame
 import time
-from ratroyale.frontend.gesture.gesture_data import GestureType, GestureData
 from enum import Enum, auto
+
+import pygame
+
+from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 
 # Don't ask me about the gesture detection logic inside this. It is borderline arcane.
 
@@ -195,7 +197,7 @@ class GestureReader:
         ):
             speed = distance_total / max(elapsed_time, 1e-6)
             if speed >= self.SWIPE_SPEED_THRESHOLD:
-                direction = (dx / speed if speed else 0, dy / speed if speed else 0)
+                # direction = (dx / speed if speed else 0, dy / speed if speed else 0)
                 self.on_swipe(
                     start_pos=self.start_pos,
                     end_pos=pos,

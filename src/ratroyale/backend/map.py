@@ -1,37 +1,19 @@
+import inspect
+from pathlib import Path
 from pprint import pformat
 from typing import Any, Final
-from .hexagon import OddRCoord
-from .side import Side
+
+from ratroyale.utils import DataPointer
+
 from .entity import Entity
 from .feature import Feature
+from .hexagon import OddRCoord
+from .side import Side
 from .tile import Tile
-from pathlib import Path
-import inspect
-
 
 MAP_FILE_EXTENSION = "rrmap"
 
 ENDIAN: Final = "big"
-
-
-class _DataPointer:
-    data: bytes
-    pointer: int
-
-    def __init__(self, data: bytes) -> None:
-        self.data = data
-        self.pointer = 0
-
-    def get_byte(self, size: int = 1) -> int:
-        return int.from_bytes(self.get_raw_bytes(size), ENDIAN)
-
-    def get_raw_bytes(self, size: int = 1) -> bytes:
-        value = self.data[self.pointer : self.pointer + size]
-        self.pointer += size
-        return value
-
-    def verify_end(self) -> bool:
-        return self.pointer == len(self.data)
 
 
 class Map:
@@ -112,6 +94,15 @@ class Map:
         self.tiles = tiles
         self.entities = entities
         self.features = []
+        if len(tiles) != size_y:
+            raise ValueError(
+                f"Expected {size_y} rows since size_y={size_y}. But tiles has length of {len(tiles)}"
+            )
+        for i, tile_row in enumerate(tiles):
+            if len(tile_row) != size_x:
+                raise ValueError(
+                    f"Expected {size_x} column since size_x={size_x}. But row {i} of tiles has length of {len(tile_row)}"
+                )
         for feature in features:
             self.add_feature(feature)
 
@@ -139,7 +130,7 @@ class Map:
             data = file.read()
         try:
             return cls.load(data)
-        except:
+        except Exception:
             return None
 
     def to_file(self, file_path: Path) -> None:
@@ -149,8 +140,9 @@ class Map:
 
     def save(self) -> bytes:
         data = bytearray()
-        data.append(len(self.name))
-        data.extend(self.name.encode())
+        encoded_name = self.name.encode()
+        data.append(len(encoded_name))
+        data.extend(encoded_name)
 
         large_map_flag = 1 if self.size_x > 255 or self.size_y > 255 else 0
         many_features_flag = 1 if len(self.features) > 255 else 0
@@ -225,7 +217,7 @@ class Map:
 
     @classmethod
     def load(cls, data: bytes) -> "Map":
-        data_pointer = _DataPointer(data)
+        data_pointer = DataPointer(data, ENDIAN)
         map_name_length = data_pointer.get_byte()
         name = data_pointer.get_raw_bytes(map_name_length).decode()
         flags = data_pointer.get_byte()

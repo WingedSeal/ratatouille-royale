@@ -1,21 +1,24 @@
+from typing import Any, Callable
+
 import pygame
-from ratroyale.frontend.pages.page_managers.base_page import Page
+
 from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.gesture.gesture_reader import (
-    GestureReader,
-    GESTURE_READER_CARES,
-)
+from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 from ratroyale.event_tokens.page_token import (
-    PageNavigation,
-    PageNavigationEvent,
     PageCallbackEvent,
     PageManagerEvent,
+    PageNavigation,
+    PageNavigationEvent,
 )
 from ratroyale.event_tokens.visual_token import VisualManagerEvent
+from ratroyale.frontend.gesture.gesture_reader import (
+    GESTURE_READER_CARES,
+    GestureReader,
+)
+from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
-from ratroyale.event_tokens.input_token import post_gesture_event, InputManagerEvent
-
-from typing import Any, Callable
+from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
 
 
 class PageManager:
@@ -32,14 +35,14 @@ class PageManager:
         """Active page stack.
         First is bottom-most, while last is topmost"""
 
+        self.camera: Camera = Camera(
+            0, 0, 1, SCREEN_SIZE_HALVED[0], SCREEN_SIZE_HALVED[1]
+        )
+
         self.page_actions: dict[PageNavigation, Callable[[type[Page]], None]] = {
             PageNavigation.OPEN: self.open_page,
             PageNavigation.CLOSE: self.remove_page,
             PageNavigation.REPLACE_TOP: self.replace_top_page,
-            PageNavigation.HIDE: self.hide_page,
-            PageNavigation.SHOW: self.show_page,
-            PageNavigation.MOVE_UP: self.move_up_page,
-            PageNavigation.MOVE_DOWN: self.move_down_page,
         }
         self.global_actions: dict[PageNavigation, Callable[[], None]] = {
             PageNavigation.CLOSE_ALL: self.remove_all_pages,
@@ -60,14 +63,14 @@ class PageManager:
         try:
             self.get_page(page_type)
         except KeyError:
-            opened_page = page_type(self.coordination_manager)
+            opened_page = page_type(self.coordination_manager, self.camera)
             self.page_stack.append(opened_page)
             opened_page.on_open()
 
     def remove_top_page(self) -> None:
         """Remove the topmost page, or the first page of the given type."""
         if not self.page_stack:
-            raise IndexError(f"Page stack is empty.")
+            raise IndexError("Page stack is empty.")
         closed_page = self.page_stack.pop()
         closed_page.on_close()
 

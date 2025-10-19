@@ -1,2 +1,1 @@
-from . import features
-from . import entities
+from . import entities, features
