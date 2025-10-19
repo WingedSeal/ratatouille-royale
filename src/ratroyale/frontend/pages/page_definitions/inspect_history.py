@@ -78,6 +78,19 @@ class InspectHistory(Page):
         )
         elements.append(history_desc)
 
+        map_panel = ui_element_wrapper(
+            pygame_gui.elements.UIPanel(
+                relative_rect=pygame.Rect(10, 140, 480, 260),
+                manager=self.gui_manager,
+                container=panel.get_interactable(pygame_gui.elements.UIPanel),
+                object_id=pygame_gui.core.ObjectID(class_id="HistoryMap", object_id="history_map"),
+            ),
+            registered_name="history_map",
+            grouping_name="inspect_history",
+            camera=self.camera,
+        )
+        elements.append(map_panel)
+
         exit_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(410, 10, 80, 30),
