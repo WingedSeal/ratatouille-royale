@@ -112,7 +112,7 @@
   
   body
 }
-#let title-page(title: "", subtitle: "", author: "", date: none) = {
+#let title-page(title: "", subtitle: "", authors: (), date: none) = {
   set page(numbering: none)
   
   v(2fr)
@@ -125,28 +125,46 @@
     #v(0.5em)
     
     #if subtitle != "" [
-      #text(size: 16pt, fill: rgb("#7c3aed"))[
+      #text(size: 16pt, fill: rgb("#312e81"))[
         #subtitle
       ]
     ]
     
     #v(2em)
     
-    #if author != "" [
-      #text(size: 14pt)[
-        #author
-      ]
-    ]
-    
-    #v(0.5em)
-    
-    #if date != none [
-      #text(size: 12pt, fill: rgb("#6b7280"))[
-        #date
-      ]
-    ] else [
-      #text(size: 12pt, fill: rgb("#6b7280"))[
-        #datetime.today().display()
+    #if authors != () [
+      #align(center)[
+        #context [
+          #let max-name-width = 0pt
+          #for author in authors {
+            let parts = author.split(" ")
+            if parts.len() != 3 {
+              panic("Author must be in format: 'FirstName LastName ID'. Got: '" + author + "'")
+            }
+            let name = parts.slice(0, 2).join(" ")
+            let name-width = measure(text(size: 14pt)[#name]).width
+            max-name-width = calc.max(max-name-width, name-width)
+          }
+          
+          #text(size: 14pt)[
+            #show table: set table(
+              stroke: none,
+              fill: none,
+            )
+            #table(
+              columns: (auto, auto),
+              stroke: none,
+              align: (left, left),
+              column-gutter: 1em,
+              ..authors.map(author => {
+                let parts = author.split(" ")
+                let name = parts.slice(0, 2).join(" ")
+                let id = parts.at(2)
+                (name, id)
+              }).flatten()
+            )
+          ]
+        ]
       ]
     ]
   ]

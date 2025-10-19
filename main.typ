@@ -1,6 +1,17 @@
 #import "template.typ": *
 #show: apply-style
 
+#title-page(
+  title: "Game Design Document",
+  subtitle: "Ratatouille Royale",
+  authors: (
+    "Peepo TheGoat 1234", 
+    "Pond CodingFrontEnd 777",
+    "Cheewanont Chuleekorn 6522781846", 
+    "Pin IsRichAf 9999999", 
+    "Aek Egg 12345"
+  ),
+)
 
 = Overview
 #include "overview.typ"
