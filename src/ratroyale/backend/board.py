@@ -2,6 +2,8 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Iterable, Iterator
 
+from ratroyale.backend.entities.rodents.specialist import TheOne
+
 from ..utils import EventQueue, is_ellipsis_body
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .entity import CallableEntitySkill, Entity
@@ -32,6 +34,7 @@ class Cache:
         self.effects: list[EntityEffect] = []
         self.timers: list[Timer] = []
         self.entities_with_turn_change: list[Entity] = []
+        self.the_ones: dict[Side, TheOne | None] = defaultdict(lambda: None)
 
     def get_all_lairs(self) -> Iterable[Lair]:
         for side_lair in self.lairs.values():

@@ -110,10 +110,7 @@ class Quartermaster(Rodent):
 
     @entity_skill_check
     def my_soul(self, game_manager: "GameManager") -> SkillResult:
-        if (
-            self.my_soul_target is not None
-            and self.my_soul_target in game_manager.board.cache.entities
-        ):
+        if self.my_soul_target is not None and self.my_soul_target.health != 0:
             aoe_damage(self.attack, 2, self.my_soul_target, is_stackable=True)
             game_manager.damage_entity(self, INSTANT_KILL, self)
             return SkillCompleted.SUCCESS
@@ -146,5 +143,5 @@ class Quartermaster(Rodent):
         return [
             'Boost an ally\'s morale by giving them "Morale Boost" status effect increasing its attack by 1 for 3 of ally turns.',
             f"Distribute food to an ally healing it by {self.attack}(ATK) HP.",
-            f'Its last breath has come. Give "Quartermaster\'s Soul" status effect to an ally rodent. When activated again, said rodent will deal {self.attack}(ATK) damage to all enemy within 2-tile radius and this rodent will then be defeated.',
+            f'Its last breath has come. Give "Quartermaster\'s Soul" status effect to an ally rodent. When activated again, said rodent will deal {self.attack}(ATK) damage to all enemy within 2-tile radius and this rodent will then be defeated. Current target: {"None" if self.my_soul_target is None else f"{self.my_soul_target.name} at {self.my_soul_target.pos}"}',
         ]

@@ -99,8 +99,8 @@ class RatbertBrewbelly(Rodent):
         EntitySkill(
             name="Shake the Can",
             method_name="shake_the_can",
-            reach=0,
-            altitude=0,
+            reach=None,
+            altitude=None,
             crumb_cost=5,
             tags=[SkillTag.SELF_DEFEATED, SkillTag.AOE],
         ),
