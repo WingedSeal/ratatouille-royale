@@ -1,6 +1,6 @@
 == Pre-Match Phase
 
-Prior to entering a match, players must build and select a deck (referred to as a "Squeak Set"). Additionally, players may designate the initial sequence of 5 "Squeaks" that will be drawn into their starting hand.
+Prior to entering a match, players must build and select a deck (referred to as a "Squeak Set"). Additionally, players may designate the initial sequence of 5 Squeaks that will be drawn into their starting hand.
 
 == Match Phase
 
@@ -30,23 +30,23 @@ Each movement action consumes one unit of "Move Stamina", a resource unique to e
 === Activate Skill
 
 *Skill Availability:* 
-Game entities, including "Rodents", usually has 0-3 "Skills". Players may activate "Skills" belonging to any allied or neutral entity.
+Game entities, including Rodents, usually has 0-3 "Skills". Players may activate skills belonging to any allied or neutral entity.
 
 *Target Selection:* 
-Upon "Skill" activation, if the "Skill" requires target selection, the game enters "Target Selection Mode", prompting the player to select the appropriate target(s). Most "Skills" may be cancelled during this process. Note that certain Skills may require multiple target selection phases.
+Upon Skill activation, if the Skill requires target selection, the game enters Target Selection Mode, prompting the player to select the appropriate target(s). Most Skills may be cancelled during this process. Note that certain Skills may require multiple target selection phases.
 
 *Line of Sight Calculation:* 
-The majority of "Skills" require direct line of sight (LOS) to their designated target. LOS determination follows this algorithm:
+The majority of Skills require direct line of sight (LOS) to their designated target. LOS determination follows this algorithm:
 
 + A direct line is drawn from the activating entity to the target
 + This line is interpolated into a hexagonal grid path (always selecting the shortest possible path)
 + The system calculates the height differential between the entity's tile and the target's tile
-+ This differential is compared against the Skill's "Altitude" stats
-+ If the "Altitude" value meets or exceeds the height differential, "LOS" is confirmed
++ This differential is compared against the Skill's Altitude stats
++ If the Altitude value meets or exceeds the height differential, LOS is confirmed
 
 *Skill Resource:* 
-Upon successful "Skill" completion, one unit of "Skill Stamina" is consumed. This resource is entity-specific and fully regenerates at the end of the turn.
+Upon successful skill completion, one unit of "Skill Stamina" is consumed. This resource is entity-specific and fully regenerates at the end of the turn.
 
 === End Turn
 
-This action forfeits all remaining "Crumbs" and immediately concludes the player's current turn.
+This action forfeits all remaining crumbs and immediately concludes the player's current turn.
