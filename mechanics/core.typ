@@ -1,26 +1,52 @@
-== Pre-Match
-A player can build and select a deck (Squeak Set) before entering a match. They can also pick the first 5 squeaks that'll be drawn into the hands. 
+== Pre-Match Phase
 
-== Match
-Each turns they are multiple types of action player can take which all cost "crumbs" (except End Turn).
-+ Place Squeak
-+ Move
-+ Activate Skill
-+ End Turn
+Prior to entering a match, players must build and select a deck (referred to as a "Squeak Set"). Additionally, players may designate the initial sequence of 5 "Squeaks" that will be drawn into their starting hand.
+
+== Match Phase
+
+During each turn, players may execute multiple action types on any order, all of which consume "Crumbs" (with the exception of the "End Turn" action). The available actions are:
+
+- Place Squeak
+- Move
+- Activate Skill
+- End Turn
 
 === Place Squeak
-Most Rodent type Squeaks can only be placed on "Deployment Zone". While Trick type Squeaks have their own placing mechanism. Once a Squeak is placed, a new Squeak will be automatically drawn from the deck and the placed squeak will not go back to the deck. Only when the deck is completely empty while trying to draw a new Squeak, it'll be reset to its original state.
+
+*Deployment Restriction:*
+Rodent-type Squeaks are restricted to placement within designated "Deployment Zones". Conversely, Trick-type Squeaks may utilize specialized placement mechanics unique to them.
+
+*Squeak Draw Mechanism:* 
+Upon placement of a Squeak, the system automatically draws a new Squeak from the deck. Placed Squeaks are permanently removed from the active deck cycle. When an attempt is made to draw from an empty deck, the deck resets to its original composition.
 
 === Move
-Each tile has its own height. An entity can jump up to 1 high difference. A jump is automatically performed when moving. When a move is performed, 1 "Move Stamina" will be consumed. This stamina is unique to each entity and will reset at the end of the turn. Most entites cannot occupy the same tile.
 
+*Terrain Navigation:*
+Each tile possesses a distinct height value. Entities are capable of traversing elevation differences of up to 1 unit, with jumping automatically executed during movement when necessary.
+
+*Movement Resource:*
+Each movement action consumes one unit of "Move Stamina", a resource unique to each entity. This stamina pool fully regenerates at the end of each turn. Most entities are not allowed to occupy the same tile at once.
 
 === Activate Skill
-Entities in the game (including Rodents) may have abilities called skills (usually 0-3 skills). Player can choose to activate any ally or neutral entity's skill. Once it is activated, if the skill requires target(s) to be selected, the game will go into target selecting mode and let the player choose target(s). Most skills can be cancelled. (Some skills may go into target selecting mode more than once.)
 
-Most skills requires direct line of sight (LOS) to its target. To calculate this LOS, the game will draw direct line from the entity to its target then interpolate that line into hexagonical line. (Note that when interpolating, the result hexagonical line will always be a shortest path to target.). Then compare the difference between the entity's tile height and target's tile height and the skill's "altitude" stats. If altitude is high enough then the skill has line of sight.
+*Skill Availability:* 
+Game entities, including "Rodents", usually has between zero and three "Skills". Players may activate "Skills" belonging to any allied or neutral entity.
 
-When a skill completed, 1 "Skill Stamina" will be consumed. This stamina is unique to each entity and will reset at the end of the turn.
+*Target Selection:* 
+Upon "Skill" activation, if the "Skill" requires target selection, the game enters "Target Selection Mode", prompting the player to select the appropriate target(s). Most "Skills" may be cancelled during this process. Note that certain Skills may require multiple target selection phases.
+
+*Line of Sight Calculation:* 
+The majority of "Skills" require direct line of sight (LOS) to their designated target. LOS determination follows this algorithm:
+
++ A direct line is drawn from the activating entity to the target
++ This line is interpolated into a hexagonal grid path (always selecting the shortest possible path)
++ The system calculates the height differential between the entity's tile and the target's tile
++ This differential is compared against the Skill's "Altitude" stats
++ If the "Altitude" value meets or exceeds the height differential, "LOS" is confirmed
+
+*Skill Resource:* 
+Upon successful "Skill" completion, one unit of "Skill Stamina" is consumed. This resource is entity-specific and fully regenerates at the end of the turn.
 
 === End Turn
-Forfeit the remaining crumbs and end the turn.
+
+This action forfeits all remaining "Crumbs" and immediately concludes the player's current turn.
