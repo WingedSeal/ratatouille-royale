@@ -30,7 +30,7 @@ Each movement action consumes one unit of "Move Stamina", a resource unique to e
 === Activate Skill
 
 *Skill Availability:* 
-Game entities, including "Rodents", usually has between zero and three "Skills". Players may activate "Skills" belonging to any allied or neutral entity.
+Game entities, including "Rodents", usually has 0-3 "Skills". Players may activate "Skills" belonging to any allied or neutral entity.
 
 *Target Selection:* 
 Upon "Skill" activation, if the "Skill" requires target selection, the game enters "Target Selection Mode", prompting the player to select the appropriate target(s). Most "Skills" may be cancelled during this process. Note that certain Skills may require multiple target selection phases.

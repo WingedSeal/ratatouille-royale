@@ -18,3 +18,10 @@
 = Game Mechanics
 == Core
 #include "mechanics/core.typ"
+
+== Progression
+#include "mechanics/progression.typ"
+
+= Rodent
+== Stats
+#include "rodent/stats.typ"
