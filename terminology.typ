@@ -36,6 +36,6 @@
 
 == Duration Effects
 
-*Last for 1 of your turn*: Effect expires and is cleared at the end of the current player's turn.
+*Last for 1 of ally turn*: Effect expires and is cleared at the end of the current player's turn.
 
 *Last for 1 of enemy's turn*: Effect expires and is cleared at the end of the incoming enemy turn.
