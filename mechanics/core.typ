@@ -4,7 +4,7 @@ Prior to entering a match, players must build and select a deck (referred to as 
 
 == Match Phase
 
-During each turn, players may execute multiple action types on any order, all of which consume "Crumbs" (with the exception of the "End Turn" action). The available actions are:
+During each turn, players may execute multiple action types in any order, all of which consume "Crumbs" (with the exception of the "End Turn" action). The available actions are:
 
 - Place Squeak
 - Move
