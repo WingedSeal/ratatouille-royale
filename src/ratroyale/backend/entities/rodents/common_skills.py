@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Iterable
 
+from ...side import Side
 from ...entities.rodent import Rodent
 from ...entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from ...entity_effect import EntityEffect
@@ -8,12 +9,12 @@ from ...error import InvalidMoveTargetError, ShortHandSkillCallbackError
 from ...skill_callback import SkillCallback, skill_callback_check
 from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...timer import Timer, TimerCallback, TimerClearSide
+from ...hexagon import OddRCoord
 
 if TYPE_CHECKING:
     from ...board import Board
     from ...entity import CallableEntitySkill
     from ...game_manager import GameManager
-    from ...hexagon import OddRCoord
 
 
 class SelectTargetMode(Enum):
@@ -25,33 +26,13 @@ class SelectTargetMode(Enum):
     ANY_TILE = auto()
 
 
-def select_targets(
+def filter_targetable_coords(
+    coords: Iterable[OddRCoord],
     board: "Board",
-    rodent: "Rodent",
-    skill: "CallableEntitySkill",
-    callback: "SkillCallback" | Iterable["SkillCallback"],
-    target_count: int = 1,
-    *,
-    is_feature_targetable: bool = True,
+    side: Side | None,
     target_mode: SelectTargetMode = SelectTargetMode.ENEMY_WITH_HP,
-    can_cancel: bool = True,
-) -> SkillTargeting:
-
-    @skill_callback_check
-    def skill_callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> SkillResult:
-        if isinstance(callback, Iterable):
-            for c in callback:
-                result_enum = c(game_manager, selected_targets)
-                if result_enum != SkillCompleted.SUCCESS:
-                    raise ShortHandSkillCallbackError(
-                        f"{select_targets.__name__} is used with shorthand callback (iterable of callback) but one of them didn't succeed instantly."
-                    )
-            return SkillCompleted.SUCCESS
-        return callback(game_manager, selected_targets)
-
-    coords = board.get_attackable_coords(rodent, skill)
+    is_feature_targetable: bool = True,
+) -> list[OddRCoord]:
     targets: list[OddRCoord] = []
     for coord in coords:
         tile = board.get_tile(coord)
@@ -69,38 +50,68 @@ def select_targets(
                     continue
             case SelectTargetMode.ENEMY_WITH_HP:
                 if any(
-                    entity.side != rodent.side and entity.health is not None
+                    entity.side != side and entity.health is not None
                     for entity in tile.entities
                 ):
                     targets.append(coord)
                     continue
                 if is_feature_targetable and any(
-                    feature.side != rodent.side and feature.health is not None
+                    feature.side != side and feature.health is not None
                     for feature in tile.features
                 ):
                     targets.append(coord)
                     continue
             case SelectTargetMode.ENEMY:
-                if any(entity.side != rodent.side for entity in tile.entities):
+                if any(entity.side != side for entity in tile.entities):
                     targets.append(coord)
                     continue
                 if is_feature_targetable and any(
-                    feature.side != rodent.side for feature in tile.features
+                    feature.side != side for feature in tile.features
                 ):
                     targets.append(coord)
                     continue
             case SelectTargetMode.ALLY:
-                if any(entity.side == rodent.side for entity in tile.entities):
+                if any(entity.side == side for entity in tile.entities):
                     targets.append(coord)
                     continue
                 if is_feature_targetable and any(
-                    feature.side == rodent.side for feature in tile.features
+                    feature.side == side for feature in tile.features
                 ):
                     targets.append(coord)
                     continue
-            case _:
-                raise ValueError(f"SelectTargetMode not handled: {target_mode}")
+    return targets
 
+
+def select_targets(
+    board: "Board",
+    rodent: "Rodent",
+    skill: "CallableEntitySkill",
+    callback: "SkillCallback" | Iterable["SkillCallback"],
+    target_count: int = 1,
+    *,
+    is_feature_targetable: bool = True,
+    target_mode: SelectTargetMode = SelectTargetMode.ENEMY_WITH_HP,
+    can_cancel: bool = True,
+) -> SkillTargeting:
+
+    @skill_callback_check
+    def skill_callback(
+        game_manager: "GameManager", selected_targets: list[OddRCoord]
+    ) -> SkillResult:
+        if isinstance(callback, Iterable):
+            for c in callback:
+                result_enum = c(game_manager, selected_targets)
+                if result_enum != SkillCompleted.SUCCESS:
+                    raise ShortHandSkillCallbackError(
+                        f"{select_targets.__name__} is used with shorthand callback (iterable of callback) but one of them didn't succeed instantly."
+                    )
+            return SkillCompleted.SUCCESS
+        return callback(game_manager, selected_targets)
+
+    coords = board.get_attackable_coords(rodent, skill)
+    targets = filter_targetable_coords(
+        coords, board, rodent.side, target_mode, is_feature_targetable
+    )
     return SkillTargeting(
         target_count, rodent, skill, targets, skill_callback, can_cancel
     )
@@ -109,7 +120,7 @@ def select_targets(
 def move(self: Entity, *, custom_jump_height: int | None = None) -> SkillCallback:
     @skill_callback_check
     def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        game_manager: "GameManager", selected_targets: list[OddRCoord]
     ) -> SkillCompleted:
         if len(selected_targets) != 1:
             raise ValueError("Multiple targets for teleport.")
@@ -134,7 +145,7 @@ def normal_damage(
 
     @skill_callback_check
     def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        game_manager: "GameManager", selected_targets: list[OddRCoord]
     ) -> SkillCompleted:
         for target in selected_targets:
             enemy = game_manager.get_enemy_on_pos(target)
@@ -162,7 +173,7 @@ def normal_heal(
 
     @skill_callback_check
     def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        game_manager: "GameManager", selected_targets: list[OddRCoord]
     ) -> SkillCompleted:
         for target in selected_targets:
             ally = game_manager.get_ally_on_pos(target)
@@ -195,7 +206,7 @@ def apply_timer(
 
     @skill_callback_check
     def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        game_manager: "GameManager", selected_targets: list[OddRCoord]
     ) -> SkillCompleted:
         for target in selected_targets:
             if is_ally_instead:
@@ -234,7 +245,7 @@ def apply_effect(
 
     @skill_callback_check
     def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        game_manager: "GameManager", selected_targets: list[OddRCoord]
     ) -> SkillCompleted:
         for target in selected_targets:
             if is_ally_instead:
@@ -272,9 +283,9 @@ def aoe_damage(
 
     @skill_callback_check
     def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        game_manager: "GameManager", selected_targets: list[OddRCoord]
     ) -> SkillCompleted:
-        tagged_coord: set["OddRCoord"] = set()
+        tagged_coord: set[OddRCoord] = set()
         for selected_target in selected_targets:
             selected_tile = game_manager.board.get_tile(selected_target)
             if selected_tile is None:
@@ -282,7 +293,7 @@ def aoe_damage(
             selected_tile_ = selected_tile
 
             def __is_coord_blocked(
-                target_coord: "OddRCoord", source_coord: "OddRCoord"
+                target_coord: OddRCoord, source_coord: OddRCoord
             ) -> bool:
                 tile = game_manager.board.get_tile(target_coord)
                 if tile is None:

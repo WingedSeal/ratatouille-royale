@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .game_manager import GameManager
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class EntitySkill:
     name: str
     method_name: str
@@ -25,7 +25,7 @@ class EntitySkill:
     tags: list[SkillTag]
 
 
-@dataclass
+@dataclass(frozen=True)
 class SkillTargeting:
     target_count: int
     source_enitity: "Entity"
@@ -43,7 +43,7 @@ class SkillCompleted(Enum):
 SkillResult: TypeAlias = SkillTargeting | SkillCompleted
 
 
-@dataclass
+@dataclass(frozen=True)
 class CallableEntitySkill(EntitySkill):
     func: Callable[["Entity", "GameManager"], SkillResult]
 

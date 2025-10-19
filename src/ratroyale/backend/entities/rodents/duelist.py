@@ -1,3 +1,4 @@
+import dataclasses
 from typing import TYPE_CHECKING
 
 from ...effects.global_rodent_effects import Stunned
@@ -21,6 +22,7 @@ from .common_skills import (
     aoe_damage,
     apply_effect,
     apply_timer,
+    filter_targetable_coords,
     normal_damage,
     select_targets,
 )
@@ -307,12 +309,29 @@ class RailRodent(Rodent):
     def railgun(self, game_manager: "GameManager") -> SkillResult:
         if RailgunCharged.name not in self.effects:
             return SkillCompleted.CANCELLED
-        return select_targets(
+        normal_targets = filter_targetable_coords(
+            game_manager.board.get_attackable_coords(self, self.skills[0]),
             game_manager.board,
+            self.side,
+            is_feature_targetable=False,
+        )
+        assert self.skills[0].reach is not None
+        alt_skills_0 = dataclasses.replace(
+            self.skills[0], altitude=-1, reach=self.skills[0].reach + 1
+        )
+        passive_targets = filter_targetable_coords(
+            game_manager.board.get_attackable_coords(self, alt_skills_0),
+            game_manager.board,
+            self.side,
+            is_feature_targetable=False,
+        )
+        return SkillTargeting(
+            1,
             self,
             self.skills[0],
+            list(set(normal_targets + passive_targets)),
             self.railgun_callback(),
-            is_feature_targetable=False,
+            True,
         )
 
     def railgun_callback(self) -> SkillCallback:
@@ -332,4 +351,13 @@ class RailRodent(Rodent):
         return [
             'Charge its railgun and give itself "Railgun Charged" status effect for 3 of ally turn.',
             f'If it has "Railgun Charged" status effect, fire the railgun at an enemy dealing {self.attack*2}(ATK*2) damage and clear said effect.',
+        ]
+
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return [
+            (
+                "High Ground",
+                "When being at higher tile than the target, reach of all skills +1.",
+            ),
+            ("Too OP", "This rodent cannot attack any structure."),
         ]
