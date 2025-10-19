@@ -30,7 +30,7 @@
 
 *Experience (EXP)*: Points earned after each game (win or loss) that accumulate to increase Level.
 
-*Forge*: The act of combining two or more Squeaks to create a new, more powerful Squeak.
+*Forge*: The act of combining two or more Squeaks to create a new Squeak variant (sidegrade).
 
 *Gacha*: A randomized system for obtaining new basic Squeaks. Requires Cheese to perform.
 
