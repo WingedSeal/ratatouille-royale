@@ -129,7 +129,7 @@ class PlayerInfo:
         if self.is_progression_frozen:
             return None
         self.cheese += progression_curve(game_manager.turn_count, 5, 20, 80)
-        self.exp += progression_curve(game_manager.turn_count, 200, 20, 80)
+        self.exp += progression_curve(game_manager.turn_count, 100, 20, 80)
 
     def gacha_squeak(self, count: int = 1) -> list[Squeak]:
         if self.cheese < count * CHEESE_PER_ROLL:
