@@ -180,7 +180,7 @@ class Board:
         self, rodent: Rodent, *, is_include_self: bool = False
     ) -> set[OddRCoord]:
         """
-        Get every coords a rodent can reach within its movement limit
+        Get every coords a rodent can reach within its movement limit. Terrain and collision is taken into account.
 
         :param rodent: The rodent
         :param is_include_self: Whether to include the coord of rodent itself in the result
