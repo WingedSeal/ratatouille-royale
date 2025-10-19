@@ -27,14 +27,14 @@ def source_of_damage_or_heal_to_string(
         return "unknown source"
 
 
-@dataclass
+@dataclass(frozen=True)
 class GameEvent:
     def __post_init__(self) -> None:
         if _PRINT_EVENTS:
             print(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class EntityMoveEvent(GameEvent):
     path: list[OddRCoord]
     entity: Entity
@@ -43,7 +43,7 @@ class EntityMoveEvent(GameEvent):
         return f"{STR_PREFIX}{self.entity.name} at {self.entity.pos} was moved to {self.path[-1]}."
 
 
-@dataclass
+@dataclass(frozen=True)
 class EntityDieEvent(GameEvent):
     entity: Entity
 
@@ -51,7 +51,7 @@ class EntityDieEvent(GameEvent):
         return f"{STR_PREFIX}{self.entity.name} at {self.entity.pos} died."
 
 
-@dataclass
+@dataclass(frozen=True)
 class FeatureDieEvent(GameEvent):
     feature: Feature
 
@@ -59,7 +59,7 @@ class FeatureDieEvent(GameEvent):
         return f"{STR_PREFIX}Feature {self.feature.get_name()} around {self.feature.shape[0]} died."
 
 
-@dataclass
+@dataclass(frozen=True)
 class EntitySpawnEvent(GameEvent):
     entity: Entity
 
@@ -67,7 +67,7 @@ class EntitySpawnEvent(GameEvent):
         return f"{STR_PREFIX}{self.entity.name} spawned at {self.entity.pos}."
 
 
-@dataclass
+@dataclass(frozen=True)
 class EntityDamagedEvent(GameEvent):
     entity: Entity
     damage: int | InstantKill
@@ -80,7 +80,7 @@ class EntityDamagedEvent(GameEvent):
         return f"{STR_PREFIX}{self.entity.name} at {self.entity.pos} took {self.damage} damage from {source_of_damage_or_heal_to_string(self.source)} losing {self.hp_loss} hp. HP Remaining: {self.entity.health}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class EntityHealedEvent(GameEvent):
     entity: Entity
     heal: int
@@ -104,7 +104,7 @@ class EntityHealedEvent(GameEvent):
         return f"{STR_PREFIX}{self.entity.name} at {self.entity.pos} healed {self.heal} hp from {source_of_damage_or_heal_to_string(self.source)} gaining {self.hp_gained} hp{overheal_message} HP Remaining: {self.entity.health}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class FeatureDamagedEvent(GameEvent):
     feature: Feature
     damage: int
@@ -115,7 +115,7 @@ class FeatureDamagedEvent(GameEvent):
         return f"{STR_PREFIX}Feature {self.feature.get_name()} around {self.feature.shape[0]} took {self.damage} damage from {source_of_damage_or_heal_to_string(self.source)} losing {self.hp_loss} hp HP Remaining: {self.feature.health}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class EndTurnEvent(GameEvent):
     is_from_first_turn_side: bool
     from_side: Side
@@ -127,7 +127,7 @@ class EndTurnEvent(GameEvent):
         return f"{STR_PREFIX}Changing turn from player {'1' if self.is_from_first_turn_side else '2'} to player {'2' if self.is_from_first_turn_side else '1'}. New crumbs: {self.new_crumbs}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class EntityEffectUpdateEvent(GameEvent):
     effect: EntityEffect
     apply_or_clear: Literal["apply", "clear"]
@@ -158,7 +158,7 @@ class EntityEffectUpdateEvent(GameEvent):
         return f"{STR_PREFIX}{self.effect.entity.name} at {self.effect.entity.pos} has effect {self.effect.name} {apply_or_clear} with intensity of {self.effect.intensity} for {self.effect.duration}{clear_side} turn(s). Reason: {self.reason}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class GameOverEvent(GameEvent):
     is_winner_from_first_turn_side: bool
     victory_side: Side
@@ -167,7 +167,7 @@ class GameOverEvent(GameEvent):
         return f"{STR_PREFIX}Game Over! Player {'1' if self.is_winner_from_first_turn_side else '2'} won."
 
 
-@dataclass
+@dataclass(frozen=True)
 class SqueakPlacedEvent(GameEvent):
     hand_index: int
     squeak: Squeak
@@ -177,7 +177,7 @@ class SqueakPlacedEvent(GameEvent):
         return f"{STR_PREFIX}Squeak {self.squeak.name} (slot {self.hand_index}) placed at {self.coord}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class SqueakDrawnEvent(GameEvent):
     hand_index: int
     squeak: Squeak
@@ -186,7 +186,7 @@ class SqueakDrawnEvent(GameEvent):
         return f"{STR_PREFIX}Squeak {self.squeak.name} was drawn into slot {self.hand_index}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class SqueakSetResetEvent(GameEvent):
 
     def __str__(self) -> str:
