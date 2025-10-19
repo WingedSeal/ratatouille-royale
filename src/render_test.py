@@ -2,7 +2,8 @@
 
 import pygame
 
-from ratroyale.backend.entities.rodents.vanguard import TailBlazer
+
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.hexagon import OddRCoord
@@ -41,7 +42,6 @@ def main():
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
 
     # region GAME MANAGER DOMAIN
-    entities: list[Entity] = [TailBlazer(OddRCoord(1, 3))]
     mouse_zone = DeploymentZone(
         shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE
     )
@@ -60,39 +60,23 @@ def main():
                 [1, 1, 1, 1, 1, 1],
             ]
         ),
-        entities=entities,
+        entities=[],
         features=[Lair([OddRCoord(0, 0)], 10, side=Side.RAT), mouse_zone, rat_zone],
     )
 
-    # Create dummy squeaks that interact with the game manager
-    dummy_squeaks = [
-        Squeak(
-            name=f"Test Card {i}",
-            crumb_cost=random.randint(1, 6) * 10,
-            squeak_type=SqueakType.RODENT,
-            on_place=summon_on_place(TailBlazer),  # uses actual summon_on_place
-            get_placable_tiles=rodent_placable_tile,  # uses actual placement logic
-            rodent=TailBlazer,
-        )
-        for i in range(10)
-    ]
-
-    # Indices for deck and hand
-    all_indices = set(range(5))
-
     # Player 1: create a SqueakSet directly in the constructor
     player_info_1 = PlayerInfo(
-        all_squeaks=dummy_squeaks.copy(),
-        squeak_sets=[set(range(10))],  # deck indices for SqueakSet
-        hands=[all_indices],  # hand indices for SqueakSet
+        {TAIL_BLAZER: 5},
+        [{TAIL_BLAZER: 5}],
+        [{TAIL_BLAZER: 5}],
         selected_squeak_set_index=0,
     )
 
     # Player 2: separate SqueakSet instance
     player_info_2 = PlayerInfo(
-        all_squeaks=dummy_squeaks.copy(),
-        squeak_sets=[set(range(10))],
-        hands=[all_indices],
+        {TAIL_BLAZER: 5},
+        [{TAIL_BLAZER: 5}],
+        [{TAIL_BLAZER: 5}],
         selected_squeak_set_index=0,
     )
 

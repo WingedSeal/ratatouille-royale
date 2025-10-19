@@ -52,3 +52,7 @@ class GameManagerSkillCallBackInNonSelectingMode(RatRoyaleBackendError):
 
 class AICantPathfind(RatRoyaleBackendError):
     pass
+
+
+class InvalidDeckError(RatRoyaleBackendError):
+    pass
