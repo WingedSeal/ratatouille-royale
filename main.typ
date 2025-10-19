@@ -25,3 +25,6 @@
 = Rodent
 == Stats
 #include "rodent/stats.typ"
+
+== Classes
+#include "rodent/class.typ"
