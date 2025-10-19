@@ -28,3 +28,9 @@
 
 == Classes
 #include "rodent/class.typ"
+
+= Gacha Pool
+#include "progression/gacha_pool.typ"
+
+= Forges
+#include "progression/forges.typ"
