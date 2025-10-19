@@ -356,9 +356,9 @@ def _get_unique_init_arguments(obj: Any, basecls: type) -> tuple[int]:
 
 def heights_to_tiles(heights: list[list[int | None]]) -> list[list[Tile | None]]:
     tile_grid: list[list[Tile | None]] = []
-    for x, row_of_heights in enumerate(heights):
+    for y, row_of_heights in enumerate(heights):
         tile_row: list[Tile | None] = []
-        for y, height_value in enumerate(row_of_heights):
+        for x, height_value in enumerate(row_of_heights):
             if height_value is None:
                 tile_row.append(None)
                 continue
