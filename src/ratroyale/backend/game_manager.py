@@ -494,9 +494,19 @@ class GameManager:
         )
         if not is_dead:
             return
-        is_dead = feature.on_death(source)
-        if not is_dead:
-            return
+        self.destroy_feature(feature, source)
+
+    def destroy_feature(
+        self,
+        feature: Feature,
+        source: SourceOfDamageOrHeal,
+        *,
+        is_trigger_on_death: bool = True,
+    ) -> None:
+        if is_trigger_on_death:
+            is_dead = feature.on_death(source)
+            if not is_dead:
+                return
 
         for pos in feature.shape:
             tile = self.board.get_tile(pos)
