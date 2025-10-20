@@ -256,6 +256,7 @@ class GameManager:
         :param custom_path: Force rodent to move in a specific path if not None, defaults to `None`
         :returns: Path the rodent took to get there
         """
+        from_pos = rodent.pos
         self._validate_not_selecting_target()
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
@@ -274,8 +275,8 @@ class GameManager:
         old_crumbs = self.crumbs
         self.crumbs -= rodent.move_cost
         rodent.move_stamina -= 1
-        event = EntityMoveEvent(path, rodent)
-        self.event_queue.put(event)
+        event = EntityMoveEvent(path, rodent, from_pos)
+        self.event_queue.put_nowait(event)
         self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
         return path
 
@@ -289,6 +290,7 @@ class GameManager:
         :param target: Target to move to
         :returns: Path the rodent took to get there
         """
+        from_pos = entity.pos
         path = self.board.path_find(
             entity, target, custom_jump_height=custom_jump_height
         )
@@ -297,7 +299,7 @@ class GameManager:
         is_success = self.board.try_move(entity, path)
         if not is_success:
             raise InvalidMoveTargetError("Cannot move entity there")
-        self.event_queue.put(EntityMoveEvent(path, entity))
+        self.event_queue.put(EntityMoveEvent(path, entity, from_pos))
         return path
 
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:

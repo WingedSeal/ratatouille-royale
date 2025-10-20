@@ -100,7 +100,12 @@ class Board:
         return self.tiles[coord.y][coord.x]
 
     def is_coord_blocked(
-        self, entity: Entity | type[Entity], custom_jump_height: int | None = None
+        self, entity: Entity, custom_jump_height: int | None = None
+    ) -> IsCoordBlocked:
+        return self._is_coord_blocked(entity.collision, entity.side, custom_jump_height)
+
+    def _is_coord_blocked(
+        self, collision: bool, side: Side | None, custom_jump_height: int | None = None
     ) -> IsCoordBlocked:
         if custom_jump_height is None:
             custom_jump_height = ENTITY_JUMP_HEIGHT
@@ -109,9 +114,7 @@ class Board:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
                 return True
-            if entity.collision and any(
-                _entity.collision for _entity in target_tile.entities
-            ):
+            if collision and any(_entity.collision for _entity in target_tile.entities):
                 return True
             if any(feature.is_collision() for feature in target_tile.features):
                 return True
@@ -119,8 +122,8 @@ class Board:
             if previous_tile is None:
                 return True
             return (
-                target_tile.get_total_height(entity.side)
-                - previous_tile.get_total_height(entity.side)
+                target_tile.get_total_height(side)
+                - previous_tile.get_total_height(side)
                 > custom_jump_height
             )
 

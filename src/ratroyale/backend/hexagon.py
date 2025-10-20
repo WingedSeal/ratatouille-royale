@@ -211,6 +211,7 @@ class OddRCoord:
         while current_ is not None:
             path.append(current_)
             current_ = came_from[current_]
+        path.pop()
         path.reverse()
         return path
 
