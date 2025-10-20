@@ -36,7 +36,7 @@ class GameOver(Page):
     def define_initial_gui(self) -> list[ElementWrapper]:
         game_over_label = ui_element_wrapper(
             pygame_gui.elements.UILabel(
-                relative_rect=pygame.Rect(300, 200, 300, 50),
+                relative_rect=pygame.Rect(200, 200, 400, 50),
                 text="GAME OVER!!",
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
@@ -63,4 +63,8 @@ class GameOver(Page):
             game_over_panel = game_over_panel_wrapper.get_interactable(
                 pygame_gui.elements.UILabel
             )
-            game_over_panel.set_text(f"GAME OVER!! {winner} is the winning side!!")
+            game_over_panel.set_text(
+                f"GAME OVER!! {winner} is the winning side!!" + " (That's you! :) )"
+                if payload.is_winner_from_first_turn_side
+                else ""
+            )
