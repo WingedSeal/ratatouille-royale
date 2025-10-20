@@ -104,8 +104,6 @@ def test_long_map(long_map: Map, ai_type: type[BaseAI]) -> None:
         game_manager.end_turn()
         # AI Turn
         ai.run_ai_and_update_game_manager()
-        for game_event in game_manager.event_queue:
-            print(game_event)
         if game_manager.game_over_event is not None:
             assert game_manager.game_over_event.victory_side == ai.ai_side
             return

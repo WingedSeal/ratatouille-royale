@@ -69,7 +69,7 @@ class RushBAI(BaseAI):
         )
         if b_to_lair is None:
             return 1
-        return len(a_to_lair) - len(b_to_lair)
+        return len(b_to_lair) - len(a_to_lair)
 
     def compare_moves(self, a: MoveAlly, b: MoveAlly) -> int:
         a_to_lair = a.target_coord.path_find(
@@ -84,10 +84,13 @@ class RushBAI(BaseAI):
         )
         if b_to_lair is None:
             return 1
-        return len(a_to_lair) - len(b_to_lair)
+        return len(b_to_lair) - len(a_to_lair)
 
     def select_hand(self, hands: list[PlaceSqueak]) -> PlaceSqueak | None:
+        is_collision = self.choose_lair().is_collision
+        self.choose_lair().is_collision = lambda: False  # type: ignore[method-assign]
         sorted_hands = sorted(hands, key=cmp_to_key(self.compare_hands))
+        self.choose_lair().is_collision = is_collision  # type: ignore[method-assign]
         if len(sorted_hands) == 0:
             return None
         for hand in sorted_hands:
@@ -145,7 +148,10 @@ class RushBAI(BaseAI):
                 return activate_skill
 
         # Move rodent to enemy lair
-        # if not actions.move_ally:
-        #     return EndTurn()
+        if not actions.move_ally:
+            return EndTurn()
+        is_collision = self.choose_lair().is_collision
+        self.choose_lair().is_collision = lambda: False  # type: ignore[method-assign]
         best_move = max(actions.move_ally, key=cmp_to_key(self.compare_moves))
+        self.choose_lair().is_collision = is_collision  # type: ignore[method-assign]
         return best_move

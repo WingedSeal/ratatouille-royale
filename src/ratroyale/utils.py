@@ -22,7 +22,7 @@ class EventQueue(Queue[T]):
                 return None
             return cast(T, self.queue[0])
 
-    def __iter__(self) -> "EventQueue":
+    def __iter__(self) -> "EventQueue[T]":
         return self
 
     def __next__(self) -> T:
