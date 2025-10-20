@@ -22,6 +22,15 @@ class EventQueue(Queue[T]):
                 return None
             return cast(T, self.queue[0])
 
+    def __iter__(self) -> "EventQueue":
+        return self
+
+    def __next__(self) -> T:
+        next = self.get_or_none()
+        if next is None:
+            raise StopIteration
+        return next
+
 
 class DataPointer:
     data: bytes

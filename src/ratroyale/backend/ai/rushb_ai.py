@@ -55,13 +55,17 @@ class RushBAI(BaseAI):
 
         a_to_lair = a.target_coord.path_find(
             self.choose_lair_coord(),
-            self.game_manager.board.is_coord_blocked(a.squeak.rodent),
+            self.game_manager.board._is_coord_blocked(
+                a.squeak.rodent.collision, self.ai_side
+            ),
         )
         if a_to_lair is None:
             return 1
         b_to_lair = b.target_coord.path_find(
             self.choose_lair_coord(),
-            self.game_manager.board.is_coord_blocked(b.squeak.rodent),
+            self.game_manager.board._is_coord_blocked(
+                b.squeak.rodent.collision, self.ai_side
+            ),
         )
         if b_to_lair is None:
             return 1
