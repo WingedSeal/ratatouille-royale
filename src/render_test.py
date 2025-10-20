@@ -30,6 +30,7 @@ from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEven
 from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
 from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.backend.ai.random_ai import RandomAI
 
 from ratroyale.backend.features.common import Lair
 from ratroyale.backend.map import Map, heights_to_tiles
@@ -51,7 +52,7 @@ def main():
     mouse_zone = DeploymentZone(
         shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE
     )
-    rat_zone = DeploymentZone(shape=[OddRCoord(5, 5), OddRCoord(5, 4)], side=Side.RAT)
+    rat_zone = DeploymentZone(shape=[OddRCoord(4, 5), OddRCoord(5, 4)], side=Side.RAT)
     map = Map(
         "Example Map",
         6,
@@ -67,14 +68,19 @@ def main():
             ]
         ),
         entities=[],
-        features=[Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE), mouse_zone, rat_zone],
+        features=[
+            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
+            Lair([OddRCoord(5, 5)], 10, side=Side.RAT),
+            mouse_zone,
+            rat_zone,
+        ],
     )
 
     # Player 1: create a SqueakSet directly in the constructor
     player_info_1 = PlayerInfo(
-        {SODA_KABOOMA: 5},
-        [{SODA_KABOOMA: 5}],
-        [{SODA_KABOOMA: 5}],
+        {TAIL_BLAZER: 5},
+        [{TAIL_BLAZER: 5}],
+        [{TAIL_BLAZER: 5}],
         selected_squeak_set_index=0,
     )
 
@@ -93,7 +99,9 @@ def main():
     # endregion
 
     backend_adapter = BackendAdapter(
-        game_manager=game_manager, coordination_manager=coordination_manager
+        game_manager=game_manager,
+        coordination_manager=coordination_manager,
+        ai_type=RandomAI,
     )
 
     coordination_manager.put_message(

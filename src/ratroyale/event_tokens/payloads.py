@@ -5,7 +5,7 @@ from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.board import Board
 from ratroyale.backend.player_info.squeak import Squeak
 from typing import Iterable
-from ratroyale.backend.entity import SkillTargeting
+from ratroyale.backend.entity import SkillTargeting, SkillCompleted
 from ratroyale.backend.instant_kill import InstantKill
 from ratroyale.backend.source_of_damage_or_heal import SourceOfDamageOrHeal
 from ratroyale.backend.side import Side
@@ -89,4 +89,10 @@ class EntityMovementPayload(Payload):
 
 @dataclass
 class SkillTargetingPayload(Payload):
-    skill_targeting: SkillTargeting
+    skill_targeting: SkillTargeting | SkillCompleted
+
+
+@dataclass
+class GameOverPayload(Payload):
+    is_winner_from_first_turn_side: bool
+    victory_side: Side

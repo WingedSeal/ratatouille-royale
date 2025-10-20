@@ -44,6 +44,7 @@ from ratroyale.event_tokens.payloads import (
     GameSetupPayload,
     CrumbUpdatePayload,
     PlayableTiles,
+    GameOverPayload,
 )
 from ratroyale.backend.tile import Tile
 
@@ -60,6 +61,8 @@ from ..page_elements.preset_elements.tile_mask_element import TileMaskElement
 from ..page_elements.preset_elements.feature_element import FeatureElement
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.side import Side
+
+from ratroyale.backend.entity import SkillTargeting
 
 from typing import Iterable
 
@@ -305,7 +308,10 @@ class GameBoard(Page):
                 squeak, hand_index, self.camera, italic_bold_arial
             )
             squeak_cost_element = squeak_element.create_cost_element()
-            self.setup_elements([squeak_element, squeak_cost_element])
+            squeak_name_element = squeak_element._temp_name_generator()
+            self.setup_elements(
+                [squeak_element, squeak_cost_element, squeak_name_element]
+            )
 
             assert isinstance(squeak_element, SqueakElement)
             squeak_element.decide_interactivity(self.current_crumb)
@@ -346,9 +352,14 @@ class GameBoard(Page):
         if msg.success and msg.payload:
             assert isinstance(msg.payload, SkillTargetingPayload)
             info = msg.payload.skill_targeting
-            self._element_manager.set_max_selectable("SELECTMASK", info.target_count)
-            self.set_available_tiles(info.available_targets)
-            self.temp_ability_target_count = info.target_count
+            if isinstance(info, SkillTargeting):
+                self._element_manager.set_max_selectable(
+                    "SELECTMASK", info.target_count
+                )
+                self.set_available_tiles(info.available_targets)
+                self.temp_ability_target_count = info.target_count
+            else:
+                print(info)
 
             self.game_state = GameState.ABILITY
 
@@ -377,6 +388,19 @@ class GameBoard(Page):
 
             self.entity_to_element_id_mapping.pop(entity)
             self._element_manager.remove_element(entity_id)
+
+    @callback_event_bind("game_over")
+    def _handle_game_over(self, msg: PageCallbackEvent) -> None:
+        if msg.success and msg.payload:
+            assert isinstance(msg.payload, GameOverPayload)
+            payload = msg.payload
+
+            CoordinationManager.put_message(
+                PageNavigationEvent([(PageNavigation.OPEN, "GameOver")])
+            )
+            CoordinationManager.put_message(
+                PageCallbackEvent("who_won", payload=payload)
+            )
 
     # endregion
 

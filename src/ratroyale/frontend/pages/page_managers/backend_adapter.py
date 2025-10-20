@@ -18,6 +18,7 @@ from ratroyale.event_tokens.payloads import (
     SkillTargetingPayload,
     AbilityTargetPayload,
     EntityDamagedPayload,
+    GameOverPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
@@ -36,20 +37,21 @@ from ratroyale.backend.game_event import (
     SqueakSetResetEvent,
 )
 from ratroyale.backend.ai.base_ai import BaseAI
-from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.side import Side
-from ratroyale.backend.entity import SkillTargeting, SkillCompleted
 from ratroyale.backend.error import NotEnoughCrumbError
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
 class BackendAdapter:
     def __init__(
-        self, game_manager: GameManager, coordination_manager: CoordinationManager
+        self,
+        game_manager: GameManager,
+        coordination_manager: CoordinationManager,
+        ai_type: type[BaseAI],
     ) -> None:
         self.game_manager = game_manager
         self.coordination_manager = coordination_manager
-        self.ai: BaseAI = RandomAI(self.game_manager, Side.MOUSE)
+        self.ai: BaseAI = ai_type(self.game_manager, Side.MOUSE)
         self._ai_turn: bool = False
         self.game_manager_response: dict[str, Callable[[GameManagerEvent], None]] = {
             "start_game": self.handle_game_start,
@@ -181,24 +183,18 @@ class BackendAdapter:
             else:
                 skill_result = self.game_manager.activate_skill(entity, ability_index)
                 # send back results and change game board state to selection & block irrelevant functions
-                if isinstance(skill_result, SkillCompleted):
-                    if skill_result == SkillCompleted.CANCELLED:
-                        print("Skill canceled.")
-                    elif skill_result == SkillCompleted.SUCCESS:
-                        print("Skill success.")
-                elif isinstance(skill_result, SkillTargeting):
-                    self.coordination_manager.put_message(
-                        PageCallbackEvent(
-                            "skill_targeting",
-                            payload=SkillTargetingPayload(skill_result),
-                        )
+                self.coordination_manager.put_message(
+                    PageCallbackEvent(
+                        "skill_targeting",
+                        payload=SkillTargetingPayload(skill_result),
                     )
-                    self.coordination_manager.put_message(
-                        PageCallbackEvent(
-                            "crumb_update",
-                            payload=CrumbUpdatePayload(self.game_manager.crumbs),
-                        )
+                )
+                self.coordination_manager.put_message(
+                    PageCallbackEvent(
+                        "crumb_update",
+                        payload=CrumbUpdatePayload(self.game_manager.crumbs),
                     )
+                )
         except NotEnoughCrumbError:
             print("You don't have enough crumbs for this skill!")
 
@@ -336,3 +332,11 @@ class BackendAdapter:
     def handle_game_over_event(self, event: GameEvent) -> None:
         assert isinstance(event, GameOverEvent)
         print(event.__str__())
+        CoordinationManager.put_message(
+            PageCallbackEvent(
+                "game_over",
+                payload=GameOverPayload(
+                    event.is_winner_from_first_turn_side, event.victory_side
+                ),
+            )
+        )
