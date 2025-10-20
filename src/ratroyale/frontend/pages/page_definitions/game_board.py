@@ -12,6 +12,7 @@ from ratroyale.event_tokens.payloads import (
     SqueakPayload,
     AbilityActivationPayload,
     EntityMovementPayload,
+    SkillTargetingPayload,
 )
 
 from ..page_managers.base_page import Page
@@ -235,6 +236,7 @@ class GameBoard(Page):
     @callback_event_bind("spawn_entity")
     def _spawn_entity(self, msg: PageCallbackEvent) -> None:
         """Handle spawning entity from backend."""
+        print("spawning entity")
         if msg.success and msg.payload:
             assert isinstance(msg.payload, EntityPayload)
             entity = msg.payload.entity
@@ -287,6 +289,23 @@ class GameBoard(Page):
                 self.game_state = GameState.PLAY
             elif self.game_state == GameState.PLAY:
                 self.game_state = GameState.WAIT
+
+    @callback_event_bind("skill_targeting")
+    def _handle_skill_targeting(self, msg: PageCallbackEvent) -> None:
+        if msg.success and msg.payload:
+            assert isinstance(msg.payload, SkillTargetingPayload)
+            info = msg.payload.skill_targeting
+            target_tiles = info.available_targets
+            items = list(target_tiles)
+            length = len(items)
+            self._element_manager.set_max_highlightable("TILE", length)
+
+            for coord in items:
+                if coord in self.coord_to_tile_mapping:
+                    self.temp_playable_coords.append(coord)
+
+                    tile_id = self.coord_to_tile_mapping[coord]
+                    self._element_manager.highlight_element(tile_id)
 
     # endregion
 

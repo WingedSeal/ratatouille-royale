@@ -2,7 +2,7 @@
 
 import pygame
 
-
+from ratroyale.backend.entities.rodents.vanguard import TailBlazer
 from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.game_manager import GameManager
@@ -60,7 +60,10 @@ def main():
                 [1, 1, 1, 1, 1, 1],
             ]
         ),
-        entities=[],
+        entities=[
+            TailBlazer(OddRCoord(4, 5), side=Side.MOUSE),
+            TailBlazer(OddRCoord(3, 5), side=Side.MOUSE),
+        ],  # create test opponent entity
         features=[Lair([OddRCoord(0, 0)], 10, side=Side.RAT), mouse_zone, rat_zone],
     )
 
@@ -83,6 +86,7 @@ def main():
     game_manager = GameManager(
         map=map, players_info=(player_info_1, player_info_2), first_turn=Side.RAT
     )
+    game_manager.crumbs = 100
     # endregion
 
     backend_adapter = BackendAdapter(

@@ -12,6 +12,8 @@ from .....event_tokens.payloads import SqueakPayload
 from ....visual.anim.presets.presets import return_squeak_to_normal, shrink_squeak
 from ....pages.page_elements.spatial_component import Camera
 
+import uuid
+
 import pygame
 
 PADDING = 5  # padding for cost text
@@ -35,7 +37,8 @@ class SqueakElement(ElementWrapper):
 
         # --- Create main squeak element ---
         assert squeak.rodent
-        self.squeak_element_id = f"squeak_{id(squeak)}"
+        # TODO: replace random with smth better
+        self.squeak_element_id = f"squeak_{uuid.uuid4()}"
         sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY[squeak.rodent]
         cached_spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
@@ -87,7 +90,7 @@ class SqueakElement(ElementWrapper):
         )
 
         return ElementWrapper(
-            registered_name=f"squeakCost_{id(self.payload.squeak)}",
+            registered_name=f"squeakCost_{uuid.uuid4()}",
             grouping_name="SQUEAKCOST",
             camera=self.camera,
             spatial_component=SpatialComponent(

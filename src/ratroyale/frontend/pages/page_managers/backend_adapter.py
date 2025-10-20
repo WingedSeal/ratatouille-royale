@@ -15,12 +15,20 @@ from ratroyale.event_tokens.payloads import (
     EntityPayload,
     AbilityActivationPayload,
     EntityMovementPayload,
+    SkillTargetingPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
     EntitySpawnEvent,
     SqueakDrawnEvent,
     EntityMoveEvent,
+    EntityDieEvent,
+    FeatureDieEvent,
+    EntityDamagedEvent,
+    EntityHealedEvent,
+    FeatureDamagedEvent,
+    EntityEffectUpdateEvent,
+    GameOverEvent,
     EndTurnEvent,
     SqueakPlacedEvent,
     SqueakSetResetEvent,
@@ -28,6 +36,7 @@ from ratroyale.backend.game_event import (
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.side import Side
+from ratroyale.backend.entity import SkillTargeting, SkillCompleted
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -56,6 +65,13 @@ class BackendAdapter:
             EndTurnEvent: self.handle_end_turn_event,
             SqueakPlacedEvent: self.handle_squeak_placed_event,
             SqueakSetResetEvent: self.handle_squeak_set_reset_event,
+            EntityDieEvent: self.handle_entity_die_event,
+            FeatureDieEvent: self.handle_feature_die_event,
+            EntityDamagedEvent: self.handle_entity_damaged_event,
+            EntityHealedEvent: self.handle_entity_healed_event,
+            FeatureDamagedEvent: self.handle_feature_damaged_event,
+            EntityEffectUpdateEvent: self.handle_entity_effect_update_event,
+            GameOverEvent: self.handle_game_over_event,
         }
 
     def execute_backend_callback(self) -> None:
@@ -150,6 +166,7 @@ class BackendAdapter:
 
         print(ability_index)
 
+        # -1 for movement
         if ability_index == -1:
             coord_set = self.game_manager.board.get_reachable_coords(entity)
             self.coordination_manager.put_message(
@@ -158,6 +175,20 @@ class BackendAdapter:
                     payload=PlayableTiles(list(coord_set)),
                 )
             )
+        else:
+            skill_result = self.game_manager.activate_skill(entity, ability_index)
+            # send back results and change game board state to selection & block irrelevant functions
+            if isinstance(skill_result, SkillCompleted):
+                if skill_result == SkillCompleted.CANCELLED:
+                    print("Skill canceled.")
+                elif skill_result == SkillCompleted.SUCCESS:
+                    print("Skill success.")
+            elif isinstance(skill_result, SkillTargeting):
+                self.coordination_manager.put_message(
+                    PageCallbackEvent(
+                        "skill_targeting", payload=SkillTargetingPayload(skill_result)
+                    )
+                )
 
     def handle_resolve_movement(self, event: GameManagerEvent) -> None:
         payload = event.payload
@@ -186,6 +217,7 @@ class BackendAdapter:
 
     def handle_spawn_entity_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntitySpawnEvent)
+        print("spawning entity")
         entity = event.entity
         self.coordination_manager.put_message(
             PageCallbackEvent(
@@ -225,4 +257,32 @@ class BackendAdapter:
 
     def handle_squeak_set_reset_event(self, event: GameEvent) -> None:
         assert isinstance(event, SqueakSetResetEvent)
+        print(event.__str__())
+
+    def handle_entity_die_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityDieEvent)
+        print(event.__str__())
+
+    def handle_feature_die_event(self, event: GameEvent) -> None:
+        assert isinstance(event, FeatureDieEvent)
+        print(event.__str__())
+
+    def handle_entity_damaged_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityDamagedEvent)
+        print(event.__str__())
+
+    def handle_entity_healed_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityHealedEvent)
+        print(event.__str__())
+
+    def handle_feature_damaged_event(self, event: GameEvent) -> None:
+        assert isinstance(event, FeatureDamagedEvent)
+        print(event.__str__())
+
+    def handle_entity_effect_update_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityEffectUpdateEvent)
+        print(event.__str__())
+
+    def handle_game_over_event(self, event: GameEvent) -> None:
+        assert isinstance(event, GameOverEvent)
         print(event.__str__())

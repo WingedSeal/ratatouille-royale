@@ -5,6 +5,7 @@ from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.board import Board
 from ratroyale.backend.player_info.squeak import Squeak
 from typing import Iterable
+from ratroyale.backend.entity import SkillTargeting
 
 
 @dataclass
@@ -66,3 +67,8 @@ class SqueakPlacementPayload(Payload):
 class EntityMovementPayload(Payload):
     entity: Entity
     target: OddRCoord
+
+
+@dataclass
+class SkillTargetingPayload(Payload):
+    skill_targeting: SkillTargeting
