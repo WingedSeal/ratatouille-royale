@@ -25,7 +25,6 @@ class SelectTargetPromptPage(Page):
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
         super().__init__(coordination_manager, camera)
-        # if page is strangely not responsive, check is_blocking status of open pages.
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
@@ -57,44 +56,7 @@ class SelectTargetPromptPage(Page):
         )
         # endregion
 
-        # region Other buttons
-        # gui_elements.append(
-        #     UIRegisterForm(
-        #         "registered_name",  # <- registered name. for getting & deleting.
-        #         pygame_gui.elements.UIButton(
-        #             relative_rect=pygame.Rect(200, 100, 200, 50),
-        #             text="Test Button",
-        #             manager=self.gui_manager,
-        #             object_id=pygame_gui.core.ObjectID(
-        #                 class_id="whatever",  # <- theming name.
-        #                 object_id="event_name",  # <- event name. used for listening.
-        #             ),
-        #         ),
-        #     )
-        # )
-
-        # gui_elements.append(
-        #     UIRegisterForm(
-        #         "registered_name_2",  # <- registered name. for getting & deleting.
-        #         pygame_gui.elements.UIButton(
-        #             relative_rect=pygame.Rect(400, 100, 200, 50),
-        #             text="Test Button",
-        #             manager=self.gui_manager,
-        #             object_id=pygame_gui.core.ObjectID(
-        #                 class_id="whatever",  # <- theming name.
-        #                 object_id="event_name_2",  # <- event name. used for listening.
-        #             ),
-        #         ),
-        #     )
-        # )
-        # endregion
-
-        # All elements returned here are automatically registered at the start of page.
         return gui_elements
-
-    # all input-listening methods will have this signature
-    # e.g. def test(self, msg: pygame.event.Event) -> None:
-    #   ...
 
     @input_event_bind("cancel_skill_button", pygame_gui.UI_BUTTON_PRESSED)
     def close_panel(self, msg: pygame.event.Event) -> None:
@@ -104,11 +66,4 @@ class SelectTargetPromptPage(Page):
                     (PageNavigation.CLOSE, "SelectTargetPromptPage"),
                 ]
             )
-        )
-        # self._element_manager.remove_gui_element("test_panel")
-
-    @input_event_bind("event_name_2", pygame_gui.UI_BUTTON_PRESSED)
-    def communicate(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
-            PageCallbackEvent[int]("action_name", payload=3)
         )

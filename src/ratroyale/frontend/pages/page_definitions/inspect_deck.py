@@ -32,7 +32,6 @@ class InspectDeckPage(Page):
             camera,
             base_color=(0, 0, 0, 128),
         )
-        # if page is strangely not responsive, check is_blocking status of open pages.
 
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="inspect_deck"))
@@ -40,6 +39,7 @@ class InspectDeckPage(Page):
     def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
         gui_elements: list[ElementWrapper] = []
+
         # region Card Panel + Card buttons
         deck_panel_id = "inspect_deck_panel"
         deck_panel = pygame_gui.elements.UIPanel(
@@ -90,9 +90,6 @@ class InspectDeckPage(Page):
                 ),
             )
 
-    # all input-listening methods will have this signature
-    # e.g. def test(self, msg: pygame.event.Event) -> None:
-    #   ...
     @input_event_bind("close_inspect_deck", pygame_gui.UI_BUTTON_PRESSED)
     def on_example_click(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.put_message(
@@ -102,13 +99,3 @@ class InspectDeckPage(Page):
                 ]
             )
         )
-
-    # @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
-    # def close_panel(self, msg: pygame.event.Event) -> None:
-    #     self._element_manager.remove_gui_element("test_panel")
-
-    # @input_event_bind("event_name_2", pygame_gui.UI_BUTTON_PRESSED)
-    # def communicate(self, msg: pygame.event.Event) -> None:
-    #     self.coordination_manager.put_message(
-    #         PageCallbackEvent[int]("action_name", payload=3)
-    #     )

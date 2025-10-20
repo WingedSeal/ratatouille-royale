@@ -159,12 +159,7 @@ class GameBoard(Page):
         tile_element_id = self._get_element_id(msg)
 
         curr_tile = self._select_element("tile", tile_element_id)
-        self.post(
-            GameManagerEvent(
-                game_action="tile_hover",
-                payload=curr_tile if curr_tile else None,
-            )
-        )
+        self.post(GameManagerEvent(game_action="tile_hover", payload=curr_tile))
 
     @input_event_bind("entity", GestureType.HOLD.to_pygame_event())
     def _display_ability_menu(self, msg: pygame.event.Event) -> None:

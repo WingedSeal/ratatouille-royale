@@ -21,7 +21,7 @@ class BackendAdapter:
         self.event_to_action_map: dict[str, Callable[[GameManagerEvent[Any]], None]] = {
             "start_game": self.handle_game_start,
             "entity_list": self.handle_entity_list,
-            "player_info": self.handle_player_info_page,
+            "game_info": self.handle_game_info_page,
             "inspect_deck": self.handle_inspect_deck_page,
             "select_target_prompt": self.handle_select_target_prompt_page,
             "tile_hover": self.handle_tile_hover,
@@ -70,7 +70,7 @@ class BackendAdapter:
             )
         )
 
-    def handle_player_info_page(self, event: GameManagerEvent[int]) -> None: ...
+    def handle_game_info_page(self, event: GameManagerEvent[int]) -> None: ...
 
     def handle_inspect_deck_page(self, event: GameManagerEvent[int]) -> None:
         deck = self.game_manager.decks

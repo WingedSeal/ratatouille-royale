@@ -36,11 +36,11 @@ def main():
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
     tiles: list[list[Tile | None]] = []
-    for q in range(size_y):
+    for r in range(size_y):
         row = []
-        for r in range(size_x):
+        for q in range(size_x):
             tile = Tile(
-                tile_id=1, coord=OddRCoord(r, q), entities=[], height=0, features=[]
+                tile_id=1, coord=OddRCoord(q, r), entities=[], height=0, features=[]
             )
             row.append(tile)
         tiles.append(row)

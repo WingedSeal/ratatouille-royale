@@ -24,7 +24,7 @@ import pygame
 
 
 @register_page
-class PlayerInfoPage(Page):
+class GameInfoPage(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
@@ -36,16 +36,14 @@ class PlayerInfoPage(Page):
         gui_elements: list[ElementWrapper] = []
 
         # region Perm buttons/panels
-        view_deck_button_id = (
-            "view_deck_button"  # <- registered name. for getting & deleting.
-        )
+        view_deck_button_id = "view_deck_button"
         view_deck_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(0, 450, 200, 50),
             text="View Deck",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
-                class_id="ViewDeckButton",  # <- theming name.
-                object_id="view_deck",  # <- event name. used for listening.
+                class_id="ViewDeckButton",
+                object_id="view_deck",
             ),
         )
         view_deck_button_element = ui_element_wrapper(
@@ -228,14 +226,5 @@ class PlayerInfoPage(Page):
                 object_id="odd_r_coord_button",
             ),
         )
+        # TODO: add more buttons when receiving successful move history events
         ...
-
-    # @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
-    # def close_panel(self, msg: pygame.event.Event) -> None:
-    #     self._element_manager.remove_gui_element("test_panel")
-
-    # @input_event_bind("event_name_2", pygame_gui.UI_BUTTON_PRESSED)
-    # def communicate(self, msg: pygame.event.Event) -> None:
-    #     self.coordination_manager.put_message(
-    #         PageCallbackEvent[int]("action_name", payload=3)
-    #     )
