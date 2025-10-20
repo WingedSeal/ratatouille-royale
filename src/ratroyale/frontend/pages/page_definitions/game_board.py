@@ -585,7 +585,7 @@ class GameBoard(Page):
         self.coordination_manager.put_message(GameManagerEvent("end_turn"))
         self._element_manager.deselect_all("SELECTMASK")
         self._element_manager.deselect_all("AVAILABLEMASK")
-        self._close_ability_menu
+        self._close_ability_menu()
 
     # endregion
 
