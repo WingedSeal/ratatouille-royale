@@ -60,7 +60,9 @@ class Feature(ABC):
     def self_destruct(
         self, game_manager: "GameManager", is_trigger_on_death: bool = False
     ) -> None:
-        game_manager.destroy_feature(self, self, is_trigger_on_death=False)
+        game_manager.destroy_feature(
+            self, self, is_trigger_on_death=is_trigger_on_death
+        )
 
     def _take_damage(
         self, damage: int, source: SourceOfDamageOrHeal
