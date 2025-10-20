@@ -53,11 +53,17 @@ def main():
 
     # PlayerInfo
     player_info_1 = PlayerInfo(
-        {TailBlazer: 5}, [{TailBlazer: 5}], [{TailBlazer: 5}], selected_squeak_set_index=0
+        {TailBlazer: 5},
+        [{TailBlazer: 5}],
+        [{TailBlazer: 5}],
+        selected_squeak_set_index=0,
     )
 
     player_info_2 = PlayerInfo(
-        {TailBlazer: 5}, [{TailBlazer: 5}], [{TailBlazer: 5}], selected_squeak_set_index=0
+        {TailBlazer: 5},
+        [{TailBlazer: 5}],
+        [{TailBlazer: 5}],
+        selected_squeak_set_index=0,
     )
 
     map = Map(

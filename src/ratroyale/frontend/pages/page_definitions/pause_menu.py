@@ -8,7 +8,10 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element import ElementWrapper, ui_element_wrapper
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+    ui_element_wrapper,
+)
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 
 from ..page_managers.base_page import Page
@@ -28,7 +31,7 @@ class PauseMenu(Page):
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         elements: list[ElementWrapper] = []
-        
+
         resume_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(300, 200, 200, 50),
@@ -121,7 +124,7 @@ class PauseMenu(Page):
                 ]
             )
         )
-    
+
     @input_event_bind("exit_desktop_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_exit_desktop_click(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.stop_game()
