@@ -34,12 +34,13 @@ class ColorOverlayAnim(OverlayAnim):
         intensity = min_intensity + (max_intensity - min_intensity) * eased_t
         self._current_intensity = intensity
 
-        r, g, b = (
+        r, g, b, a = (
             self.color.r * intensity,
             self.color.g * intensity,
             self.color.b * intensity,
+            self.color.a * intensity,
         )
-        overlay_color = pygame.Color(int(r), int(g), int(b))
+        overlay_color = pygame.Color(int(r), int(g), int(b), int(a))
         self.spritesheet_component.set_overlay(overlay_color, self.pygame_blend_mode)
 
 

@@ -9,10 +9,6 @@ from ..hitbox import HexHitbox
 from ....visual.asset_management.visual_component import VisualComponent
 from ....visual.asset_management.spritesheet_structure import SpritesheetComponent
 from .....event_tokens.payloads import TilePayload
-from ....visual.anim.presets.presets import (
-    on_select_color_fade_in,
-    on_select_color_fade_out,
-)
 from ....visual.asset_management.sprite_key_registry import TYPICAL_TILE_SIZE
 
 import pygame
@@ -46,54 +42,6 @@ class TileElement(ElementWrapper):
         pixel_x, pixel_y = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         width, height = TYPICAL_TILE_SIZE
         return pygame.Rect((pixel_x, pixel_y, width, height))
-
-    def on_select(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
-                on_select_color_fade_in(
-                    vis.spritesheet_component,
-                    color=pygame.Color(200, 200, 0),
-                )
-            )
-
-        return True
-
-    def on_deselect(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
-                on_select_color_fade_out(
-                    vis.spritesheet_component,
-                    color=pygame.Color(200, 200, 0),
-                )
-            )
-
-        return True
-
-    def on_highlight(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
-                on_select_color_fade_in(
-                    vis.spritesheet_component,
-                    color=pygame.Color(0, 0, 127),
-                )
-            )
-
-        return True
-
-    def on_unhighlight(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
-                on_select_color_fade_out(
-                    vis.spritesheet_component,
-                    color=pygame.Color(0, 0, 127),
-                )
-            )
-
-        return True
 
     def get_coord(self) -> OddRCoord:
         assert isinstance(self.payload, TilePayload)

@@ -15,11 +15,10 @@ from ....visual.anim.presets.presets import (
     on_select_color_fade_in,
     on_select_color_fade_out,
     move_entity,
+    entity_hurt,
 )
 from ....visual.asset_management.sprite_key_registry import TYPICAL_TILE_SIZE
 from .....backend.hexagon import OddRCoord
-from ....visual.anim.core.sprite_anim import SpriteAnim
-from ....visual.anim.core.anim_settings import TimingMode
 
 import pygame
 
@@ -100,13 +99,7 @@ class EntityElement(ElementWrapper):
     def on_hurt(self, new_health: int) -> bool:
         vis = self.visual_component
         if vis and vis.spritesheet_component:
-            anim = SpriteAnim(
-                spritesheet_component=vis.spritesheet_component,
-                animation_name="HUNGRY",
-                start_frame=0,
-                timing_mode=TimingMode.DURATION_PER_LOOP,
-                period_in_seconds=0.5,
-            )
+            anim = entity_hurt(vis.spritesheet_component, pygame.Color(255, 0, 0))
             vis.queue_override_animation(anim)
 
         return True

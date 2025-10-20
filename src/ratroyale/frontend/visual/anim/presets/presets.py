@@ -21,7 +21,7 @@ def on_select_color_fade_in(
 ) -> SequentialAnim:
     color_overlay_anim = ColorOverlayAnim(
         spritesheet_component=spritesheet_component,
-        pygame_blend_mode=pygame.BLEND_RGB_ADD,
+        pygame_blend_mode=pygame.BLEND_RGBA_ADD,
         intensity_range=(0.0, 0.5),
         color=color,
         timing_mode=TimingMode.DURATION_PER_LOOP,
@@ -39,7 +39,7 @@ def on_select_color_fade_out(
 ) -> SequentialAnim:
     color_overlay_anim = ColorOverlayAnim(
         spritesheet_component=spritesheet_component,
-        pygame_blend_mode=pygame.BLEND_RGB_ADD,
+        pygame_blend_mode=pygame.BLEND_RGBA_ADD,
         intensity_range=(0.5, 0),
         color=color,
         timing_mode=TimingMode.DURATION_PER_LOOP,
@@ -130,6 +130,31 @@ def move_entity(
     )
     result = SequentialAnim(
         [GroupedAnim([move_anim], run_together_with_default=True)],
+        interrupts_queue=False,
+    )
+    return result
+
+
+def entity_hurt(
+    spritesheet: SpritesheetComponent, color: pygame.Color
+) -> SequentialAnim:
+    anim = SpriteAnim(
+        spritesheet_component=spritesheet,
+        animation_name="HUNGRY",
+        start_frame=0,
+        timing_mode=TimingMode.DURATION_PER_LOOP,
+        period_in_seconds=0.5,
+    )
+    color_overlay_anim = ColorOverlayAnim(
+        spritesheet_component=spritesheet,
+        pygame_blend_mode=pygame.BLEND_RGBA_ADD,
+        intensity_range=(0.5, 0),
+        color=color,
+        timing_mode=TimingMode.DURATION_PER_LOOP,
+        period_in_seconds=0.5,
+    )
+    result = SequentialAnim(
+        [GroupedAnim([anim, color_overlay_anim], run_together_with_default=True)],
         interrupts_queue=False,
     )
     return result

@@ -156,7 +156,7 @@ class ElementGroup:
 
     def deselect_all(self) -> None:
         # Copy to avoid modifying the deque/set while iterating
-        for registered_name in list(self.highlighted_ids):
+        for registered_name in list(self.selected_ids):
             element = self.get_element(registered_name)
             element.on_deselect()
         self.selected_ids.clear()
