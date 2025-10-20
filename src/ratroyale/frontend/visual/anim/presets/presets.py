@@ -111,3 +111,25 @@ def default_idle_for_entity(
     )
     result = SequentialAnim([GroupedAnim([sprite_anim])], interrupts_queue=True)
     return result
+
+
+def move_entity(
+    target_pos: tuple[float, float],
+    spatial: SpatialComponent,
+    camera: Camera,
+) -> SequentialAnim:
+    move_anim = MoveAnim(
+        move_mode=MoveAnimMode.MOVE_TO,
+        direction_vector=target_pos,
+        easing_func=pytweening.easeOutExpo,
+        timing_mode=TimingMode.DURATION_PER_LOOP,
+        spatial_component=spatial,
+        camera=camera,
+        period_in_seconds=0.25,
+        callback="FINISHED",
+    )
+    result = SequentialAnim(
+        [GroupedAnim([move_anim], run_together_with_default=True)],
+        interrupts_queue=False,
+    )
+    return result

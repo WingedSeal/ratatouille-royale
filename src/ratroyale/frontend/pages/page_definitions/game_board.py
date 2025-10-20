@@ -13,6 +13,8 @@ from ratroyale.event_tokens.payloads import (
     AbilityActivationPayload,
     EntityMovementPayload,
     SkillTargetingPayload,
+    AbilityTargetPayload,
+    EntityDamagedPayload,
 )
 
 from ..page_managers.base_page import Page
@@ -53,6 +55,9 @@ from enum import Enum, auto
 from ..page_elements.preset_elements.tile_element import TileElement
 from ..page_elements.preset_elements.entity_element import EntityElement
 from ..page_elements.preset_elements.squeak_element import SqueakElement
+from ratroyale.backend.entity import Entity
+
+# from backend.game_event import GameEvent, EntityDamagedEvent
 
 # Load a font, size 48, italic
 italic_bold_arial = pygame.font.SysFont("Arial", 48, bold=True, italic=True)
@@ -77,9 +82,11 @@ class GameBoard(Page):
         self.current_crumb: int = 0
 
         self.coord_to_tile_mapping: dict[OddRCoord, str] = {}
+        self.entity_to_element_id_mapping: dict[Entity, str] = {}
         self.temp_playable_coords: list[OddRCoord] = []
 
         self.ability_panel_id: str | None = None
+        self.temp_ability_target_count: int = 0
 
         # TODO: make separate object
         self.game_state: GameState = GameState.PLAY
@@ -242,6 +249,7 @@ class GameBoard(Page):
             entity = msg.payload.entity
             entity_element = EntityElement(entity, self.camera)
             self.setup_elements([entity_element])
+            self.entity_to_element_id_mapping[entity] = entity_element.registered_name
 
     @callback_event_bind("squeak_drawn")
     def _squeak_drawn(self, msg: PageCallbackEvent) -> None:
@@ -276,11 +284,17 @@ class GameBoard(Page):
 
             self.game_state = GameState.MOVEMENT
 
+    # TODO: make animation sequential per element
     @callback_event_bind("move_entity")
     def _handle_move_entity(self, msg: PageCallbackEvent) -> None:
         if msg.success and msg.payload:
-            assert isinstance(msg.payload, EntityPayload)
-            print(msg.payload.entity.pos)
+            assert isinstance(msg.payload, EntityMovementPayload)
+            entity = msg.payload.entity
+            path = msg.payload.path
+
+            entity_id = self.entity_to_element_id_mapping[entity]
+            entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
+            entity_element.move_entity(path)
 
     @callback_event_bind("end_turn")
     def _handle_end_turn(self, msg: PageCallbackEvent) -> None:
@@ -296,16 +310,33 @@ class GameBoard(Page):
             assert isinstance(msg.payload, SkillTargetingPayload)
             info = msg.payload.skill_targeting
             target_tiles = info.available_targets
-            items = list(target_tiles)
-            length = len(items)
-            self._element_manager.set_max_highlightable("TILE", length)
+            target_count = info.target_count
+            self.temp_ability_target_count = target_count
 
-            for coord in items:
+            self._element_manager.set_max_highlightable("TILE", len(target_tiles))
+            self._element_manager.set_max_selectable("TILE", target_count)
+
+            for coord in target_tiles:
                 if coord in self.coord_to_tile_mapping:
                     self.temp_playable_coords.append(coord)
 
                     tile_id = self.coord_to_tile_mapping[coord]
                     self._element_manager.highlight_element(tile_id)
+
+            self.game_state = GameState.ABILITY
+
+    @callback_event_bind("entity_damaged")
+    def _handle_entity_damaged(self, msg: PageCallbackEvent) -> None:
+        if msg.success and msg.payload:
+            assert isinstance(msg.payload, EntityDamagedPayload)
+            payload = msg.payload
+
+            entity = payload.entity
+
+            entity_id = self.entity_to_element_id_mapping[entity]
+            entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
+
+            entity_element.on_hurt(new_health=0)
 
     # endregion
 
@@ -325,11 +356,31 @@ class GameBoard(Page):
             target = selected_tile.get_payload(TilePayload).tile.coord
             self.coordination_manager.put_message(
                 GameManagerEvent(
-                    "resolve_movement", EntityMovementPayload(entity, target)
+                    "resolve_movement",
+                    EntityMovementPayload(entity, [target]),
                 )
             )
             self.game_state = GameState.PLAY
             self._element_manager.unhighlight_all("TILE")
+        elif self.game_state == GameState.ABILITY:
+            self._element_manager.select_element(id)
+            selected_tile_id = self._element_manager.get_selected_elements("TILE")[0]
+            if len(selected_tile_id) == self.temp_ability_target_count:
+                selected_coords = []
+                for tile_id in selected_tile_id:
+                    tile_elem = self.get_element(tile_id, "TILE", TileElement)
+                    selected_coords.append(tile_elem.get_coord())
+                target_payload = AbilityTargetPayload(selected_coords)
+                self.coordination_manager.put_message(
+                    GameManagerEvent("target_selected", target_payload)
+                )
+
+                self.game_state = GameState.PLAY
+
+                self._element_manager.deselect_all("TILE")
+                self._element_manager.unhighlight_all("TILE")
+                self._element_manager.deselect_all("ENTITY")
+
         else:
             self._element_manager.toggle_element(id)
             self._close_ability_menu()

@@ -4,9 +4,10 @@ from abc import ABC, abstractmethod
 import math
 import pytweening  # type: ignore
 from .anim_settings import TimingMode, AnimDirection
+from .....event_tokens.visual_token import VisualManagerEvent
+from .....coordination_manager import CoordinationManager
 
 
-# TODO: reintroduce reverse easing.
 @dataclass(kw_only=True)
 class AnimEvent(ABC):
     easing_func: Callable[[float], float] = pytweening.linear
@@ -26,7 +27,15 @@ class AnimEvent(ABC):
         self._is_finished = False
 
     def make_callback(self) -> None:
-        pass
+        """
+        Called when an animation loop completes.
+        If 'callback' is set, dispatch it as a VisualManagerEvent.
+        """
+        if self.callback is None:
+            return
+
+        event = VisualManagerEvent(callback=self.callback)
+        CoordinationManager.put_message(event)
 
     def reset(self) -> None:
         self._current_loop = 0

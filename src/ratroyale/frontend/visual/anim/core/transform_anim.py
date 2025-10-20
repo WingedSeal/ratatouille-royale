@@ -34,12 +34,16 @@ class MoveAnim(TransformAnim):
         super().__post_init__()
         # Track starting position for interpolation
         # Get untransformed rect
-        _rect = self.spatial_component.get_rect()
-        self._start_pos: tuple[float, float] = (_rect.x, _rect.y)
-        self._current_pos: tuple[float, float] = self._start_pos
+        super().__post_init__()
+        self._start_pos: tuple[float, float] | None = None
+        self._current_pos: tuple[float, float] | None = None
 
     def update(self, time_delta: float) -> None:
         eased_t = self.get_normalized_time(time_delta)
+        if self._start_pos is None:
+            _rect = self.spatial_component.get_rect()
+            self._start_pos = (_rect.x, _rect.y)
+            self._current_pos = self._start_pos
         start_x, start_y = self._start_pos
         dx, dy = self.direction_vector
 

@@ -156,7 +156,7 @@ class ElementWrapper:
             )
 
         # DRAW RECT DEBUG
-        pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
+        # pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
 
     def queue_override_animation(
         self, anim_event: AnimEvent | SequentialAnim | GroupedAnim

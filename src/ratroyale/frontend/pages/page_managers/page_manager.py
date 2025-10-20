@@ -220,13 +220,24 @@ class PageManager:
         for page in self.page_stack:
             page.execute_page_callback(msg)
 
-    # TODO: implement visual events properly
     def execute_visual_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
-        if not msg_queue:
-            return
 
-        pass
+        for page in self.page_stack:
+            if msg_queue:
+                for msg in msg_queue:
+                    page.execute_visual_callback(msg)
+
+            if page._animation_queue and not page._animation_lock:
+                # Check if there's another animation queued
+                next_element, next_anim = page._animation_queue.popleft()
+                # Issue the next animation
+                vis = next_element.visual_component
+                assert vis
+                vis.queue_override_animation(next_anim)
+            else:
+                # No more animations left — unlock input
+                page._animation_lock = False
 
     # endregion
 

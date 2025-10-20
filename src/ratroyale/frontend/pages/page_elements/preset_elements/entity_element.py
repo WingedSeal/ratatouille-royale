@@ -14,8 +14,12 @@ from ....visual.anim.presets.presets import (
     default_idle_for_entity,
     on_select_color_fade_in,
     on_select_color_fade_out,
+    move_entity,
 )
 from ....visual.asset_management.sprite_key_registry import TYPICAL_TILE_SIZE
+from .....backend.hexagon import OddRCoord
+from ....visual.anim.core.sprite_anim import SpriteAnim
+from ....visual.anim.core.anim_settings import TimingMode
 
 import pygame
 
@@ -64,11 +68,48 @@ class EntityElement(ElementWrapper):
     @classmethod
     def _define_entity_rect(cls, entity: Entity) -> pygame.Rect:
         """Given an Entity, return its bounding rectangle as (x, y, width, height)."""
-        pixel_x, pixel_y = entity.pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
+        pixel_x, pixel_y = EntityElement._define_position(entity.pos)
+        return pygame.Rect((pixel_x, pixel_y, *cls._ENTITY_WIDTH_HEIGHT))
+
+    @classmethod
+    def _define_position(cls, pos: OddRCoord) -> tuple[float, float]:
+        pixel_x, pixel_y = pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
         width, height = cls._ENTITY_WIDTH_HEIGHT
         pixel_x += (TYPICAL_TILE_SIZE[0] - width) / 2
         pixel_y += (TYPICAL_TILE_SIZE[1] - height) / 2
-        return pygame.Rect((pixel_x, pixel_y, width, height))
+        return pixel_x, pixel_y
+
+    def move_entity(self, pos_sequence: list[OddRCoord]) -> bool:
+        """
+        Queue movement animations for an entity along a sequence of positions,
+        moving from each position to the next.
+        """
+        vis = self.visual_component
+        if vis and vis.spritesheet_component:
+
+            for pos in pos_sequence:
+                anim = move_entity(
+                    target_pos=EntityElement._define_position(pos),
+                    spatial=self.spatial_component,
+                    camera=self.camera,
+                )
+                vis.queue_override_animation(anim)
+
+        return True
+
+    def on_hurt(self, new_health: int) -> bool:
+        vis = self.visual_component
+        if vis and vis.spritesheet_component:
+            anim = SpriteAnim(
+                spritesheet_component=vis.spritesheet_component,
+                animation_name="HUNGRY",
+                start_frame=0,
+                timing_mode=TimingMode.DURATION_PER_LOOP,
+                period_in_seconds=0.5,
+            )
+            vis.queue_override_animation(anim)
+
+        return True
 
     def on_select(self) -> bool:
         vis = self.visual_component

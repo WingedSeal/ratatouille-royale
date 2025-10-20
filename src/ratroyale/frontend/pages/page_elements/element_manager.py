@@ -162,7 +162,6 @@ class ElementManager:
     def highlight_element(
         self, registered_name: str, grouping_name: str | None = None
     ) -> bool:
-        print("highlighting")
         group = self.get_group_without_grouping_name(registered_name, grouping_name)
         return group.highlight(registered_name)
 

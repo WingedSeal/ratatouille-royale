@@ -6,10 +6,21 @@ from ratroyale.backend.board import Board
 from ratroyale.backend.player_info.squeak import Squeak
 from typing import Iterable
 from ratroyale.backend.entity import SkillTargeting
+from ratroyale.backend.instant_kill import InstantKill
+from ratroyale.backend.source_of_damage_or_heal import SourceOfDamageOrHeal
 
 
 @dataclass
 class Payload:
+    pass
+
+
+@dataclass
+class EntityDamagedPayload(Payload):
+    entity: Entity
+    damage: int | InstantKill
+    hp_loss: int
+    source: SourceOfDamageOrHeal
     pass
 
 
@@ -47,6 +58,11 @@ class AbilityActivationPayload(Payload):
 
 
 @dataclass
+class AbilityTargetPayload(Payload):
+    selected_targets: list[OddRCoord]
+
+
+@dataclass
 class SqueakPayload(Payload):
     hand_index: int
     squeak: Squeak
@@ -66,7 +82,7 @@ class SqueakPlacementPayload(Payload):
 @dataclass
 class EntityMovementPayload(Payload):
     entity: Entity
-    target: OddRCoord
+    path: list[OddRCoord]
 
 
 @dataclass

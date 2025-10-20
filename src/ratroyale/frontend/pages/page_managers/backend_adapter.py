@@ -16,6 +16,8 @@ from ratroyale.event_tokens.payloads import (
     AbilityActivationPayload,
     EntityMovementPayload,
     SkillTargetingPayload,
+    AbilityTargetPayload,
+    EntityDamagedPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
@@ -55,6 +57,7 @@ class BackendAdapter:
             "ability_activation": self.handle_ability_activation,
             "resolve_movement": self.handle_resolve_movement,
             "end_turn": self.handle_end_turn,
+            "target_selected": self.handle_target_selected,
         }
         self.game_manager_issued_events: dict[
             type[GameEvent], Callable[[GameEvent], None]
@@ -194,24 +197,40 @@ class BackendAdapter:
         payload = event.payload
         assert isinstance(payload, EntityMovementPayload)
         entity = payload.entity
-        # coord = payload.target
+        coord = payload.path[0]
 
         assert isinstance(entity, Rodent)
 
-        # self.game_manager.move_rodent(entity, coord)
+        self.game_manager.move_rodent(entity, coord)
+
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="crumb_update",
+                payload=CrumbUpdatePayload(self.game_manager.crumbs),
+            )
+        )
 
     def handle_end_turn(self, event: GameManagerEvent) -> None:
         self.game_manager.end_turn()
         self.ai.run_ai_and_update_game_manager()
+
+    def handle_target_selected(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, AbilityTargetPayload)
+        selected_coords = payload.selected_targets
+        result = self.game_manager.apply_skill_callback(selected_coords)
+        print(result)
 
     # region Backend-produced messages
 
     def handle_entity_move_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntityMoveEvent)
         entity = event.entity
+        path = event.path
         self.coordination_manager.put_message(
             PageCallbackEvent(
-                callback_action="move_entity", payload=EntityPayload(entity)
+                callback_action="move_entity",
+                payload=EntityMovementPayload(entity, path),
             )
         )
 
@@ -270,6 +289,17 @@ class BackendAdapter:
     def handle_entity_damaged_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntityDamagedEvent)
         print(event.__str__())
+        CoordinationManager.put_message(
+            PageCallbackEvent(
+                "entity_damaged",
+                payload=EntityDamagedPayload(
+                    entity=event.entity,
+                    damage=event.damage,
+                    hp_loss=event.hp_loss,
+                    source=event.source,
+                ),
+            )
+        )
 
     def handle_entity_healed_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntityHealedEvent)
