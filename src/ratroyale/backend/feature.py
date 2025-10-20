@@ -64,13 +64,19 @@ class Feature(ABC):
         return True
 
     def on_entity_enter(
-        self, game_manager: "GameManager", entity: "Entity", path_coord: OddRCoord
+        self,
+        game_manager: "GameManager",
+        entity: "Entity",
+        coord_that_entity_enter: OddRCoord,
     ) -> None:
         """Can trigger multiple times in a move of entity exit and enter again"""
         pass
 
     def on_entity_exit(
-        self, game_manager: "GameManager", entity: "Entity", path_coord: OddRCoord
+        self,
+        game_manager: "GameManager",
+        entity: "Entity",
+        coord_that_entity_exit: OddRCoord,
     ) -> None:
         """Can trigger multiple times in a move of entity enter and exit again"""
         pass
