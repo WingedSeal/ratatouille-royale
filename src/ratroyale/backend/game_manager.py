@@ -222,6 +222,22 @@ class GameManager:
             return feature
         return None
 
+    def _trigger_feature_on_move(self, path: list[OddRCoord], entity: Entity) -> None:
+        for path_coord in path:
+            path_tile = self.board.get_tile(path_coord)
+            if path_tile is None:
+                continue
+            for feature in self.board.cache.entities_in_features[entity]:
+                if feature in path_tile.features:
+                    feature.on_entity_moving_by(self, entity, path_coord)
+                else:
+                    feature.on_entity_exit(self, entity, path_coord)
+                    self.board.cache.entities_in_features[entity].remove(feature)
+            for feature in path_tile.features:
+                if feature not in self.board.cache.entities_in_features[entity]:
+                    feature.on_entity_enter(self, entity, path_coord)
+                    self.board.cache.entities_in_features[entity].append(feature)
+
     def move_rodent(
         self,
         rodent: Rodent,
@@ -250,6 +266,7 @@ class GameManager:
         is_success = self.board.try_move(rodent, path)
         if not is_success:
             raise InvalidMoveTargetError("Cannot move rodent there")
+        self._trigger_feature_on_move(path, rodent)
         self.crumbs -= rodent.move_cost
         rodent.move_stamina -= 1
         self.event_queue.put(EntityMoveEvent(path, rodent))
@@ -273,6 +290,7 @@ class GameManager:
         is_success = self.board.try_move(entity, path)
         if not is_success:
             raise InvalidMoveTargetError("Cannot move entity there")
+        self._trigger_feature_on_move(path, entity)
         self.event_queue.put(EntityMoveEvent(path, entity))
         return path
 
@@ -335,6 +353,9 @@ class GameManager:
         self.turn = self.turn.other_side()
         for entity in self.board.cache.entities_with_turn_change:
             entity.on_turn_change(self, turn_change_to=self.turn)
+        for entity, features in self.board.cache.entities_in_features.items():
+            for feature in features:
+                feature.on_entity_turn_change(self, entity)
         if self.turn == self.first_turn:
             for effect in self.board.cache.effects:
                 effect.turn_passed += 1
@@ -488,13 +509,13 @@ class GameManager:
         """
         Damage a feature. Throw error if called on feature with no health.
         """
-        is_dead, damage_taken = feature._take_damage(damage, source)
+        is_dead, damage_taken = feature._take_damage(self, damage, source)
         self.event_queue.put_nowait(
             FeatureDamagedEvent(feature, damage, damage_taken, source)
         )
         if not is_dead:
             return
-        is_dead = feature.on_death(source)
+        is_dead = feature.on_death(self, source)
         if not is_dead:
             return
 

@@ -32,6 +32,7 @@ class Cache:
         self.effects: list[EntityEffect] = []
         self.timers: list[Timer] = []
         self.entities_with_turn_change: list[Entity] = []
+        self.entities_in_features: dict[Entity, list[Feature]] = defaultdict(list)
 
     def get_all_lairs(self) -> Iterable[Lair]:
         for side_lair in self.lairs.values():
@@ -84,6 +85,8 @@ class Board:
         """Remove entity from cache"""
         self.cache.entities.remove(entity)
         self.cache.sides[entity.side].remove(entity)
+        if entity in self.cache.entities_in_features:
+            del self.cache.entities_in_features[entity]
         if entity.health is not None:
             self.cache.entities_with_hp.remove(entity)
             self.cache.sides_with_hp[entity.side].remove(entity)
@@ -174,6 +177,7 @@ class Board:
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)
         entity.pos = path[-1]
+
         return True
 
     def get_reachable_coords(
