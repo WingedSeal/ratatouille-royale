@@ -21,6 +21,11 @@ from ....visual.asset_management.sprite_key_registry import TYPICAL_TILE_SIZE
 from .....backend.hexagon import OddRCoord
 
 import pygame
+import uuid
+
+
+# Load a font, size 48, italic
+italic_bold_arial = pygame.font.SysFont("Arial", 48, bold=True, italic=True)
 
 
 class EntityElement(ElementWrapper):
@@ -48,7 +53,7 @@ class EntityElement(ElementWrapper):
             spatial_component=SpatialComponent(
                 self._define_entity_rect(entity),
                 space_mode="WORLD",
-                z_order=1,
+                z_order=10,
             ),
             interactable_component=RectangleHitbox(),
             visual_component=visual_component,
@@ -78,6 +83,68 @@ class EntityElement(ElementWrapper):
         pixel_y += (TYPICAL_TILE_SIZE[1] - height) / 2
         return pixel_x, pixel_y
 
+    def _temp_stat_generators(self) -> list[ElementWrapper]:
+        elements = []
+
+        hp_text = italic_bold_arial.render(
+            "HP: " + str(self.entity.health), False, pygame.Color(255, 255, 255)
+        )
+        hp_element = ElementWrapper(
+            registered_name="hpElement_" + str(uuid.uuid4()),
+            grouping_name="HPELEMENT",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                pygame.Rect(0, 40, 50, 20),
+                space_mode="WORLD",
+                z_order=11,
+            ),
+            visual_component=VisualComponent(
+                SpritesheetComponent(spritesheet_reference=hp_text)
+            ),
+            parent_element=self.registered_name,
+        )
+        elements.append(hp_element)
+
+        side_text = italic_bold_arial.render(
+            str(self.entity.side), False, pygame.Color(255, 255, 255)
+        )
+        side_element = ElementWrapper(
+            registered_name="side_" + str(uuid.uuid4()),
+            grouping_name="SIDE",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                pygame.Rect(0, 60, 70, 20),
+                space_mode="WORLD",
+                z_order=11,
+            ),
+            visual_component=VisualComponent(
+                SpritesheetComponent(spritesheet_reference=side_text)
+            ),
+            parent_element=self.registered_name,
+        )
+        elements.append(side_element)
+
+        name_text = italic_bold_arial.render(
+            str(self.entity.name), False, pygame.Color(255, 255, 255)
+        )
+        side_element = ElementWrapper(
+            registered_name="side_" + str(uuid.uuid4()),
+            grouping_name="SIDE",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                pygame.Rect(0, 80, 70, 20),
+                space_mode="WORLD",
+                z_order=11,
+            ),
+            visual_component=VisualComponent(
+                SpritesheetComponent(spritesheet_reference=name_text)
+            ),
+            parent_element=self.registered_name,
+        )
+        elements.append(side_element)
+
+        return elements
+
     def move_entity(self, pos_sequence: list[OddRCoord]) -> bool:
         """
         Queue movement animations for an entity along a sequence of positions,
@@ -96,11 +163,13 @@ class EntityElement(ElementWrapper):
 
         return True
 
-    def on_hurt(self, new_health: int) -> bool:
+    def on_hurt(self) -> bool:
         vis = self.visual_component
         if vis and vis.spritesheet_component:
             anim = entity_hurt(vis.spritesheet_component, pygame.Color(255, 0, 0))
             vis.queue_override_animation(anim)
+
+        self.update_health()
 
         return True
 
@@ -127,3 +196,12 @@ class EntityElement(ElementWrapper):
             )
 
         return True
+
+    def update_health(self) -> None:
+        hp_text = italic_bold_arial.render(
+            "HP: " + str(self.entity.health), False, pygame.Color(255, 255, 255)
+        )
+        hp_element = self.children[0]
+        vis = hp_element.visual_component
+        if vis and vis.spritesheet_component:
+            vis.spritesheet_component.spritesheet_reference = hp_text

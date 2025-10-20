@@ -17,11 +17,13 @@ import pygame
 
 
 def on_select_color_fade_in(
-    spritesheet_component: SpritesheetComponent, color: pygame.Color
+    spritesheet_component: SpritesheetComponent,
+    color: pygame.Color,
+    pygame_blend_mode: int = pygame.BLEND_RGBA_ADD,
 ) -> SequentialAnim:
     color_overlay_anim = ColorOverlayAnim(
         spritesheet_component=spritesheet_component,
-        pygame_blend_mode=pygame.BLEND_RGBA_ADD,
+        pygame_blend_mode=pygame_blend_mode,
         intensity_range=(0.0, 0.5),
         color=color,
         timing_mode=TimingMode.DURATION_PER_LOOP,
@@ -35,11 +37,13 @@ def on_select_color_fade_in(
 
 
 def on_select_color_fade_out(
-    spritesheet_component: SpritesheetComponent, color: pygame.Color
+    spritesheet_component: SpritesheetComponent,
+    color: pygame.Color,
+    pygame_blend_mode: int = pygame.BLEND_RGBA_ADD,
 ) -> SequentialAnim:
     color_overlay_anim = ColorOverlayAnim(
         spritesheet_component=spritesheet_component,
-        pygame_blend_mode=pygame.BLEND_RGBA_ADD,
+        pygame_blend_mode=pygame_blend_mode,
         intensity_range=(0.5, 0),
         color=color,
         timing_mode=TimingMode.DURATION_PER_LOOP,

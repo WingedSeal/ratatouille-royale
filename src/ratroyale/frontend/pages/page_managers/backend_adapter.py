@@ -39,6 +39,7 @@ from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.side import Side
 from ratroyale.backend.entity import SkillTargeting, SkillCompleted
+from ratroyale.backend.error import NotEnoughCrumbError
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -93,7 +94,6 @@ class BackendAdapter:
             # Process page -> backend messages
             if not msg_queue_from_page.empty():
                 msg_from_page: GameManagerEvent = msg_queue_from_page.get()
-                print(msg_from_page.game_action)
                 page_handler = self.game_manager_response.get(msg_from_page.game_action)
                 if page_handler:
                     page_handler(msg_from_page)
@@ -114,8 +114,8 @@ class BackendAdapter:
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
         # TODO: Which side is the player's side?
-        first_side = self.game_manager.first_turn
-        player_info = self.game_manager.players_info[first_side]
+        player_1_side = self.game_manager.first_turn
+        player_info = self.game_manager.players_info[player_1_side]
         squeak_in_hand_list = player_info.get_squeak_set().get_deck_and_hand()[1]
         self.coordination_manager.put_message(
             PageCallbackEvent(
@@ -124,6 +124,7 @@ class BackendAdapter:
                     board=board,
                     hand_squeaks=squeak_in_hand_list,
                     starting_crumbs=self.game_manager.crumbs,
+                    player_1_side=player_1_side,
                 ),
             )
         )
@@ -167,31 +168,39 @@ class BackendAdapter:
 
         assert isinstance(entity, Rodent)
 
-        print(ability_index)
-
-        # -1 for movement
-        if ability_index == -1:
-            coord_set = self.game_manager.board.get_reachable_coords(entity)
-            self.coordination_manager.put_message(
-                PageCallbackEvent(
-                    callback_action="reachable_coords",
-                    payload=PlayableTiles(list(coord_set)),
-                )
-            )
-        else:
-            skill_result = self.game_manager.activate_skill(entity, ability_index)
-            # send back results and change game board state to selection & block irrelevant functions
-            if isinstance(skill_result, SkillCompleted):
-                if skill_result == SkillCompleted.CANCELLED:
-                    print("Skill canceled.")
-                elif skill_result == SkillCompleted.SUCCESS:
-                    print("Skill success.")
-            elif isinstance(skill_result, SkillTargeting):
+        try:
+            # -1 for movement
+            if ability_index == -1:
+                coord_set = self.game_manager.board.get_reachable_coords(entity)
                 self.coordination_manager.put_message(
                     PageCallbackEvent(
-                        "skill_targeting", payload=SkillTargetingPayload(skill_result)
+                        callback_action="reachable_coords",
+                        payload=PlayableTiles(list(coord_set)),
                     )
                 )
+            else:
+                skill_result = self.game_manager.activate_skill(entity, ability_index)
+                # send back results and change game board state to selection & block irrelevant functions
+                if isinstance(skill_result, SkillCompleted):
+                    if skill_result == SkillCompleted.CANCELLED:
+                        print("Skill canceled.")
+                    elif skill_result == SkillCompleted.SUCCESS:
+                        print("Skill success.")
+                elif isinstance(skill_result, SkillTargeting):
+                    self.coordination_manager.put_message(
+                        PageCallbackEvent(
+                            "skill_targeting",
+                            payload=SkillTargetingPayload(skill_result),
+                        )
+                    )
+                    self.coordination_manager.put_message(
+                        PageCallbackEvent(
+                            "crumb_update",
+                            payload=CrumbUpdatePayload(self.game_manager.crumbs),
+                        )
+                    )
+        except NotEnoughCrumbError:
+            print("You don't have enough crumbs for this skill!")
 
     def handle_resolve_movement(self, event: GameManagerEvent) -> None:
         payload = event.payload
@@ -201,7 +210,10 @@ class BackendAdapter:
 
         assert isinstance(entity, Rodent)
 
-        self.game_manager.move_rodent(entity, coord)
+        try:
+            self.game_manager.move_rodent(entity, coord)
+        except NotEnoughCrumbError:
+            print("You don't have enough crumbs for this skill!")
 
         self.coordination_manager.put_message(
             PageCallbackEvent(
@@ -220,6 +232,12 @@ class BackendAdapter:
         selected_coords = payload.selected_targets
         result = self.game_manager.apply_skill_callback(selected_coords)
         print(result)
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                "crumb_update",
+                payload=CrumbUpdatePayload(self.game_manager.crumbs),
+            )
+        )
 
     # region Backend-produced messages
 
@@ -236,7 +254,6 @@ class BackendAdapter:
 
     def handle_spawn_entity_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntitySpawnEvent)
-        print("spawning entity")
         entity = event.entity
         self.coordination_manager.put_message(
             PageCallbackEvent(
@@ -281,6 +298,9 @@ class BackendAdapter:
     def handle_entity_die_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntityDieEvent)
         print(event.__str__())
+        CoordinationManager.put_message(
+            PageCallbackEvent("entity_died", payload=EntityPayload(event.entity))
+        )
 
     def handle_feature_die_event(self, event: GameEvent) -> None:
         assert isinstance(event, FeatureDieEvent)

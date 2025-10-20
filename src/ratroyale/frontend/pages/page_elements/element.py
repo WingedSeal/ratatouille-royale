@@ -135,24 +135,23 @@ class ElementWrapper:
         child.parent = None
 
     # TODO: somethings wrong here
-    def _get_absolute_rect(self) -> pygame.Rect | pygame.FRect:
+    def _set_absolute_rect(self) -> pygame.Rect | pygame.FRect:
         my_rect = self.spatial_component.get_screen_rect(self.camera).copy()
 
         if self.parent:
-            parent_rect = self.parent._get_absolute_rect()
+            parent_rect = self.parent.spatial_component.get_rect()
             my_rect.x += parent_rect.x
             my_rect.y += parent_rect.y
 
         return my_rect
 
     def render(self, surface: pygame.Surface) -> None:
-        abs_rect = self._get_absolute_rect()
+        abs_rect = self._set_absolute_rect()
         if self.visual_component:
             self.visual_component.render(
                 self.interactable_component,
                 abs_rect,
                 surface,
-                self.camera,
             )
 
         # DRAW RECT DEBUG
@@ -161,9 +160,7 @@ class ElementWrapper:
     def queue_override_animation(
         self, anim_event: AnimEvent | SequentialAnim | GroupedAnim
     ) -> None:
-        print("Queueing override animation in element wrapper")
         if self.visual_component:
-            print("Queueing override animation")
             self.visual_component.queue_override_animation(anim_event)
         else:
             raise AttributeError(

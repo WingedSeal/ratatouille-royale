@@ -94,7 +94,6 @@ class VisualComponent:
         interactable_comp: UIElement | Hitbox | None,
         spatial_rect: pygame.Rect | pygame.FRect,
         surface: pygame.Surface,
-        camera: Camera,
     ) -> None:
         """Draw this visual onto the given surface."""
         if isinstance(interactable_comp, UIElement):

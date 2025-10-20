@@ -14,6 +14,7 @@ from ratroyale.event_tokens.payloads import (
     SkillTargetingPayload,
     AbilityTargetPayload,
     EntityDamagedPayload,
+    AbilityActivationPayload,
 )
 
 from ..page_managers.base_page import Page
@@ -56,7 +57,9 @@ from ..page_elements.preset_elements.tile_element import TileElement
 from ..page_elements.preset_elements.entity_element import EntityElement
 from ..page_elements.preset_elements.squeak_element import SqueakElement
 from ..page_elements.preset_elements.tile_mask_element import TileMaskElement
+from ..page_elements.preset_elements.feature_element import FeatureElement
 from ratroyale.backend.entity import Entity
+from ratroyale.backend.side import Side
 
 from typing import Iterable
 
@@ -72,6 +75,7 @@ class GameState(Enum):
     MOVEMENT = auto()
     ABILITY = auto()
     WAIT = auto()
+    ABILITY_PANEL = auto()
 
 
 @register_page
@@ -92,6 +96,8 @@ class GameBoard(Page):
         self.ability_panel_id: str | None = None
         self.temp_ability_target_count: int = 0
 
+        self.player_1_side: Side = Side.MOUSE
+
         # TODO: make separate object
         self.game_state: GameState = GameState.PLAY
 
@@ -110,6 +116,7 @@ class GameBoard(Page):
         if msg.success and msg.payload:
             payload = msg.payload
             assert isinstance(payload, GameSetupPayload)
+            self.player_1_side = payload.player_1_side
             board = payload.board
             element_configs: list[ElementWrapper] = []
             tiles = board.tiles
@@ -151,6 +158,16 @@ class GameBoard(Page):
                         element_configs.append(tile_select_mask_element)
                         element_configs.append(tile_available_mask_element)
 
+            features = board.cache.features
+
+            for feature in features:
+                coord_list = feature.shape
+                if coord_list:
+                    for coord in coord_list:
+                        print("creating features")
+                        feature_element = FeatureElement(feature, coord, self.camera)
+                        element_configs.append(feature_element)
+
             starting_crumbs = payload.starting_crumbs
             self.current_crumb = starting_crumbs
             crumb_display_text = italic_bold_arial.render(
@@ -182,6 +199,7 @@ class GameBoard(Page):
                     squeak, i, self.camera, italic_bold_arial
                 )
                 squeak_cost_element = squeak_element.create_cost_element()
+                squeak_name_element = squeak_element._temp_name_generator()
 
                 card_rect = squeak_element.spatial_component.get_screen_rect(
                     self.camera
@@ -202,6 +220,7 @@ class GameBoard(Page):
 
                 element_configs.append(squeak_element)
                 element_configs.append(squeak_cost_element)
+                element_configs.append(squeak_name_element)
                 element_configs.append(slot)
 
             element_configs.append(crumb_display_element)
@@ -268,12 +287,12 @@ class GameBoard(Page):
     @callback_event_bind("spawn_entity")
     def _spawn_entity(self, msg: PageCallbackEvent) -> None:
         """Handle spawning entity from backend."""
-        print("spawning entity")
         if msg.success and msg.payload:
             assert isinstance(msg.payload, EntityPayload)
             entity = msg.payload.entity
             entity_element = EntityElement(entity, self.camera)
-            self.setup_elements([entity_element])
+            temp_stat = entity_element._temp_stat_generators()
+            self.setup_elements([entity_element, *temp_stat])
             self.entity_to_element_id_mapping[entity] = entity_element.registered_name
 
     @callback_event_bind("squeak_drawn")
@@ -319,7 +338,7 @@ class GameBoard(Page):
         if msg.success:
             if self.game_state == GameState.WAIT:
                 self.game_state = GameState.PLAY
-            elif self.game_state == GameState.PLAY:
+            else:
                 self.game_state = GameState.WAIT
 
     @callback_event_bind("skill_targeting")
@@ -329,6 +348,7 @@ class GameBoard(Page):
             info = msg.payload.skill_targeting
             self._element_manager.set_max_selectable("SELECTMASK", info.target_count)
             self.set_available_tiles(info.available_targets)
+            self.temp_ability_target_count = info.target_count
 
             self.game_state = GameState.ABILITY
 
@@ -343,7 +363,20 @@ class GameBoard(Page):
             entity_id = self.entity_to_element_id_mapping[entity]
             entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
 
-            entity_element.on_hurt(new_health=0)
+            entity_element.on_hurt()
+
+    @callback_event_bind("entity_died")
+    def _handle_entity_died(self, msg: PageCallbackEvent) -> None:
+        if msg.success and msg.payload:
+            assert isinstance(msg.payload, EntityPayload)
+            payload = msg.payload
+
+            entity = payload.entity
+
+            entity_id = self.entity_to_element_id_mapping[entity]
+
+            self.entity_to_element_id_mapping.pop(entity)
+            self._element_manager.remove_element(entity_id)
 
     # endregion
 
@@ -353,22 +386,33 @@ class GameBoard(Page):
     def _on_tile_click(self, msg: pygame.event.Event) -> None:
         id = get_id(msg)
         assert id
+        print(self.game_state)
         if self.game_state == GameState.MOVEMENT:
-            self._element_manager.select_element(id)
-            selected_entity = self._element_manager.get_selected_elements("ENTITY")[1][
-                0
-            ]
-            entity = selected_entity.get_payload(EntityPayload).entity
+            # Get the entity on the old selected tile first.
+            selected_tiles = self.get_selected_tiles()
+            selected_entity = selected_tiles[0].entities[0]
 
-            target = self.get_selected_tiles()[0].coord
+            # Then get the target tile
+            self._element_manager.select_element(id)
+            selected_tiles = self.get_selected_tiles()
+
+            target = selected_tiles[0].coord
             self.coordination_manager.put_message(
                 GameManagerEvent(
                     "resolve_movement",
-                    EntityMovementPayload(entity, [target]),
+                    EntityMovementPayload(selected_entity, [target]),
                 )
             )
             self.game_state = GameState.PLAY
+
+            self._element_manager.deselect_all("SELECTMASK")
+            self._element_manager.deselect_all("AVAILABLEMASK")
         elif self.game_state == GameState.ABILITY:
+
+            hovered_tile = self.get_hover_tiles()
+            available_tiles = self.get_available_tiles()
+            if hovered_tile[0] not in available_tiles:
+                return
             self._element_manager.select_element(id)
             selected_tiles = self.get_selected_tiles()
             if len(selected_tiles) == self.temp_ability_target_count:
@@ -380,11 +424,12 @@ class GameBoard(Page):
                     GameManagerEvent("target_selected", target_payload)
                 )
 
-                self.game_state = GameState.PLAY
-
-                self._element_manager.deselect_all("HOVERMASK")
                 self._element_manager.deselect_all("SELECTMASK")
+                self._element_manager.deselect_all("AVAILABLEMASK")
 
+                self.game_state = GameState.PLAY
+        elif self.game_state in (GameState.ABILITY_PANEL, GameState.WAIT):
+            return
         else:
             self._element_manager.toggle_element(id)
             self._close_ability_menu()
@@ -402,116 +447,121 @@ class GameBoard(Page):
 
     # region Entity Related Events
 
-    # @input_event_bind("entity", GestureType.CLICK.to_pygame_event())
-    # def _on_entity_click(self, msg: pygame.event.Event) -> None:
-    #     id = get_id(msg)
-    #     assert id
-    #     if self.game_state == GameState.MOVEMENT:
-    #         self._element_manager.toggle_element(id)
-    #         self._close_ability_menu()
+    @input_event_bind("SELECTMASK", GestureType.HOLD.to_pygame_event())
+    def _display_ability_menu(self, msg: pygame.event.Event) -> None:
+        """Display the ability menu for the selected entity."""
 
-    # @input_event_bind("entity", GestureType.HOLD.to_pygame_event())
-    # def _display_ability_menu(self, msg: pygame.event.Event) -> None:
-    #     """Display the ability menu for the selected entity."""
+        id = get_id(msg)
+        assert id
+        self._element_manager.select_element(id)
 
-    #     entity_payload = get_payload(msg)
-    #     id = get_id(msg)
-    #     assert entity_payload and id
+        tile = self.get_selected_tiles()[0]
 
-    #     self._element_manager.select_element(id)
-    #     entity_element = self._element_manager.get_selected_elements("ENTITY")[1][0]
+        if not tile.entities:
+            return
 
-    #     assert isinstance(entity_payload, EntityPayload)
-    #     entity = entity_payload.entity
-    #     # region Create ability panel
+        entity = tile.entities[0]
 
-    #     entity_spatial_rect = entity_element.spatial_component.get_screen_rect(
-    #         self.camera
-    #     )
-    #     entity_center_x = entity_spatial_rect.x + entity_spatial_rect.width / 2
-    #     entity_center_y = entity_spatial_rect.y + entity_spatial_rect.height / 2
-    #     self.camera.move_to(
-    #         *self.camera.screen_to_world(entity_center_x, entity_center_y)
-    #     )
+        if entity.side != self.player_1_side:
+            return
 
-    #     # region Create ability panel
-    #     entity_spatial_rect = entity_element.spatial_component.get_screen_rect(
-    #         self.camera
-    #     )
-    #     entity_center_x = entity_spatial_rect.x + entity_spatial_rect.width / 2
-    #     entity_center_y = entity_spatial_rect.y + entity_spatial_rect.height / 2
+        entity_id = self.entity_to_element_id_mapping[entity]
+        entity_element = self._element_manager.get_element(entity_id)
 
-    #     panel_width = 160
-    #     panel_x = entity_center_x - panel_width / 2
-    #     panel_y = entity_center_y + entity_spatial_rect.height
-    #     panel_id = "ability_panel"
-    #     self.ability_panel_id = panel_id
-    #     panel_rect = pygame.Rect(
-    #         panel_x, panel_y, panel_width, len(entity.skills) * 30 + 30 + 10
-    #     )
-    #     panel_object = pygame_gui.elements.UIPanel(
-    #         relative_rect=panel_rect,
-    #         manager=self.gui_manager,
-    #         object_id=pygame_gui.core.ObjectID(
-    #             class_id="AbilityPanel", object_id=panel_id
-    #         ),
-    #     )
+        # region Create ability panel
 
-    #     panel_element = ElementWrapper(
-    #         registered_name=panel_id,
-    #         grouping_name="UI_ELEMENT",
-    #         camera=self.camera,
-    #         spatial_component=SpatialComponent(panel_object.get_abs_rect()),
-    #         interactable_component=panel_object,
-    #         visual_component=VisualComponent(),
-    #         is_blocking=True,
-    #     )
-    #     self.setup_elements([panel_element])
+        entity_spatial_rect = entity_element.spatial_component.get_screen_rect(
+            self.camera
+        )
+        entity_center_x = entity_spatial_rect.x + entity_spatial_rect.width / 2
+        entity_center_y = entity_spatial_rect.y + entity_spatial_rect.height / 2
+        self.camera.move_to(
+            *self.camera.screen_to_world(entity_center_x, entity_center_y)
+        )
 
-    #     # --- Create ability buttons inside the panel ---
-    #     for i, skill in enumerate(entity.skills):
-    #         element_id = f"ability_{i}"
+        entity_spatial_rect = entity_element.spatial_component.get_screen_rect(
+            self.camera
+        )
+        entity_center_x = entity_spatial_rect.x + entity_spatial_rect.width / 2
+        entity_center_y = entity_spatial_rect.y + entity_spatial_rect.height / 2
 
-    #         pygame_gui.elements.UIButton(
-    #             relative_rect=pygame.Rect(0, i * 30, 150, 30),
-    #             text=skill.name,
-    #             manager=self.gui_manager,
-    #             container=panel_object,
-    #             object_id=pygame_gui.core.ObjectID(
-    #                 class_id="AbilityButton", object_id=element_id
-    #             ),
-    #         )
+        panel_width = 160
+        panel_x = entity_center_x - panel_width / 2
+        panel_y = entity_center_y + entity_spatial_rect.height
+        panel_id = "ability_panel"
+        self.ability_panel_id = panel_id
+        panel_rect = pygame.Rect(
+            panel_x, panel_y, panel_width, len(entity.skills) * 30 + 30 + 10
+        )
+        panel_object = pygame_gui.elements.UIPanel(
+            relative_rect=panel_rect,
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="AbilityPanel", object_id=panel_id
+            ),
+        )
 
-    #     # After all skills, add the "Move" button
-    #     move_button_y = len(entity.skills) * 30  # Position after the last skill
-    #     pygame_gui.elements.UIButton(
-    #         relative_rect=pygame.Rect(0, move_button_y, 150, 30),
-    #         text="Move",
-    #         manager=self.gui_manager,
-    #         container=panel_object,
-    #         object_id=pygame_gui.core.ObjectID(
-    #             class_id="AbilityButton", object_id="ability_-1"
-    #         ),
-    #     )
-    # endregion
+        panel_element = ElementWrapper(
+            registered_name=panel_id,
+            grouping_name="UI_ELEMENT",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                panel_object.get_abs_rect(), z_order=200
+            ),
+            interactable_component=panel_object,
+            visual_component=VisualComponent(),
+            is_blocking=True,
+        )
+        self.setup_elements([panel_element])
 
-    # endregion
+        # --- Create ability buttons inside the panel ---
+        for i, skill in enumerate(entity.skills):
+            element_id = f"ability_{i}"
 
-    # @input_event_bind("ability", pygame_gui.UI_BUTTON_PRESSED)
-    # def _activate_ability(self, msg: pygame.event.Event) -> None:
-    #     """Activate selected ability."""
-    #     ability_id = self._get_ability_id(msg)
-    #     entity_element = self._element_manager.get_selected_elements("ENTITY")[1][0]
-    #     payload = entity_element.get_payload(EntityPayload)
-    #     ability_payload = AbilityActivationPayload(ability_id, payload.entity)
-    #     self.coordination_manager.put_message(
-    #         GameManagerEvent("ability_activation", ability_payload)
-    #     )
-    #     self._close_ability_menu()
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(0, i * 30, 150, 30),
+                text=skill.name,
+                manager=self.gui_manager,
+                container=panel_object,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="AbilityButton", object_id=element_id
+                ),
+            )
+
+        # After all skills, add the "Move" button
+        move_button_y = len(entity.skills) * 30  # Position after the last skill
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(0, move_button_y, 150, 30),
+            text="Move",
+            manager=self.gui_manager,
+            container=panel_object,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="AbilityButton", object_id="ability_-1"
+            ),
+        )
+
+        self.game_state = GameState.ABILITY_PANEL
+
+        # endregion
+
+    @input_event_bind("ability", pygame_gui.UI_BUTTON_PRESSED)
+    def _activate_ability(self, msg: pygame.event.Event) -> None:
+        """Activate selected ability."""
+        ability_id = self._get_ability_id(msg)
+        tile = self.get_selected_tiles()[0]
+        entity = tile.entities[0]
+        ability_payload = AbilityActivationPayload(ability_id, entity)
+        self.coordination_manager.put_message(
+            GameManagerEvent("ability_activation", ability_payload)
+        )
+        self._close_ability_menu()
 
     @input_event_bind("endturn", pygame_gui.UI_BUTTON_PRESSED)
     def _end_turn(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.put_message(GameManagerEvent("end_turn"))
+        self._element_manager.deselect_all("SELECTMASK")
+        self._element_manager.deselect_all("AVAILABLEMASK")
+        self._close_ability_menu
 
     # endregion
 
@@ -552,18 +602,28 @@ class GameBoard(Page):
                 gesture_data.mouse_pos, self.camera
             )
         else:
-            self.camera.drag_to(pygame.mouse.get_pos())
+            if self.game_state is not GameState.ABILITY_PANEL:
+                self.camera.drag_to(pygame.mouse.get_pos())
             return
 
     @input_event_bind("SELECTMASK", GestureType.DRAG.to_pygame_event())
     def _on_drag_tile(self, msg: pygame.event.Event) -> None:
-        tile_mask_id = get_id(msg)
-        assert tile_mask_id
-        self._element_manager.select_element(tile_mask_id)
+        if self.game_state not in (
+            GameState.MOVEMENT,
+            GameState.ABILITY,
+            GameState.ABILITY_PANEL,
+        ):
+            tile_mask_id = get_id(msg)
+            assert tile_mask_id
+            self._element_manager.select_element(tile_mask_id)
 
     @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
-        if self.game_state != GameState.MOVEMENT:
+        if self.game_state not in (
+            GameState.MOVEMENT,
+            GameState.ABILITY,
+            GameState.ABILITY_PANEL,
+        ):
             selected_squeak_id, selected_squeaks = (
                 self._element_manager.get_selected_elements("SQUEAK")
             )
@@ -583,8 +643,8 @@ class GameBoard(Page):
                 if selected_squeak_id:
                     self.return_squeak_to_hand(selected_squeaks[0])
 
-        self._element_manager.deselect_all("SELECTMASK")
-        self._element_manager.deselect_all("AVAILABLEMASK")
+            self._element_manager.deselect_all("SELECTMASK")
+            self._element_manager.deselect_all("AVAILABLEMASK")
 
         self.camera.end_drag()
 
@@ -615,6 +675,13 @@ class GameBoard(Page):
         tile_mask_elements = self._element_manager.get_selected_elements(
             "AVAILABLEMASK"
         )[1]
+        for tile_elem in tile_mask_elements:
+            tiles.append(tile_elem.get_payload(TilePayload).tile)
+        return tiles
+
+    def get_hover_tiles(self) -> list[Tile]:
+        tiles = []
+        tile_mask_elements = self._element_manager.get_selected_elements("HOVERMASK")[1]
         for tile_elem in tile_mask_elements:
             tiles.append(tile_elem.get_payload(TilePayload).tile)
         return tiles

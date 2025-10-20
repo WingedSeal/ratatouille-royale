@@ -8,6 +8,7 @@ from typing import Iterable
 from ratroyale.backend.entity import SkillTargeting
 from ratroyale.backend.instant_kill import InstantKill
 from ratroyale.backend.source_of_damage_or_heal import SourceOfDamageOrHeal
+from ratroyale.backend.side import Side
 
 
 @dataclass
@@ -34,6 +35,7 @@ class GameSetupPayload(Payload):
     board: Board
     hand_squeaks: list[Squeak]
     starting_crumbs: int
+    player_1_side: Side
 
 
 @dataclass

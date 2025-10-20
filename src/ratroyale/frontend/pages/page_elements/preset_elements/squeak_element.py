@@ -9,7 +9,12 @@ from ..hitbox import RectangleHitbox
 from ....visual.asset_management.visual_component import VisualComponent
 from ....visual.asset_management.spritesheet_structure import SpritesheetComponent
 from .....event_tokens.payloads import SqueakPayload
-from ....visual.anim.presets.presets import return_squeak_to_normal, shrink_squeak
+from ....visual.anim.presets.presets import (
+    return_squeak_to_normal,
+    shrink_squeak,
+    on_select_color_fade_in,
+    on_select_color_fade_out,
+)
 from ....pages.page_elements.spatial_component import Camera
 
 import uuid
@@ -26,6 +31,10 @@ TOP_MARGIN = 80
 CARD_RECT = pygame.Rect(LEFT_MARGIN, TOP_MARGIN, SQUEAK_WIDTH, SQUEAK_HEIGHT)
 
 
+# Load a font, size 48, italic
+italic_bold_arial = pygame.font.SysFont("Arial", 48, bold=True, italic=True)
+
+
 class SqueakElement(ElementWrapper):
     """Encapsulates a squeak card + cost element."""
 
@@ -34,6 +43,7 @@ class SqueakElement(ElementWrapper):
     ) -> None:
         self.camera = camera
         self.font = font
+        self.squeak = squeak
 
         # --- Create main squeak element ---
         assert squeak.rodent
@@ -104,15 +114,65 @@ class SqueakElement(ElementWrapper):
             parent_element=self.squeak_element_id,
         )
 
+    def _temp_name_generator(self) -> ElementWrapper:
+        name_text = italic_bold_arial.render(
+            str(self.squeak.name), False, pygame.Color(255, 255, 255)
+        )
+        name_element = ElementWrapper(
+            registered_name="squeakname_" + str(uuid.uuid4()),
+            grouping_name="SQUEAKNAME",
+            camera=self.camera,
+            spatial_component=SpatialComponent(
+                pygame.Rect(0, 20, 70, 20),
+                space_mode="SCREEN",
+                z_order=101,
+            ),
+            visual_component=VisualComponent(
+                SpritesheetComponent(spritesheet_reference=name_text), "NONE"
+            ),
+            parent_element=self.squeak_element_id,
+        )
+        return name_element
+
     def decide_interactivity(self, current_crumb: int) -> None:
         squeak = self.payload
         assert isinstance(squeak, SqueakPayload)
-        higher_cost_than_current_crumb = squeak.squeak.crumb_cost > current_crumb
-        # is_previously_interactable = self.is_interactable
-        self.is_interactable = not higher_cost_than_current_crumb
-        # is_now_interactable = self.is_interactable
 
-        # TODO: add darkening/undarkening anim
+        higher_cost_than_current_crumb = squeak.squeak.crumb_cost > current_crumb
+        is_previously_interactable = self.is_interactable
+
+        # Update interactivity state
+        self.is_interactable = not higher_cost_than_current_crumb
+        is_now_interactable = self.is_interactable
+
+        # If state changed, trigger appropriate animation
+        if is_now_interactable != is_previously_interactable:
+            if is_now_interactable:
+                self.enable_anim()
+            else:
+                self.disable_anim()
+
+    def enable_anim(self) -> None:
+        vis = self.visual_component
+        if vis and vis.spritesheet_component:
+            vis.queue_override_animation(
+                on_select_color_fade_out(
+                    vis.spritesheet_component,
+                    pygame.Color(200, 200, 200),
+                    pygame.BLEND_RGB_SUB,
+                )
+            )
+
+    def disable_anim(self) -> None:
+        vis = self.visual_component
+        if vis and vis.spritesheet_component:
+            vis.queue_override_animation(
+                on_select_color_fade_in(
+                    vis.spritesheet_component,
+                    pygame.Color(200, 200, 200),
+                    pygame.BLEND_RGB_SUB,
+                )
+            )
 
     def return_to_position(self, target_rect: pygame.Rect | pygame.FRect) -> None:
         spatial = self.spatial_component
