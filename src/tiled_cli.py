@@ -1,7 +1,8 @@
+import sys
 from json import load
 from pathlib import Path
+
 from ratroyale.backend import tiled_tmj
-import sys
 
 
 def tiled_to_rrmap(map_name: str) -> None:

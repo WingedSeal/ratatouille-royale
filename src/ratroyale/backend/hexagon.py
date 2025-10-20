@@ -1,8 +1,9 @@
-from queue import PriorityQueue
 from dataclasses import dataclass, field
-from typing import Callable, Iterator, Protocol, Self, overload
-from ..utils import lerp
 from math import sqrt
+from queue import PriorityQueue
+from typing import Callable, Iterator, Protocol, Self, overload
+
+from ..utils import lerp
 
 
 class IsCoordBlocked(Protocol):
@@ -15,6 +16,10 @@ class IsCoordBlocked(Protocol):
         A callback function that evaluate whether target coord is accessible from source coord
         """
         ...
+
+
+def _coord_never_blocked(target_coord: "OddRCoord", source_coord: "OddRCoord") -> bool:
+    return False
 
 
 @dataclass(frozen=True)
@@ -119,7 +124,7 @@ class OddRCoord:
     def get_reachable_coords(
         self,
         reach: int,
-        is_coord_blocked: IsCoordBlocked,
+        is_coord_blocked: IsCoordBlocked = _coord_never_blocked,
         *,
         is_include_self: bool = False,
     ) -> set["OddRCoord"]:
@@ -206,6 +211,7 @@ class OddRCoord:
         while current_ is not None:
             path.append(current_)
             current_ = came_from[current_]
+        path.pop()
         path.reverse()
         return path
 

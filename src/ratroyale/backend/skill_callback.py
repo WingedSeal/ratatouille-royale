@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Protocol
 
-
 if TYPE_CHECKING:
     from .entity import SkillResult
     from .game_manager import GameManager

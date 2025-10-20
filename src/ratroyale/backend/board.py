@@ -1,26 +1,20 @@
 from collections import defaultdict
 from copy import deepcopy
-from typing import Iterator
+from typing import Iterable, Iterator
 
-from .features.commmon import DeploymentZone, Lair
-from .feature import Feature
-from .entity_effect import EntityEffect
-from ..utils import EventQueue
-from .game_event import (
-    EntityDamagedEvent,
-    EntitySpawnEvent,
-    FeatureDamagedEvent,
-    FeatureDieEvent,
-    GameEvent,
-    EntityDieEvent,
-)
-from .error import EntityInvalidPosError
-from .side import Side
-from .entity import Entity, CallableEntitySkill
+from ..utils import EventQueue, is_ellipsis_body
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
+from .entity import CallableEntitySkill, Entity
+from .entity_effect import EntityEffect
+from .error import EntityInvalidPosError
+from .feature import Feature
+from .features.common import DeploymentZone, Lair
+from .game_event import EntitySpawnEvent, GameEvent
 from .hexagon import IsCoordBlocked, OddRCoord
-from .tile import Tile
 from .map import Map
+from .side import Side
+from .tile import Tile
+from .timer import Timer
 
 
 class Cache:
@@ -36,6 +30,13 @@ class Cache:
         )
         self.lairs: dict[Side, list[Lair]] = defaultdict(list)
         self.effects: list[EntityEffect] = []
+        self.timers: list[Timer] = []
+        self.entities_with_turn_change: list[Entity] = []
+
+    def get_all_lairs(self) -> Iterable[Lair]:
+        for side_lair in self.lairs.values():
+            for lair in side_lair:
+                yield lair
 
 
 class Board:
@@ -47,8 +48,9 @@ class Board:
 
     def __init__(self, map: Map) -> None:
         self.cache = Cache()
-        self.tiles = deepcopy(map.tiles)
-        self.cache.features = deepcopy(map.features)
+        map = deepcopy(map)
+        self.tiles = map.tiles
+        self.cache.features = map.features
         for feature in self.cache.features:
             if isinstance(feature, DeploymentZone):
                 self.cache.deployment_zones[feature.side].append(feature)
@@ -70,11 +72,25 @@ class Board:
             self.cache.sides_with_hp[entity.side].append(entity)
         if isinstance(entity, Rodent):
             self.cache.rodents.append(entity)
+        if not is_ellipsis_body(entity.on_turn_change):
+            self.cache.entities_with_turn_change.append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.append(entity)
-        self.event_queue.put(EntitySpawnEvent(entity))
+        self.event_queue.put_nowait(EntitySpawnEvent(entity))
+
+    def remove_entity(self, entity: Entity) -> None:
+        """Remove entity from cache"""
+        self.cache.entities.remove(entity)
+        self.cache.sides[entity.side].remove(entity)
+        if entity.health is not None:
+            self.cache.entities_with_hp.remove(entity)
+            self.cache.sides_with_hp[entity.side].remove(entity)
+        if isinstance(entity, Rodent):
+            self.cache.rodents.remove(entity)
+        if not is_ellipsis_body(entity.on_turn_change):
+            self.cache.entities_with_turn_change.remove(entity)
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
@@ -83,68 +99,35 @@ class Board:
             return None
         return self.tiles[coord.y][coord.x]
 
-    def _is_coord_blocked(self, entity: Entity) -> IsCoordBlocked:
+    def is_coord_blocked(
+        self, entity: Entity, custom_jump_height: int | None = None
+    ) -> IsCoordBlocked:
+        return self._is_coord_blocked(entity.collision, entity.side, custom_jump_height)
+
+    def _is_coord_blocked(
+        self, collision: bool, side: Side | None, custom_jump_height: int | None = None
+    ) -> IsCoordBlocked:
+        if custom_jump_height is None:
+            custom_jump_height = ENTITY_JUMP_HEIGHT
+
         def is_coord_blocked(target_coord: OddRCoord, source_coord: OddRCoord) -> bool:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
                 return True
-            if entity.collision and any(
-                _entity.collision for _entity in target_tile.entities
-            ):
+            if collision and any(_entity.collision for _entity in target_tile.entities):
+                return True
+            if any(feature.is_collision() for feature in target_tile.features):
                 return True
             previous_tile = self.get_tile(source_coord)
             if previous_tile is None:
                 return True
             return (
-                target_tile.get_total_height(entity.side)
-                - previous_tile.get_total_height(entity.side)
-                > ENTITY_JUMP_HEIGHT
+                target_tile.get_total_height(side)
+                - previous_tile.get_total_height(side)
+                > custom_jump_height
             )
 
         return is_coord_blocked
-
-    def damage_entity(self, entity: Entity, damage: int) -> None:
-        """
-        Damage an entity. Doesn't work on entity with no health.
-        """
-        is_dead, damage_taken = entity._take_damage(damage)
-        self.event_queue.put(EntityDamagedEvent(entity, damage, damage_taken))
-        if not is_dead:
-            return
-        is_dead = entity.on_death()
-        if not is_dead:
-            return
-        tile = self.get_tile(entity.pos)
-        if tile is None:
-            raise EntityInvalidPosError()
-        tile.entities.remove(entity)
-        self.event_queue.put(EntityDieEvent(entity))
-
-    def damage_feature(self, feature: Feature, damage: int) -> None:
-        """
-        Damage a feature. Doesn't work on feature with no health.
-        """
-        is_dead, damage_taken = feature._take_damage(damage)
-        self.event_queue.put(FeatureDamagedEvent(feature, damage, damage_taken))
-        if not is_dead:
-            return
-        is_dead = feature.on_death()
-        if not is_dead:
-            return
-
-        for pos in feature.shape:
-            tile = self.get_tile(pos)
-            if tile is None:
-                raise ValueError("Feature is existing on invalid tile")
-            tile.features.remove(feature)
-        self.cache.features.remove(feature)
-        if isinstance(feature, DeploymentZone):
-            self.cache.deployment_zones[feature.side].remove(feature)
-        elif isinstance(feature, Lair):
-            if feature.side is None:
-                raise ValueError("Lair cannot have side of None")
-            self.cache.lairs[feature.side].remove(feature)
-        self.event_queue.put(FeatureDieEvent(feature))
 
     def line_of_sight_check(
         self,
@@ -168,28 +151,32 @@ class Board:
                 return False
         return True
 
-    def try_move(self, entity: Entity, target: OddRCoord) -> bool:
+    def try_move(self, entity: Entity, path: list[OddRCoord]) -> bool:
         """
         Check collision and move an entity from 1 tile to another.
         Not responsible for handling reach.
         Does not trigger EntityMoveEvent.
 
         :param entity: Entity to move
-        :param end: Target coordinate. If there's already an entity, the function will fail.
+        :param path: Path coordinates. If there's already an entity, the function will fail.
         :returns: Whether the move succeeded
         """
         start_coord = entity.pos
         start_tile = self.get_tile(start_coord)
         if start_tile is None:
             raise EntityInvalidPosError()
-        end_tile = self.get_tile(target)
-        if end_tile is None:
-            return False
-        if entity.collision and any(_entity.collision for _entity in end_tile.entities):
-            return False
+        path_tile = None
+        for path_coord in path:
+            path_tile = self.get_tile(path_coord)
+            if path_tile is None:
+                return False
+            if path_tile.is_collision(entity.collision):
+                return False
+        end_tile = path_tile
+        assert end_tile is not None
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)
-        entity.pos = target
+        entity.pos = path[-1]
         return True
 
     def get_reachable_coords(
@@ -204,12 +191,16 @@ class Board:
         """
         return rodent.pos.get_reachable_coords(
             rodent.speed,
-            self._is_coord_blocked(rodent),
+            self.is_coord_blocked(rodent),
             is_include_self=is_include_self,
         )
 
-    def path_find(self, entity: Entity, goal: OddRCoord) -> list[OddRCoord] | None:
-        return entity.pos.path_find(goal, self._is_coord_blocked(entity))
+    def path_find(
+        self, entity: Entity, goal: OddRCoord, custom_jump_height: int | None = None
+    ) -> list[OddRCoord] | None:
+        return entity.pos.path_find(
+            goal, self.is_coord_blocked(entity, custom_jump_height)
+        )
 
     def get_attackable_coords(
         self, rodent: Rodent, skill: CallableEntitySkill
