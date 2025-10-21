@@ -217,7 +217,7 @@ class CrumbChangeEvent(GameEvent):
         return self.new_crumbs - self.old_crumbs
 
     def __str__(self) -> str:
-        return f"{STR_PREFIX}Crumbs has be changed from {self.old_crumbs} to {self.new_crumbs} ({self.crumbs_diff:+})"
+        return f"{STR_PREFIX}Crumbs has been changed from {self.old_crumbs} to {self.new_crumbs} ({self.crumbs_diff:+})"
 
 
 @dataclass
