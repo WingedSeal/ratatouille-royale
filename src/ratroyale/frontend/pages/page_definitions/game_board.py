@@ -455,6 +455,8 @@ class GameBoard(Page):
         elif self.game_state in (GameState.ABILITY_PANEL, GameState.WAIT):
             return
         else:
+            if self._display_ability_menu(msg):
+                return None
             self._element_manager.toggle_element(id)
             self._close_ability_menu()
 
@@ -471,8 +473,8 @@ class GameBoard(Page):
 
     # region Entity Related Events
 
-    @input_event_bind("SELECTMASK", GestureType.HOLD.to_pygame_event())
-    def _display_ability_menu(self, msg: pygame.event.Event) -> None:
+    # @input_event_bind("SELECTMASK", GestureType.HOLD.to_pygame_event())
+    def _display_ability_menu(self, msg: pygame.event.Event) -> bool:
         """Display the ability menu for the selected entity."""
 
         id = get_id(msg)
@@ -482,12 +484,12 @@ class GameBoard(Page):
         tile = self.get_selected_tiles()[0]
 
         if not tile.entities:
-            return
+            return False
 
         entity = tile.entities[0]
 
         if entity.side != self.player_1_side:
-            return
+            return False
 
         entity_id = self.entity_to_element_id_mapping[entity]
         entity_element = self._element_manager.get_element(entity_id)
@@ -566,6 +568,7 @@ class GameBoard(Page):
 
         self.game_state = GameState.ABILITY_PANEL
 
+        return True
         # endregion
 
     @input_event_bind("ability", pygame_gui.UI_BUTTON_PRESSED)
