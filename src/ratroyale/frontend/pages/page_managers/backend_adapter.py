@@ -119,6 +119,7 @@ class BackendAdapter:
         player_1_side = self.game_manager.first_turn
         player_info = self.game_manager.players_info[player_1_side]
         squeak_in_hand_list = player_info.get_squeak_set().get_deck_and_hand()[1]
+        print(f"{self.game_manager.crumbs=}")
         self.coordination_manager.put_message(
             PageCallbackEvent(
                 callback_action="start_game",

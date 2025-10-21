@@ -2,6 +2,7 @@
 
 import pygame
 
+from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
 from ratroyale.backend.player_info.squeaks.rodents.duelist import (
     RATBERT_BREWBELLY,
@@ -95,13 +96,12 @@ def main():
     game_manager = GameManager(
         map=map, players_info=(player_info_1, player_info_2), first_turn=Side.RAT
     )
-    game_manager.crumbs = 0
     # endregion
 
     backend_adapter = BackendAdapter(
         game_manager=game_manager,
         coordination_manager=coordination_manager,
-        ai_type=RandomAI,
+        ai_type=RushBAI,
     )
 
     coordination_manager.put_message(
