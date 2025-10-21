@@ -21,6 +21,7 @@ from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEven
 from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
 from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.backend.features.common import Lair, DeploymentZone
 
 
 def main():
@@ -35,9 +36,9 @@ def main():
     # region GAME MANAGER DOMAIN
     size_x, size_y = 5, 10
     tiles: list[list[Tile | None]] = []
-    for q in range(size_y):
+    for r in range(size_y):
         row = []
-        for r in range(size_x):
+        for q in range(size_x):
             tile = Tile(
                 tile_id=1, coord=OddRCoord(q, r), entities=[], height=0, features=[]
             )
@@ -66,7 +67,17 @@ def main():
         size_y=size_y,
         tiles=tiles,
         entities=entities,
-        features=[],
+        features=[
+            Lair(
+                shape=[
+                    OddRCoord(0, 0),
+                    OddRCoord(0, 1),
+                    OddRCoord(1, 0),
+                    OddRCoord(1, 1),
+                ],
+                side=Side.MOUSE,
+            )
+        ],
     )
     game_manager = GameManager(
         map=map, players_info=(player_info_1, player_info_2), first_turn=Side.MOUSE
@@ -79,7 +90,9 @@ def main():
 
     coordination_manager.put_message(
         PageNavigationEvent(
-            action_list=[(PageNavigation.OPEN, "MainMenu")]
+            action_list=[
+                (PageNavigation.OPEN, "MainMenu"),
+            ]
         )  # change this to test your page
     )
 

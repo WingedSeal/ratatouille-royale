@@ -1,0 +1,14 @@
+{
+  "defaults": {
+    "font": {
+        "name": "Arial",
+        "size": 18,
+        "bold": false,
+        "italic": false
+    },
+    "text_color": "#FFFFFF",
+    "bg_color": "#444444",
+    "border_width": 2,
+    "border_color": "#222222",
+    "shadow_width": 1
+  }}
