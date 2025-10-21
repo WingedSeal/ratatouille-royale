@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pprint import pformat
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
+
 
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .hexagon import OddRCoord
 from .side import Side
+
+if TYPE_CHECKING:
+    from .game_manager import GameManager
 
 MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 
@@ -52,6 +56,13 @@ class Feature(ABC):
         :returns: Whether the entity actually dies
         """
         return True
+
+    def self_destruct(
+        self, game_manager: "GameManager", is_trigger_on_death: bool = False
+    ) -> None:
+        game_manager.destroy_feature(
+            self, self, is_trigger_on_death=is_trigger_on_death
+        )
 
     def _take_damage(
         self, damage: int, source: SourceOfDamageOrHeal
