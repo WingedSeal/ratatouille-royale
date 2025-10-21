@@ -4,7 +4,7 @@ from typing import Literal
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .player_info.squeak import Squeak
 from .instant_kill import InstantKill
-from .entity import Entity
+from .entity import Entity, SkillResult
 from .entity_effect import EffectClearSide, EntityEffect
 from .feature import Feature
 from .hexagon import OddRCoord
@@ -209,3 +209,32 @@ class SqueakSetResetEvent(GameEvent):
 
     def __str__(self) -> str:
         return f"{STR_PREFIX}Squeak set has been reset"
+
+
+@dataclass
+class CrumbChangeEvent(GameEvent):
+    old_crumbs: int
+    new_crumbs: int
+    reason: GameEvent
+
+    @property
+    def crumbs_diff(self) -> int:
+        return self.new_crumbs - self.old_crumbs
+
+    def __str__(self) -> str:
+        return f"{STR_PREFIX}Crumbs has been changed from {self.old_crumbs} to {self.new_crumbs} ({self.crumbs_diff:+})"
+
+
+@dataclass
+class EntitySkillActivatedEvent(GameEvent):
+    skill_result: SkillResult
+    entity: Entity
+    skill_index: int
+
+
+@dataclass
+class EntitySkillCallbackEvent(GameEvent):
+    skill_result: SkillResult
+    entity: Entity
+    skill_index: int
+    selected_targets: list[OddRCoord]

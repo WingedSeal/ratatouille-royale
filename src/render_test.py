@@ -33,7 +33,7 @@ from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 from ratroyale.backend.ai.random_ai import RandomAI
 
-from ratroyale.backend.features.common import Lair
+from ratroyale.backend.features.common import Lair, DeploymentZone
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.side import Side
 
@@ -83,6 +83,9 @@ def main():
         [{TAIL_BLAZER: 5}],
         [{TAIL_BLAZER: 5}],
         selected_squeak_set_index=0,
+        exp=0,
+        cheese=0,
+        is_progression_frozen=True,
     )
 
     # Player 2: separate SqueakSet instance
@@ -91,6 +94,9 @@ def main():
         [{TAIL_BLAZER: 5}],
         [{TAIL_BLAZER: 5}],
         selected_squeak_set_index=0,
+        exp=0,
+        cheese=0,
+        is_progression_frozen=True,
     )
 
     game_manager = GameManager(
@@ -106,7 +112,9 @@ def main():
 
     coordination_manager.put_message(
         PageNavigationEvent(
-            action_list=[(PageNavigation.OPEN, "MainMenu")]
+            action_list=[
+                (PageNavigation.OPEN, "MainMenu"),
+            ]
         )  # change this to test your page
     )
 
