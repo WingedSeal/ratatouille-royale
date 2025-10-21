@@ -118,7 +118,7 @@ def normal_damage(
                 game_manager.damage_entity(enemy, damage, source)
                 continue
             if not is_feature_targetable:
-                raise ValueError("Trying to damage entity that is not there")
+                return SkillCompleted.SUCCESS
             feature = game_manager.get_feature_on_pos(target)
             if feature is None:
                 return SkillCompleted.SUCCESS
