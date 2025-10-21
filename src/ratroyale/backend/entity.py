@@ -13,6 +13,7 @@ from .tags import EntityTag, SkillTag
 
 if TYPE_CHECKING:
     from .game_manager import GameManager
+    from .feature import Feature
 
 
 @dataclass(kw_only=True)
@@ -119,10 +120,19 @@ class Entity:
 
     def on_turn_change(
         self, game_manager: "GameManager", turn_change_to: Side
-    ) -> None: ...
+    ) -> (
+        None
+    ): ...  # This has to be `...` to avoid having GameManager running on_turn_change on every entity. It'll detect the ellipsis to cache them.
 
-    # This has to be `...` to avoid having GameManager
-    # running on_turn_change on every entity. It'll detect the ellipsis to cache them.
+    def on_kill_entity(
+        self, game_manager: "GameManager", target_killed: "Entity"
+    ) -> None:
+        pass
+
+    def on_kill_feature(
+        self, game_manager: "GameManager", target_killed: "Feature"
+    ) -> None:
+        pass
 
     def reset_stamina(self) -> None:
         self.skill_stamina = self.max_skill_stamina

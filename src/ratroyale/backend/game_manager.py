@@ -1,6 +1,8 @@
 import math
 from random import shuffle
 from typing import Iterator
+from dataclasses import dataclass, field
+from collections import defaultdict
 
 from .instant_kill import InstantKill
 from ..utils import EventQueue
@@ -21,12 +23,15 @@ from .error import (
 from .feature import Feature
 from .features.common import DeploymentZone, Lair
 from .game_event import (
+    CrumbChangeEvent,
     EndTurnEvent,
     EntityDamagedEvent,
     EntityDieEvent,
     EntityEffectUpdateEvent,
     EntityHealedEvent,
     EntityMoveEvent,
+    EntitySkillActivatedEvent,
+    EntitySkillCallbackEvent,
     FeatureDamagedEvent,
     FeatureDieEvent,
     GameEvent,
@@ -46,6 +51,14 @@ from .timer import Timer
 
 def crumb_per_turn(turn_count: int) -> int:
     return min(math.ceil(turn_count / 4) * 10, 50)
+
+
+@dataclass
+class GameStats:
+    squeak_placed: dict[Side, int] = field(default_factory=lambda: defaultdict(int))
+    enemy_rodent_killed: dict[Side, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
 
 
 class GameManager:
@@ -68,6 +81,7 @@ class GameManager:
     crumbs: int
     """Crumbs of the current side"""
     first_turn: Side
+    game_stats: GameStats
 
     def __init__(
         self,
@@ -88,6 +102,7 @@ class GameManager:
         self.hands: dict[Side, list[Squeak]] = {}
         for side in Side:
             decks, hands = self.players_info[side].get_squeak_set().get_deck_and_hand()
+            shuffle(decks)
             assert len(hands) == HAND_LENGTH
             self.decks[side] = decks
             self.hands[side] = hands
@@ -96,12 +111,12 @@ class GameManager:
         If it is currently in selecting target mode. It'll have the detail of skill targeting.
         """
         self.game_over_event: GameOverEvent | None = None
+        self.game_stats = GameStats()
 
     @property
     def is_selecting_target(self) -> bool:
         return self.skill_targeting is not None
 
-    @property
     def cancel_selecting_target(self) -> None:
         self.skill_targeting = None
 
@@ -119,8 +134,21 @@ class GameManager:
         if self.skill_targeting is None:
             raise GameManagerSkillCallBackInNonSelectingMode()
         skill_result = self.skill_targeting._callback(self, selected_targets)
+        event = EntitySkillCallbackEvent(
+            skill_result,
+            self.skill_targeting.source_enitity,
+            self.skill_targeting.source_enitity.skills.index(
+                self.skill_targeting.source_skill
+            ),
+            selected_targets,
+        )
+        self.event_queue.put_nowait(event)
         if skill_result == SkillCompleted.SUCCESS:
+            old_crumbs = self.crumbs
             self.crumbs -= self.skill_targeting.source_skill.crumb_cost
+            self.event_queue.put_nowait(
+                CrumbChangeEvent(old_crumbs, self.crumbs, event)
+            )
             if self.skill_targeting.source_enitity.skill_stamina is not None:
                 self.skill_targeting.source_enitity.skill_stamina -= 1
         if isinstance(skill_result, SkillTargeting):
@@ -144,7 +172,7 @@ class GameManager:
             ...
             selected_targets = ...
             if selected_targets is not None:
-                skill_result = self.game_manager.apply_skill_callback(game_manager, selected_targets)
+                skill_result = self.game_manager.apply_skill_callback(selected_targets)
         ```
         """
         self._validate_not_selecting_target()
@@ -154,8 +182,14 @@ class GameManager:
         if entity.skill_stamina is not None and entity.skill_stamina <= 0:
             raise NotEnoughSkillStaminaError()
         skill_result = skill.func(entity, self)
+        event = EntitySkillActivatedEvent(skill_result, entity, skill_index)
+        self.event_queue.put_nowait(event)
         if skill_result == SkillCompleted.SUCCESS:
+            old_crumbs = self.crumbs
             self.crumbs -= skill.crumb_cost
+            self.event_queue.put_nowait(
+                CrumbChangeEvent(old_crumbs, self.crumbs, event)
+            )
             if entity.skill_stamina is not None:
                 entity.skill_stamina -= 1
         if isinstance(skill_result, SkillTargeting):
@@ -268,9 +302,12 @@ class GameManager:
         if not is_success:
             raise InvalidMoveTargetError("Cannot move rodent there")
         self._trigger_feature_on_move(path, rodent)
+        old_crumbs = self.crumbs
         self.crumbs -= rodent.move_cost
         rodent.move_stamina -= 1
-        self.event_queue.put(EntityMoveEvent(path, rodent, from_pos))
+        event = EntityMoveEvent(path, rodent, from_pos)
+        self.event_queue.put_nowait(event)
+        self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
         return path
 
     def move_entity_uncheck(
@@ -329,11 +366,15 @@ class GameManager:
         if self.crumbs < squeak.crumb_cost:
             raise NotEnoughCrumbError()
         self.event_queue.put_nowait(SqueakPlacedEvent(hand_index, squeak, coord))
+        self.game_stats.squeak_placed[self.turn] += 1
         new_squeak = squeak.on_place(self, coord)
+        old_crumbs = self.crumbs
         self.crumbs -= squeak.crumb_cost
         if new_squeak is None:
             new_squeak = self._draw_squeak(self.turn)
-        self.event_queue.put_nowait(SqueakDrawnEvent(hand_index, new_squeak))
+        event = SqueakDrawnEvent(hand_index, new_squeak)
+        self.event_queue.put_nowait(event)
+        self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
         self.hands[self.turn][hand_index] = new_squeak
 
     def end_turn(self) -> None:
@@ -367,20 +408,21 @@ class GameManager:
                 timer.duration -= 1
             self.turn_count += 1
         leftover_crumbs = self.crumbs
+        old_crumbs = self.crumbs
         self.crumbs = crumb_per_turn(self.turn_count)
         for entity in self.board.cache.sides[None]:
             entity.reset_stamina()
         for entity in self.board.cache.sides[from_side]:
             entity.reset_stamina()
-        self.event_queue.put_nowait(
-            EndTurnEvent(
-                is_from_first_turn_side=self.first_turn == from_side,
-                from_side=from_side,
-                to_side=self.turn,
-                leftover_crumbs=leftover_crumbs,
-                new_crumbs=self.crumbs,
-            )
+        event = EndTurnEvent(
+            is_from_first_turn_side=self.first_turn == from_side,
+            from_side=from_side,
+            to_side=self.turn,
+            leftover_crumbs=leftover_crumbs,
+            new_crumbs=self.crumbs,
         )
+        self.event_queue.put_nowait(event)
+        self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
 
     def apply_timer(self, timer: Timer) -> None:
         self.board.cache.timers.append(timer)
@@ -488,6 +530,10 @@ class GameManager:
         is_dead = entity.on_death(source)
         if not is_dead:
             return
+        if isinstance(source, Entity):
+            source.on_kill_entity(self, entity)
+            if source.side is not None and entity.side == source.side.other_side():
+                self.game_stats.enemy_rodent_killed[source.side] += 1
         tile = self.board.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
@@ -540,6 +586,9 @@ class GameManager:
             if not is_dead:
                 return
 
+        if isinstance(source, Entity):
+            source.on_kill_feature(self, feature)
+
         for pos in feature.shape:
             tile = self.board.get_tile(pos)
             if tile is None:
@@ -559,4 +608,6 @@ class GameManager:
                 )
                 self.event_queue.put_nowait(game_over_event)
                 self.game_over_event = game_over_event
+                self.players_info[feature.side.other_side()].game_won(self)
+                self.players_info[feature.side].game_lost(self)
         self.event_queue.put_nowait(FeatureDieEvent(feature))

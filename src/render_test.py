@@ -54,11 +54,23 @@ def main():
 
     # PlayerInfo
     player_info_1 = PlayerInfo(
-        {TAIL_BLAZER: 5}, [{TAIL_BLAZER: 5}], [{TAIL_BLAZER: 5}], 0
+        {TAIL_BLAZER: 5},
+        [{TAIL_BLAZER: 5}],
+        [{TAIL_BLAZER: 5}],
+        selected_squeak_set_index=0,
+        exp=0,
+        cheese=0,
+        is_progression_frozen=True,
     )
 
     player_info_2 = PlayerInfo(
-        {TAIL_BLAZER: 5}, [{TAIL_BLAZER: 5}], [{TAIL_BLAZER: 5}], 0
+        {TAIL_BLAZER: 5},
+        [{TAIL_BLAZER: 5}],
+        [{TAIL_BLAZER: 5}],
+        selected_squeak_set_index=0,
+        exp=0,
+        cheese=0,
+        is_progression_frozen=True,
     )
 
     map = Map(
