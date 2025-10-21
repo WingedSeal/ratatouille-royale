@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from ratroyale.backend.entities.rodents.common_skills import SelectTarget, TargetAction
+
 from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...instant_kill import INSTANT_KILL, InstantKill
 from ...effects.global_rodent_effects import Stunned
@@ -7,13 +9,6 @@ from ...entity import EntitySkill, SkillCompleted, SkillTargeting, entity_skill_
 from ...tags import RodentClassTag, SkillTag
 from ...timer import Timer, TimerClearSide
 from ..rodent import Rodent, rodent_data
-from .common_skills import (
-    aoe_damage,
-    apply_effect,
-    apply_timer,
-    normal_damage,
-    select_targetable,
-)
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
@@ -49,19 +44,21 @@ class RatbertBrewbelly(Rodent):
 
     @entity_skill_check
     def projectile_vomit(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
-            game_manager.board,
-            self,
-            self.skills[0],
-            [
-                normal_damage(self.attack + 3, self),
-                apply_effect(Stunned, duration=2, intensity=0),
-                apply_timer(
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_enemy()
+            .add_target_action(
+                TargetAction(self)
+                .acquire_enemy()
+                .damage(self.attack + 3)
+                .apply_effect(Stunned, duration=2)
+                .apply_timer(
                     TimerClearSide.ENEMY,
                     on_timer_over=self.vomit_timer_callback,
                     duration=2,
-                ),
-            ],
+                )
+            )
+            .to_skill_targeting(game_manager)
         )
 
     def skill_descriptions(self) -> list[str]:
@@ -99,9 +96,9 @@ class SodaKabooma(Rodent):
 
     @entity_skill_check
     def shake_the_can(self, game_manager: "GameManager") -> SkillCompleted:
-        aoe_damage(
-            self.attack * 2 + 1, self.SHAKE_THE_CAN_RADIUS, self, is_friendly_fire=True
-        )(game_manager, [self.pos])
+        TargetAction(self).aoe(self.SHAKE_THE_CAN_RADIUS).acquire_any().damage(
+            self.attack * 2 + 1
+        ).build_skill_callback()(game_manager, [self.pos])
         game_manager.damage_entity(self, INSTANT_KILL, self)
         return SkillCompleted.SUCCESS
 
@@ -139,13 +136,21 @@ class PeaPeaPoolPool(Rodent):
 
     @entity_skill_check
     def pea(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
-            game_manager.board, self, self.skills[0], normal_damage(self.attack, self)
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_enemy()
+            .add_target_action(
+                TargetAction(self)
+                .acquire_enemy()
+                .damage(self.attack // 2)
+                .damage(self.attack // 2)
+            )
+            .to_skill_targeting(game_manager)
         )
 
     def skill_descriptions(self) -> list[str]:
         return [
-            f"Shoot the pea inside the pod at an enemy dealing {self.attack}(ATK) damage."
+            f"Shoot the pea inside the pod at an enemy dealing {self.attack}(ATK/2) damage twice."
         ]
 
 
@@ -186,20 +191,20 @@ class Mortar(Rodent):
 
     @entity_skill_check
     def artillery_strike(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
-            game_manager.board,
-            self,
-            self.skills[0],
-            aoe_damage(self.attack + 4, 2, self),
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_any_tile()
+            .add_target_action(TargetAction(self).aoe(2).damage(self.attack + 4))
+            .to_skill_targeting(game_manager)
         )
 
     @entity_skill_check
     def artillery_strikes(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targetable(
-            game_manager.board,
-            self,
-            self.skills[1],
-            aoe_damage(self.attack + 8, 3, self),
+        return (
+            SelectTarget(self, skill_index=1)
+            .can_select_any_tile()
+            .add_target_action(TargetAction(self).aoe(3).damage(self.attack + 8))
+            .to_skill_targeting(game_manager)
         )
 
     def skill_descriptions(self) -> list[str]:
