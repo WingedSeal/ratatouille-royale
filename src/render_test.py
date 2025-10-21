@@ -70,8 +70,8 @@ def main():
         ),
         entities=[],
         features=[
-            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
-            Lair([OddRCoord(5, 5)], 10, side=Side.RAT),
+            Lair([OddRCoord(0, 0)], 200, side=Side.MOUSE),
+            Lair([OddRCoord(5, 5)], 200, side=Side.RAT),
             mouse_zone,
             rat_zone,
         ],
