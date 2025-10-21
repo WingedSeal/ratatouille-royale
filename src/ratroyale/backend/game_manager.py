@@ -77,8 +77,8 @@ class GameManager:
     ) -> None:
         self.turn = first_turn
         self.first_turn = first_turn
-        self.crumbs = 0
         self.turn_count = 1
+        self.crumbs = crumb_per_turn(self.turn_count)
         self.board = Board(map)
         self.players_info = {
             first_turn: players_info[0],
