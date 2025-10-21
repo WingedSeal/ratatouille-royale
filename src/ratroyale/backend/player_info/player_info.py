@@ -133,7 +133,7 @@ class PlayerInfo:
 
     def gacha_squeak(self, count: int = 1) -> list[Squeak]:
         if self.cheese < count * CHEESE_PER_ROLL:
-            raise NotEnoughCrumbError("Not enough chess to roll")
+            raise NotEnoughCrumbError("Not enough cheese to roll")
         self.cheese -= count * CHEESE_PER_ROLL
         squeaks = gacha_squeak(count)
         self._apply_gacha_squeak(squeaks)
