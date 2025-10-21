@@ -77,8 +77,8 @@ class GameManager:
     ) -> None:
         self.turn = first_turn
         self.first_turn = first_turn
-        self.crumbs = 0
         self.turn_count = 1
+        self.crumbs = crumb_per_turn(self.turn_count)
         self.board = Board(map)
         self.players_info = {
             first_turn: players_info[0],
@@ -342,7 +342,7 @@ class GameManager:
             effect.on_turn_change(self)
             if effect.duration == 1 and effect.should_clear(self.turn):
                 active_effect = effect.entity.effects[effect.name]
-                if active_effect != effect:
+                if active_effect is not effect:
                     active_effect.overridden_effects.remove(effect)
                 else:
                     self.effect_duration_over(effect)
@@ -388,6 +388,8 @@ class GameManager:
     def apply_effect(
         self, entity: Entity, effect: EntityEffect, stack_intensity: bool = False
     ) -> None:
+        if entity.health == 0:
+            return None
         old_effect = entity.effects.get(effect.name)
         if stack_intensity and old_effect is not None:
             old_effect.intensity += effect.intensity
@@ -436,6 +438,7 @@ class GameManager:
                 EntityEffectUpdateEvent(effect, "clear", "duration_over")
             )
             del effect.entity.effects[effect.name]
+            return None
         effect.entity.effects = {
             name: e
             for name, e in effect.entity.effects.items()
@@ -474,6 +477,8 @@ class GameManager:
         """
         Damage an entity. Throw error if called on entity with no health.
         """
+        if entity.health == 0:
+            return None
         is_dead, damage_taken = entity._take_damage(self, damage, source)
         self.event_queue.put_nowait(
             EntityDamagedEvent(entity, damage, damage_taken, source)
@@ -500,6 +505,8 @@ class GameManager:
         """
         Heal an entity. Throw error if called on entity with no health.
         """
+        if entity.health == 0:
+            return None
         heal_taken = entity._heal(self, heal, source, overheal_cap)
         self.event_queue.put_nowait(
             EntityHealedEvent(entity, heal, heal_taken, overheal_cap, source)
@@ -511,15 +518,27 @@ class GameManager:
         """
         Damage a feature. Throw error if called on feature with no health.
         """
+        if feature.health == 0:
+            return None
         is_dead, damage_taken = feature._take_damage(self, damage, source)
         self.event_queue.put_nowait(
             FeatureDamagedEvent(feature, damage, damage_taken, source)
         )
         if not is_dead:
             return
-        is_dead = feature.on_death(self, source)
-        if not is_dead:
-            return
+        self.destroy_feature(feature, source)
+
+    def destroy_feature(
+        self,
+        feature: Feature,
+        source: SourceOfDamageOrHeal,
+        *,
+        is_trigger_on_death: bool = True,
+    ) -> None:
+        if is_trigger_on_death:
+            is_dead = feature.on_death(self, source)
+            if not is_dead:
+                return
 
         for pos in feature.shape:
             tile = self.board.get_tile(pos)

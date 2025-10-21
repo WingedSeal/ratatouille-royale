@@ -91,6 +91,12 @@ class Feature(ABC):
     ) -> None:
         """Trigger multiple times in a single move for every coord entity is moving pass"""
         pass
+    def self_destruct(
+        self, game_manager: "GameManager", is_trigger_on_death: bool = False
+    ) -> None:
+        game_manager.destroy_feature(
+            self, self, is_trigger_on_death=is_trigger_on_death
+        )
 
     def _take_damage(
         self, game_manager: "GameManager", damage: int, source: SourceOfDamageOrHeal

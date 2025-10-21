@@ -21,6 +21,12 @@ class BackendAdapter:
         self.event_to_action_map: dict[str, Callable[[GameManagerEvent[Any]], None]] = {
             "start_game": self.handle_game_start,
             "entity_list": self.handle_entity_list,
+            "game_info": self.handle_game_info_page,
+            "inspect_deck": self.handle_inspect_deck_page,
+            "select_target_prompt": self.handle_select_target_prompt_page,
+            "tile_hover": self.handle_tile_hover,
+            "end_turn": self.handle_end_turn,
+            "move_history": self.handle_move_history,
         }
 
     def execute_backend_callback(self) -> None:
@@ -63,6 +69,37 @@ class BackendAdapter:
                 callback_action="entity_list", payload=entity_list
             )
         )
+
+    def handle_game_info_page(self, event: GameManagerEvent[int]) -> None: ...
+
+    def handle_inspect_deck_page(self, event: GameManagerEvent[int]) -> None:
+        deck = self.game_manager.decks
+        if deck is not None:
+            # hardcoded for now, should be per player
+            self.coordination_manager.put_message(
+                PageCallbackEvent[list[int]](
+                    callback_action="inspect_deck", payload=[1, 2, 3, 4, 5]
+                )
+            )
+
+    def handle_select_target_prompt_page(
+        self, event: GameManagerEvent[None]
+    ) -> None: ...
+
+    def handle_tile_hover(self, event: GameManagerEvent[Tile]) -> None:
+        tile = event.payload
+        if tile is not None:
+            self.coordination_manager.put_message(
+                PageCallbackEvent[Tile](
+                    callback_action="tile_hover",
+                    payload=tile,
+                )
+            )
+
+    def handle_end_turn(self, event: GameManagerEvent[None]) -> None:
+        self.game_manager.end_turn()
+
+    def handle_move_history(self, event: GameManagerEvent[list[str]]) -> None: ...
 
 
 def get_name_from_entity(entity: Entity) -> str:

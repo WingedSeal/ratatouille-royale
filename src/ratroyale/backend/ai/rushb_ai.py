@@ -28,9 +28,10 @@ class RushBAI(BaseAI):
 
     @lru_cache(maxsize=1)
     def choose_lair(self) -> Lair:
-        return random.choice(
-            self.game_manager.board.cache.lairs[self.ai_side.other_side()]
-        )
+        lairs = self.game_manager.board.cache.lairs[self.ai_side.other_side()]
+        if lairs is None:
+            raise ValueError("Enemy of the AI has no Lair")
+        return random.choice(lairs)
 
     @lru_cache(maxsize=1)
     def choose_lair_coord(self) -> OddRCoord:
