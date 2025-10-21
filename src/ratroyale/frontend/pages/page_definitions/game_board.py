@@ -27,7 +27,6 @@ from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
-    ui_element_wrapper,
 )
 
 
@@ -228,21 +227,6 @@ class GameBoard(Page):
 
             element_configs.append(crumb_display_element)
 
-            end_turn = ui_element_wrapper(
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(800 - 150 - 10, 600 - 150 - 10, 150, 40),
-                    text="End Turn",
-                    manager=self.gui_manager,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="ActionButton", object_id="endturn"
-                    ),
-                ),
-                "end_turn",
-                self.camera,
-            )
-
-            element_configs.append(end_turn)
-
             self.setup_elements(element_configs)
 
             for squeak_id in self.squeak_in_hand:
@@ -338,14 +322,6 @@ class GameBoard(Page):
             entity_id = self.entity_to_element_id_mapping[entity]
             entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
             entity_element.move_entity(path)
-
-    @callback_event_bind("end_turn")
-    def _handle_end_turn(self, msg: PageCallbackEvent) -> None:
-        if msg.success:
-            if self.game_state == GameState.WAIT:
-                self.game_state = GameState.PLAY
-            else:
-                self.game_state = GameState.WAIT
 
     @callback_event_bind("skill_targeting")
     def _handle_skill_targeting(self, msg: PageCallbackEvent) -> None:
@@ -581,13 +557,6 @@ class GameBoard(Page):
         self.coordination_manager.put_message(
             GameManagerEvent("ability_activation", ability_payload)
         )
-        self._close_ability_menu()
-
-    @input_event_bind("endturn", pygame_gui.UI_BUTTON_PRESSED)
-    def _end_turn(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(GameManagerEvent("end_turn"))
-        self._element_manager.deselect_all("SELECTMASK")
-        self._element_manager.deselect_all("AVAILABLEMASK")
         self._close_ability_menu()
 
     # endregion
