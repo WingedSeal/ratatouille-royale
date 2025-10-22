@@ -1,18 +1,18 @@
 from typing import TYPE_CHECKING, Callable, Iterable, Self, TypeAlias
 
-from ratroyale.backend.entities.rodent import Rodent
-from ratroyale.backend.entity import Entity, SkillCompleted, SkillResult, SkillTargeting
-from ratroyale.backend.entity_effect import EntityEffect
-from ratroyale.backend.feature import Feature
-from ratroyale.backend.hexagon import OddRCoord
-from ratroyale.backend.instant_kill import InstantKill
-from ratroyale.backend.skill_callback import SkillCallback, skill_callback_check
-from ratroyale.backend.source_of_damage_or_heal import SourceOfDamageOrHeal
-from ratroyale.backend.tile import Tile
-from ratroyale.backend.timer import Timer, TimerCallback, TimerClearSide
+from ...entities.rodent import Rodent
+from ...entity import Entity, SkillCompleted, SkillResult, SkillTargeting
+from ...entity_effect import EntityEffect
+from ...feature import Feature
+from ...hexagon import OddRCoord
+from ...instant_kill import InstantKill
+from ...skill_callback import SkillCallback, skill_callback_check
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
+from ...tile import Tile
+from ...timer import Timer, TimerCallback, TimerClearSide
 
 if TYPE_CHECKING:
-    from ratroyale.backend.game_manager import GameManager
+    from ...game_manager import GameManager
 
 Target: TypeAlias = Entity | Feature
 
