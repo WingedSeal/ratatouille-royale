@@ -81,9 +81,13 @@ class TargetAction:
                         break
                 if target is None:
                     continue
+                if target.is_dead:
+                    continue
                 for callback_to_target in self.callbacks_to_target:
                     result = callback_to_target(game_manager, target, self.source)
                     skill_results.append(result)
+                    if target.is_dead:
+                        break
             if not skill_results:
                 return SkillCompleted.CANCELLED
             for skill_result in skill_results[:-1]:
