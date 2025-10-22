@@ -117,7 +117,7 @@ class EntityHealedEvent(GameEvent):
     def __post_init__(self) -> None:
         object.__setattr__(self, "pos", self.entity.pos)
         object.__setattr__(self, "hp_remaining", self.entity.health)
-        object.__setattr__(self, "max_hp", self.entity.max_health)
+        object.__setattr__(self, "max_health", self.entity.max_health)
         super().__post_init__()
 
     def __str__(self) -> str:
