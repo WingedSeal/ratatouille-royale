@@ -1,149 +1,343 @@
-from typing import Any, Callable
+from typing import Callable
 
-from ratroyale.backend.board import Board
-from ratroyale.backend.entity import Entity
 from ratroyale.backend.game_manager import GameManager
-from ratroyale.backend.hexagon import OddRCoord
-from ratroyale.backend.tile import Tile
+from ratroyale.backend.entities.rodent import Rodent
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.utils import EventQueue
+from ratroyale.event_tokens.payloads import (
+    SqueakPlacementPayload,
+    SqueakPayload,
+    GameSetupPayload,
+    PlayableTiles,
+    CrumbUpdatePayload,
+    EntityPayload,
+    AbilityActivationPayload,
+    EntityMovementPayload,
+    SkillTargetingPayload,
+    AbilityTargetPayload,
+    EntityDamagedPayload,
+    GameOverPayload,
+)
+from ratroyale.backend.game_event import (
+    GameEvent,
+    EntitySpawnEvent,
+    SqueakDrawnEvent,
+    EntityMoveEvent,
+    EntityDieEvent,
+    FeatureDieEvent,
+    EntityDamagedEvent,
+    EntityHealedEvent,
+    FeatureDamagedEvent,
+    EntityEffectUpdateEvent,
+    GameOverEvent,
+    EndTurnEvent,
+    SqueakPlacedEvent,
+    SqueakSetResetEvent,
+)
+from ratroyale.backend.ai.base_ai import BaseAI
+from ratroyale.backend.side import Side
+from ratroyale.backend.error import NotEnoughCrumbError
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
 class BackendAdapter:
     def __init__(
-        self, game_manager: GameManager, coordination_manager: CoordinationManager
+        self,
+        game_manager: GameManager,
+        coordination_manager: CoordinationManager,
+        ai_type: type[BaseAI],
     ) -> None:
         self.game_manager = game_manager
         self.coordination_manager = coordination_manager
-        self.event_to_action_map: dict[str, Callable[[GameManagerEvent[Any]], None]] = {
+        self.ai: BaseAI = ai_type(self.game_manager, Side.MOUSE)
+        self._ai_turn: bool = False
+        self.game_manager_response: dict[str, Callable[[GameManagerEvent], None]] = {
             "start_game": self.handle_game_start,
-            "entity_list": self.handle_entity_list,
-            "game_info": self.handle_game_info_page,
-            "inspect_deck": self.handle_inspect_deck_page,
-            "select_target_prompt": self.handle_select_target_prompt_page,
-            "tile_hover": self.handle_tile_hover,
+            "squeak_tile_interaction": self.handle_squeak_tile_interaction,
+            "get_squeak_placable_tiles": self.handle_squeak_placable_tiles,
+            "ability_activation": self.handle_ability_activation,
+            "resolve_movement": self.handle_resolve_movement,
             "end_turn": self.handle_end_turn,
-            "move_history": self.handle_move_history,
+            "target_selected": self.handle_target_selected,
+        }
+        self.game_manager_issued_events: dict[
+            type[GameEvent], Callable[[GameEvent], None]
+        ] = {
+            EntitySpawnEvent: self.handle_spawn_entity_event,
+            SqueakDrawnEvent: self.handle_squeak_drawn_event,
+            EntityMoveEvent: self.handle_entity_move_event,
+            EndTurnEvent: self.handle_end_turn_event,
+            SqueakPlacedEvent: self.handle_squeak_placed_event,
+            SqueakSetResetEvent: self.handle_squeak_set_reset_event,
+            EntityDieEvent: self.handle_entity_die_event,
+            FeatureDieEvent: self.handle_feature_die_event,
+            EntityDamagedEvent: self.handle_entity_damaged_event,
+            EntityHealedEvent: self.handle_entity_healed_event,
+            FeatureDamagedEvent: self.handle_feature_damaged_event,
+            EntityEffectUpdateEvent: self.handle_entity_effect_update_event,
+            GameOverEvent: self.handle_game_over_event,
         }
 
     def execute_backend_callback(self) -> None:
-        msg_queue: EventQueue[GameManagerEvent[Any]] | None = (
+        # Get the page -> backend queue
+        msg_queue_from_page: EventQueue[GameManagerEvent] | None = (
             self.coordination_manager.mailboxes.get(GameManagerEvent, None)
         )
-        if not msg_queue:
+        # Get the backend -> page queue
+        msg_queue_from_backend: EventQueue[GameEvent] = self.game_manager.event_queue
+
+        if msg_queue_from_page is None:
             return
 
-        while not msg_queue.empty():
-            msg = msg_queue.get()
-            handler = self.event_to_action_map.get(msg.game_action, None)
-            if handler:
-                handler(msg)
-            else:
-                print(f"No handler for event type {type(msg)}")
+        # Process all messages currently in both queues
+        while not msg_queue_from_page.empty() or not msg_queue_from_backend.empty():
+            # Process page -> backend messages
+            if not msg_queue_from_page.empty():
+                msg_from_page: GameManagerEvent = msg_queue_from_page.get()
+                page_handler = self.game_manager_response.get(msg_from_page.game_action)
+                if page_handler:
+                    page_handler(msg_from_page)
+                else:
+                    print(
+                        f"No handler for page event type: {msg_from_page.game_action}"
+                    )
 
-    def handle_game_start(self, event: GameManagerEvent[None]) -> None:
+            # Process backend -> page messages
+            if not msg_queue_from_backend.empty():
+                msg: GameEvent = msg_queue_from_backend.get()
+                handler = self.game_manager_issued_events.get(type(msg))
+                if handler:
+                    handler(msg)
+                else:
+                    print(f"No handler for backend event type: {type(msg)}")
+
+    def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
-        if board:
-            self.coordination_manager.put_message(
-                PageCallbackEvent[Board](callback_action="start_game", payload=board)
-            )
-        else:
-            self.coordination_manager.put_message(
-                PageCallbackEvent(
-                    callback_action="start_game",
-                    success=False,
-                    error_msg="Failed to start game: Board not initialized",
-                    payload=None,
-                )
-            )
-
-    def handle_entity_list(self, event: GameManagerEvent[None]) -> None:
-        board = self.game_manager.board
-        entity_list = board.cache.entities
-
+        # TODO: Which side is the player's side?
+        player_1_side = self.game_manager.first_turn
+        player_info = self.game_manager.players_info[player_1_side]
+        squeak_in_hand_list = player_info.get_squeak_set().get_deck_and_hand()[1]
+        print(f"{self.game_manager.crumbs=}")
         self.coordination_manager.put_message(
-            PageCallbackEvent[list[Entity]](
-                callback_action="entity_list", payload=entity_list
+            PageCallbackEvent(
+                callback_action="start_game",
+                payload=GameSetupPayload(
+                    board=board,
+                    hand_squeaks=squeak_in_hand_list,
+                    starting_crumbs=self.game_manager.crumbs,
+                    player_1_side=player_1_side,
+                ),
             )
         )
 
-    def handle_game_info_page(self, event: GameManagerEvent[int]) -> None: ...
+    def handle_squeak_tile_interaction(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        if payload:
+            assert isinstance(payload, SqueakPlacementPayload)
+            hand_index = payload.hand_index
+            coord = payload.tile_coord
 
-    def handle_inspect_deck_page(self, event: GameManagerEvent[int]) -> None:
-        deck = self.game_manager.decks
-        if deck is not None:
-            # hardcoded for now, should be per player
+            # Validate crumb on frontend by disabling unplayable cards.
+            self.game_manager.place_squeak(hand_index, coord)
             self.coordination_manager.put_message(
-                PageCallbackEvent[list[int]](
-                    callback_action="inspect_deck", payload=[1, 2, 3, 4, 5]
+                PageCallbackEvent(
+                    callback_action="crumb_update",
+                    payload=CrumbUpdatePayload(self.game_manager.crumbs),
                 )
             )
 
-    def handle_select_target_prompt_page(
-        self, event: GameManagerEvent[None]
-    ) -> None: ...
+    def handle_squeak_placable_tiles(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, SqueakPayload)
+        squeak = payload.squeak
 
-    def handle_tile_hover(self, event: GameManagerEvent[Tile]) -> None:
-        tile = event.payload
-        if tile is not None:
+        # Get placable tiles when the user clicks or drags a squeak card
+        placable_tiles = squeak.get_placable_tiles(self.game_manager)
+        if placable_tiles:
             self.coordination_manager.put_message(
-                PageCallbackEvent[Tile](
-                    callback_action="tile_hover",
-                    payload=tile,
+                PageCallbackEvent(
+                    callback_action="handle_squeak_placable_tiles",
+                    payload=PlayableTiles(placable_tiles),
                 )
             )
 
-    def handle_end_turn(self, event: GameManagerEvent[None]) -> None:
-        self.game_manager.end_turn()
+    def handle_ability_activation(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, AbilityActivationPayload)
+        entity = payload.entity
+        ability_index = payload.ability_index
 
-    def handle_move_history(self, event: GameManagerEvent[list[str]]) -> None: ...
+        assert isinstance(entity, Rodent)
 
-
-def get_name_from_entity(entity: Entity) -> str:
-    """Translate an Entity instance to a representative string name"""
-    return f"entity_{entity.name}_{entity.pos.x}_{entity.pos.y}"
-
-
-def get_name_from_tile(tile: Tile) -> str:
-    """Translate a Tile instance to a representative string name"""
-    return f"tile_{tile.coord.x}_{tile.coord.y}"
-
-
-def get_entity_from_name(board: Board, name: str) -> Entity | None:
-    """Translate a string name to an Entity instance. \n
-    Format: entity_{entity.name}_{entity.pos.x}_{entity.pos.y}"""
-    name_parts = name.split("_")
-    entity_name = name_parts[1]
-    pos_x = int(name_parts[-2])
-    pos_y = int(name_parts[-1])
-    coord = OddRCoord(pos_x, pos_y)
-
-    tile = board.get_tile(coord)
-    if tile is not None:
-        entities_here = tile.entities
-        for entity in entities_here:
-            if entity.name == entity_name and entity.pos == coord:
-                return entity
+        try:
+            # -1 for movement
+            if ability_index == -1:
+                coord_set = self.game_manager.board.get_reachable_coords(entity)
+                self.coordination_manager.put_message(
+                    PageCallbackEvent(
+                        callback_action="reachable_coords",
+                        payload=PlayableTiles(list(coord_set)),
+                    )
+                )
             else:
-                raise ValueError(f"Entity with name {name} not found on board.")
+                skill_result = self.game_manager.activate_skill(entity, ability_index)
+                # send back results and change game board state to selection & block irrelevant functions
+                self.coordination_manager.put_message(
+                    PageCallbackEvent(
+                        "skill_targeting",
+                        payload=SkillTargetingPayload(skill_result),
+                    )
+                )
+                self.coordination_manager.put_message(
+                    PageCallbackEvent(
+                        "crumb_update",
+                        payload=CrumbUpdatePayload(self.game_manager.crumbs),
+                    )
+                )
+        except NotEnoughCrumbError:
+            print("You don't have enough crumbs for this skill!")
 
-    return None
+    def handle_resolve_movement(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, EntityMovementPayload)
+        entity = payload.entity
+        coord = payload.path[0]
 
+        assert isinstance(entity, Rodent)
 
-def get_tile_from_name(board: Board, name: str) -> Tile:
-    """Translate a string name to an Tile instance. \n
-    Format: tile_{tile.coord.x}_{tile.coord.y}"""
-    name_parts = name.split("_")
-    pos_x = int(name_parts[-2])
-    pos_y = int(name_parts[-1])
-    coord = OddRCoord(pos_x, pos_y)
+        try:
+            self.game_manager.move_rodent(entity, coord)
+        except NotEnoughCrumbError:
+            print("You don't have enough crumbs for this skill!")
 
-    tile = board.get_tile(coord)
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="crumb_update",
+                payload=CrumbUpdatePayload(self.game_manager.crumbs),
+            )
+        )
 
-    if tile:
-        return tile
-    else:
-        raise ValueError(f"No tile found at {coord}")
+    def handle_end_turn(self, event: GameManagerEvent) -> None:
+        self.game_manager.end_turn()
+        self.ai.run_ai_and_update_game_manager()
+
+    def handle_target_selected(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, AbilityTargetPayload)
+        selected_coords = payload.selected_targets
+        result = self.game_manager.apply_skill_callback(selected_coords)
+        print(result)
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                "crumb_update",
+                payload=CrumbUpdatePayload(self.game_manager.crumbs),
+            )
+        )
+
+    # region Backend-produced messages
+
+    def handle_entity_move_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityMoveEvent)
+        entity = event.entity
+        path = event.path
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="move_entity",
+                payload=EntityMovementPayload(entity, path),
+            )
+        )
+
+    def handle_spawn_entity_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntitySpawnEvent)
+        entity = event.entity
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="spawn_entity",
+                payload=EntityPayload(entity),
+            )
+        )
+
+    def handle_squeak_drawn_event(self, event: GameEvent) -> None:
+        assert isinstance(event, SqueakDrawnEvent)
+        hand_index = event.hand_index
+        squeak = event.squeak
+        if not self.ai.is_ai_turn():
+            self.coordination_manager.put_message(
+                PageCallbackEvent(
+                    callback_action="squeak_drawn",
+                    payload=SqueakPayload(hand_index, squeak),
+                )
+            )
+
+    def handle_end_turn_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EndTurnEvent)
+        print(event.__str__())
+        self.coordination_manager.put_message(
+            PageCallbackEvent(callback_action="end_turn")
+        )
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="crumb_update",
+                payload=CrumbUpdatePayload(self.game_manager.crumbs),
+            )
+        )
+
+    def handle_squeak_placed_event(self, event: GameEvent) -> None:
+        assert isinstance(event, SqueakPlacedEvent)
+        print(event.__str__())
+
+    def handle_squeak_set_reset_event(self, event: GameEvent) -> None:
+        assert isinstance(event, SqueakSetResetEvent)
+        print(event.__str__())
+
+    def handle_entity_die_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityDieEvent)
+        print(event.__str__())
+        CoordinationManager.put_message(
+            PageCallbackEvent("entity_died", payload=EntityPayload(event.entity))
+        )
+
+    def handle_feature_die_event(self, event: GameEvent) -> None:
+        assert isinstance(event, FeatureDieEvent)
+        print(event.__str__())
+
+    def handle_entity_damaged_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityDamagedEvent)
+        print(event.__str__())
+        CoordinationManager.put_message(
+            PageCallbackEvent(
+                "entity_damaged",
+                payload=EntityDamagedPayload(
+                    entity=event.entity,
+                    damage=event.damage,
+                    hp_loss=event.hp_loss,
+                    source=event.source,
+                ),
+            )
+        )
+
+    def handle_entity_healed_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityHealedEvent)
+        print(event.__str__())
+
+    def handle_feature_damaged_event(self, event: GameEvent) -> None:
+        assert isinstance(event, FeatureDamagedEvent)
+        print(event.__str__())
+
+    def handle_entity_effect_update_event(self, event: GameEvent) -> None:
+        assert isinstance(event, EntityEffectUpdateEvent)
+        print(event.__str__())
+
+    def handle_game_over_event(self, event: GameEvent) -> None:
+        assert isinstance(event, GameOverEvent)
+        print(event.__str__())
+        CoordinationManager.put_message(
+            PageCallbackEvent(
+                "game_over",
+                payload=GameOverPayload(
+                    event.is_winner_from_first_turn_side, event.victory_side
+                ),
+            )
+        )

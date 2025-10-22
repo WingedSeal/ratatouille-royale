@@ -131,7 +131,7 @@ class GestureReader:
         """
         self.start_pos = pos
         self.last_pos = pos
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
         self.state = GestureState.STATE_PRESSED
 
         # Reset drag tracking
@@ -141,6 +141,14 @@ class GestureReader:
         self, pos: tuple[int, int], raw_event: pygame.event.Event
     ) -> None:
         """Handle pointer motion and generate drag gestures if threshold exceeded."""
+
+        # Always emit hover before any other motion logic
+        duration = time.perf_counter() - self.start_time if self.start_time else 0.0
+        self.on_hover(
+            pos=pos,
+            duration=duration,
+            raw_event=raw_event,
+        )
 
         if self.start_pos is None:
             return
@@ -173,7 +181,7 @@ class GestureReader:
                 dy=dy_frame,
                 current_pos=pos,
                 start_pos=self.start_pos,
-                duration=time.time() - self.start_time if self.start_time else 0.0,
+                duration=duration,
                 raw_event=raw_event,
             )
 
@@ -185,7 +193,7 @@ class GestureReader:
         if self.start_time is None or self.start_pos is None:
             return
 
-        elapsed_time = time.time() - self.start_time
+        elapsed_time = time.perf_counter() - self.start_time
         dx = pos[0] - self.start_pos[0]
         dy = pos[1] - self.start_pos[1]
         distance_total = (dx**2 + dy**2) ** 0.5
@@ -209,7 +217,7 @@ class GestureReader:
 
         # --- CLICK / N-CLICK detection ---
         if self.state == GestureState.STATE_PRESSED:
-            current_time = time.time()
+            current_time = time.perf_counter()
 
             # Check if this is within double/triple click thresholds
             if (
@@ -255,7 +263,7 @@ class GestureReader:
             and self.start_pos is not None
             and self.last_pos is not None
         ):
-            elapsed = time.time() - self.start_time
+            elapsed = time.perf_counter() - self.start_time
             dx = self.last_pos[0] - self.start_pos[0]
             dy = self.last_pos[1] - self.start_pos[1]
             distance = (dx**2 + dy**2) ** 0.5
@@ -275,7 +283,9 @@ class GestureReader:
         # Fire the external DRAG_START gesture
         if self.last_pos is not None:
             duration = (
-                time.time() - self.start_time if self.start_time is not None else 0.0
+                time.perf_counter() - self.start_time
+                if self.start_time is not None
+                else 0.0
             )
             self.on_drag_start(
                 current_pos=self.last_pos,

@@ -69,14 +69,12 @@ class InspectDeckPage(Page):
         return gui_elements
 
     @callback_event_bind("inspect_deck")
-    def show_deck(self, msg: PageCallbackEvent[list[int]]) -> None:
+    def show_deck(self, msg: PageCallbackEvent) -> None:
         deck = msg.payload
-        deck_panel = self._element_manager.get_element_wrapper(
-            "inspect_deck_panel", "UI_ELEMENT"
-        )
+        deck_panel = self._element_manager.get_element("inspect_deck_panel")
         deck_panel_object = deck_panel.get_interactable(pygame_gui.elements.UIPanel)
         assert deck is not None
-        for card_index, card_id in enumerate(deck):
+        for card_index, card_id in enumerate(deck):  # type: ignore
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(
                     10 + card_index * 60, 10 + (card_index // 6) * 80, 50, 70

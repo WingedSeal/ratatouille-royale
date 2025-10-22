@@ -128,9 +128,7 @@ class GameInfoPage(Page):
         return gui_elements
 
     def on_open(self) -> None:
-        show_crumbs_button = self._element_manager.get_element_wrapper(
-            "show_crumbs_button", "UI_ELEMENT"
-        )
+        show_crumbs_button = self._element_manager.get_element("show_crumbs_button")
         show_crumbs_button.get_interactable(pygame_gui.elements.UIButton).set_text(
             f"Crumbs: {self.crumbs}"
         )
@@ -152,16 +150,16 @@ class GameInfoPage(Page):
         )
 
     @callback_event_bind("tile_hover")
-    def on_tile_hover(self, msg: PageCallbackEvent[ElementWrapper]) -> None:
+    def on_tile_hover(self, msg: PageCallbackEvent) -> None:
         received_element = msg.payload
         if received_element is None or not isinstance(received_element, ElementWrapper):
             return
 
-        tile_hover_data_panel = self._element_manager.get_element_wrapper(
-            "tile_hover_data_panel", "UI_ELEMENT"
+        tile_hover_data_panel = self._element_manager.get_element(
+            "tile_hover_data_panel"
         )
-        entity_hover_data_panel = self._element_manager.get_element_wrapper(
-            "entity_hover_data_panel", "UI_ELEMENT"
+        entity_hover_data_panel = self._element_manager.get_element(
+            "entity_hover_data_panel"
         )
 
         tile_hover_data_panel_object = tile_hover_data_panel.get_interactable(
@@ -209,10 +207,8 @@ class GameInfoPage(Page):
                 )
 
     @callback_event_bind("move_history")
-    def _move_history(self, msg: PageCallbackEvent[list[str]]) -> None:
-        move_history_panel = self._element_manager.get_element_wrapper(
-            "move_history_panel", "UI_ELEMENT"
-        )
+    def _move_history(self, msg: PageCallbackEvent) -> None:
+        move_history_panel = self._element_manager.get_element("move_history_panel")
         move_history_panel_object = move_history_panel.get_interactable(
             pygame_gui.elements.UIPanel
         )
