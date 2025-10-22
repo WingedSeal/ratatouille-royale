@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
+
 from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
 from .instant_kill import InstantKill
@@ -14,6 +15,7 @@ from .tags import EntityTag, SkillTag
 if TYPE_CHECKING:
     from .game_manager import GameManager
     from .feature import Feature
+    from .board import Board
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -104,6 +106,12 @@ class Entity:
         damage: int | InstantKill,
         source: SourceOfDamageOrHeal,
     ) -> int | None:
+        pass
+
+    def on_summon(self, game_manager: "GameManager") -> None:
+        pass
+
+    def on_spawn(self, board: "Board") -> None:
         pass
 
     def on_hp_loss(

@@ -1,13 +1,14 @@
 from typing import TYPE_CHECKING
 
-from ratroyale.backend.entities.rodents.common_skills import SelectTarget, TargetAction
-
+from ...side import Side
+from .common_skills import SelectTarget, TargetAction
 from ...entity import EntitySkill, SkillTargeting, entity_skill_check
 from ...tags import RodentClassTag
 from ..rodent import Rodent, rodent_data
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
+    from ...board import Board
 
 
 @rodent_data(
@@ -38,6 +39,22 @@ if TYPE_CHECKING:
     ],
 )
 class Tailblazer(Rodent):
+    on_speed: bool = False
+
+    def on_spawn(self, board: "Board") -> None:
+        if not any(
+            isinstance(entity, Rodent) for entity in board.cache.sides[self.side]
+        ):
+            self.on_speed = True
+            self.speed += 2
+
+    def on_turn_change(self, game_manager: "GameManager", turn_change_to: Side) -> None:
+        if self.on_speed and any(
+            isinstance(entity, Rodent)
+            for entity in game_manager.board.cache.sides[self.side]
+        ):
+            self.speed -= 2
+
     @entity_skill_check
     def stab(self, game_manager: "GameManager") -> SkillTargeting:
         return (
@@ -62,4 +79,12 @@ class Tailblazer(Rodent):
         return [
             f"Stab an enemy with a toothpick dealing {self.attack + 1}(ATK+1) damage.",
             f"Throw a toothpick at an enemy dealing {self.attack}(ATK) damage.",
+        ]
+
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return [
+            (
+                "Pioneer",
+                "When placed, if there's no other ally rodents on the field, gain +2 speed until the turn after there's one.",
+            )
         ]

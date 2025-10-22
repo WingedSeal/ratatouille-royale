@@ -71,5 +71,5 @@ def summon(
     if tile is None:
         raise ValueError("Trying to summon rodent on None tile")
     entity = rodent_type(coord, game_manager.turn)
-    game_manager.board.add_entity(entity)
+    game_manager.board.add_entity(entity, game_manager)
     return entity

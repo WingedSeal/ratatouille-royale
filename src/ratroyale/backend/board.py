@@ -1,8 +1,6 @@
 from collections import defaultdict
 from copy import deepcopy
-from typing import Iterable, Iterator
-
-from ratroyale.backend.entities.rodents.specialist import TheOne
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from ..utils import EventQueue, is_ellipsis_body
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
@@ -17,6 +15,10 @@ from .map import Map
 from .side import Side
 from .tile import Tile
 from .timer import Timer
+
+if TYPE_CHECKING:
+    from .entities.rodents.specialist import TheOne
+    from .game_manager import GameManager
 
 
 class Cache:
@@ -70,7 +72,9 @@ class Board:
         for entity in map.entities:
             self.add_entity(entity)
 
-    def add_entity(self, entity: Entity) -> None:
+    def add_entity(
+        self, entity: Entity, game_manager: "GameManager | None" = None
+    ) -> None:
         self.cache.entities.append(entity)
         self.cache.sides[entity.side].append(entity)
         if entity.health is not None:
@@ -92,6 +96,9 @@ class Board:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.append(entity)
+        if game_manager is not None:
+            entity.on_summon(game_manager)
+        entity.on_spawn(self)
         self.event_queue.put_nowait(EntitySpawnEvent(entity))
 
     def remove_entity(self, entity: Entity) -> None:
