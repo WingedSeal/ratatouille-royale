@@ -34,6 +34,7 @@ class Cache:
         self.effects: list[EntityEffect] = []
         self.timers: list[Timer] = []
         self.entities_with_turn_change: list[Entity] = []
+        self.entities_in_features: dict[Entity, list[Feature]] = defaultdict(list)
         self.entities_with_on_enemy_move: dict[Side, list[Entity]] = defaultdict(list)
         self.entities_with_on_ally_move: dict[Side, list[Entity]] = defaultdict(list)
         self.the_ones: dict[Side, TheOne | None] = defaultdict(lambda: None)
@@ -97,6 +98,8 @@ class Board:
         """Remove entity from cache"""
         self.cache.entities.remove(entity)
         self.cache.sides[entity.side].remove(entity)
+        if entity in self.cache.entities_in_features:
+            del self.cache.entities_in_features[entity]
         if entity.health is not None:
             self.cache.entities_with_hp.remove(entity)
             self.cache.sides_with_hp[entity.side].remove(entity)
@@ -110,6 +113,12 @@ class Board:
         if not is_ellipsis_body(entity.on_enemy_move):
             assert entity.side is not None
             self.cache.entities_with_on_enemy_move[entity.side].remove(entity)
+        for timer in self.cache.timers:
+            if timer.entity is entity:
+                self.cache.timers.remove(timer)
+        for effect in self.cache.effects:
+            if effect.entity is entity:
+                self.cache.effects.remove(effect)
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
@@ -119,7 +128,12 @@ class Board:
         return self.tiles[coord.y][coord.x]
 
     def is_coord_blocked(
-        self, entity: Entity | type[Entity], custom_jump_height: int | None = None
+        self, entity: Entity, custom_jump_height: int | None = None
+    ) -> IsCoordBlocked:
+        return self._is_coord_blocked(entity.collision, entity.side, custom_jump_height)
+
+    def _is_coord_blocked(
+        self, collision: bool, side: Side | None, custom_jump_height: int | None = None
     ) -> IsCoordBlocked:
         if custom_jump_height is None:
             custom_jump_height = ENTITY_JUMP_HEIGHT
@@ -128,9 +142,7 @@ class Board:
             target_tile = self.get_tile(target_coord)
             if target_tile is None:
                 return True
-            if entity.collision and any(
-                _entity.collision for _entity in target_tile.entities
-            ):
+            if collision and any(_entity.collision for _entity in target_tile.entities):
                 return True
             if any(feature.is_collision() for feature in target_tile.features):
                 return True
@@ -138,8 +150,8 @@ class Board:
             if previous_tile is None:
                 return True
             return (
-                target_tile.get_total_height(entity.side)
-                - previous_tile.get_total_height(entity.side)
+                target_tile.get_total_height(side)
+                - previous_tile.get_total_height(side)
                 > custom_jump_height
             )
 
@@ -193,13 +205,14 @@ class Board:
         end_tile.entities.append(entity)
         start_tile.entities.remove(entity)
         entity.pos = path[-1]
+
         return True
 
     def get_reachable_coords(
         self, rodent: Rodent, *, is_include_self: bool = False
     ) -> set[OddRCoord]:
         """
-        Get every coords a rodent can reach within its movement limit
+        Get every coords a rodent can reach within its movement limit. Terrain and collision is taken into account.
 
         :param rodent: The rodent
         :param is_include_self: Whether to include the coord of rodent itself in the result

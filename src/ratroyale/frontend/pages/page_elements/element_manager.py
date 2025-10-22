@@ -1,16 +1,11 @@
-from typing import TypeVar
+from .element import ElementWrapper
+from ratroyale.frontend.gesture.gesture_data import GestureData
+from ratroyale.coordination_manager import CoordinationManager
+from .spatial_component import Camera
+from .element_group import ElementGroup
 
 from pygame import Surface
 from pygame_gui import UIManager
-
-from ratroyale.coordination_manager import CoordinationManager
-from ratroyale.frontend.gesture.gesture_data import GestureData
-
-from .element import ElementWrapper
-from .element_builder import ParentIdentity
-from .spatial_component import Camera
-
-T = TypeVar("T")
 
 
 class ElementManager:
@@ -27,10 +22,11 @@ class ElementManager:
     ) -> None:
         self.ui_manager = ui_manager
         self.coordination_manager = coordination_manager
-        self._element_collections: dict[str, dict[str, ElementWrapper]] = (
-            {}
-        )  # {element_type -> {element_id: element_obj}}
-        self._flattened_collection: list[ElementWrapper] = []
+        self.master_group: ElementGroup = ElementGroup(
+            group_name="_MASTER", max_selectable=None
+        )
+        self.element_groups: dict[str, ElementGroup] = {}
+        self.element_to_group_mapping: dict[ElementWrapper, str] = {}
 
         self._is_processing_input: bool = True
         self._camera: Camera = camera
@@ -40,141 +36,176 @@ class ElementManager:
     def set_processing_status(self, is_processing_input: bool) -> None:
         self._is_processing_input = is_processing_input
 
-    def create_collection(self, element_type: str) -> dict[str, ElementWrapper]:
-        """Initializes a new collection for the given element type."""
-        if element_type not in self._element_collections:
-            self._element_collections[element_type] = {}
-        return self._element_collections[element_type]
+    def create_group(self, group_name: str) -> ElementGroup:
+        """Initializes a new group for the given element type."""
+        if group_name not in self.element_groups:
+            self.element_groups[group_name] = ElementGroup(group_name)
+        return self.element_groups[group_name]
 
-    def get_collection(self, element_type: str) -> dict[str, ElementWrapper]:
+    def get_group(self, group_name: str) -> ElementGroup:
         """Retrieves the collection for the given element type, creating it if necessary."""
-        if element_type not in self._element_collections:
-            raise KeyError(f'"{element_type}" collection does not exist.')
-        return self._element_collections[element_type]
+        if group_name not in self.element_groups:
+            self.create_group(group_name)
+        return self.element_groups[group_name]
 
-    def add_element(
-        self,
-        element: ElementWrapper,
-        parent_identity: ParentIdentity | None = None,
-    ) -> None:
-        """Adds an element to the specified collection, respecting parent-children relationships, and updates the flattened list."""
-        try:
-            collection = self.get_collection(element.grouping_name)
-        except KeyError:
-            collection = self.create_collection(element.grouping_name)
+    def add_element(self, element: ElementWrapper) -> None:
+        """Adds an element to the master group and its specific group, respecting parent-children relationships."""
+        self.master_group.add_element(element)
 
-        if element.registered_name in collection:
-            raise ValueError(
-                f"Element with name '{element.registered_name}' already exists in collection '{element.grouping_name}'"
-            )
-        collection[element.registered_name] = element
-        print(
-            f"Added element with name '{element.registered_name}' in collection '{element.grouping_name}'"
-        )
+        group = self.get_group(element.grouping_name)
+        group.add_element(element)
+        self.element_to_group_mapping[element] = element.grouping_name
 
-        if parent_identity:
-            parent_id = parent_identity.parent_registered_name
-            parent_type = parent_identity.parent_grouping_name
-
-            parent_collection = self.get_collection(
-                parent_type if parent_type else element.grouping_name
-            )
-            if parent_id in parent_collection:
-                parent: ElementWrapper = parent_collection[parent_id]
-                parent.add_child(element)
-            else:
-                raise ValueError(
-                    f"Parent with id '{parent_id}' not found in collection '{parent_type}'"
+        # Handle parent-child relationship
+        if element.parent_element:
+            parent_name = element.parent_element
+            try:
+                parent_element = self.master_group.get_element(parent_name)
+                parent_element.add_child(element)
+            except KeyError:
+                print(
+                    f"Warning: parent element '{parent_name}' not found for '{element.registered_name}'"
                 )
-        self._flattened_collection.append(element)
-        self._sort_flattened_by_z_order()
 
-    def remove_element(self, element_type: str, key: str) -> None:
-        """Removes an element and all its children from the collection and flattened list."""
-        collection = self.get_collection(element_type)
-        if key not in collection:
-            return
-
-        element: ElementWrapper = collection[key]
-
-        # Remove from parent's children list if applicable
-        if element.parent is not None:
-            element.parent.children.remove(element)
-            element.parent = None
-
-        # Remove the element itself
-        element.destroy()
-        if element in self._flattened_collection:
-            self._flattened_collection.remove(element)
-        collection.pop(key)
-
-        self._sort_flattened_by_z_order()
-
-    def get_element_wrapper(
-        self, registered_name: str, grouping_name: str
+    def remove_element(
+        self, registered_name: str, grouping_name: str | None = None
     ) -> ElementWrapper:
-        group = self.get_collection(grouping_name)
-        element = group[registered_name]
-        if not element:
-            raise KeyError("Element with the given registered name does not exist.")
+        """Removes an element and all its children from the master group and its group(s)."""
+        removed_elem = self.master_group.remove_element(registered_name)
+
+        # Determine group to remove from
+        group = self.get_group(
+            grouping_name if grouping_name else removed_elem.grouping_name
+        )
+        try:
+            group.remove_element(registered_name)
+        except KeyError:
+            print(
+                f"Warning: element '{registered_name}' not found in group '{group.group_name}'"
+            )
+
+        # Remove from parent's children list safely
+        if removed_elem.parent and removed_elem in removed_elem.parent.children:
+            removed_elem.parent.children.remove(removed_elem)
+            removed_elem.parent = None
+
+        # Recursively remove children
+        for child in removed_elem.children.copy():
+            self.remove_element(child.registered_name, child.grouping_name)
+
+        # Clear the removed element's children list
+        removed_elem.children.clear()
+
+        return removed_elem
+
+    def get_element(
+        self, registered_name: str, grouping_name: str | None = None
+    ) -> ElementWrapper:
+        # If grouping name is not provided, it tries to look up in the master group.
+        if not grouping_name:
+            element = self.master_group.get_element(registered_name)
+        else:
+            group = self.get_group(grouping_name)
+            element = group.get_element(registered_name)
         return element
 
     def clear_group_by_name(self, grouping_name: str) -> None:
         """Clears all elements from the specified collection.
         Also clears corresponding elements from the flattened list."""
-        group = self.get_collection(grouping_name)
-        for element in group.values():
-            if grouping_name in self._element_collections:
-                self._flattened_collection.remove(element)
-            group.clear()
-            self._sort_flattened_by_z_order()
+        group = self.get_group(grouping_name)
+        all_keys = group.clear()
+
+        for keys in all_keys:
+            self.master_group.remove_element(keys)
 
     def clear_all(self) -> None:
         """Clears all collections and the flattened list."""
-        self._element_collections.clear()
-        self._flattened_collection.clear()
+        for group in self.element_groups.values():
+            group.clear()
+        self.element_groups.clear()
+        self.master_group.clear()
 
-    def get_all_elements(self) -> dict[str, dict[str, ElementWrapper]]:
-        return self._element_collections
+    def get_all_elements(self) -> list[ElementWrapper]:
+        return self.master_group.flattened_elements_list
 
-    def get_flattened_elements(self) -> list[ElementWrapper]:
-        return self._flattened_collection
+    def get_group_without_grouping_name(
+        self, registered_name: str, grouping_name: str | None
+    ) -> ElementGroup:
+        if not grouping_name:
+            element = self.get_element(registered_name, grouping_name)
+            group = self.get_group(element.grouping_name)
+        else:
+            group = self.get_group(grouping_name)
+        return group
 
-    def _sort_flattened_by_z_order(self) -> None:
-        self._flattened_collection.sort(
-            key=lambda x: x.spatial_component.z_order, reverse=True
-        )
+    def toggle_element(
+        self,
+        registered_name: str,
+        grouping_name: str | None = None,
+        override_policy: bool = False,
+    ) -> None:
+        group = self.get_group_without_grouping_name(registered_name, grouping_name)
+        group.toggle_element(registered_name, override_policy)
+
+    def select_element(
+        self, registered_name: str, grouping_name: str | None = None
+    ) -> bool:
+        group = self.get_group_without_grouping_name(registered_name, grouping_name)
+        return group.select(registered_name)
+
+    def deselect_element(
+        self, registered_name: str, grouping_name: str | None = None
+    ) -> bool:
+        group = self.get_group_without_grouping_name(registered_name, grouping_name)
+        return group.deselect(registered_name)
+
+    def highlight_element(
+        self, registered_name: str, grouping_name: str | None = None
+    ) -> bool:
+        group = self.get_group_without_grouping_name(registered_name, grouping_name)
+        return group.highlight(registered_name)
+
+    def unhighlight_element(
+        self, registered_name: str, grouping_name: str | None = None
+    ) -> bool:
+        group = self.get_group_without_grouping_name(registered_name, grouping_name)
+        return group.unhighlight(registered_name)
+
+    def unhighlight_all(self, grouping_name: str) -> None:
+        group = self.get_group(grouping_name)
+        group.unhighlight_all()
+
+    def deselect_all(self, grouping_name: str) -> None:
+        group = self.get_group(grouping_name)
+        group.deselect_all()
+
+    def get_selected_elements(
+        self, grouping_name: str
+    ) -> tuple[list[str], list[ElementWrapper]]:
+        group = self.get_group(grouping_name)
+        return group.get_selected_elements()
+
+    def set_max_highlightable(self, group_name: str, amount: int | None) -> None:
+        group = self.get_group(group_name)
+        group.max_highlightable = amount
+
+    def set_max_selectable(self, group_name: str, amount: int | None) -> None:
+        group = self.get_group(group_name)
+        group.max_selectable = amount
 
     # endregion
 
     # region Rendering
 
     def update_all(self, time_delta: float) -> None:
-        for element in reversed(self._flattened_collection):
+        for element in reversed(self.get_all_elements()):
             if element.visual_component:
                 element.visual_component.animate(time_delta)
 
     def render_all(self, surface: Surface) -> None:
         """Default rendering: renders all elements in z-order."""
-        for element in reversed(self._flattened_collection):
+        for element in reversed(self.get_all_elements()):
             element.render(surface)
-
-    def render_collection(self, surface: Surface, element_type: str) -> None:
-        """Render only elements of a specific type."""
-        collection = self._element_collections.get(element_type, {})
-        for element in sorted(
-            collection.values(), key=lambda x: x.spatial_component.z_order, reverse=True
-        ):
-            element.render(surface)
-
-    def render_elements(
-        self, surface: Surface, keys: list[str], element_type: str
-    ) -> None:
-        """Render specific elements by key."""
-        collection = self._element_collections.get(element_type, {})
-        for key in keys:
-            if key in collection:
-                collection[key].render(surface)
 
     # endregion
 
@@ -191,13 +222,11 @@ class ElementManager:
         for gesture in gestures:
             consumed = False
 
-            for element in self._flattened_collection:
+            for element in self.get_all_elements():
                 if not element.interactable_component:
                     continue
 
-                if element.handle_gesture(
-                    gesture, self._is_processing_input, self._camera
-                ):
+                if element.handle_gesture(gesture, self._is_processing_input):
                     consumed = True
                     break
 

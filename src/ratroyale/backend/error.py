@@ -10,6 +10,10 @@ class NotEnoughCrumbError(RatRoyaleBackendError):
     pass
 
 
+class NotEnoughCheeseError(RatRoyaleBackendError):
+    pass
+
+
 class NotEnoughSkillStaminaError(RatRoyaleBackendError):
     pass
 
@@ -51,4 +55,8 @@ class GameManagerSkillCallBackInNonSelectingMode(RatRoyaleBackendError):
 
 
 class AICantPathfind(RatRoyaleBackendError):
+    pass
+
+
+class InvalidDeckError(RatRoyaleBackendError):
     pass

@@ -14,7 +14,7 @@ class CachedSpritesheet:
 
     spritesheet_key: str
     sprite_size: tuple[int, int]
-    animation_list: dict[str, list[int]]  # e.g. {"IDLE": [0,1,2,3]}
+    animation_list: dict[str, list[int]]
     """The animation list maps a set of frames (absolute index) to an animation name. e.g. {"IDLE": [0,1,2,3]}"""
     frame_rate: float
     scale: tuple[float, float] = (1.0, 1.0)

@@ -1,15 +1,18 @@
-from typing import TypeVar
-
 import pygame
-from pygame_gui.core import UIElement
 
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
-from ratroyale.event_tokens.payloads import Payload
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
-
+from typing import TypeVar
+from pygame_gui.core import UIElement
+from ratroyale.event_tokens.payloads import Payload
+from .spatial_component import SpatialComponent, Camera
 from .hitbox import Hitbox
-from .spatial_component import Camera, SpatialComponent
+from ratroyale.frontend.visual.anim.core.anim_structure import (
+    AnimEvent,
+    SequentialAnim,
+    GroupedAnim,
+)
 
 T = TypeVar("T")
 
@@ -33,6 +36,7 @@ class ElementWrapper:
         visual_component: VisualComponent | None = None,
         payload: Payload | None = None,
         is_blocking: bool = True,
+        parent_element: str | None = None,
     ) -> None:
         # Identification info
         self.registered_name: str = registered_name
@@ -42,6 +46,7 @@ class ElementWrapper:
         self.spatial_component: SpatialComponent = spatial_component
 
         # Hierachical info
+        self.parent_element: str | None = parent_element
         self.parent: ElementWrapper | None = None
         self.children: list[ElementWrapper] = []
 
@@ -49,6 +54,7 @@ class ElementWrapper:
         self.interactable_component: UIElement | Hitbox | None = interactable_component
         self.payload: Payload | None = payload
         self.is_blocking: bool = is_blocking
+        self.is_interactable: bool = True
 
         # Visual info
         self.visual_component: VisualComponent | None = visual_component
@@ -73,48 +79,43 @@ class ElementWrapper:
         else:
             return self.interactable_component
 
-    def handle_gesture(
-        self, gesture: GestureData, is_processing_input: bool, camera: Camera
-    ) -> bool:
+    def get_payload(self, cls: type[T]) -> T:
+        if not self.payload:
+            raise AttributeError("This element wrapper does not have a payload.")
+        if not isinstance(self.payload, cls):
+            raise TypeError(
+                f"The type provided {cls.__name__} was incorrect. The actual type was {type(self.payload).__name__}"
+            )
+        else:
+            return self.payload
+
+    def handle_gesture(self, gesture: GestureData, is_processing_input: bool) -> bool:
         if not isinstance(self.interactable_component, Hitbox):
             return False
 
-        # Else, for our custom hitbox.
-        else:
-            # For elements which cannot be interacted with (e.g. particles)
-            if not is_processing_input:
-                return False
+        if not is_processing_input:
+            return False
 
-            pos = gesture.mouse_pos
-            if pos is None or not self.interactable_component.contains_point(pos):
-                return False
+        if not self.is_interactable:
+            return self.is_blocking
 
-            post_gesture_event(
-                InputManagerEvent(
-                    element_id=self.registered_name,
-                    gesture_data=gesture,
-                    payload=self.payload,
-                )
+        pos = gesture.mouse_pos
+        if pos is None or not self.interactable_component.contains_point(pos):
+            return False
+
+        post_gesture_event(
+            InputManagerEvent(
+                element_id=self.registered_name,
+                gesture_data=gesture,
+                payload=self.payload,
             )
-            return True
+        )
+
+        return self.is_blocking
 
     def destroy(self) -> None:
         if isinstance(self.interactable_component, UIElement):
             self.interactable_component.kill()  # type: ignore
-
-    def set_position(self, topleft: tuple[float, float]) -> None:
-        """Move this interactable and reposition all children accordingly."""
-        self.spatial_component.set_position(topleft)
-
-        for child in self.children:
-            self._align_child(child)
-
-    def _align_child(self, child: "ElementWrapper") -> None:
-        parent_x = self.spatial_component.local_rect.x
-        parent_y = self.spatial_component.local_rect.y
-        child_x = parent_x + child.spatial_component.local_rect.x
-        child_y = parent_y + child.spatial_component.local_rect.y
-        child.spatial_component.set_position((child_x, child_y))
 
     def add_child(self, child: "ElementWrapper") -> None:
         if child in self.children:
@@ -124,7 +125,6 @@ class ElementWrapper:
 
         self.children.append(child)
         child.parent = self
-        self._align_child(child)
 
     def remove_child(self, child: "ElementWrapper") -> None:
         if child not in self.children:
@@ -134,13 +134,47 @@ class ElementWrapper:
         self.children.remove(child)
         child.parent = None
 
+    # TODO: somethings wrong here
+    def _set_absolute_rect(self) -> pygame.Rect | pygame.FRect:
+        my_rect = self.spatial_component.get_screen_rect(self.camera).copy()
+
+        if self.parent:
+            parent_rect = self.parent.spatial_component.get_rect()
+            my_rect.x += parent_rect.x
+            my_rect.y += parent_rect.y
+
+        return my_rect
+
     def render(self, surface: pygame.Surface) -> None:
+        abs_rect = self._set_absolute_rect()
         if self.visual_component:
             self.visual_component.render(
                 self.interactable_component,
-                self.spatial_component,
+                abs_rect,
                 surface,
-                self.camera,
+            )
+
+        # DRAW RECT DEBUG
+        # pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
+
+    def queue_override_animation(
+        self, anim_event: AnimEvent | SequentialAnim | GroupedAnim
+    ) -> None:
+        if self.visual_component:
+            self.visual_component.queue_override_animation(anim_event)
+        else:
+            raise AttributeError(
+                "This element wrapper does not have a visual component."
+            )
+
+    def set_default_animation(
+        self, anim_event: AnimEvent | SequentialAnim | GroupedAnim
+    ) -> None:
+        if self.visual_component:
+            self.visual_component.set_default_animation(anim_event)
+        else:
+            raise AttributeError(
+                "This element wrapper does not have a visual component."
             )
 
     # --- Debug Utility ---
@@ -156,6 +190,24 @@ class ElementWrapper:
         self.interactable_component.draw(surface, color)
         for child in self.children:
             child.draw_hitbox(surface, color)
+
+    def on_select(self) -> bool:
+        return False
+
+    def on_deselect(self) -> bool:
+        return False
+
+    def on_highlight(self) -> bool:
+        return False
+
+    def on_unhighlight(self) -> bool:
+        return False
+
+    def get_registered_name(self) -> str:
+        return self.registered_name
+
+    def get_grouping_name(self) -> str:
+        return self.grouping_name
 
 
 def ui_element_wrapper(
