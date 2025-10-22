@@ -56,11 +56,11 @@ class TileMaskElement(ElementWrapper):
         return pygame.Rect((pixel_x, pixel_y, width, height))
 
     def on_select(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
+        visual_component = self.visual_component
+        if visual_component and visual_component.spritesheet_component:
+            visual_component.queue_override_animation(
                 on_select_color_fade_in(
-                    vis.spritesheet_component,
+                    visual_component.spritesheet_component,
                     color=self.mask_color,
                 )
             )
@@ -68,11 +68,11 @@ class TileMaskElement(ElementWrapper):
         return True
 
     def on_deselect(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
+        visual_component = self.visual_component
+        if visual_component and visual_component.spritesheet_component:
+            visual_component.queue_override_animation(
                 on_select_color_fade_out(
-                    vis.spritesheet_component,
+                    visual_component.spritesheet_component,
                     color=self.mask_color,
                 )
             )

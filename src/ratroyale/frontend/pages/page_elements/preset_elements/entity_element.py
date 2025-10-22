@@ -150,8 +150,8 @@ class EntityElement(ElementWrapper):
         Queue movement animations for an entity along a sequence of positions,
         moving from each position to the next.
         """
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
+        visual_component = self.visual_component
+        if visual_component and visual_component.spritesheet_component:
 
             for pos in pos_sequence:
                 anim = move_entity(
@@ -159,26 +159,28 @@ class EntityElement(ElementWrapper):
                     spatial=self.spatial_component,
                     camera=self.camera,
                 )
-                vis.queue_override_animation(anim)
+                visual_component.queue_override_animation(anim)
 
         return True
 
     def on_hurt(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            anim = entity_hurt(vis.spritesheet_component, pygame.Color(255, 0, 0))
-            vis.queue_override_animation(anim)
+        visual_component = self.visual_component
+        if visual_component and visual_component.spritesheet_component:
+            anim = entity_hurt(
+                visual_component.spritesheet_component, pygame.Color(255, 0, 0)
+            )
+            visual_component.queue_override_animation(anim)
 
         self.update_health()
 
         return True
 
     def on_select(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
+        visual_component = self.visual_component
+        if visual_component and visual_component.spritesheet_component:
+            visual_component.queue_override_animation(
                 on_select_color_fade_in(
-                    vis.spritesheet_component,
+                    visual_component.spritesheet_component,
                     color=pygame.Color(200, 200, 0),
                 )
             )
@@ -186,11 +188,11 @@ class EntityElement(ElementWrapper):
         return True
 
     def on_deselect(self) -> bool:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
+        visual_component = self.visual_component
+        if visual_component and visual_component.spritesheet_component:
+            visual_component.queue_override_animation(
                 on_select_color_fade_out(
-                    vis.spritesheet_component,
+                    visual_component.spritesheet_component,
                     color=pygame.Color(200, 200, 0),
                 )
             )
@@ -202,6 +204,6 @@ class EntityElement(ElementWrapper):
             "HP: " + str(self.entity.health), False, pygame.Color(255, 255, 255)
         )
         hp_element = self.children[0]
-        vis = hp_element.visual_component
-        if vis and vis.spritesheet_component:
-            vis.spritesheet_component.spritesheet_reference = hp_text
+        visual_component = hp_element.visual_component
+        if visual_component and visual_component.spritesheet_component:
+            visual_component.spritesheet_component.spritesheet_reference = hp_text

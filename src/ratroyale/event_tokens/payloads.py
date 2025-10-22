@@ -22,7 +22,6 @@ class EntityDamagedPayload(Payload):
     damage: int | InstantKill
     hp_loss: int
     source: SourceOfDamageOrHeal
-    pass
 
 
 @dataclass

@@ -153,22 +153,22 @@ class SqueakElement(ElementWrapper):
                 self.disable_anim()
 
     def enable_anim(self) -> None:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
+        visual_component = self.visual_component
+        if visual_component and visual_component.spritesheet_component:
+            visual_component.queue_override_animation(
                 on_select_color_fade_out(
-                    vis.spritesheet_component,
+                    visual_component.spritesheet_component,
                     pygame.Color(200, 200, 200),
                     pygame.BLEND_RGB_SUB,
                 )
             )
 
     def disable_anim(self) -> None:
-        vis = self.visual_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(
+        visual_component = self.visual_component
+        if visual_component and visual_component.spritesheet_component:
+            visual_component.queue_override_animation(
                 on_select_color_fade_in(
-                    vis.spritesheet_component,
+                    visual_component.spritesheet_component,
                     pygame.Color(200, 200, 200),
                     pygame.BLEND_RGB_SUB,
                 )
@@ -176,19 +176,21 @@ class SqueakElement(ElementWrapper):
 
     def return_to_position(self, target_rect: pygame.Rect | pygame.FRect) -> None:
         spatial = self.spatial_component
-        vis = self.visual_component
-        if vis:
-            vis.queue_override_animation(
+        visual_component = self.visual_component
+        if visual_component:
+            visual_component.queue_override_animation(
                 return_squeak_to_normal(
                     spatial, self.camera, target_rect.topleft, CARD_RECT.size
                 )
             )
 
     def on_select(self) -> bool:
-        vis = self.visual_component
+        visual_component = self.visual_component
         spatial = self.spatial_component
-        if vis and vis.spritesheet_component:
-            vis.queue_override_animation(shrink_squeak(spatial, self.camera))
+        if visual_component and visual_component.spritesheet_component:
+            visual_component.queue_override_animation(
+                shrink_squeak(spatial, self.camera)
+            )
         return True
 
     def on_deselect(self) -> bool:
