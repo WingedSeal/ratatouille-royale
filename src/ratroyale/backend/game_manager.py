@@ -211,57 +211,6 @@ class GameManager:
             return entity
         return None
 
-    def get_enemy_on_pos(
-        self, pos: OddRCoord, *, exclude_without_hp: bool = True
-    ) -> Entity | None:
-        """
-        Get enemy or neutral at the end of the list (top) at position or None if there's nothing there
-        """
-        tile = self.board.get_tile(pos)
-        if tile is None:
-            raise ValueError("There is no tile on the coord")
-        for entity in reversed(tile.entities):
-            if exclude_without_hp and entity.health is None:
-                continue
-            if entity.side == self.turn:
-                continue
-            return entity
-        return None
-
-    def get_ally_on_pos(
-        self, pos: OddRCoord, *, exclude_without_hp: bool = True
-    ) -> Entity | None:
-        """
-        Get ally or neutral at the end of the list (top) at position or None if there's nothing there
-        """
-        tile = self.board.get_tile(pos)
-        if tile is None:
-            raise ValueError("There is no tile on the coord")
-        for entity in reversed(tile.entities):
-            if exclude_without_hp and entity.health is None:
-                continue
-            if entity.side == self.turn.other_side():
-                continue
-            return entity
-        return None
-
-    def get_enemy_feature_on_pos(
-        self, pos: OddRCoord, *, exclude_without_hp: bool = True
-    ) -> Feature | None:
-        """
-        Get enemy or neutral feature at the end of the list (top) at position or None if there's nothing there
-        """
-        tile = self.board.get_tile(pos)
-        if tile is None:
-            raise ValueError("There is no tile on the coord")
-        for feature in reversed(tile.features):
-            if exclude_without_hp and feature.health is None:
-                continue
-            if feature.side == self.turn:
-                continue
-            return feature
-        return None
-
     def _trigger_feature_on_move(self, path: list[OddRCoord], entity: Entity) -> None:
         for path_coord in path:
             path_tile = self.board.get_tile(path_coord)
@@ -579,7 +528,7 @@ class GameManager:
         )
 
     def damage_feature(
-        self, feature: Feature, damage: int, source: SourceOfDamageOrHeal
+        self, feature: Feature, damage: int | InstantKill, source: SourceOfDamageOrHeal
     ) -> None:
         """
         Damage a feature. Throw error if called on feature with no health.

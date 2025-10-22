@@ -1,20 +1,21 @@
 import random
 from typing import TYPE_CHECKING
 
-from ...hexagon import OddRCoord
-from ...entity_effect import EffectClearSide, EntityEffect, effect_data
+from ratroyale.backend.entities.rodents.common_skills import SelectTarget
+from ratroyale.backend.hexagon import OddRCoord
+
+from ...instant_kill import InstantKill
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...entity import (
     Entity,
     EntitySkill,
     SkillCompleted,
+    SkillResult,
     SkillTargeting,
     entity_skill_check,
 )
-from ...instant_kill import InstantKill
-from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...tags import RodentClassTag
 from ..rodent import Rodent, rodent_data
-from .common_skills import move, normal_damage, select_targets
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
@@ -49,20 +50,22 @@ class Mayo(Rodent):
     DODGE_CHANCE = 0.2
     DODGE_MIN_DISTANCE = 5
 
+    def teleport(
+        self, game_manager: "GameManager", coords: list[OddRCoord]
+    ) -> SkillResult:
+        assert len(coords) == 0
+        game_manager.move_entity_uncheck(
+            self, coords[0], custom_jump_height=self.ROCKET_BOOST_HEIGHT_LIMIT
+        )
+        return SkillCompleted.SUCCESS
+
     @entity_skill_check
     def rocket_boost(self, game_manager: "GameManager") -> SkillTargeting:
-        return SkillTargeting(
-            1,
-            self,
-            self.skills[0],
-            [
-                neighbor
-                for neighbor in self.pos.get_neighbors()
-                if (tile := game_manager.board.get_tile(neighbor)) is not None
-                and not tile.is_collision(True)
-            ],
-            move(self, custom_jump_height=self.ROCKET_BOOST_HEIGHT_LIMIT),
-            can_cancel=True,
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_tile_without_collision()
+            .add_custom_action(self.teleport)
+            .to_skill_targeting(game_manager)
         )
 
     def on_damage_taken(
