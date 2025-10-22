@@ -8,7 +8,8 @@ from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 class SpritesheetComponent:
     """Used in custom elements to hold metadata for drawing."""
 
-    spritesheet_reference: str
+    spritesheet_reference: str | pygame.Surface
+    """Can either hold a spritesheet reference or a raw surface for drawing."""
 
     def __post_init__(self) -> None:
         self._current_anim_name: str | None = None
@@ -16,6 +17,7 @@ class SpritesheetComponent:
         self._overlay_color: pygame.Color | None = None
         self._overlay_mode: int = 0
         self._overlay_surface: pygame.Surface | None = None
+        self._overlay_persistence: bool = True
 
         self.set_frame("IDLE", 0)
 
@@ -23,28 +25,30 @@ class SpritesheetComponent:
         self._current_anim_name = current_anim_name
         self._current_anim_frame_index = current_anim_frame_index
 
-    def get_key(self) -> str:
-        return self.spritesheet_reference
-
     def _fit_with_spatial_rect(
         self, current_frame: pygame.Surface, target_rect: pygame.Rect | pygame.FRect
     ) -> pygame.Surface:
         # Scale frame exactly to target rect size (ignore camera scale)
         target_w, target_h = target_rect.size
-        scaled_frame = pygame.transform.smoothscale(current_frame, (target_w, target_h))
+        scaled_frame = pygame.transform.scale(current_frame, (target_w, target_h))
 
         aligned_surface = pygame.Surface((target_w, target_h), pygame.SRCALPHA)
         aligned_surface.blit(scaled_frame, (0, 0))
         return aligned_surface
 
     def _current_frame(self) -> pygame.Surface:
-        spritesheet = SpritesheetManager.get_spritesheet(self.get_key())
-        if self._current_anim_name and self._current_anim_frame_index is not None:
-            return spritesheet.get_sprite_by_name(
-                self._current_anim_name, self._current_anim_frame_index
-            )
+        if isinstance(self.spritesheet_reference, str):
+            spritesheet = SpritesheetManager.get_spritesheet(self.spritesheet_reference)
+            if self._current_anim_name and self._current_anim_frame_index is not None:
+                return spritesheet.get_sprite_by_name(
+                    self._current_anim_name, self._current_anim_frame_index
+                )
+            else:
+                raise AttributeError(
+                    "Either anim name or anim frame index was not set."
+                )
         else:
-            raise AttributeError("Either anim name or anim frame index was not set.")
+            return self.spritesheet_reference
 
     # region Overlay Support
 
@@ -52,10 +56,6 @@ class SpritesheetComponent:
         """Set the overlay color and blend mode to apply during rendering."""
         self._overlay_color = color
         self._overlay_mode = blend_mode
-
-    def clear_overlay(self) -> None:
-        """Remove active overlay."""
-        self._overlay_color = pygame.Color(0, 0, 0, 0)
 
     def _apply_overlay(self, current_frame: pygame.Surface) -> pygame.Surface:
         if self._overlay_color is None:
@@ -85,11 +85,9 @@ class SpritesheetComponent:
 
     def output_frame(
         self, spatial_rect: pygame.Rect | pygame.FRect, camera: Camera
-    ) -> pygame.Surface | None:
+    ) -> pygame.Surface:
         current_frame = self._current_frame()
         aligned = self._fit_with_spatial_rect(current_frame, spatial_rect)
         overlaid = self._apply_overlay(aligned)
-
-        self.clear_overlay()
 
         return overlaid

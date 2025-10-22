@@ -9,9 +9,11 @@ from ..page_managers.base_page import Page
 
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    UIRegisterForm,
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+    ui_element_wrapper,
 )
+from ..page_elements.spatial_component import Camera
 
 import pygame_gui
 import pygame
@@ -19,11 +21,13 @@ import pygame
 
 @register_page
 class InspectCard(Page):
-    def __init__(self, coordination_manager: CoordinationManager) -> None:
-        super().__init__(coordination_manager)
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(coordination_manager, camera)
 
-    def define_initial_gui(self) -> list[UIRegisterForm]:
-        gui_elements: list[UIRegisterForm] = []
+    def define_initial_gui(self) -> list[ElementWrapper]:
+        gui_elements: list[ElementWrapper] = []
         # === MainPanel ===
         panel_element = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(100, 80, 620, 460),
@@ -32,6 +36,10 @@ class InspectCard(Page):
                 class_id="MainPanel", object_id="main_panel"
             ),
         )
+        panel_element_wrapper = ui_element_wrapper(
+            panel_element, "main_panel", self.camera
+        )
+        gui_elements.append(panel_element_wrapper)
 
         # === Rat image ===
         portrait_surface = pygame.Surface((140, 180), flags=pygame.SRCALPHA)

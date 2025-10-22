@@ -1,3 +1,4 @@
+from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
@@ -7,9 +8,11 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element_builder import (
-    UIRegisterForm,
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+    ui_element_wrapper,
 )
+from ..page_elements.spatial_component import Camera
 
 import pygame_gui
 import pygame
@@ -17,8 +20,13 @@ import pygame
 
 @register_page
 class InspectCrumb(Page):
-    def define_initial_gui(self) -> list[UIRegisterForm]:
-        gui_elements: list[UIRegisterForm] = []
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(coordination_manager, camera)
+
+    def define_initial_gui(self) -> list[ElementWrapper]:
+        gui_elements: list[ElementWrapper] = []
 
         # === MainPanel ===
         panel_element = pygame_gui.elements.UIPanel(
@@ -28,6 +36,10 @@ class InspectCrumb(Page):
                 class_id="MainPanel", object_id="main_panel"
             ),
         )
+        panel_element_wrapper = ui_element_wrapper(
+            panel_element, "main_panel", self.camera
+        )
+        gui_elements.append(panel_element_wrapper)
 
         # === Crumbs Title ===
         pygame_gui.elements.UILabel(
@@ -71,8 +83,6 @@ class InspectCrumb(Page):
                 class_id="TextInput", object_id="text_input_box"
             ),
         )
-
-        gui_elements.append(UIRegisterForm("text_input_box", self.input_box))
 
         # === Scrolling Container ===
         self.scroll_container = pygame_gui.elements.UIScrollingContainer(

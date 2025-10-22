@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 from .base import EventToken
+from ratroyale.event_tokens.payloads import Payload
 
 __all__ = [
     "PageManagerEvent",
@@ -42,8 +43,8 @@ class PageNavigationEvent(PageManagerEvent):
 
 
 @dataclass
-class PageCallbackEvent[T](PageManagerEvent):
+class PageCallbackEvent(PageManagerEvent):
     callback_action: str
     success: bool = True
     error_msg: str | None = None
-    payload: T | None = None
+    payload: Payload | None = None

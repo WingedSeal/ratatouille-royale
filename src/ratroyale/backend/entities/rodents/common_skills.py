@@ -118,10 +118,10 @@ def normal_damage(
                 game_manager.damage_entity(enemy, damage, source)
                 continue
             if not is_feature_targetable:
-                raise ValueError("Trying to damage entity that is not there")
+                return SkillCompleted.SUCCESS
             feature = game_manager.get_feature_on_pos(target)
             if feature is None:
-                raise ValueError("Trying to damage nothing")
+                return SkillCompleted.SUCCESS
             game_manager.damage_feature(feature, damage, source)
         return SkillCompleted.SUCCESS
 
@@ -150,7 +150,8 @@ def apply_timer(
                 entity = game_manager.get_ally_on_pos(target)
             else:
                 entity = game_manager.get_enemy_on_pos(target)
-            assert entity is not None
+            if entity is None:
+                return SkillCompleted.SUCCESS
             game_manager.apply_timer(
                 Timer(
                     entity,
@@ -189,7 +190,8 @@ def apply_effect(
                 entity = game_manager.get_ally_on_pos(target)
             else:
                 entity = game_manager.get_enemy_on_pos(target)
-            assert entity is not None
+            if entity is None:
+                return SkillCompleted.SUCCESS
             game_manager.apply_effect(
                 entity,
                 effect(entity, duration=duration, intensity=intensity),
@@ -255,9 +257,8 @@ def aoe_damage(
                 if not is_feature_targetable:
                     raise ValueError("Trying to damage entity that is not there")
                 feature = game_manager.get_feature_on_pos(coord)
-                if feature is None:
-                    raise ValueError("Trying to damage nothing")
-                game_manager.damage_feature(feature, damage, source)
+                if feature is not None:
+                    game_manager.damage_feature(feature, damage, source)
                 if not is_stackable:
                     tagged_coord.add(coord)
         return SkillCompleted.SUCCESS

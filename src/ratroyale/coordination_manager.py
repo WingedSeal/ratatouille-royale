@@ -20,21 +20,21 @@ class MailboxesDict(dict[type[EventToken], EventQueue[Any]]):
 
 
 class CoordinationManager:
-    def __init__(self) -> None:
-        self.game_running: bool = True
-        self.mailboxes: MailboxesDict = cast(
-            MailboxesDict,
-            {
-                PageManagerEvent: EventQueue[PageManagerEvent](),
-                GameManagerEvent: EventQueue[GameManagerEvent[Any]](),
-                VisualManagerEvent: EventQueue[VisualManagerEvent](),
-            },
-        )
+    mailboxes: MailboxesDict = cast(
+        MailboxesDict,
+        {
+            PageManagerEvent: EventQueue[PageManagerEvent](),
+            GameManagerEvent: EventQueue[GameManagerEvent](),
+            VisualManagerEvent: EventQueue[VisualManagerEvent](),
+        },
+    )
+    game_running: bool = True
 
-    def put_message(self, msg: EventToken) -> None:
-        for mail_type in self.mailboxes.keys():
+    @classmethod
+    def put_message(cls, msg: EventToken) -> None:
+        for mail_type in cls.mailboxes.keys():
             if isinstance(msg, mail_type):
-                self.mailboxes[mail_type].put(msg)
+                cls.mailboxes[mail_type].put(msg)
                 break
         else:
             raise ValueError(f"No mailbox found for message type {type(msg)}")

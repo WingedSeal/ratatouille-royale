@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pprint import pformat
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .hexagon import OddRCoord
 from .side import Side
+
+if TYPE_CHECKING:
+    from .entity import Entity
+    from .game_manager import GameManager
 
 MINIMAL_FEATURE_DAMAGE_TAKEN = 1
 
@@ -40,28 +44,70 @@ class Feature(ABC):
             )
         Feature.ALL_FEATURES[cls.FEATURE_ID()] = cls
 
-    def on_damage_taken(self, damage: int, source: SourceOfDamageOrHeal) -> int | None:
+    def on_damage_taken(
+        self, game_manager: "GameManager", damage: int, source: SourceOfDamageOrHeal
+    ) -> int | None:
         pass
 
-    def on_hp_loss(self, hp_loss: int, source: SourceOfDamageOrHeal) -> None:
+    def on_hp_loss(
+        self, game_manager: "GameManager", hp_loss: int, source: SourceOfDamageOrHeal
+    ) -> None:
         pass
 
-    def on_death(self, source: SourceOfDamageOrHeal) -> bool:
+    def on_death(
+        self, game_manager: "GameManager", source: SourceOfDamageOrHeal
+    ) -> bool:
         """
         Method called when entity dies
         :returns: Whether the entity actually dies
         """
         return True
 
+    def on_entity_enter(
+        self,
+        game_manager: "GameManager",
+        entity: "Entity",
+        coord_that_entity_enter: OddRCoord,
+    ) -> None:
+        """Can trigger multiple times in a move of entity exit and enter again"""
+        pass
+
+    def on_entity_exit(
+        self,
+        game_manager: "GameManager",
+        entity: "Entity",
+        coord_that_entity_exit: OddRCoord,
+    ) -> None:
+        """Can trigger multiple times in a move of entity enter and exit again"""
+        pass
+
+    def on_entity_turn_change(
+        self, game_manager: "GameManager", entity: "Entity"
+    ) -> None:
+        pass
+
+    def on_entity_moving_by(
+        self, game_manager: "GameManager", entity: "Entity", path_coord: OddRCoord
+    ) -> None:
+        """Trigger multiple times in a single move for every coord entity is moving pass"""
+        pass
+
+    def self_destruct(
+        self, game_manager: "GameManager", is_trigger_on_death: bool = False
+    ) -> None:
+        game_manager.destroy_feature(
+            self, self, is_trigger_on_death=is_trigger_on_death
+        )
+
     def _take_damage(
-        self, damage: int, source: SourceOfDamageOrHeal
+        self, game_manager: "GameManager", damage: int, source: SourceOfDamageOrHeal
     ) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health
         :param damage: How much damage taken
         :returns: Whether the entity die and hp loss
         """
-        new_damage = self.on_damage_taken(damage, source)
+        new_damage = self.on_damage_taken(game_manager, damage, source)
         if new_damage is not None:
             damage = new_damage
         if self.health is None:
@@ -71,9 +117,9 @@ class Feature(ABC):
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
-            self.on_hp_loss(damage_taken, source)
+            self.on_hp_loss(game_manager, damage_taken, source)
             return True, damage_taken
-        self.on_hp_loss(damage_taken, source)
+        self.on_hp_loss(game_manager, damage_taken, source)
         return False, damage_taken
 
     def __repr__(self) -> str:
