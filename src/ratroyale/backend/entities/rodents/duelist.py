@@ -357,3 +357,44 @@ class RailRodent(Rodent):
             ),
             ("Too OP", "This rodent cannot attack any structure."),
         ]
+
+
+@rodent_data(
+    name="Clanker",
+    description="Robotic Rodent",
+    health=3,
+    defense=999,
+    speed=2,
+    move_stamina=1,
+    skill_stamina=2,
+    attack=20,
+    move_cost=20,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Pancakes!",
+            method_name="pancakes",
+            reach=2,
+            altitude=0,
+            crumb_cost=10,
+            tags=[],
+        ),
+    ],
+)
+class Clanker(Rodent):
+
+    @entity_skill_check
+    def pancakes(self, game_manager: "GameManager") -> SkillTargeting:
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_enemy()
+            .add_target_action(TargetAction(self).acquire_enemy().damage(self.attack))
+            .to_skill_targeting(game_manager)
+        )
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            f"Clanker stabs his opponent with his pancake fork dealing {self.attack}(ATK) damage.",
+        ]

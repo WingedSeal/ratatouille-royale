@@ -2,9 +2,10 @@ import random
 from .squeaks.rodents.vanguard import TAIL_BLAZER
 from .squeaks.rodents.tank import CRACKER
 from .squeaks.rodents.duelist import (
+    CLANKER,
     MORTAR,
     PEA_PEA_POOL_POOL,
-    RAILGUN_RODENT,
+    RAIL_RODENT,
     RATBERT_BREWBELLY,
     SODA_KABOOMA,
 )
@@ -22,9 +23,10 @@ GACHA_POOL_WEIGHTS: dict[Squeak, float] = {
     RATBERT_BREWBELLY: 1,
     SODA_KABOOMA: 1,
     MORTAR: 1,
-    RAILGUN_RODENT: 1,
+    RAIL_RODENT: 1,
     THE_ONE: 0.1,
     QUARTERMASTER: 0.5,
+    CLANKER: 0.7,
 }
 """Pool of all possible Squeak and its draw weight"""
 

@@ -11,7 +11,7 @@ from .side import Side
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 
 STR_PREFIX = "Event: "
-_PRINT_EVENTS = True
+_PRINT_EVENTS = False
 
 
 def source_of_damage_or_heal_to_string(
