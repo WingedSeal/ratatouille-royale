@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pprint import pformat
 from typing import TYPE_CHECKING, ClassVar
 
@@ -23,6 +23,7 @@ class Feature(ABC):
     health: int | None = None
     defense: int = 0
     side: Side | None = None
+    is_dead: bool = field(default=False, init=False)
     ALL_FEATURES: ClassVar[dict[int, type["Feature"]]] = {}
     """Map of all features' IDs to the feature class"""
 
@@ -130,6 +131,7 @@ class Feature(ABC):
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
+            self.is_dead = True
             self.on_hp_loss(game_manager, damage_taken, source)
             return True, damage_taken
         self.on_hp_loss(game_manager, damage_taken, source)

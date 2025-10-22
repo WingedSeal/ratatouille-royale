@@ -73,6 +73,7 @@ class Entity:
     height: int
     side: Side | None
     skills: list[CallableEntitySkill]
+    is_dead: bool
     PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
     """Map of preplaced-able entities' IDs to the entity class"""
 
@@ -95,6 +96,7 @@ class Entity:
         self.pos = pos
         self.side = side
         self.effects = {}
+        self.is_dead = False
 
     def on_damage_taken(
         self,
@@ -207,6 +209,7 @@ class Entity:
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
+            self.is_dead = True
             self.on_hp_loss(game_manager, damage_taken, source)
             return True, damage_taken
         self.on_hp_loss(game_manager, damage_taken, source)
