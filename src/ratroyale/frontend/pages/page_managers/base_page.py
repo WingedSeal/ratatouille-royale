@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Protocol, cast
+from typing import Protocol, cast
 
 import pygame
 import pygame_gui
@@ -21,8 +21,14 @@ from ratroyale.frontend.pages.page_elements.element_manager import ElementManage
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+from ...visual.anim.core.anim_structure import SequentialAnim
+from collections import deque
 
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+
+from typing import TypeVar
+
+T = TypeVar("T", bound="ElementWrapper")
 
 
 class InputHandler(Protocol):
@@ -30,7 +36,7 @@ class InputHandler(Protocol):
 
 
 class CallbackHandler(Protocol):
-    def __call__(self, event: PageCallbackEvent[Any]) -> None: ...
+    def __call__(self, event: PageCallbackEvent) -> None: ...
 
 
 class Page(ABC):
@@ -41,7 +47,7 @@ class Page(ABC):
         coordination_manager: CoordinationManager,
         camera: Camera,
         is_blocking: bool = True,
-        theme_name: str = "",
+        theme_name: str = "default",
         base_color: tuple[int, int, int, int] | None = None,
     ) -> None:
         self.theme_path = str(resolve_theme_path(theme_name))
@@ -67,10 +73,24 @@ class Page(ABC):
         self._callback_bindings: dict[str, CallbackHandler] = {}
         """ Maps (game_action) to handler functions """
 
+        self._animation_lock: bool = False
+        self._pending_animation: int = 0
+        self._animation_queue: deque[tuple[ElementWrapper, SequentialAnim]] = deque()
+
         self.setup_event_bindings()
 
         gui_elements = self.define_initial_gui()
         self.setup_elements(gui_elements)
+
+    def issue_anim(self, anim: tuple[ElementWrapper, SequentialAnim]) -> None:
+        self._animation_lock = True
+        self._pending_animation += 1
+        self._animation_queue.append(anim)
+
+    def anim_finish_callback(self) -> None:
+        self._pending_animation -= 1
+        if not self._pending_animation:
+            self._animation_lock = False
 
     @abstractmethod
     def define_initial_gui(self) -> list["ElementWrapper"]:
@@ -89,8 +109,24 @@ class Page(ABC):
         for config in configs:
             self._element_manager.add_element(config)
 
-    def get_element(self, element_type: str, element_id: str) -> ElementWrapper | None:
-        return self._element_manager.get_element_wrapper(element_type, element_id)
+    def get_element(
+        self,
+        element_id: str,
+        element_group: str,
+        cls: type[T] | None = None,
+    ) -> T:
+        element = self._element_manager.get_element(element_id, element_group)
+
+        if cls is None:
+            # type hint fallback
+            return cast(T, element)
+
+        if isinstance(element, cls):
+            return element
+        else:
+            raise TypeError(
+                f"Element is of type {type(element).__name__}, expected {cls.__name__}"
+            )
 
     def setup_event_bindings(self) -> None:
         """
@@ -128,7 +164,7 @@ class Page(ABC):
         - If the page is hidden or not receiving input, no InputManagerEvent is produced.
         - Returns gestures that are unconsumed (for other pages).
         """
-        if not self.is_visible:
+        if not self.is_visible or self._animation_lock:
             return gestures
 
         return self._element_manager.handle_gestures(gestures)
@@ -156,7 +192,7 @@ class Page(ABC):
                 executed = True
         return executed
 
-    def execute_page_callback(self, msg: PageCallbackEvent[Any]) -> bool:
+    def execute_page_callback(self, msg: PageCallbackEvent) -> bool:
         """
         Executes the callback associated with the given PageCallbackEvent.
         """
@@ -179,7 +215,11 @@ class Page(ABC):
         return object_id.split(".")[-1] if object_id else None
 
     def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
-        pass
+        callback = msg.callback
+
+        if callback == "FINISHED":
+            # Mark current animation as finished
+            self.anim_finish_callback()
 
     def hide(self) -> None:
         self.is_visible = False

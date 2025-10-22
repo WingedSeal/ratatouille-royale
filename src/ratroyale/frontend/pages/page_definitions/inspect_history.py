@@ -6,7 +6,7 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 
-# from ratroyale.frontend.gesture.gesture_data import GestureType
+from ratroyale.frontend.gesture.gesture_data import GestureType
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
@@ -132,18 +132,18 @@ class InspectHistory(Page):
     def on_exit_click(self, msg: pygame.event.Event) -> None:
         self.post(PageNavigationEvent(action_list=[(PageNavigation.CLOSE_TOP, None)]))
 
-    # @input_event_bind(None, GestureType.CLICK.to_pygame_event())
-    # def on_click_outside(self, msg: pygame.event.Event) -> None:
-    #     if hasattr(msg, "ui_element"):
-    #         return
+    @input_event_bind(None, GestureType.CLICK.to_pygame_event())
+    def on_click_outside(self, msg: pygame.event.Event) -> None:
+        if hasattr(msg, "ui_element"):
+            return
 
-    #     panel = self._element_manager.get_element("inspect_history_panel")
+        panel = self._element_manager.get_element("inspect_history_panel")
 
-    #     if panel and hasattr(msg, "pos"):
-    #         click_pos = msg.pos
-    #         panel_rect = panel.spatial_component.get_screen_rect(self.camera)
+        if panel and hasattr(msg, "pos"):
+            click_pos = msg.pos
+            panel_rect = panel.spatial_component.get_screen_rect(self.camera)
 
-    #         if not panel_rect.collidepoint(click_pos):
-    #             self.post(
-    #                 PageNavigationEvent(action_list=[(PageNavigation.CLOSE_TOP, None)])
-    #             )
+            if not panel_rect.collidepoint(click_pos):
+                self.post(
+                    PageNavigationEvent(action_list=[(PageNavigation.CLOSE_TOP, None)])
+                )

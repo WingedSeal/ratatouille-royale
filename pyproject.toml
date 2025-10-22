@@ -11,6 +11,8 @@ dependencies = [
   "python-i18n (==0.3.9)",
   "pytweening (==1.2.0)",
   "ruff (>=0.14.0,<0.15.0)",
+  "fernet (>=1.0.1,<2.0.0)",
+  "cryptography (>=46.0.3,<47.0.0)",
 ]
 
 [project.scripts]
@@ -51,7 +53,7 @@ tiled-cli = { cmd = "python ${POE_ROOT}/src/tiled_cli.py", cwd = "${POE_PWD}" }
 
 [tool.mypy]
 python_version = "3.12"
-mypy_path = ["src", "tests"]
+mypy_path = ["stubs", "src", "tests"]
 files = ["./src/ratroyale/", "./src/main.py", "./tests/"]
 strict = true
 warn_return_any = true

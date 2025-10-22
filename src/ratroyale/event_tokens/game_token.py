@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
 from .base import EventToken
+from .payloads import Payload
 
 
 @dataclass
-class GameManagerEvent[T](EventToken):
+class GameManagerEvent(EventToken):
     game_action: str
-    payload: T | None = None
+    payload: Payload | None = None

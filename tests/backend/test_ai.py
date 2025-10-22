@@ -27,6 +27,21 @@ def small_map() -> Map:
     )
 
 
+@pytest.fixture
+def long_map() -> Map:
+    return Map(
+        "Long Map",
+        10,
+        1,
+        heights_to_tiles([[0] * 10]),
+        entities=[],
+        features=[
+            Lair([OddRCoord(9, 0)], 1, side=Side.RAT),
+            DeploymentZone([OddRCoord(0, 0)], side=Side.MOUSE),
+        ],
+    )
+
+
 @pytest.mark.integration
 @pytest.mark.parametrize("ai_type", [RandomAI, RushBAI])
 def test_all_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
@@ -38,12 +53,58 @@ def test_all_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
                 [{TAIL_BLAZER: 5}],
                 [{TAIL_BLAZER: 5}],
                 selected_squeak_set_index=0,
+                exp=0,
+                cheese=0,
+                is_progression_frozen=True,
             ),
             PlayerInfo(
                 {TAIL_BLAZER: 5},
                 [{TAIL_BLAZER: 5}],
                 [{TAIL_BLAZER: 5}],
                 selected_squeak_set_index=0,
+                exp=0,
+                cheese=0,
+                is_progression_frozen=True,
+            ),
+        ),
+        first_turn=Side.RAT,
+    )
+    ai = ai_type(game_manager, Side.MOUSE)
+    for _ in range(100):
+        assert game_manager.turn == Side.RAT
+        # Player Turn
+        game_manager.end_turn()
+        # AI Turn
+        ai.run_ai_and_update_game_manager()
+        if game_manager.game_over_event is not None:
+            assert game_manager.game_over_event.victory_side == ai.ai_side
+            return
+    assert False
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("ai_type", [RushBAI])
+def test_long_map(long_map: Map, ai_type: type[BaseAI]) -> None:
+    game_manager = GameManager(
+        long_map,
+        players_info=(
+            PlayerInfo(
+                {TAIL_BLAZER: 5},
+                [{TAIL_BLAZER: 5}],
+                [{TAIL_BLAZER: 5}],
+                selected_squeak_set_index=0,
+                exp=0,
+                cheese=0,
+                is_progression_frozen=True,
+            ),
+            PlayerInfo(
+                {TAIL_BLAZER: 5},
+                [{TAIL_BLAZER: 5}],
+                [{TAIL_BLAZER: 5}],
+                selected_squeak_set_index=0,
+                exp=0,
+                cheese=0,
+                is_progression_frozen=True,
             ),
         ),
         first_turn=Side.RAT,
