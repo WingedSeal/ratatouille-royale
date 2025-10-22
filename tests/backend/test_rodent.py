@@ -28,6 +28,7 @@ def rodent_map() -> Map:
     )
 
 
+@pytest.mark.slow
 @pytest.mark.integration
 @pytest.mark.parametrize(
     "squeak",
