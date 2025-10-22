@@ -14,7 +14,7 @@ from ...entity import (
     SkillTargeting,
     entity_skill_check,
 )
-from ...tags import RodentClassTag
+from ...tags import EntityTag, RodentClassTag
 from ..rodent import Rodent, rodent_data
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     move_cost=2,
     height=0,
     class_tag=RodentClassTag.SPECIALIST,
-    entity_tags=[],
+    entity_tags=[EntityTag.NO_ATTACK],
     skills=[
         EntitySkill(
             name="Rocket Boost",

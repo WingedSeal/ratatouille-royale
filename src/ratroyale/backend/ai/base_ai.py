@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from itertools import chain, combinations
+from itertools import chain, combinations, count
+from typing import Iterable
 
 from ..entities.rodent import Rodent
 from ..entity import SkillCompleted, SkillTargeting
@@ -23,6 +24,8 @@ class BaseAI(ABC):
         self.ai_side = ai_side
 
     def is_ai_turn(self) -> bool:
+        if self.game_manager.game_over_event is not None:
+            return False
         return self.game_manager.turn == self.ai_side
 
     def validate_ai_turn(self) -> None:
@@ -30,17 +33,25 @@ class BaseAI(ABC):
             raise NotAITurnError()
 
     def run_ai_and_update_game_manager(self) -> None:
+        for _ in self._run_ai_and_update_game_manager():
+            pass
+
+    def _run_ai_and_update_game_manager(self) -> Iterable[None]:
         self.validate_ai_turn()
         banned_actions: list[ActivateSkill] = []
         is_banned_actions_updated = False
         """Banned AIAction to prevent activing skill that get cancelled over and over"""
+        counter = count()
         while self.is_ai_turn():
+            if next(counter) > 100:
+                raise Exception("The AI has been performing over 100 actions in a row")
             if self.game_manager.game_over_event is not None:
                 return
             if (
                 not is_banned_actions_updated
             ):  # If banned action wasn't updated, it means that it did something
                 # that updated the game state. Hence the ban should be lifted
+                yield
                 banned_actions = []
             actions = self._get_all_actions()
             for banned_action in banned_actions:
@@ -49,25 +60,31 @@ class BaseAI(ABC):
                 except ValueError:
                     pass
             action = self.select_action(actions)
-            is_banned_actions_updated = False
             match action:
                 case EndTurn():
                     self.game_manager.end_turn()
+                    is_banned_actions_updated = False
                 case MoveAlly(_, ally, target_coord, custom_path):
                     if isinstance(ally, Rodent):
                         self.game_manager.move_rodent(ally, target_coord, custom_path)
+                        is_banned_actions_updated = False
                     else:
                         self.game_manager.move_entity_uncheck(ally, target_coord)
+                        is_banned_actions_updated = False
                 case ActivateSkill(_, entity, skill_index):
                     skill_result = self.game_manager.activate_skill(entity, skill_index)
                     if skill_result == SkillCompleted.CANCELLED:
                         banned_actions.append(action)
                         is_banned_actions_updated = True
+                    elif skill_result == SkillCompleted.SUCCESS:
+                        is_banned_actions_updated = False
                 case SelectTargets(skill_targeting, selected_targets):
                     assert self.game_manager.skill_targeting is skill_targeting
                     self.game_manager.apply_skill_callback(list(selected_targets))
+                    is_banned_actions_updated = False
                 case PlaceSqueak(_, target_coord, hand_index, _):
                     self.game_manager.place_squeak(hand_index, target_coord)
+                    is_banned_actions_updated = False
                 case _:
                     raise ValueError("action not handled")
 

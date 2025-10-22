@@ -110,7 +110,8 @@ class SodaKabooma(Rodent):
         TargetAction(self).aoe(self.SHAKE_THE_CAN_RADIUS).acquire_any().damage(
             self.attack * 2 + 1
         ).run(game_manager, [self.pos])
-        game_manager.damage_entity(self, INSTANT_KILL, self)
+        if not self.is_dead:
+            game_manager.damage_entity(self, INSTANT_KILL, self)
         return SkillCompleted.SUCCESS
 
     def skill_descriptions(self) -> list[str]:
@@ -198,14 +199,16 @@ class PeaPeaPoolPool(Rodent):
     ],
 )
 class Mortar(Rodent):
-    double_speed_timer: Timer | None
+    double_speed_timer: Timer | None = None
 
     @entity_skill_check
     def artillery_strike(self, game_manager: "GameManager") -> SkillTargeting:
         return (
             SelectTarget(self, skill_index=0)
             .can_select_any_tile()
-            .add_target_action(TargetAction(self).aoe(2).damage(self.attack + 4))
+            .add_target_action(
+                TargetAction(self).aoe(2).acquire_enemy().damage(self.attack + 4)
+            )
             .to_skill_targeting(game_manager)
         )
 
@@ -214,7 +217,9 @@ class Mortar(Rodent):
         return (
             SelectTarget(self, skill_index=1)
             .can_select_any_tile()
-            .add_target_action(TargetAction(self).aoe(3).damage(self.attack + 8))
+            .add_target_action(
+                TargetAction(self).aoe(3).acquire_enemy().damage(self.attack + 8)
+            )
             .to_skill_targeting(game_manager)
         )
 

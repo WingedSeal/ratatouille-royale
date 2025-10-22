@@ -3,7 +3,7 @@ from typing import Literal
 
 from .player_info.squeak import Squeak
 from .instant_kill import InstantKill
-from .entity import Entity, SkillResult
+from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EffectClearSide, EntityEffect
 from .feature import Feature
 from .hexagon import OddRCoord
@@ -11,7 +11,7 @@ from .side import Side
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 
 STR_PREFIX = "Event: "
-_PRINT_EVENTS = False
+_PRINT_EVENTS = True
 
 
 def source_of_damage_or_heal_to_string(
@@ -249,6 +249,21 @@ class EntitySkillActivatedEvent(GameEvent):
     skill_result: SkillResult
     entity: Entity
     skill_index: int
+    pos: OddRCoord = field(init=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "pos", self.entity.pos)
+        super().__post_init__()
+
+    def __str__(self) -> str:
+        match self.skill_result:
+            case SkillCompleted.SUCCESS:
+                result = "succeed."
+            case SkillCompleted.CANCELLED:
+                result = "got cancelled."
+            case SkillTargeting():
+                result = "requires more targeting."
+        return f"{STR_PREFIX}{self.entity.name} at {self.pos} activated skill {self.skill_index} ({self.entity.skills[self.skill_index].name}) and {result}"
 
 
 @dataclass(frozen=True)
@@ -257,3 +272,18 @@ class EntitySkillCallbackEvent(GameEvent):
     entity: Entity
     skill_index: int
     selected_targets: list[OddRCoord]
+    pos: OddRCoord = field(init=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "pos", self.entity.pos)
+        super().__post_init__()
+
+    def __str__(self) -> str:
+        match self.skill_result:
+            case SkillCompleted.SUCCESS:
+                result = "succeed."
+            case SkillCompleted.CANCELLED:
+                result = "got cancelled."
+            case SkillTargeting():
+                result = "requires more targeting."
+        return f"{STR_PREFIX}{self.entity.name} at {self.pos} is running skill callback for skill {self.skill_index} ({self.entity.skills[self.skill_index].name}) and {result}"
