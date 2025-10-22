@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
-from ...hexagon import OddRCoord
-from ...skill_callback import SkillCallback, skill_callback_check
+from ...feature import Feature
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...effects.global_rodent_effects import MoraleBoost
 from ...entity import (
     Entity,
@@ -15,13 +15,7 @@ from ...entity_effect import EffectClearSide, EntityEffect, effect_data
 from ...instant_kill import INSTANT_KILL
 from ...tags import RodentClassTag
 from ..rodent import Rodent, rodent_data
-from .common_skills import (
-    SelectTargetMode,
-    aoe_damage,
-    apply_effect,
-    normal_heal,
-    select_targets,
-)
+from .common_skills import SelectTarget, TargetAction
 
 if TYPE_CHECKING:
     from ...game_manager import GameManager
@@ -91,53 +85,58 @@ class Quartermaster(Rodent):
 
     @entity_skill_check
     def my_body(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targets(
-            game_manager.board,
-            self,
-            self.skills[0],
-            apply_effect(MoraleBoost, duration=2),
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_ally_entity()
+            .add_target_action(
+                TargetAction(self)
+                .acquire_ally_entity()
+                .apply_effect(MoraleBoost, duration=2)
+            )
+            .to_skill_targeting(game_manager)
         )
 
     @entity_skill_check
     def my_heart(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targets(
-            game_manager.board,
-            self,
-            self.skills[1],
-            normal_heal(self.attack, self, is_feature_targetable=False),
-            target_mode=SelectTargetMode.ALLY,
+        return (
+            SelectTarget(self, skill_index=1)
+            .can_select_ally_entity()
+            .add_target_action(
+                TargetAction(self).acquire_ally_entity().heal(self.attack)
+            )
+            .to_skill_targeting(game_manager)
         )
 
     @entity_skill_check
     def my_soul(self, game_manager: "GameManager") -> SkillResult:
         if self.my_soul_target is not None and self.my_soul_target.health != 0:
-            aoe_damage(self.attack, 2, self.my_soul_target, is_stackable=True)
+            TargetAction(self).aoe(2).acquire_enemy().damage(self.attack).run(
+                game_manager, [self.my_soul_target.pos]
+            )
             game_manager.damage_entity(self, INSTANT_KILL, self)
             return SkillCompleted.SUCCESS
 
-        return select_targets(
-            game_manager.board,
-            self,
-            self.skills[2],
-            self.my_soul_callback(),
-            target_mode=SelectTargetMode.ALLY,
-            is_feature_targetable=False,
+        return (
+            SelectTarget(self, skill_index=2)
+            .can_select_ally_entity(with_hp=False)
+            .add_target_action(
+                TargetAction(self)
+                .acquire_ally_entity()
+                .apply_effect(QuartermasterSoul, duration=None)
+                .custom_action(self.assign_my_soul_target)
+            )
+            .to_skill_targeting(game_manager)
         )
 
-    def my_soul_callback(self) -> SkillCallback:
-        @skill_callback_check
-        def skill_callback(
-            game_manager: "GameManager", selected_targets: list[OddRCoord]
-        ) -> SkillResult:
-            apply_effect(QuartermasterSoul, duration=None)(
-                game_manager, selected_targets
-            )
-            self.my_soul_target = game_manager.get_ally_on_pos(
-                selected_targets[0], exclude_without_hp=False
-            )
-            return SkillCompleted.SUCCESS
-
-        return skill_callback
+    def assign_my_soul_target(
+        self,
+        game_manager: "GameManager",
+        target: Entity | Feature,
+        source: SourceOfDamageOrHeal,
+    ) -> SkillResult:
+        assert isinstance(target, Entity)
+        self.my_soul_target = target
+        return SkillCompleted.SUCCESS
 
     def skill_descriptions(self) -> list[str]:
         return [

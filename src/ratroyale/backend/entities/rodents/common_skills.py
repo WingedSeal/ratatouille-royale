@@ -19,7 +19,7 @@ Target: TypeAlias = Entity | Feature
 CanSelectCallback = Callable[["GameManager", Tile], bool]
 TargetToCoords = Callable[["GameManager", list[OddRCoord]], list[OddRCoord]]
 Acquire = Callable[["GameManager", Tile], Target | None]
-CallbackToTargets = Callable[["GameManager", Target, SourceOfDamageOrHeal], SkillResult]
+CallbackToTarget = Callable[["GameManager", Target, SourceOfDamageOrHeal], SkillResult]
 CustomAction = Callable[["GameManager", list[OddRCoord]], SkillResult]
 
 
@@ -36,7 +36,7 @@ class TargetAction:
         self.source = source
         self.target_to_coords: TargetToCoords = _single_target
         self.acquires: list[Acquire] = []
-        self.callbacks_to_target: list[CallbackToTargets] = []
+        self.callbacks_to_target: list[CallbackToTarget] = []
 
     @staticmethod
     def merge(
@@ -63,7 +63,15 @@ class TargetAction:
 
         return callback
 
+    def run(
+        self, game_manager: "GameManager", selected_targets: list[OddRCoord]
+    ) -> None:
+        self.build_skill_callback()(game_manager, selected_targets)
+
     def build_skill_callback(self) -> SkillCallback:
+        if len(self.acquires) == 0:
+            raise ValueError("TargetAction without acquires is useless")
+
         @skill_callback_check
         def callback(
             game_manager: "GameManager", selected_targets: list["OddRCoord"]
@@ -97,6 +105,10 @@ class TargetAction:
 
         return callback
 
+    def custom_action(self, action: CallbackToTarget) -> Self:
+        self.callbacks_to_target.append(action)
+        return self
+
     def damage(self, damage: int | InstantKill) -> Self:
         def callback_to_target(
             game_manager: "GameManager",
@@ -107,6 +119,19 @@ class TargetAction:
                 game_manager.damage_entity(target, damage, source)
             elif isinstance(target, Feature):
                 game_manager.damage_feature(target, damage, source)
+            return SkillCompleted.SUCCESS
+
+        self.callbacks_to_target.append(callback_to_target)
+        return self
+
+    def heal(self, amount: int) -> Self:
+        def callback_to_target(
+            game_manager: "GameManager",
+            target: Entity | Feature,
+            source: SourceOfDamageOrHeal,
+        ) -> SkillResult:
+            if isinstance(target, Entity):
+                game_manager.heal_entity(target, amount, source)
             return SkillCompleted.SUCCESS
 
         self.callbacks_to_target.append(callback_to_target)
@@ -127,8 +152,31 @@ class TargetAction:
             if isinstance(target, Feature):
                 return SkillCompleted.SUCCESS
             game_manager.apply_effect(
-                target, effect(target, duration=duration, intensity=intensity)
+                effect(target, duration=duration, intensity=intensity)
             )
+            return SkillCompleted.SUCCESS
+
+        self.callbacks_to_target.append(callback_to_target)
+        return self
+
+    def force_clear_effect(
+        self, effect: type[EntityEffect], *, raise_error_if_not_exist: bool = False
+    ) -> Self:
+        def callback_to_target(
+            game_manager: "GameManager",
+            target: Entity | Feature,
+            source: SourceOfDamageOrHeal,
+        ) -> SkillResult:
+            if isinstance(target, Feature):
+                return SkillCompleted.SUCCESS
+            if effect.name not in target.effects:
+                if raise_error_if_not_exist:
+                    raise ValueError(
+                        f"Effect {effect.name} doesn't exist in {target.name}"
+                    )
+                else:
+                    return SkillCompleted.SUCCESS
+            game_manager.force_clear_effect(target.effects[effect.name])
             return SkillCompleted.SUCCESS
 
         self.callbacks_to_target.append(callback_to_target)
@@ -277,6 +325,9 @@ class TargetAction:
         return self
 
 
+GetAttackableCoords = Callable[["GameManager"], Iterable[OddRCoord]]
+
+
 class SelectTarget:
     def __init__(
         self, rodent: Rodent, *, skill_index: int, target_count: int = 1
@@ -286,6 +337,7 @@ class SelectTarget:
         self.target_count = target_count
         self.can_select_callbacks: list[CanSelectCallback] = []
         self.target_actions: list[TargetAction | CustomAction] = []
+        self.get_attackable_coords: GetAttackableCoords = self._get_attackable_coords
 
     def add_target_action(self, target_action: TargetAction) -> Self:
         self.target_actions.append(target_action)
@@ -295,10 +347,23 @@ class SelectTarget:
         self.target_actions.append(custom_action)
         return self
 
-    def build_targets(self, game_manager: "GameManager") -> list[OddRCoord]:
-        coords = game_manager.board.get_attackable_coords(
+    def _get_attackable_coords(
+        self, game_manager: "GameManager"
+    ) -> Iterable[OddRCoord]:
+        return game_manager.board.get_attackable_coords(
             self.rodent, self.rodent.skills[self.skill_index]
         )
+
+    def custom_attackable_coords(
+        self, get_attackable_coords: GetAttackableCoords
+    ) -> Self:
+        self.get_attackable_coords = get_attackable_coords
+        return self
+
+    def build_targets(self, game_manager: "GameManager") -> list[OddRCoord]:
+        if len(self.can_select_callbacks) == 0:
+            raise ValueError("SelectTarget without can_select is useless")
+        coords = self.get_attackable_coords(game_manager)
         targets: list[OddRCoord] = []
         for coord in coords:
             tile = game_manager.board.get_tile(coord)

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 
 from .player_info.squeak import Squeak
@@ -39,6 +39,11 @@ class EntityMoveEvent(GameEvent):
     path: list[OddRCoord]
     entity: Entity
     from_pos: OddRCoord
+    to_pos: OddRCoord = field(init=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "to_pos", self.entity.pos)
+        super().__post_init__()
 
     def __str__(self) -> str:
         return f"{STR_PREFIX}{self.entity.name} at {self.from_pos} was moved to {self.path[-1]}."
@@ -47,9 +52,10 @@ class EntityMoveEvent(GameEvent):
 @dataclass(frozen=True)
 class EntityDieEvent(GameEvent):
     entity: Entity
+    pos: OddRCoord = field(init=False)
 
     def __post_init__(self) -> None:
-        self.pos = self.entity.pos
+        object.__setattr__(self, "pos", self.entity.pos)
         super().__post_init__()
 
     def __str__(self) -> str:
@@ -67,9 +73,10 @@ class FeatureDieEvent(GameEvent):
 @dataclass(frozen=True)
 class EntitySpawnEvent(GameEvent):
     entity: Entity
+    pos: OddRCoord = field(init=False)
 
     def __post_init__(self) -> None:
-        self.pos = self.entity.pos
+        object.__setattr__(self, "pos", self.entity.pos)
         super().__post_init__()
 
     def __str__(self) -> str:
@@ -82,16 +89,18 @@ class EntityDamagedEvent(GameEvent):
     damage: int | InstantKill
     hp_loss: int
     source: SourceOfDamageOrHeal
+    pos: OddRCoord = field(init=False)
+    hp_remaining: int = field(init=False)
 
     def __post_init__(self) -> None:
-        self.pos = self.entity.pos
-        self.health = self.entity.health
+        object.__setattr__(self, "pos", self.entity.pos)
+        object.__setattr__(self, "hp_remaining", self.entity.health)
         super().__post_init__()
 
     def __str__(self) -> str:
         if isinstance(self.damage, InstantKill):
-            return f"{STR_PREFIX}{self.entity.name} at {self.pos} took instant kill damage from {source_of_damage_or_heal_to_string(self.source)} losing all its remaining hp ({self.hp_loss}). HP Remaining: {self.health}"
-        return f"{STR_PREFIX}{self.entity.name} at {self.pos} took {self.damage} damage from {source_of_damage_or_heal_to_string(self.source)} losing {self.hp_loss} hp. HP Remaining: {self.health}"
+            return f"{STR_PREFIX}{self.entity.name} at {self.pos} took instant kill damage from {source_of_damage_or_heal_to_string(self.source)} losing all its remaining hp ({self.hp_loss}). HP Remaining: {self.hp_remaining}"
+        return f"{STR_PREFIX}{self.entity.name} at {self.pos} took {self.damage} damage from {source_of_damage_or_heal_to_string(self.source)} losing {self.hp_loss} hp. HP Remaining: {self.hp_remaining}"
 
 
 @dataclass(frozen=True)
@@ -101,21 +110,30 @@ class EntityHealedEvent(GameEvent):
     hp_gained: int
     overheal_cap: int
     source: SourceOfDamageOrHeal
+    pos: OddRCoord = field(init=False)
+    max_health: int = field(init=False)
+    hp_remaining: int = field(init=False)
 
     def __post_init__(self) -> None:
-        self.pos = self.entity.pos
-        self.health = self.entity.health
-        self.max_health = self.entity.max_health
+        object.__setattr__(self, "pos", self.entity.pos)
+        object.__setattr__(self, "hp_remaining", self.entity.health)
+        object.__setattr__(self, "max_hp", self.entity.max_health)
         super().__post_init__()
 
     def __str__(self) -> str:
-        if self.health and self.max_health and self.health > self.max_health:
-            overheal_message = f" and now has {self.health - self.max_health} overheal."
+        if (
+            self.hp_remaining
+            and self.max_health
+            and self.hp_remaining > self.max_health
+        ):
+            overheal_message = (
+                f" and now has {self.hp_remaining - self.max_health} overheal."
+            )
         else:
             overheal_message = "."
         if self.entity is self.source:
-            return f"{STR_PREFIX}{self.entity.name} at {self.pos} healed {self.heal} hp from itself gaining {self.hp_gained} hp{overheal_message} HP Remaining: {self.health}"
-        return f"{STR_PREFIX}{self.entity.name} at {self.pos} healed {self.heal} hp from {source_of_damage_or_heal_to_string(self.source)} gaining {self.hp_gained} hp{overheal_message} HP Remaining: {self.health}"
+            return f"{STR_PREFIX}{self.entity.name} at {self.pos} healed {self.heal} hp from itself gaining {self.hp_gained} hp{overheal_message} HP Remaining: {self.hp_remaining}"
+        return f"{STR_PREFIX}{self.entity.name} at {self.pos} healed {self.heal} hp from {source_of_damage_or_heal_to_string(self.source)} gaining {self.hp_gained} hp{overheal_message} HP Remaining: {self.hp_remaining}"
 
 
 @dataclass(frozen=True)
@@ -124,13 +142,14 @@ class FeatureDamagedEvent(GameEvent):
     damage: int | InstantKill
     hp_loss: int
     source: SourceOfDamageOrHeal
+    hp_remaining: int = field(init=False)
 
     def __post_init__(self) -> None:
-        self.health = self.feature.health
+        object.__setattr__(self, "hp_remaining", self.feature.health)
         super().__post_init__()
 
     def __str__(self) -> str:
-        return f"{STR_PREFIX}Feature {self.feature.get_name()} around {self.feature.shape[0]} took {self.damage} damage from {source_of_damage_or_heal_to_string(self.source)} losing {self.hp_loss} hp HP Remaining: {self.health}"
+        return f"{STR_PREFIX}Feature {self.feature.get_name()} around {self.feature.shape[0]} took {self.damage} damage from {source_of_damage_or_heal_to_string(self.source)} losing {self.hp_loss} hp HP Remaining: {self.hp_remaining}"
 
 
 @dataclass(frozen=True)

@@ -1,9 +1,9 @@
 import random
 from typing import TYPE_CHECKING
 
-from ratroyale.backend.entities.rodents.common_skills import SelectTarget
-from ratroyale.backend.hexagon import OddRCoord
-
+from .common_skills import SelectTarget, TargetAction
+from ...entity_effect import EffectClearSide, EntityEffect, effect_data
+from ...hexagon import OddRCoord
 from ...instant_kill import InstantKill
 from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...entity import (
@@ -150,11 +150,13 @@ class TheOne(Rodent):
 
     @entity_skill_check
     def the_punch(self, game_manager: "GameManager") -> SkillTargeting:
-        return select_targets(
-            game_manager.board,
-            self,
-            self.skills[0],
-            normal_damage(self.attack * 6, self),
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_enemy()
+            .add_target_action(
+                TargetAction(self).acquire_enemy_entity().damage(self.attack * 6)
+            )
+            .to_skill_targeting(game_manager)
         )
 
     @entity_skill_check

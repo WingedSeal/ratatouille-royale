@@ -1,11 +1,22 @@
+import dataclasses
+import itertools
+from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
-from ratroyale.backend.entities.rodents.common_skills import SelectTarget, TargetAction
 
+from .common_skills import SelectTarget, TargetAction
+from ...entity_effect import EffectClearSide, EntityEffect, effect_data
+from ...hexagon import OddRCoord
 from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...instant_kill import INSTANT_KILL, InstantKill
 from ...effects.global_rodent_effects import Stunned
-from ...entity import EntitySkill, SkillCompleted, SkillTargeting, entity_skill_check
+from ...entity import (
+    EntitySkill,
+    SkillCompleted,
+    SkillResult,
+    SkillTargeting,
+    entity_skill_check,
+)
 from ...tags import RodentClassTag, SkillTag
 from ...timer import Timer, TimerClearSide
 from ..rodent import Rodent, rodent_data
@@ -98,7 +109,7 @@ class SodaKabooma(Rodent):
     def shake_the_can(self, game_manager: "GameManager") -> SkillCompleted:
         TargetAction(self).aoe(self.SHAKE_THE_CAN_RADIUS).acquire_any().damage(
             self.attack * 2 + 1
-        ).build_skill_callback()(game_manager, [self.pos])
+        ).run(game_manager, [self.pos])
         game_manager.damage_entity(self, INSTANT_KILL, self)
         return SkillCompleted.SUCCESS
 
@@ -296,47 +307,36 @@ class RailRodent(Rodent):
         game_manager.apply_effect(RailgunCharged(self, duration=3))
         return SkillCompleted.SUCCESS
 
+    def get_attackable_coords(self, game_manager: "GameManager") -> Iterable[OddRCoord]:
+        assert self.skills[1].reach is not None
+        return set(
+            itertools.chain(
+                game_manager.board.get_attackable_coords(self, self.skills[1]),
+                game_manager.board.get_attackable_coords(
+                    self,
+                    dataclasses.replace(
+                        self.skills[1], altitude=-1, reach=self.skills[1].reach + 1
+                    ),
+                ),
+            )
+        )
+
     @entity_skill_check
     def railgun(self, game_manager: "GameManager") -> SkillResult:
         if RailgunCharged.name not in self.effects:
             return SkillCompleted.CANCELLED
-        normal_targets = filter_targetable_coords(
-            game_manager.board.get_attackable_coords(self, self.skills[0]),
-            game_manager.board,
-            self.side,
-            is_feature_targetable=False,
-        )
-        assert self.skills[0].reach is not None
-        alt_skills_0 = dataclasses.replace(
-            self.skills[0], altitude=-1, reach=self.skills[0].reach + 1
-        )
-        passive_targets = filter_targetable_coords(
-            game_manager.board.get_attackable_coords(self, alt_skills_0),
-            game_manager.board,
-            self.side,
-            is_feature_targetable=False,
-        )
-        return SkillTargeting(
-            1,
-            self,
-            self.skills[0],
-            list(set(normal_targets + passive_targets)),
-            self.railgun_callback(),
-            True,
-        )
-
-    def railgun_callback(self) -> SkillCallback:
-        @skill_callback_check
-        def skill_callback(
-            game_manager: "GameManager", selected_targets: list["OddRCoord"]
-        ) -> SkillResult:
-            normal_damage(self.attack * 2, self, is_feature_targetable=False)(
-                game_manager, selected_targets
+        return (
+            SelectTarget(self, skill_index=1)
+            .custom_attackable_coords(self.get_attackable_coords)
+            .can_select_enemy_entity()
+            .add_target_action(
+                TargetAction(self)
+                .acquire_enemy_entity()
+                .damage(self.attack * 2)
+                .force_clear_effect(RailgunCharged, raise_error_if_not_exist=True)
             )
-            game_manager.force_clear_effect(self.effects[RailgunCharged.name])
-            return SkillCompleted.SUCCESS
-
-        return skill_callback
+            .to_skill_targeting(game_manager)
+        )
 
     def skill_descriptions(self) -> list[str]:
         return [

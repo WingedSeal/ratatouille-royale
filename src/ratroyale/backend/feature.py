@@ -8,7 +8,6 @@ from ratroyale.backend.instant_kill import InstantKill
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .hexagon import OddRCoord
 from .side import Side
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
 
 if TYPE_CHECKING:
     from .entity import Entity
