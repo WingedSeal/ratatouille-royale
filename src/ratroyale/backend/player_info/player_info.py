@@ -1,20 +1,44 @@
+import hmac
+import hashlib
+from fernet import Fernet
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
+from math import exp, floor, sqrt
 
+from ratroyale.backend.error import NotEnoughCrumbError
 from ratroyale.utils import DataPointer
 
 from .squeak import Squeak
+from .gacha import CHEESE_PER_ROLL, gacha_squeak
 from .squeak_set import SqueakSet, HAND_LENGTH
-from . import squeaks  # noqa
+from . import squeaks as _squeaks  # noqa
+
+if TYPE_CHECKING:
+    from ..game_manager import GameManager
 
 SAVE_FILE_EXTENSION = "rrsave"
 ENDIAN: Final = "big"
+
+
+def progression_curve(
+    x: float, multiplier: float, estimated_linear_start: int, estimated_linear_end: int
+) -> int:
+    """y=floor(A(x/(x+B))(1-e^{-(x/C)^2}))"""
+    return floor(
+        multiplier
+        * (x / (x + estimated_linear_start))
+        * (1 - exp(-((x / estimated_linear_end) ** 2)))
+    )
 
 
 class PlayerInfo:
     all_squeaks: dict[Squeak, int]
     squeak_sets: list[SqueakSet]
     selected_squeak_set_index: int
+    exp: int
+    cheese: int
+    is_progression_frozen: bool
+    """Whether to not update exp and cheese upon game won. Used for AI."""
 
     _FORMAT_SPEC = """
     2 bytes for all_squeaks_length
@@ -38,7 +62,9 @@ class PlayerInfo:
             1 + large_all_squeaks_length bytes for squeak_count
         }
     }
-    2 bytes for select_squeak_set_index
+    1 byte for select_squeak_set_index
+    4 bytes for exp
+    4 bytes for cheese
     """
 
     def __init__(
@@ -48,6 +74,9 @@ class PlayerInfo:
         hands: list[dict[Squeak, int]],
         *,
         selected_squeak_set_index: int,
+        exp: int,
+        cheese: int,
+        is_progression_frozen: bool,
     ) -> None:
         self.all_squeaks = all_squeaks
         for i, (squeak_set, hand) in enumerate(zip(squeak_sets, hands)):
@@ -61,12 +90,85 @@ class PlayerInfo:
             for squeak_set, hand in zip(squeak_sets, hands, strict=True)
         ]
         self.selected_squeak_set_index = selected_squeak_set_index
+        self.exp = exp
+        self.cheese = cheese
+        self.is_progression_frozen = is_progression_frozen
 
     def get_squeak_set(self) -> SqueakSet:
         return self.squeak_sets[self.selected_squeak_set_index]
 
+    def find_not_enough_squeak_in_sets(self, squeak: Squeak, count: int) -> int | None:
+        """Return the first squeak set index that there's not enough squeak for removing.
+        Return None if it can be savely removed. This already assumed there's enough squeak
+        in the all_squeaks"""
+        for i, squeak_set in enumerate(self.squeak_sets):
+            if squeak not in squeak_set.deck:
+                continue
+            if squeak_set.deck[squeak] < count:
+                return i
+        return None
+
+    def find_not_enough_squeak_in_hands(self, squeak: Squeak, count: int) -> int | None:
+        """Return the first squeak set index that there's not enough squeak in hand for removing.
+        Return None if it can be savely removed. This already assumed there's enough squeak
+        in the all_squeaks and in squeak sets"""
+        for i, squeak_set in enumerate(self.squeak_sets):
+            if squeak not in squeak_set.hands:
+                continue
+            if squeak_set.hands[squeak] < count:
+                return i
+        return None
+
+    def game_won(self, game_manager: "GameManager") -> None:
+        if self.is_progression_frozen:
+            return None
+        self.cheese += progression_curve(game_manager.turn_count, 20, 20, 80)
+        self.exp += progression_curve(game_manager.turn_count, 200, 20, 80)
+
+    def game_lost(self, game_manager: "GameManager") -> None:
+        if self.is_progression_frozen:
+            return None
+        self.cheese += progression_curve(game_manager.turn_count, 5, 20, 80)
+        self.exp += progression_curve(game_manager.turn_count, 100, 20, 80)
+
+    def gacha_squeak(self, count: int = 1) -> list[Squeak]:
+        if self.cheese < count * CHEESE_PER_ROLL:
+            raise NotEnoughCrumbError("Not enough cheese to roll")
+        self.cheese -= count * CHEESE_PER_ROLL
+        squeaks = gacha_squeak(count)
+        self._apply_gacha_squeak(squeaks)
+        return squeaks
+
+    def _apply_gacha_squeak(self, squeaks: list[Squeak]) -> None:
+        for squeak in squeaks:
+            self.all_squeaks[squeak] = self.all_squeaks.get(squeak, 0) + 1
+
+    def get_level(self) -> int:
+        """
+        Level 1->2 EXP required: 100
+        Level 2->3 EXP required: 110
+        Level 3->4 EXP required: 120
+        ...
+        Level N->N+1 EXP required: 100 + 10*(N-1)
+
+        Level 1->N EXP required: 5*N^2 + 85*N - 90
+        k EXP = Level floor((-85 + sqrt(9025 + 20*k))/10)
+        """
+        if self.exp == 0:
+            return 1
+
+        return floor((-85 + sqrt(9025 + 20 * self.exp)) / 10)
+
+    def get_exp_progress(self) -> tuple[int, int]:
+        level = self.get_level()
+        exp_to_current_level = (5 * level * level) + (85 * level) - 90
+        exp_leftover = self.exp - exp_to_current_level
+        exp_required_in_this_level = 100 + 10 * (level - 1)
+
+        return exp_leftover, exp_required_in_this_level
+
     @classmethod
-    def load(cls, data: bytes) -> "PlayerInfo":
+    def load(cls, data: bytes, *, is_progression_frozen: bool = False) -> "PlayerInfo":
         data_pointer = DataPointer(data, ENDIAN)
         all_squeaks_length = data_pointer.get_byte(2)
 
@@ -106,11 +208,17 @@ class PlayerInfo:
 
         selected_squeak_set_index = data_pointer.get_byte()
 
+        exp = data_pointer.get_byte(4)
+        cheese = data_pointer.get_byte(4)
+
         return PlayerInfo(
             all_squeaks,
             squeak_sets,
             hands,
             selected_squeak_set_index=selected_squeak_set_index,
+            exp=exp,
+            cheese=cheese,
+            is_progression_frozen=is_progression_frozen,
         )
 
     def save(self) -> bytes:
@@ -148,19 +256,55 @@ class PlayerInfo:
                 data.extend(squeak_count.to_bytes(1 + large_all_squeaks_length))
 
         data.append(self.selected_squeak_set_index)
+        data.extend(self.exp.to_bytes(4, ENDIAN))
+        data.extend(self.cheese.to_bytes(4, ENDIAN))
 
         return bytes(data)
 
     @classmethod
-    def from_file(cls, file_path: Path) -> "PlayerInfo | None":
+    def from_file(
+        cls, file_path: Path, *, is_progression_frozen: bool = False
+    ) -> "PlayerInfo | None":
         with file_path.open("rb") as file:
             data = file.read()
+        data = unprotect(data)
         try:
-            return cls.load(data)
+            return cls.load(data, is_progression_frozen=is_progression_frozen)
         except Exception:
             return None
 
     def to_file(self, file_path: Path) -> None:
         data = self.save()
+        data = protect(data)
         with file_path.open("wb") as file:
             file.write(data)
+
+
+SHA256_SIGNATURE_SIZE = 32
+FERNET_KEY_SIZE = 44
+"""Fernet key is base64-encoded 32 bytes = 44 bytes"""
+
+
+def protect(data: bytes) -> bytes:
+    key = Fernet.generate_key()
+    assert len(key) == FERNET_KEY_SIZE
+    cipher = Fernet(key)
+    encrypted = cipher.encrypt(data)
+    signature = hmac.new(key, encrypted, hashlib.sha256).digest()
+    assert len(signature) == SHA256_SIGNATURE_SIZE
+    return key + signature + encrypted
+
+
+def unprotect(protected_data: bytes) -> bytes:
+    key = protected_data[:FERNET_KEY_SIZE]
+    signature = protected_data[
+        FERNET_KEY_SIZE : FERNET_KEY_SIZE + SHA256_SIGNATURE_SIZE
+    ]
+    encrypted = protected_data[FERNET_KEY_SIZE + SHA256_SIGNATURE_SIZE :]
+    expected_sig = hmac.new(key, encrypted, hashlib.sha256).digest()
+    if not hmac.compare_digest(signature, expected_sig):
+        raise ValueError("Data has been tampered with")
+    cipher = Fernet(key)
+    decrypted = cipher.decrypt(encrypted)
+    assert isinstance(decrypted, bytes)
+    return decrypted

@@ -23,9 +23,14 @@ class SpriteAnim(AnimEvent):
         super().__post_init__()
         self._current_frame: int = self.start_frame
         self._direction: AnimDirection = self.start_direction
-        self._frame_count: int = SpritesheetManager.get_frame_count(
-            self.spritesheet_component.get_key(), self.animation_name
-        )
+        self._frame_count: int = 0
+        key_or_surface = self.spritesheet_component.spritesheet_reference
+        if isinstance(key_or_surface, str):
+            self._frame_count = SpritesheetManager.get_frame_count(
+                key_or_surface, self.animation_name
+            )
+        else:
+            self._frame_count = 1
 
     def update(self, time_delta: float) -> None:
         """Advance the frame animation according to elapsed time, easing, and direction."""

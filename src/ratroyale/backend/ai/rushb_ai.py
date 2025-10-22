@@ -28,9 +28,10 @@ class RushBAI(BaseAI):
 
     @lru_cache(maxsize=1)
     def choose_lair(self) -> Lair:
-        return random.choice(
-            self.game_manager.board.cache.lairs[self.ai_side.other_side()]
-        )
+        lairs = self.game_manager.board.cache.lairs[self.ai_side.other_side()]
+        if lairs is None:
+            raise ValueError("Enemy of the AI has no Lair")
+        return random.choice(lairs)
 
     @lru_cache(maxsize=1)
     def choose_lair_coord(self) -> OddRCoord:
@@ -55,17 +56,21 @@ class RushBAI(BaseAI):
 
         a_to_lair = a.target_coord.path_find(
             self.choose_lair_coord(),
-            self.game_manager.board.is_coord_blocked(a.squeak.rodent),
+            self.game_manager.board._is_coord_blocked(
+                a.squeak.rodent.collision, self.ai_side
+            ),
         )
         if a_to_lair is None:
             return 1
         b_to_lair = b.target_coord.path_find(
             self.choose_lair_coord(),
-            self.game_manager.board.is_coord_blocked(b.squeak.rodent),
+            self.game_manager.board._is_coord_blocked(
+                b.squeak.rodent.collision, self.ai_side
+            ),
         )
         if b_to_lair is None:
             return 1
-        return len(a_to_lair) - len(b_to_lair)
+        return len(b_to_lair) - len(a_to_lair)
 
     def compare_moves(self, a: MoveAlly, b: MoveAlly) -> int:
         a_to_lair = a.target_coord.path_find(
@@ -80,10 +85,13 @@ class RushBAI(BaseAI):
         )
         if b_to_lair is None:
             return 1
-        return len(a_to_lair) - len(b_to_lair)
+        return len(b_to_lair) - len(a_to_lair)
 
     def select_hand(self, hands: list[PlaceSqueak]) -> PlaceSqueak | None:
+        is_collision = self.choose_lair().is_collision
+        self.choose_lair().is_collision = lambda: False  # type: ignore[method-assign]
         sorted_hands = sorted(hands, key=cmp_to_key(self.compare_hands))
+        self.choose_lair().is_collision = is_collision  # type: ignore[method-assign]
         if len(sorted_hands) == 0:
             return None
         for hand in sorted_hands:
@@ -141,7 +149,10 @@ class RushBAI(BaseAI):
                 return activate_skill
 
         # Move rodent to enemy lair
-        # if not actions.move_ally:
-        #     return EndTurn()
+        if not actions.move_ally:
+            return EndTurn()
+        is_collision = self.choose_lair().is_collision
+        self.choose_lair().is_collision = lambda: False  # type: ignore[method-assign]
         best_move = max(actions.move_ally, key=cmp_to_key(self.compare_moves))
+        self.choose_lair().is_collision = is_collision  # type: ignore[method-assign]
         return best_move

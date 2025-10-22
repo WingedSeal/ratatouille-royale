@@ -1,19 +1,29 @@
 # ruff: noqa
-# type: ignore
+
 import pygame
 
-from ratroyale.backend.entities.rodents.vanguard import TailBlazer
+from ratroyale.backend.ai.rushb_ai import RushBAI
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
+from ratroyale.backend.player_info.squeaks.rodents.duelist import (
+    RATBERT_BREWBELLY,
+    SODA_KABOOMA,
+    MORTAR,
+)
+from ratroyale.backend.player_info.squeaks.rodents.specialist import MAYO
+from ratroyale.backend.player_info.squeaks.rodents.tank import CRACKER
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.hexagon import OddRCoord
-from ratroyale.backend.map import Map
 from ratroyale.backend.player_info.player_info import PlayerInfo
 from ratroyale.backend.player_info.squeak import (
     Squeak,
     SqueakGetPlacableTiles,
     SqueakOnPlace,
     SqueakType,
+    rodent_placable_tile,
+    summon_on_place,
 )
+from ratroyale.backend.features.common import DeploymentZone
 from ratroyale.backend.side import Side
 from ratroyale.backend.tile import Tile
 from ratroyale.coordination_manager import CoordinationManager
@@ -21,6 +31,13 @@ from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEven
 from ratroyale.frontend.pages.page_managers.backend_adapter import BackendAdapter
 from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.backend.ai.random_ai import RandomAI
+
+from ratroyale.backend.features.common import Lair, DeploymentZone
+from ratroyale.backend.map import Map, heights_to_tiles
+from ratroyale.backend.side import Side
+
+import random
 
 
 def main():
@@ -33,59 +50,71 @@ def main():
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
 
     # region GAME MANAGER DOMAIN
-    size_x, size_y = 5, 10
-    tiles: list[list[Tile | None]] = []
-    for q in range(size_y):
-        row = []
-        for r in range(size_x):
-            tile = Tile(
-                tile_id=1, coord=OddRCoord(q, r), entities=[], height=0, features=[]
-            )
-            row.append(tile)
-        tiles.append(row)
-    entities: list[Entity] = [TailBlazer(OddRCoord(1, 3))]
-
-    # Dummy callables
-    dummy_on_place: SqueakOnPlace = lambda game_manager, coord: None
-    dummy_get_placable: SqueakGetPlacableTiles = lambda game_manager: []
-
-    # Create 5 dummy squeaks
-
-    # PlayerInfo
-    player_info_1 = PlayerInfo(
-        {TailBlazer: 5},
-        [{TailBlazer: 5}],
-        [{TailBlazer: 5}],
-        selected_squeak_set_index=0,
+    mouse_zone = DeploymentZone(
+        shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE
     )
-
-    player_info_2 = PlayerInfo(
-        {TailBlazer: 5},
-        [{TailBlazer: 5}],
-        [{TailBlazer: 5}],
-        selected_squeak_set_index=0,
-    )
-
+    rat_zone = DeploymentZone(shape=[OddRCoord(4, 5), OddRCoord(5, 4)], side=Side.RAT)
     map = Map(
-        name="",
-        size_x=size_x,
-        size_y=size_y,
-        tiles=tiles,
-        entities=entities,
-        features=[],
+        "Example Map",
+        6,
+        6,
+        heights_to_tiles(
+            [
+                [1, 1, 1, 1, 1, None],
+                [1, 2, 2, 1, 1, 1],
+                [1, 2, 2, 3, 1, 1],
+                [1, 1, 3, 3, 1, 1],
+                [1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1],
+            ]
+        ),
+        entities=[],
+        features=[
+            Lair([OddRCoord(0, 0)], 200, side=Side.MOUSE),
+            Lair([OddRCoord(5, 5)], 200, side=Side.RAT),
+            mouse_zone,
+            rat_zone,
+        ],
     )
+
+    # Player 1: create a SqueakSet directly in the constructor
+    player_info_1 = PlayerInfo(
+        {TAIL_BLAZER: 5},
+        [{TAIL_BLAZER: 5}],
+        [{TAIL_BLAZER: 5}],
+        selected_squeak_set_index=0,
+        exp=0,
+        cheese=0,
+        is_progression_frozen=True,
+    )
+
+    # Player 2: separate SqueakSet instance
+    player_info_2 = PlayerInfo(
+        {TAIL_BLAZER: 5},
+        [{TAIL_BLAZER: 5}],
+        [{TAIL_BLAZER: 5}],
+        selected_squeak_set_index=0,
+        exp=0,
+        cheese=0,
+        is_progression_frozen=True,
+    )
+
     game_manager = GameManager(
-        map=map, players_info=(player_info_1, player_info_2), first_turn=Side.MOUSE
+        map=map, players_info=(player_info_1, player_info_2), first_turn=Side.RAT
     )
     # endregion
 
     backend_adapter = BackendAdapter(
-        game_manager=game_manager, coordination_manager=coordination_manager
+        game_manager=game_manager,
+        coordination_manager=coordination_manager,
+        ai_type=RushBAI,
     )
 
     coordination_manager.put_message(
         PageNavigationEvent(
-            action_list=[(PageNavigation.OPEN, "MainMenu")]
+            action_list=[
+                (PageNavigation.OPEN, "MainMenu"),
+            ]
         )  # change this to test your page
     )
 

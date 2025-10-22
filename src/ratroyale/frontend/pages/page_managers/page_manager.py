@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Callable
 
 import pygame
 
@@ -36,7 +36,7 @@ class PageManager:
         First is bottom-most, while last is topmost"""
 
         self.camera: Camera = Camera(
-            0, 0, 1, SCREEN_SIZE_HALVED[0], SCREEN_SIZE_HALVED[1]
+            0, 0, SCREEN_SIZE_HALVED[0], SCREEN_SIZE_HALVED[1], 1
         )
 
         self.page_actions: dict[PageNavigation, Callable[[type[Page]], None]] = {
@@ -184,12 +184,9 @@ class PageManager:
         if not events:
             return
 
-        # TODO: toggleable handler_found debugging.
-        handler_found: bool = False
-
         for event in events:
-            for page in self.page_stack:
-                handler_found = handler_found or page.execute_input_callback(event)
+            for page in reversed(self.page_stack):
+                page.execute_input_callback(event)
 
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)
@@ -217,19 +214,29 @@ class PageManager:
                     f"Unsupported navigation action {action} for page {page_name}"
                 )
 
-    def _delegate(self, msg: PageCallbackEvent[Any]) -> None:
+    def _delegate(self, msg: PageCallbackEvent) -> None:
         """Delegate a PageCallbackEvent to the appropriate page."""
         for page in self.page_stack:
-            if page:
-                page.execute_page_callback(msg)
+            page.execute_page_callback(msg)
 
-    # TODO: implement visual events properly
     def execute_visual_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
-        if not msg_queue:
-            return
 
-        pass
+        for page in self.page_stack:
+            if msg_queue:
+                for msg in msg_queue:
+                    page.execute_visual_callback(msg)
+
+            if page._animation_queue and not page._animation_lock:
+                # Check if there's another animation queued
+                next_element, next_anim = page._animation_queue.popleft()
+                # Issue the next animation
+                vis = next_element.visual_component
+                assert vis
+                vis.queue_override_animation(next_anim)
+            else:
+                # No more animations left — unlock input
+                page._animation_lock = False
 
     # endregion
 
@@ -241,4 +248,5 @@ class PageManager:
             if page.is_visible:
                 self.screen.blit(page.render(delta), (0, 0))
 
-    # endregion
+
+# endregion
