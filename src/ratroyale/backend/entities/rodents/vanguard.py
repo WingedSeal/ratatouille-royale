@@ -43,7 +43,9 @@ class Tailblazer(Rodent):
 
     def on_spawn(self, board: "Board") -> None:
         if not any(
-            isinstance(entity, Rodent) for entity in board.cache.sides[self.side]
+            isinstance(entity, Rodent)
+            for entity in board.cache.sides[self.side]
+            if entity is not self
         ):
             self.on_speed = True
             self.speed += 2
@@ -52,6 +54,7 @@ class Tailblazer(Rodent):
         if self.on_speed and any(
             isinstance(entity, Rodent)
             for entity in game_manager.board.cache.sides[self.side]
+            if entity is not self
         ):
             self.speed -= 2
 
