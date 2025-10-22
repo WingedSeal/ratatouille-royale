@@ -1,15 +1,12 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .player_info.squeak import Squeak
 from .instant_kill import InstantKill
 from .entity import Entity, SkillResult
 from .entity_effect import EffectClearSide, EntityEffect
 from .feature import Feature
 from .hexagon import OddRCoord
-from .instant_kill import InstantKill
-from .player_info.squeak import Squeak
 from .side import Side
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 
@@ -214,7 +211,7 @@ class SqueakSetResetEvent(GameEvent):
         return f"{STR_PREFIX}Squeak set has been reset"
 
 
-@dataclass
+@dataclass(frozen=True)
 class CrumbChangeEvent(GameEvent):
     old_crumbs: int
     new_crumbs: int
@@ -228,14 +225,14 @@ class CrumbChangeEvent(GameEvent):
         return f"{STR_PREFIX}Crumbs has been changed from {self.old_crumbs} to {self.new_crumbs} ({self.crumbs_diff:+})"
 
 
-@dataclass
+@dataclass(frozen=True)
 class EntitySkillActivatedEvent(GameEvent):
     skill_result: SkillResult
     entity: Entity
     skill_index: int
 
 
-@dataclass
+@dataclass(frozen=True)
 class EntitySkillCallbackEvent(GameEvent):
     skill_result: SkillResult
     entity: Entity

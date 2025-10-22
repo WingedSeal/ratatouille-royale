@@ -38,10 +38,11 @@ from .game_event import (
     SqueakPlacedEvent,
     SqueakSetResetEvent,
 )
+from .player_info.squeak_set import HAND_LENGTH
 from .hexagon import OddRCoord
 from .instant_kill import InstantKill
 from .map import Map
-from .player_info.player_info import PlayerInfo, HAND_LENGTH
+from .player_info.player_info import PlayerInfo
 from .player_info.squeak import Squeak
 from .side import Side
 from .source_of_damage_or_heal import SourceOfDamageOrHeal

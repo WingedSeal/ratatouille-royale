@@ -8,7 +8,6 @@ from math import exp, floor, sqrt
 from ratroyale.backend.error import NotEnoughCrumbError
 from ratroyale.utils import DataPointer
 
-from . import squeaks  # noqa
 from .squeak import Squeak
 from .gacha import CHEESE_PER_ROLL, gacha_squeak
 from .squeak_set import SqueakSet, HAND_LENGTH
@@ -17,7 +16,6 @@ from . import squeaks as _squeaks  # noqa
 if TYPE_CHECKING:
     from ..game_manager import GameManager
 
-HAND_LENGTH = 5
 SAVE_FILE_EXTENSION = "rrsave"
 ENDIAN: Final = "big"
 
