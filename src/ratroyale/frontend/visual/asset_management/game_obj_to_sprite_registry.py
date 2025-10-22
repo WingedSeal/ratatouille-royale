@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ratroyale.backend.entities.rodents.vanguard import TailBlazer
+from ratroyale.backend.entities.rodents.vanguard import Tailblazer
 from ratroyale.backend.entities.rodents.duelist import (
     RatbertBrewbelly,
     SodaKabooma,
@@ -21,7 +21,7 @@ class SpritesheetMetadata:
 
 
 SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
-    TailBlazer: SpritesheetMetadata(
+    Tailblazer: SpritesheetMetadata(
         "TAILBLAZER",
         ASSET_DIR / "tailblazer.gif",
         (80, 80),
@@ -57,7 +57,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
 }
 
 SQUEAK_IMAGE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
-    TailBlazer: SpritesheetMetadata(
+    Tailblazer: SpritesheetMetadata(
         "TAILBLAZER_SQUEAK",
         ASSET_DIR / "tailblazer_squeak.png",
         (238, 150),

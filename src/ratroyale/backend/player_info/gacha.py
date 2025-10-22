@@ -1,5 +1,5 @@
 import random
-from .squeaks.rodents.vanguard import TAIL_BLAZER
+from .squeaks.rodents.vanguard import TAILBLAZER
 from .squeaks.rodents.tank import CRACKER
 from .squeaks.rodents.duelist import (
     CLANKER,
@@ -16,7 +16,7 @@ from .squeak import Squeak
 
 CHEESE_PER_ROLL = 10
 GACHA_POOL_WEIGHTS: dict[Squeak, float] = {
-    TAIL_BLAZER: 1,
+    TAILBLAZER: 1,
     MAYO: 0.5,
     CRACKER: 2,
     PEA_PEA_POOL_POOL: 1,

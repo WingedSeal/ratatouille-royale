@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 @rodent_data(
-    name="TailBlazer",
+    name="Tailblazer",
     description="The rodent that will never deny a call for adventures.",
     health=8,
     defense=2,
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
         ),
     ],
 )
-class TailBlazer(Rodent):
+class Tailblazer(Rodent):
     @entity_skill_check
     def stab(self, game_manager: "GameManager") -> SkillTargeting:
         return (
