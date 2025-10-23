@@ -22,7 +22,6 @@ class OddRCoord:
 
     x: int
     y: int
-    DIRECTION_DIFFERENCES = ...
     @property
     def row(self) -> int: ...
     @property

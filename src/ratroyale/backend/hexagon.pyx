@@ -1,5 +1,3 @@
-
-
 from libc.math cimport sqrt, fabs as c_abs
 from queue import PriorityQueue
 from typing import Callable, Iterator, Self
@@ -21,20 +19,12 @@ cdef class OddRCoord
 cdef class _CubeCoordFloat
 cdef class _AxialCoordFloat
 
-
-
-
-cdef class IsCoordBlocked:
-    
-    def __call__(self, OddRCoord target_coord, OddRCoord source_coord):
-        pass
-
 cdef class _AStarCoord:
-    cdef public double priority
+    cdef public float priority
     cdef public OddRCoord coord
 
     def __init__(self, priority: float, coord: OddRCoord):
-        self.priority = priority
+        self.priority = <float>priority
         self.coord = coord
 
     def __lt__(self, other):
@@ -210,14 +200,13 @@ cdef class _AxialCoordFloat:
     cpdef _AxialCoord round(self):
         return self.to_cube_float().round().to_axial()
 
-
+cdef int[2][6][2] DIRECTION_DIFFERENCES = [
+    [[1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]],
+    [[1, 0], [1, -1], [0, -1], [-1, 0], [0, 1], [1, 1]],
+]
 cdef class OddRCoord:
     cdef public int x, y
 
-    DIRECTION_DIFFERENCES = (
-        ((+1, 0), (0, -1), (-1, -1), (-1, 0), (-1, +1), (0, +1)),
-        ((+1, 0), (+1, -1), (0, -1), (-1, 0), (0, +1), (+1, +1)),
-    )
 
     def __init__(self, int x, int y):
         self.x = x
@@ -297,7 +286,7 @@ cdef class OddRCoord:
             raise ValueError("direction must be between 0 and 5")
             
         parity = self.y & 1
-        diff = self.DIRECTION_DIFFERENCES[parity][direction]
+        diff = DIRECTION_DIFFERENCES[parity][direction]
         dx, dy = diff
         return OddRCoord(self.x + dx, self.y + dy)
 
@@ -354,7 +343,7 @@ cdef class OddRCoord:
         cdef dict cost_so_far = {self: 0.0}
         cdef OddRCoord current
         cdef OddRCoord next_coord
-        cdef double new_cost, priority
+        cdef float new_cost, priority
         cdef list path
         cdef OddRCoord current_
         cdef _AStarCoord frontier_item
@@ -376,7 +365,7 @@ cdef class OddRCoord:
 
                 if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:
                     cost_so_far[next_coord] = new_cost
-                    priority = new_cost + <double>goal.get_distance(next_coord)
+                    priority = new_cost + goal.get_distance(next_coord)
                     frontier.put(_AStarCoord(priority, next_coord))
                     came_from[next_coord] = current
 
