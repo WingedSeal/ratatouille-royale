@@ -1,10 +1,10 @@
-# distutils: language = c
+
 
 from libc.math cimport sqrt, fabs as c_abs
 from queue import PriorityQueue
 from typing import Callable, Iterator, Self
 
-# --- C Functions
+
 cdef double lerp(double a, double b, double t) noexcept:
     return a + t * (b - a)
 
@@ -14,7 +14,7 @@ cdef float _get_default_cost(OddRCoord a, OddRCoord b) noexcept:
 cdef bint _coord_never_blocked(OddRCoord target_coord, OddRCoord source_coord) noexcept:
     return 0
 
-# Forward declarations
+
 cdef class _AxialCoord
 cdef class _CubeCoord
 cdef class OddRCoord
@@ -22,10 +22,10 @@ cdef class _CubeCoordFloat
 cdef class _AxialCoordFloat
 
 
-# --- Special Classes
+
 
 cdef class IsCoordBlocked:
-    # Special method must be 'def'
+    
     def __call__(self, OddRCoord target_coord, OddRCoord source_coord):
         pass
 
@@ -43,7 +43,7 @@ cdef class _AStarCoord:
     def __eq__(self, other):
         return self.priority == other.priority
 
-# --- Coordinate Classes
+
 
 cdef class _CubeCoord:
     cdef public int q, r, s
@@ -60,19 +60,19 @@ cdef class _CubeCoord:
         if not isinstance(other, _CubeCoord): return False
         return self.q == other.q and self.r == other.r and self.s == other.s
 
-    # Removed 'except *' (line 60 warning)
+    
     cpdef _AxialCoord to_axial(self):
         return _AxialCoord(self.q, self.r)
 
-    # Removed 'except *' (line 63 warning)
+    
     cpdef OddRCoord to_odd_r(self):
         return self.to_axial().to_odd_r()
 
-    cpdef int get_distance(self, _CubeCoord other) except *: # Returns C int, keeps except *
+    cpdef int get_distance(self, _CubeCoord other) except *: 
         cdef _CubeCoord vec = self - other
         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
 
-    # Generator function must be 'def'
+    
     def line_draw(self, _CubeCoord other):
         cdef int N = self.get_distance(other)
         cdef int i
@@ -90,7 +90,7 @@ cdef class _CubeCoord:
     def __sub__(self, _CubeCoord other):
         return _CubeCoord(self.q - other.q, self.r - other.r, self.s - other.s)
 
-    # Removed 'except *' (line 88 warning)
+    
     cpdef _CubeCoordFloat to_cube_float(
         self, tuple add_epsilon = None
     ):
@@ -118,11 +118,11 @@ cdef class _AxialCoord:
         if not isinstance(other, _AxialCoord): return False
         return self.q == other.q and self.r == other.r
 
-    # Removed 'except *' (line 115 warning)
+    
     cpdef _CubeCoord to_cube(self):
         return _CubeCoord(self.q, self.r, -self.q - self.r)
 
-    # Removed 'except *' (line 118 warning)
+    
     cpdef OddRCoord to_odd_r(self):
         cdef int parity = self.r & 1
         cdef int col = self.q + (self.r - parity) // 2
@@ -135,7 +135,7 @@ cdef class _AxialCoord:
     def __sub__(self, _AxialCoord other):
         return _AxialCoord(self.q - other.q, self.r - other.r)
 
-    # Generator function must be 'def'
+    
     def all_in_range(self, int N):
         cdef int q, r
         cdef _AxialCoord offset_coord
@@ -145,7 +145,7 @@ cdef class _AxialCoord:
                 offset_coord = self + _AxialCoord(q, r)
                 yield offset_coord.to_odd_r()
 
-    # Removed 'except *' (line 140 warning)
+    
     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):
         cdef double _x = x / hex_size
         cdef double _y = y / hex_size
@@ -167,7 +167,7 @@ cdef class _CubeCoordFloat:
         self.r = r
         self.s = s
 
-    # Removed 'except *' (line 161 warning)
+    
     cpdef _CubeCoord round(self):
         cdef int round_q = <int>round(self.q)
         cdef int round_r = <int>round(self.r)
@@ -187,7 +187,7 @@ cdef class _CubeCoordFloat:
 
         return _CubeCoord(round_q, round_r, round_s)
 
-    # Removed 'except *' (line 180 warning)
+    
     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):
         return _CubeCoordFloat(
             lerp(self.q, other.q, t),
@@ -202,11 +202,11 @@ cdef class _AxialCoordFloat:
         self.q = q
         self.r = r
 
-    # Removed 'except *' (line 194 warning)
+    
     cpdef _CubeCoordFloat to_cube_float(self):
         return _CubeCoordFloat(self.q, self.r, -self.q - self.r)
 
-    # Removed 'except *' (line 197 warning)
+    
     cpdef _AxialCoord round(self):
         return self.to_cube_float().round().to_axial()
 
@@ -238,29 +238,29 @@ cdef class OddRCoord:
     def col(self) -> int:
         return self.x
 
-    # Removed 'except *' (line 228 warning)
+    
     cpdef _AxialCoord to_axial(self):
         cdef int parity = self.y & 1
         cdef int q = self.x - (self.y - parity) // 2
         cdef int r = self.y
         return _AxialCoord(q, r)
 
-    # Removed 'except *' (line 234 warning)
+    
     cpdef _CubeCoord to_cube(self):
         return self.to_axial().to_cube()
 
-    cpdef int get_distance(self, OddRCoord other) except *: # Returns C int, keeps except *
+    cpdef int get_distance(self, OddRCoord other) except *: 
         return self.to_cube().get_distance(other.to_cube())
 
-    # Generator expression is a closure, must be 'def'
+    
     def line_draw(self, OddRCoord other):
         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
 
-    # Generator expression is a closure, must be 'def'
+    
     def all_in_range(self, int N):
         return self.to_axial().all_in_range(N)
 
-    # Removed 'except *' (line 275 warning)
+    
     cpdef tuple[double, double] to_pixel(
         self,
         double hex_width,
@@ -287,7 +287,7 @@ cdef class OddRCoord:
         
         return x * _hex_width, y * _hex_height
 
-    # Removed 'except *' (line 322 warning)
+    
     cpdef OddRCoord get_neighbor(self, int direction):
         cdef int parity
         cdef tuple diff
@@ -301,7 +301,7 @@ cdef class OddRCoord:
         dx, dy = diff
         return OddRCoord(self.x + dx, self.y + dy)
 
-    # Generator function must be 'def'
+    
     def get_neighbors(self):
         cdef int i
         for i in range(6):

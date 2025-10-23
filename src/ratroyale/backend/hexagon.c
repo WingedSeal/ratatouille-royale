@@ -4,7 +4,6 @@
 {
     "distutils": {
         "depends": [],
-        "language": "c",
         "name": "ratroyale.backend.hexagon",
         "sources": [
             "src/ratroyale/backend/hexagon.pyx"
@@ -1539,7 +1538,7 @@ struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find;
 
 /* "ratroyale/backend/hexagon.pyx":94
  * 
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
@@ -1551,7 +1550,7 @@ struct __pyx_opt_args_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float {
 
 /* "ratroyale/backend/hexagon.pyx":264
  * 
- *     # Removed 'except *' (line 275 warning)
+ * 
  *     cpdef tuple[double, double] to_pixel(             # <<<<<<<<<<<<<<
  *         self,
  *         double hex_width,
@@ -1592,10 +1591,10 @@ struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find {
 };
 
 /* "ratroyale/backend/hexagon.pyx":27
- * # --- Special Classes
+ * 
  * 
  * cdef class IsCoordBlocked:             # <<<<<<<<<<<<<<
- *     # Special method must be 'def'
+ * 
  *     def __call__(self, OddRCoord target_coord, OddRCoord source_coord):
 */
 struct __pyx_obj_9ratroyale_7backend_7hexagon_IsCoordBlocked {
@@ -1618,7 +1617,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon__AStarCoord {
 
 
 /* "ratroyale/backend/hexagon.pyx":19
- * # Forward declarations
+ * 
  * cdef class _AxialCoord
  * cdef class _CubeCoord             # <<<<<<<<<<<<<<
  * cdef class OddRCoord
@@ -1635,7 +1634,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord {
 
 /* "ratroyale/backend/hexagon.pyx":18
  * 
- * # Forward declarations
+ * 
  * cdef class _AxialCoord             # <<<<<<<<<<<<<<
  * cdef class _CubeCoord
  * cdef class OddRCoord
@@ -1696,7 +1695,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord {
 
 /* "ratroyale/backend/hexagon.pyx":76
  * 
- *     # Generator function must be 'def'
+ * 
  *     def line_draw(self, _CubeCoord other):             # <<<<<<<<<<<<<<
  *         cdef int N = self.get_distance(other)
  *         cdef int i
@@ -1717,7 +1716,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw {
 
 /* "ratroyale/backend/hexagon.pyx":139
  * 
- *     # Generator function must be 'def'
+ * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         cdef int q, r
  *         cdef _AxialCoord offset_coord
@@ -1740,11 +1739,11 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range 
 
 
 /* "ratroyale/backend/hexagon.pyx":257
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def line_draw(self, OddRCoord other):
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))             # <<<<<<<<<<<<<<
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
 */
 struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr {
   PyObject_HEAD
@@ -1758,7 +1757,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr {
 
 /* "ratroyale/backend/hexagon.pyx":305
  * 
- *     # Generator function must be 'def'
+ * 
  *     def get_neighbors(self):             # <<<<<<<<<<<<<<
  *         cdef int i
  *         for i in range(6):
@@ -1807,7 +1806,7 @@ static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v
 
 
 /* "ratroyale/backend/hexagon.pyx":48
- * # --- Coordinate Classes
+ * 
  * 
  * cdef class _CubeCoord:             # <<<<<<<<<<<<<<
  *     cdef public int q, r, s
@@ -4219,7 +4218,7 @@ static PyObject *__Pyx_CFunc_f05d64__9ratroyale_7backend_7hexagon_float__lParenO
 
 /* "ratroyale/backend/hexagon.pyx":8
  * 
- * # --- C Functions
+ * 
  * cdef double lerp(double a, double b, double t) noexcept:             # <<<<<<<<<<<<<<
  *     return a + t * (b - a)
  * 
@@ -4229,7 +4228,7 @@ static double __pyx_f_9ratroyale_7backend_7hexagon_lerp(double __pyx_v_a, double
   double __pyx_r;
 
   /* "ratroyale/backend/hexagon.pyx":9
- * # --- C Functions
+ * 
  * cdef double lerp(double a, double b, double t) noexcept:
  *     return a + t * (b - a)             # <<<<<<<<<<<<<<
  * 
@@ -4240,7 +4239,7 @@ static double __pyx_f_9ratroyale_7backend_7hexagon_lerp(double __pyx_v_a, double
 
   /* "ratroyale/backend/hexagon.pyx":8
  * 
- * # --- C Functions
+ * 
  * cdef double lerp(double a, double b, double t) noexcept:             # <<<<<<<<<<<<<<
  *     return a + t * (b - a)
  * 
@@ -4301,7 +4300,7 @@ static int __pyx_f_9ratroyale_7backend_7hexagon__coord_never_blocked(CYTHON_UNUS
  * cdef bint _coord_never_blocked(OddRCoord target_coord, OddRCoord source_coord) noexcept:
  *     return 0             # <<<<<<<<<<<<<<
  * 
- * # Forward declarations
+ * 
 */
   __pyx_r = 0;
   goto __pyx_L0;
@@ -4321,7 +4320,7 @@ static int __pyx_f_9ratroyale_7backend_7hexagon__coord_never_blocked(CYTHON_UNUS
 
 /* "ratroyale/backend/hexagon.pyx":29
  * cdef class IsCoordBlocked:
- *     # Special method must be 'def'
+ * 
  *     def __call__(self, OddRCoord target_coord, OddRCoord source_coord):             # <<<<<<<<<<<<<<
  *         pass
  * 
@@ -5059,7 +5058,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_4__eq__(str
  *     def __eq__(self, other):
  *         return self.priority == other.priority             # <<<<<<<<<<<<<<
  * 
- * # --- Coordinate Classes
+ * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->priority); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
@@ -5967,7 +5966,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
  *         if not isinstance(other, _CubeCoord): return False
  *         return self.q == other.q and self.r == other.r and self.s == other.s             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 60 warning)
+ * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 61, __pyx_L1_error)
@@ -6041,7 +6040,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
 
 /* "ratroyale/backend/hexagon.pyx":64
  * 
- *     # Removed 'except *' (line 60 warning)
+ * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
  *         return _AxialCoord(self.q, self.r)
  * 
@@ -6130,11 +6129,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
   }
 
   /* "ratroyale/backend/hexagon.pyx":65
- *     # Removed 'except *' (line 60 warning)
+ * 
  *     cpdef _AxialCoord to_axial(self):
  *         return _AxialCoord(self.q, self.r)             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 63 warning)
+ * 
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __pyx_t_2 = NULL;
@@ -6161,7 +6160,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
 
   /* "ratroyale/backend/hexagon.pyx":64
  * 
- *     # Removed 'except *' (line 60 warning)
+ * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
  *         return _AxialCoord(self.q, self.r)
  * 
@@ -6252,7 +6251,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_6to_axial(st
 
 /* "ratroyale/backend/hexagon.pyx":68
  * 
- *     # Removed 'except *' (line 63 warning)
+ * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
  *         return self.to_axial().to_odd_r()
  * 
@@ -6340,11 +6339,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
   }
 
   /* "ratroyale/backend/hexagon.pyx":69
- *     # Removed 'except *' (line 63 warning)
+ * 
  *     cpdef OddRCoord to_odd_r(self):
  *         return self.to_axial().to_odd_r()             # <<<<<<<<<<<<<<
  * 
- *     cpdef int get_distance(self, _CubeCoord other) except *: # Returns C int, keeps except *
+ *     cpdef int get_distance(self, _CubeCoord other) except *:
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
@@ -6358,7 +6357,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
 
   /* "ratroyale/backend/hexagon.pyx":68
  * 
- *     # Removed 'except *' (line 63 warning)
+ * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
  *         return self.to_axial().to_odd_r()
  * 
@@ -6449,7 +6448,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_8to_odd_r(st
 /* "ratroyale/backend/hexagon.pyx":71
  *         return self.to_axial().to_odd_r()
  * 
- *     cpdef int get_distance(self, _CubeCoord other) except *: # Returns C int, keeps except *             # <<<<<<<<<<<<<<
+ *     cpdef int get_distance(self, _CubeCoord other) except *:             # <<<<<<<<<<<<<<
  *         cdef _CubeCoord vec = self - other
  *         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
 */
@@ -6538,7 +6537,7 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(struct
 
   /* "ratroyale/backend/hexagon.pyx":72
  * 
- *     cpdef int get_distance(self, _CubeCoord other) except *: # Returns C int, keeps except *
+ *     cpdef int get_distance(self, _CubeCoord other) except *:
  *         cdef _CubeCoord vec = self - other             # <<<<<<<<<<<<<<
  *         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
  * 
@@ -6550,11 +6549,11 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(struct
   __pyx_t_1 = 0;
 
   /* "ratroyale/backend/hexagon.pyx":73
- *     cpdef int get_distance(self, _CubeCoord other) except *: # Returns C int, keeps except *
+ *     cpdef int get_distance(self, _CubeCoord other) except *:
  *         cdef _CubeCoord vec = self - other
  *         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)             # <<<<<<<<<<<<<<
  * 
- *     # Generator function must be 'def'
+ * 
 */
   __pyx_r = ((int)(((fabs(__pyx_v_vec->q) + fabs(__pyx_v_vec->r)) + fabs(__pyx_v_vec->s)) / 2.0));
   goto __pyx_L0;
@@ -6562,7 +6561,7 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(struct
   /* "ratroyale/backend/hexagon.pyx":71
  *         return self.to_axial().to_odd_r()
  * 
- *     cpdef int get_distance(self, _CubeCoord other) except *: # Returns C int, keeps except *             # <<<<<<<<<<<<<<
+ *     cpdef int get_distance(self, _CubeCoord other) except *:             # <<<<<<<<<<<<<<
  *         cdef _CubeCoord vec = self - other
  *         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
 */
@@ -6707,7 +6706,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
 
 /* "ratroyale/backend/hexagon.pyx":76
  * 
- *     # Generator function must be 'def'
+ * 
  *     def line_draw(self, _CubeCoord other):             # <<<<<<<<<<<<<<
  *         cdef int N = self.get_distance(other)
  *         cdef int i
@@ -6876,7 +6875,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
   }
 
   /* "ratroyale/backend/hexagon.pyx":77
- *     # Generator function must be 'def'
+ * 
  *     def line_draw(self, _CubeCoord other):
  *         cdef int N = self.get_distance(other)             # <<<<<<<<<<<<<<
  *         cdef int i
@@ -6978,7 +6977,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
 
   /* "ratroyale/backend/hexagon.pyx":76
  * 
- *     # Generator function must be 'def'
+ * 
  *     def line_draw(self, _CubeCoord other):             # <<<<<<<<<<<<<<
  *         cdef int N = self.get_distance(other)
  *         cdef int i
@@ -7163,7 +7162,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_17__sub__(st
  *     def __sub__(self, _CubeCoord other):
  *         return _CubeCoord(self.q - other.q, self.r - other.r, self.s - other.s)             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 88 warning)
+ * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = NULL;
@@ -7217,7 +7216,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_17__sub__(st
 
 /* "ratroyale/backend/hexagon.pyx":94
  * 
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
@@ -7233,7 +7232,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float *__pyx_optional_args) {
 
   /* "ratroyale/backend/hexagon.pyx":95
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(
  *         self, tuple add_epsilon = None             # <<<<<<<<<<<<<<
  *     ):
@@ -7264,7 +7263,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
 
   /* "ratroyale/backend/hexagon.pyx":94
  * 
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
@@ -7474,7 +7473,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
 
   /* "ratroyale/backend/hexagon.pyx":94
  * 
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
@@ -7551,7 +7550,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "to_cube_float", 0) < (0)) __PYX_ERR(0, 94, __pyx_L3_error)
 
       /* "ratroyale/backend/hexagon.pyx":95
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(
  *         self, tuple add_epsilon = None             # <<<<<<<<<<<<<<
  *     ):
@@ -7589,7 +7588,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 
   /* "ratroyale/backend/hexagon.pyx":94
  * 
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
@@ -8534,7 +8533,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_4__eq__(str
  *         if not isinstance(other, _AxialCoord): return False
  *         return self.q == other.q and self.r == other.r             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 115 warning)
+ * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 119, __pyx_L1_error)
@@ -8592,7 +8591,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_4__eq__(str
 
 /* "ratroyale/backend/hexagon.pyx":122
  * 
- *     # Removed 'except *' (line 115 warning)
+ * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
  *         return _CubeCoord(self.q, self.r, -self.q - self.r)
  * 
@@ -8682,11 +8681,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   }
 
   /* "ratroyale/backend/hexagon.pyx":123
- *     # Removed 'except *' (line 115 warning)
+ * 
  *     cpdef _CubeCoord to_cube(self):
  *         return _CubeCoord(self.q, self.r, -self.q - self.r)             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 118 warning)
+ * 
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __pyx_t_2 = NULL;
@@ -8716,7 +8715,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
 
   /* "ratroyale/backend/hexagon.pyx":122
  * 
- *     # Removed 'except *' (line 115 warning)
+ * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
  *         return _CubeCoord(self.q, self.r, -self.q - self.r)
  * 
@@ -8808,7 +8807,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_6to_cube(st
 
 /* "ratroyale/backend/hexagon.pyx":126
  * 
- *     # Removed 'except *' (line 118 warning)
+ * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
  *         cdef int parity = self.r & 1
  *         cdef int col = self.q + (self.r - parity) // 2
@@ -8901,7 +8900,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
   }
 
   /* "ratroyale/backend/hexagon.pyx":127
- *     # Removed 'except *' (line 118 warning)
+ * 
  *     cpdef OddRCoord to_odd_r(self):
  *         cdef int parity = self.r & 1             # <<<<<<<<<<<<<<
  *         cdef int col = self.q + (self.r - parity) // 2
@@ -8960,7 +8959,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
 
   /* "ratroyale/backend/hexagon.pyx":126
  * 
- *     # Removed 'except *' (line 118 warning)
+ * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
  *         cdef int parity = self.r & 1
  *         cdef int col = self.q + (self.r - parity) // 2
@@ -9201,7 +9200,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_12__sub__(s
  *     def __sub__(self, _AxialCoord other):
  *         return _AxialCoord(self.q - other.q, self.r - other.r)             # <<<<<<<<<<<<<<
  * 
- *     # Generator function must be 'def'
+ * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = NULL;
@@ -9252,7 +9251,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
 
 /* "ratroyale/backend/hexagon.pyx":139
  * 
- *     # Generator function must be 'def'
+ * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         cdef int q, r
  *         cdef _AxialCoord offset_coord
@@ -9496,7 +9495,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
  *                 offset_coord = self + _AxialCoord(q, r)
  *                 yield offset_coord.to_odd_r()             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 140 warning)
+ * 
 */
       __pyx_t_12 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_cur_scope->__pyx_v_offset_coord->__pyx_vtab)->to_odd_r(__pyx_cur_scope->__pyx_v_offset_coord, 0)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 146, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
@@ -9530,7 +9529,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
 
   /* "ratroyale/backend/hexagon.pyx":139
  * 
- *     # Generator function must be 'def'
+ * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         cdef int q, r
  *         cdef _AxialCoord offset_coord
@@ -9562,7 +9561,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
 
 /* "ratroyale/backend/hexagon.pyx":149
  * 
- *     # Removed 'except *' (line 140 warning)
+ * 
  *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
  *         cdef double _x = x / hex_size
  *         cdef double _y = y / hex_size
@@ -9666,7 +9665,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
   }
 
   /* "ratroyale/backend/hexagon.pyx":150
- *     # Removed 'except *' (line 140 warning)
+ * 
  *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):
  *         cdef double _x = x / hex_size             # <<<<<<<<<<<<<<
  *         cdef double _y = y / hex_size
@@ -9762,7 +9761,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
 
   /* "ratroyale/backend/hexagon.pyx":149
  * 
- *     # Removed 'except *' (line 140 warning)
+ * 
  *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
  *         cdef double _x = x / hex_size
  *         cdef double _y = y / hex_size
@@ -10585,7 +10584,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat___init__(stru
  *         self.r = r
  *         self.s = s             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 161 warning)
+ * 
 */
   __pyx_v_self->s = __pyx_v_s;
 
@@ -10604,7 +10603,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat___init__(stru
 
 /* "ratroyale/backend/hexagon.pyx":171
  * 
- *     # Removed 'except *' (line 161 warning)
+ * 
  *     cpdef _CubeCoord round(self):             # <<<<<<<<<<<<<<
  *         cdef int round_q = <int>round(self.q)
  *         cdef int round_r = <int>round(self.r)
@@ -10703,7 +10702,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   }
 
   /* "ratroyale/backend/hexagon.pyx":172
- *     # Removed 'except *' (line 161 warning)
+ * 
  *     cpdef _CubeCoord round(self):
  *         cdef int round_q = <int>round(self.q)             # <<<<<<<<<<<<<<
  *         cdef int round_r = <int>round(self.r)
@@ -10890,7 +10889,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
  * 
  *         return _CubeCoord(round_q, round_r, round_s)             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 180 warning)
+ * 
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __pyx_t_2 = NULL;
@@ -10920,7 +10919,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
 
   /* "ratroyale/backend/hexagon.pyx":171
  * 
- *     # Removed 'except *' (line 161 warning)
+ * 
  *     cpdef _CubeCoord round(self):             # <<<<<<<<<<<<<<
  *         cdef int round_q = <int>round(self.q)
  *         cdef int round_r = <int>round(self.r)
@@ -11012,7 +11011,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_2round(
 
 /* "ratroyale/backend/hexagon.pyx":191
  * 
- *     # Removed 'except *' (line 180 warning)
+ * 
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):             # <<<<<<<<<<<<<<
  *         return _CubeCoordFloat(
  *             lerp(self.q, other.q, t),
@@ -11105,7 +11104,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
   }
 
   /* "ratroyale/backend/hexagon.pyx":192
- *     # Removed 'except *' (line 180 warning)
+ * 
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):
  *         return _CubeCoordFloat(             # <<<<<<<<<<<<<<
  *             lerp(self.q, other.q, t),
@@ -11163,7 +11162,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
 
   /* "ratroyale/backend/hexagon.pyx":191
  * 
- *     # Removed 'except *' (line 180 warning)
+ * 
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):             # <<<<<<<<<<<<<<
  *         return _CubeCoordFloat(
  *             lerp(self.q, other.q, t),
@@ -12052,7 +12051,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat___init__(str
  *         self.q = q
  *         self.r = r             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 194 warning)
+ * 
 */
   __pyx_v_self->r = __pyx_v_r;
 
@@ -12071,7 +12070,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat___init__(str
 
 /* "ratroyale/backend/hexagon.pyx":206
  * 
- *     # Removed 'except *' (line 194 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(self):             # <<<<<<<<<<<<<<
  *         return _CubeCoordFloat(self.q, self.r, -self.q - self.r)
  * 
@@ -12161,11 +12160,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
   }
 
   /* "ratroyale/backend/hexagon.pyx":207
- *     # Removed 'except *' (line 194 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(self):
  *         return _CubeCoordFloat(self.q, self.r, -self.q - self.r)             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 197 warning)
+ * 
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __pyx_t_2 = NULL;
@@ -12195,7 +12194,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
 
   /* "ratroyale/backend/hexagon.pyx":206
  * 
- *     # Removed 'except *' (line 194 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(self):             # <<<<<<<<<<<<<<
  *         return _CubeCoordFloat(self.q, self.r, -self.q - self.r)
  * 
@@ -12287,7 +12286,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_2to_cu
 
 /* "ratroyale/backend/hexagon.pyx":210
  * 
- *     # Removed 'except *' (line 197 warning)
+ * 
  *     cpdef _AxialCoord round(self):             # <<<<<<<<<<<<<<
  *         return self.to_cube_float().round().to_axial()
  * 
@@ -12375,7 +12374,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
   }
 
   /* "ratroyale/backend/hexagon.pyx":211
- *     # Removed 'except *' (line 197 warning)
+ * 
  *     cpdef _AxialCoord round(self):
  *         return self.to_cube_float().round().to_axial()             # <<<<<<<<<<<<<<
  * 
@@ -12396,7 +12395,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
 
   /* "ratroyale/backend/hexagon.pyx":210
  * 
- *     # Removed 'except *' (line 197 warning)
+ * 
  *     cpdef _AxialCoord round(self):             # <<<<<<<<<<<<<<
  *         return self.to_cube_float().round().to_axial()
  * 
@@ -13453,7 +13452,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_3col___get__(s
  *     def col(self) -> int:
  *         return self.x             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 228 warning)
+ * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 239, __pyx_L1_error)
@@ -13483,7 +13482,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_3col___get__(s
 
 /* "ratroyale/backend/hexagon.pyx":242
  * 
- *     # Removed 'except *' (line 228 warning)
+ * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
  *         cdef int parity = self.y & 1
  *         cdef int q = self.x - (self.y - parity) // 2
@@ -13576,7 +13575,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
   }
 
   /* "ratroyale/backend/hexagon.pyx":243
- *     # Removed 'except *' (line 228 warning)
+ * 
  *     cpdef _AxialCoord to_axial(self):
  *         cdef int parity = self.y & 1             # <<<<<<<<<<<<<<
  *         cdef int q = self.x - (self.y - parity) // 2
@@ -13608,7 +13607,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
  *         cdef int r = self.y
  *         return _AxialCoord(q, r)             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 234 warning)
+ * 
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __pyx_t_2 = NULL;
@@ -13635,7 +13634,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
 
   /* "ratroyale/backend/hexagon.pyx":242
  * 
- *     # Removed 'except *' (line 228 warning)
+ * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
  *         cdef int parity = self.y & 1
  *         cdef int q = self.x - (self.y - parity) // 2
@@ -13726,7 +13725,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_6to_axial(stru
 
 /* "ratroyale/backend/hexagon.pyx":249
  * 
- *     # Removed 'except *' (line 234 warning)
+ * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
  *         return self.to_axial().to_cube()
  * 
@@ -13814,11 +13813,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   }
 
   /* "ratroyale/backend/hexagon.pyx":250
- *     # Removed 'except *' (line 234 warning)
+ * 
  *     cpdef _CubeCoord to_cube(self):
  *         return self.to_axial().to_cube()             # <<<<<<<<<<<<<<
  * 
- *     cpdef int get_distance(self, OddRCoord other) except *: # Returns C int, keeps except *
+ *     cpdef int get_distance(self, OddRCoord other) except *:
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 250, __pyx_L1_error)
@@ -13832,7 +13831,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
 
   /* "ratroyale/backend/hexagon.pyx":249
  * 
- *     # Removed 'except *' (line 234 warning)
+ * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
  *         return self.to_axial().to_cube()
  * 
@@ -13923,7 +13922,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_8to_cube(struc
 /* "ratroyale/backend/hexagon.pyx":252
  *         return self.to_axial().to_cube()
  * 
- *     cpdef int get_distance(self, OddRCoord other) except *: # Returns C int, keeps except *             # <<<<<<<<<<<<<<
+ *     cpdef int get_distance(self, OddRCoord other) except *:             # <<<<<<<<<<<<<<
  *         return self.to_cube().get_distance(other.to_cube())
  * 
 */
@@ -14011,10 +14010,10 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance(struct _
 
   /* "ratroyale/backend/hexagon.pyx":253
  * 
- *     cpdef int get_distance(self, OddRCoord other) except *: # Returns C int, keeps except *
+ *     cpdef int get_distance(self, OddRCoord other) except *:
  *         return self.to_cube().get_distance(other.to_cube())             # <<<<<<<<<<<<<<
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
 */
   __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_cube(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -14029,7 +14028,7 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance(struct _
   /* "ratroyale/backend/hexagon.pyx":252
  *         return self.to_axial().to_cube()
  * 
- *     cpdef int get_distance(self, OddRCoord other) except *: # Returns C int, keeps except *             # <<<<<<<<<<<<<<
+ *     cpdef int get_distance(self, OddRCoord other) except *:             # <<<<<<<<<<<<<<
  *         return self.to_cube().get_distance(other.to_cube())
  * 
 */
@@ -14172,7 +14171,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_10get_distance
 
 /* "ratroyale/backend/hexagon.pyx":256
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def line_draw(self, OddRCoord other):             # <<<<<<<<<<<<<<
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
  * 
@@ -14275,11 +14274,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2generator3(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
 /* "ratroyale/backend/hexagon.pyx":257
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def line_draw(self, OddRCoord other):
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))             # <<<<<<<<<<<<<<
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
 */
 
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_genexpr(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_genexpr_arg_0) {
@@ -14456,7 +14455,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2ge
 
 /* "ratroyale/backend/hexagon.pyx":256
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def line_draw(self, OddRCoord other):             # <<<<<<<<<<<<<<
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
  * 
@@ -14477,11 +14476,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_12line_draw(st
   __Pyx_RefNannySetupContext("line_draw", 0);
 
   /* "ratroyale/backend/hexagon.pyx":257
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def line_draw(self, OddRCoord other):
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))             # <<<<<<<<<<<<<<
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_3 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_cube(__pyx_v_self, 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 257, __pyx_L1_error)
@@ -14509,7 +14508,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_12line_draw(st
 
   /* "ratroyale/backend/hexagon.pyx":256
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def line_draw(self, OddRCoord other):             # <<<<<<<<<<<<<<
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
  * 
@@ -14532,7 +14531,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_12line_draw(st
 
 /* "ratroyale/backend/hexagon.pyx":260
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         return self.to_axial().all_in_range(N)
  * 
@@ -14637,11 +14636,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_14all_in_range
   __Pyx_RefNannySetupContext("all_in_range", 0);
 
   /* "ratroyale/backend/hexagon.pyx":261
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def all_in_range(self, int N):
  *         return self.to_axial().all_in_range(N)             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 275 warning)
+ * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_3 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 261, __pyx_L1_error)
@@ -14666,7 +14665,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_14all_in_range
 
   /* "ratroyale/backend/hexagon.pyx":260
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         return self.to_axial().all_in_range(N)
  * 
@@ -14688,7 +14687,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_14all_in_range
 
 /* "ratroyale/backend/hexagon.pyx":264
  * 
- *     # Removed 'except *' (line 275 warning)
+ * 
  *     cpdef tuple[double, double] to_pixel(             # <<<<<<<<<<<<<<
  *         self,
  *         double hex_width,
@@ -14935,7 +14934,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
  * 
  *         return x * _hex_width, y * _hex_height             # <<<<<<<<<<<<<<
  * 
- *     # Removed 'except *' (line 322 warning)
+ * 
 */
   __pyx_t_9.f0 = (__pyx_v_x * __pyx_v__hex_width);
   __pyx_t_9.f1 = (__pyx_v_y * __pyx_v__hex_height);
@@ -14944,7 +14943,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 
   /* "ratroyale/backend/hexagon.pyx":264
  * 
- *     # Removed 'except *' (line 275 warning)
+ * 
  *     cpdef tuple[double, double] to_pixel(             # <<<<<<<<<<<<<<
  *         self,
  *         double hex_width,
@@ -15116,7 +15115,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_16to_pixel(str
 
 /* "ratroyale/backend/hexagon.pyx":291
  * 
- *     # Removed 'except *' (line 322 warning)
+ * 
  *     cpdef OddRCoord get_neighbor(self, int direction):             # <<<<<<<<<<<<<<
  *         cdef int parity
  *         cdef tuple diff
@@ -15334,7 +15333,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
  *         dx, dy = diff
  *         return OddRCoord(self.x + dx, self.y + dy)             # <<<<<<<<<<<<<<
  * 
- *     # Generator function must be 'def'
+ * 
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __pyx_t_1 = NULL;
@@ -15361,7 +15360,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
 
   /* "ratroyale/backend/hexagon.pyx":291
  * 
- *     # Removed 'except *' (line 322 warning)
+ * 
  *     cpdef OddRCoord get_neighbor(self, int direction):             # <<<<<<<<<<<<<<
  *         cdef int parity
  *         cdef tuple diff
@@ -15497,7 +15496,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2(_
 
 /* "ratroyale/backend/hexagon.pyx":305
  * 
- *     # Generator function must be 'def'
+ * 
  *     def get_neighbors(self):             # <<<<<<<<<<<<<<
  *         cdef int i
  *         for i in range(6):
@@ -15641,7 +15640,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2(_
 
   /* "ratroyale/backend/hexagon.pyx":305
  * 
- *     # Generator function must be 'def'
+ * 
  *     def get_neighbors(self):             # <<<<<<<<<<<<<<
  *         cdef int i
  *         for i in range(6):
@@ -24189,13 +24188,13 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_hexagon(PyObject *__pyx_pyinit_mod
   __pyx_t_1 = __pyx_pyinit_module;
   Py_INCREF(__pyx_t_1);
   #else
-  __pyx_t_1 = PyModule_Create(&__pyx_moduledef); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_1 = PyModule_Create(&__pyx_moduledef); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3, __pyx_L1_error)
   #endif
   #if CYTHON_USE_MODULE_STATE
   {
     int add_module_result = __Pyx_State_AddModule(__pyx_t_1, &__pyx_moduledef);
     __pyx_t_1 = 0; /* transfer ownership from __pyx_t_1 to "hexagon" pseudovariable */
-    if (unlikely((add_module_result < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (unlikely((add_module_result < 0))) __PYX_ERR(0, 3, __pyx_L1_error)
     pystate_addmodule_run = 1;
   }
   #else
@@ -24206,11 +24205,11 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_hexagon(PyObject *__pyx_pyinit_mod
   #endif
   __pyx_mstate = __pyx_mstate_global;
   CYTHON_UNUSED_VAR(__pyx_t_1);
-  __pyx_mstate->__pyx_d = PyModule_GetDict(__pyx_m); if (unlikely(!__pyx_mstate->__pyx_d)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_mstate->__pyx_d = PyModule_GetDict(__pyx_m); if (unlikely(!__pyx_mstate->__pyx_d)) __PYX_ERR(0, 3, __pyx_L1_error)
   Py_INCREF(__pyx_mstate->__pyx_d);
-  __pyx_mstate->__pyx_b = __Pyx_PyImport_AddModuleRef(__Pyx_BUILTIN_MODULE_NAME); if (unlikely(!__pyx_mstate->__pyx_b)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_cython_runtime = __Pyx_PyImport_AddModuleRef("cython_runtime"); if (unlikely(!__pyx_mstate->__pyx_cython_runtime)) __PYX_ERR(0, 1, __pyx_L1_error)
-  if (PyObject_SetAttrString(__pyx_m, "__builtins__", __pyx_mstate->__pyx_b) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_mstate->__pyx_b = __Pyx_PyImport_AddModuleRef(__Pyx_BUILTIN_MODULE_NAME); if (unlikely(!__pyx_mstate->__pyx_b)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_cython_runtime = __Pyx_PyImport_AddModuleRef("cython_runtime"); if (unlikely(!__pyx_mstate->__pyx_cython_runtime)) __PYX_ERR(0, 3, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "__builtins__", __pyx_mstate->__pyx_b) < 0) __PYX_ERR(0, 3, __pyx_L1_error)
   /* ImportRefnannyAPI */
   #if CYTHON_REFNANNY
 __Pyx_RefNanny = __Pyx_RefNannyImportAPI("refnanny");
@@ -24223,55 +24222,55 @@ if (!__Pyx_RefNanny) {
 #endif
 
 __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
-  if (__Pyx_check_binary_version(__PYX_LIMITED_VERSION_HEX, __Pyx_get_runtime_version(), CYTHON_COMPILING_IN_LIMITED_API) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_check_binary_version(__PYX_LIMITED_VERSION_HEX, __Pyx_get_runtime_version(), CYTHON_COMPILING_IN_LIMITED_API) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
   #endif
-  __pyx_mstate->__pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_mstate->__pyx_empty_tuple)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_mstate->__pyx_empty_bytes)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_empty_unicode = PyUnicode_FromStringAndSize("", 0); if (unlikely(!__pyx_mstate->__pyx_empty_unicode)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_mstate->__pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_mstate->__pyx_empty_tuple)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_mstate->__pyx_empty_bytes)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_empty_unicode = PyUnicode_FromStringAndSize("", 0); if (unlikely(!__pyx_mstate->__pyx_empty_unicode)) __PYX_ERR(0, 3, __pyx_L1_error)
   /*--- Initialize various global constants etc. ---*/
-  if (__Pyx_InitConstants(__pyx_mstate) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_InitConstants(__pyx_mstate) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   stringtab_initialized = 1;
-  if (__Pyx_InitGlobals() < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_InitGlobals() < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   #if 0 || defined(__Pyx_CyFunction_USED) || defined(__Pyx_FusedFunction_USED) || defined(__Pyx_Coroutine_USED) || defined(__Pyx_Generator_USED) || defined(__Pyx_AsyncGen_USED)
-  if (__pyx_CommonTypesMetaclass_init(__pyx_m) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__pyx_CommonTypesMetaclass_init(__pyx_m) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   #endif
   #ifdef __Pyx_CyFunction_USED
-  if (__pyx_CyFunction_init(__pyx_m) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__pyx_CyFunction_init(__pyx_m) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   #endif
   #ifdef __Pyx_FusedFunction_USED
-  if (__pyx_FusedFunction_init(__pyx_m) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__pyx_FusedFunction_init(__pyx_m) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   #endif
   #ifdef __Pyx_Coroutine_USED
-  if (__pyx_Coroutine_init(__pyx_m) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__pyx_Coroutine_init(__pyx_m) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   #endif
   #ifdef __Pyx_Generator_USED
-  if (__pyx_Generator_init(__pyx_m) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__pyx_Generator_init(__pyx_m) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   #endif
   #ifdef __Pyx_AsyncGen_USED
-  if (__pyx_AsyncGen_init(__pyx_m) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__pyx_AsyncGen_init(__pyx_m) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   #endif
   /*--- Library function declarations ---*/
   if (__pyx_module_is_main_ratroyale__backend__hexagon) {
-    if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_name, __pyx_mstate_global->__pyx_n_u_main) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_name, __pyx_mstate_global->__pyx_n_u_main) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   }
   {
-    PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
+    PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 3, __pyx_L1_error)
     if (!PyDict_GetItemString(modules, "ratroyale.backend.hexagon")) {
-      if (unlikely((PyDict_SetItemString(modules, "ratroyale.backend.hexagon", __pyx_m) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
+      if (unlikely((PyDict_SetItemString(modules, "ratroyale.backend.hexagon", __pyx_m) < 0))) __PYX_ERR(0, 3, __pyx_L1_error)
     }
   }
   /*--- Builtin init code ---*/
-  if (__Pyx_InitCachedBuiltins(__pyx_mstate) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_InitCachedBuiltins(__pyx_mstate) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   /*--- Constants init code ---*/
-  if (__Pyx_InitCachedConstants(__pyx_mstate) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  if (__Pyx_CreateCodeObjects(__pyx_mstate) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_InitCachedConstants(__pyx_mstate) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
+  if (__Pyx_CreateCodeObjects(__pyx_mstate) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   /*--- Global type/function init code ---*/
   (void)__Pyx_modinit_global_init_code(__pyx_mstate);
   (void)__Pyx_modinit_variable_export_code(__pyx_mstate);
   (void)__Pyx_modinit_function_export_code(__pyx_mstate);
-  if (unlikely((__Pyx_modinit_type_init_code(__pyx_mstate) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (unlikely((__Pyx_modinit_type_init_code(__pyx_mstate) < 0))) __PYX_ERR(0, 3, __pyx_L1_error)
   (void)__Pyx_modinit_type_import_code(__pyx_mstate);
   (void)__Pyx_modinit_variable_import_code(__pyx_mstate);
   (void)__Pyx_modinit_function_import_code(__pyx_mstate);
@@ -24300,7 +24299,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
  * from queue import PriorityQueue
  * from typing import Callable, Iterator, Self             # <<<<<<<<<<<<<<
  * 
- * # --- C Functions
+ * 
 */
   __pyx_t_3 = __Pyx_PyList_Pack(3, __pyx_mstate_global->__pyx_n_u_Callable, __pyx_mstate_global->__pyx_n_u_Iterator, __pyx_mstate_global->__pyx_n_u_Self); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
@@ -24365,7 +24364,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":64
  * 
- *     # Removed 'except *' (line 60 warning)
+ * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
  *         return _AxialCoord(self.q, self.r)
  * 
@@ -24377,7 +24376,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":68
  * 
- *     # Removed 'except *' (line 63 warning)
+ * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
  *         return self.to_axial().to_odd_r()
  * 
@@ -24390,7 +24389,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   /* "ratroyale/backend/hexagon.pyx":71
  *         return self.to_axial().to_odd_r()
  * 
- *     cpdef int get_distance(self, _CubeCoord other) except *: # Returns C int, keeps except *             # <<<<<<<<<<<<<<
+ *     cpdef int get_distance(self, _CubeCoord other) except *:             # <<<<<<<<<<<<<<
  *         cdef _CubeCoord vec = self - other
  *         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
 */
@@ -24401,7 +24400,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":76
  * 
- *     # Generator function must be 'def'
+ * 
  *     def line_draw(self, _CubeCoord other):             # <<<<<<<<<<<<<<
  *         cdef int N = self.get_distance(other)
  *         cdef int i
@@ -24413,7 +24412,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":94
  * 
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
@@ -24447,7 +24446,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":122
  * 
- *     # Removed 'except *' (line 115 warning)
+ * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
  *         return _CubeCoord(self.q, self.r, -self.q - self.r)
  * 
@@ -24459,7 +24458,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":126
  * 
- *     # Removed 'except *' (line 118 warning)
+ * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
  *         cdef int parity = self.r & 1
  *         cdef int col = self.q + (self.r - parity) // 2
@@ -24471,7 +24470,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":139
  * 
- *     # Generator function must be 'def'
+ * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         cdef int q, r
  *         cdef _AxialCoord offset_coord
@@ -24483,7 +24482,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":149
  * 
- *     # Removed 'except *' (line 140 warning)
+ * 
  *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
  *         cdef double _x = x / hex_size
  *         cdef double _y = y / hex_size
@@ -24516,7 +24515,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":171
  * 
- *     # Removed 'except *' (line 161 warning)
+ * 
  *     cpdef _CubeCoord round(self):             # <<<<<<<<<<<<<<
  *         cdef int round_q = <int>round(self.q)
  *         cdef int round_r = <int>round(self.r)
@@ -24528,7 +24527,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":191
  * 
- *     # Removed 'except *' (line 180 warning)
+ * 
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):             # <<<<<<<<<<<<<<
  *         return _CubeCoordFloat(
  *             lerp(self.q, other.q, t),
@@ -24561,7 +24560,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":206
  * 
- *     # Removed 'except *' (line 194 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(self):             # <<<<<<<<<<<<<<
  *         return _CubeCoordFloat(self.q, self.r, -self.q - self.r)
  * 
@@ -24573,7 +24572,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":210
  * 
- *     # Removed 'except *' (line 197 warning)
+ * 
  *     cpdef _AxialCoord round(self):             # <<<<<<<<<<<<<<
  *         return self.to_cube_float().round().to_axial()
  * 
@@ -24615,7 +24614,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":242
  * 
- *     # Removed 'except *' (line 228 warning)
+ * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
  *         cdef int parity = self.y & 1
  *         cdef int q = self.x - (self.y - parity) // 2
@@ -24627,7 +24626,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":249
  * 
- *     # Removed 'except *' (line 234 warning)
+ * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
  *         return self.to_axial().to_cube()
  * 
@@ -24640,7 +24639,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   /* "ratroyale/backend/hexagon.pyx":252
  *         return self.to_axial().to_cube()
  * 
- *     cpdef int get_distance(self, OddRCoord other) except *: # Returns C int, keeps except *             # <<<<<<<<<<<<<<
+ *     cpdef int get_distance(self, OddRCoord other) except *:             # <<<<<<<<<<<<<<
  *         return self.to_cube().get_distance(other.to_cube())
  * 
 */
@@ -24651,7 +24650,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":256
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def line_draw(self, OddRCoord other):             # <<<<<<<<<<<<<<
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
  * 
@@ -24663,7 +24662,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":260
  * 
- *     # Generator expression is a closure, must be 'def'
+ * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         return self.to_axial().all_in_range(N)
  * 
@@ -24684,7 +24683,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":264
  * 
- *     # Removed 'except *' (line 275 warning)
+ * 
  *     cpdef tuple[double, double] to_pixel(             # <<<<<<<<<<<<<<
  *         self,
  *         double hex_width,
@@ -24703,7 +24702,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":291
  * 
- *     # Removed 'except *' (line 322 warning)
+ * 
  *     cpdef OddRCoord get_neighbor(self, int direction):             # <<<<<<<<<<<<<<
  *         cdef int parity
  *         cdef tuple diff
@@ -24715,7 +24714,7 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 
   /* "ratroyale/backend/hexagon.pyx":305
  * 
- *     # Generator function must be 'def'
+ * 
  *     def get_neighbors(self):             # <<<<<<<<<<<<<<
  *         cdef int i
  *         for i in range(6):
@@ -24903,14 +24902,16 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_OddRCoord, __pyx_t_4) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":1
- * # distutils: language = c             # <<<<<<<<<<<<<<
+  /* "ratroyale/backend/hexagon.pyx":3
  * 
- * from libc.math cimport sqrt, fabs as c_abs
+ * 
+ * from libc.math cimport sqrt, fabs as c_abs             # <<<<<<<<<<<<<<
+ * from queue import PriorityQueue
+ * from typing import Callable, Iterator, Self
 */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_4) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_4) < (0)) __PYX_ERR(0, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /*--- Wrapped vars code ---*/
@@ -25207,7 +25208,7 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 
   /* "ratroyale/backend/hexagon.pyx":94
  * 
- *     # Removed 'except *' (line 88 warning)
+ * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
@@ -25286,29 +25287,29 @@ static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   __pyx_mstate->__pyx_umethod_PyDict_Type_pop.method_name = &__pyx_mstate->__pyx_n_u_pop;
   __pyx_mstate->__pyx_umethod_PyList_Type_pop.type = (PyObject*)&PyList_Type;
   __pyx_mstate->__pyx_umethod_PyList_Type_pop.method_name = &__pyx_mstate->__pyx_n_u_pop;
-  if (__Pyx_InitStrings(__pyx_string_tab, __pyx_mstate->__pyx_string_tab, __pyx_string_tab_encodings) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  __pyx_mstate->__pyx_float_0_0 = PyFloat_FromDouble(0.0); if (unlikely(!__pyx_mstate->__pyx_float_0_0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_float_1eneg_6 = PyFloat_FromDouble(1e-6); if (unlikely(!__pyx_mstate->__pyx_float_1eneg_6)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_float_2eneg_6 = PyFloat_FromDouble(2e-6); if (unlikely(!__pyx_mstate->__pyx_float_2eneg_6)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_float_neg_3eneg_6 = PyFloat_FromDouble(-3e-6); if (unlikely(!__pyx_mstate->__pyx_float_neg_3eneg_6)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_0 = PyLong_FromLong(0); if (unlikely(!__pyx_mstate->__pyx_int_0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_1 = PyLong_FromLong(1); if (unlikely(!__pyx_mstate->__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_1706978 = PyLong_FromLong(1706978L); if (unlikely(!__pyx_mstate->__pyx_int_1706978)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_4583224 = PyLong_FromLong(4583224L); if (unlikely(!__pyx_mstate->__pyx_int_4583224)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_19457475 = PyLong_FromLong(19457475L); if (unlikely(!__pyx_mstate->__pyx_int_19457475)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_121498713 = PyLong_FromLong(121498713L); if (unlikely(!__pyx_mstate->__pyx_int_121498713)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_125679382 = PyLong_FromLong(125679382L); if (unlikely(!__pyx_mstate->__pyx_int_125679382)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_143129834 = PyLong_FromLong(143129834L); if (unlikely(!__pyx_mstate->__pyx_int_143129834)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_150722895 = PyLong_FromLong(150722895L); if (unlikely(!__pyx_mstate->__pyx_int_150722895)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_159348271 = PyLong_FromLong(159348271L); if (unlikely(!__pyx_mstate->__pyx_int_159348271)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_179414920 = PyLong_FromLong(179414920L); if (unlikely(!__pyx_mstate->__pyx_int_179414920)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_207103696 = PyLong_FromLong(207103696L); if (unlikely(!__pyx_mstate->__pyx_int_207103696)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_210574057 = PyLong_FromLong(210574057L); if (unlikely(!__pyx_mstate->__pyx_int_210574057)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_222419149 = PyLong_FromLong(222419149L); if (unlikely(!__pyx_mstate->__pyx_int_222419149)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_228825662 = PyLong_FromLong(228825662L); if (unlikely(!__pyx_mstate->__pyx_int_228825662)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_238750788 = PyLong_FromLong(238750788L); if (unlikely(!__pyx_mstate->__pyx_int_238750788)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_251887868 = PyLong_FromLong(251887868L); if (unlikely(!__pyx_mstate->__pyx_int_251887868)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_int_neg_1 = PyLong_FromLong(-1); if (unlikely(!__pyx_mstate->__pyx_int_neg_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_InitStrings(__pyx_string_tab, __pyx_mstate->__pyx_string_tab, __pyx_string_tab_encodings) < 0) __PYX_ERR(0, 3, __pyx_L1_error);
+  __pyx_mstate->__pyx_float_0_0 = PyFloat_FromDouble(0.0); if (unlikely(!__pyx_mstate->__pyx_float_0_0)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_float_1eneg_6 = PyFloat_FromDouble(1e-6); if (unlikely(!__pyx_mstate->__pyx_float_1eneg_6)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_float_2eneg_6 = PyFloat_FromDouble(2e-6); if (unlikely(!__pyx_mstate->__pyx_float_2eneg_6)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_float_neg_3eneg_6 = PyFloat_FromDouble(-3e-6); if (unlikely(!__pyx_mstate->__pyx_float_neg_3eneg_6)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_0 = PyLong_FromLong(0); if (unlikely(!__pyx_mstate->__pyx_int_0)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_1 = PyLong_FromLong(1); if (unlikely(!__pyx_mstate->__pyx_int_1)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_1706978 = PyLong_FromLong(1706978L); if (unlikely(!__pyx_mstate->__pyx_int_1706978)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_4583224 = PyLong_FromLong(4583224L); if (unlikely(!__pyx_mstate->__pyx_int_4583224)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_19457475 = PyLong_FromLong(19457475L); if (unlikely(!__pyx_mstate->__pyx_int_19457475)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_121498713 = PyLong_FromLong(121498713L); if (unlikely(!__pyx_mstate->__pyx_int_121498713)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_125679382 = PyLong_FromLong(125679382L); if (unlikely(!__pyx_mstate->__pyx_int_125679382)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_143129834 = PyLong_FromLong(143129834L); if (unlikely(!__pyx_mstate->__pyx_int_143129834)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_150722895 = PyLong_FromLong(150722895L); if (unlikely(!__pyx_mstate->__pyx_int_150722895)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_159348271 = PyLong_FromLong(159348271L); if (unlikely(!__pyx_mstate->__pyx_int_159348271)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_179414920 = PyLong_FromLong(179414920L); if (unlikely(!__pyx_mstate->__pyx_int_179414920)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_207103696 = PyLong_FromLong(207103696L); if (unlikely(!__pyx_mstate->__pyx_int_207103696)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_210574057 = PyLong_FromLong(210574057L); if (unlikely(!__pyx_mstate->__pyx_int_210574057)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_222419149 = PyLong_FromLong(222419149L); if (unlikely(!__pyx_mstate->__pyx_int_222419149)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_228825662 = PyLong_FromLong(228825662L); if (unlikely(!__pyx_mstate->__pyx_int_228825662)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_238750788 = PyLong_FromLong(238750788L); if (unlikely(!__pyx_mstate->__pyx_int_238750788)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_251887868 = PyLong_FromLong(251887868L); if (unlikely(!__pyx_mstate->__pyx_int_251887868)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_mstate->__pyx_int_neg_1 = PyLong_FromLong(-1); if (unlikely(!__pyx_mstate->__pyx_int_neg_1)) __PYX_ERR(0, 3, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -25590,7 +25591,7 @@ static int __Pyx_InitGlobals(void) {
   /* PythonCompatibility.init */
   if (likely(__Pyx_init_co_variables() == 0)); else
 
-if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1, __pyx_L1_error)
+if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 3, __pyx_L1_error)
 
   /* CachedMethodType.init */
   #if CYTHON_COMPILING_IN_LIMITED_API
@@ -25604,7 +25605,7 @@ if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1, __pyx_L1_error)
 } // error handling follows
 #endif
 
-if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1, __pyx_L1_error)
+if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 3, __pyx_L1_error)
 
   return 0;
   __pyx_L1_error:;
