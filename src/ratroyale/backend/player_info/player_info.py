@@ -1,6 +1,6 @@
 import hmac
 import hashlib
-from fernet import Fernet
+from cryptography.fernet import Fernet
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 from math import exp, floor, sqrt

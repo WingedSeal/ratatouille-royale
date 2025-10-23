@@ -149,39 +149,21 @@ class ElementManager:
 
     def select_element(
         self, registered_name: str, grouping_name: str | None = None
-    ) -> bool:
+    ) -> ElementWrapper | None:
         group = self.get_group_without_grouping_name(registered_name, grouping_name)
         return group.select(registered_name)
 
     def deselect_element(
         self, registered_name: str, grouping_name: str | None = None
-    ) -> bool:
+    ) -> ElementWrapper | None:
         group = self.get_group_without_grouping_name(registered_name, grouping_name)
         return group.deselect(registered_name)
 
-    def highlight_element(
-        self, registered_name: str, grouping_name: str | None = None
-    ) -> bool:
-        group = self.get_group_without_grouping_name(registered_name, grouping_name)
-        return group.highlight(registered_name)
-
-    def unhighlight_element(
-        self, registered_name: str, grouping_name: str | None = None
-    ) -> bool:
-        group = self.get_group_without_grouping_name(registered_name, grouping_name)
-        return group.unhighlight(registered_name)
-
-    def unhighlight_all(self, grouping_name: str) -> None:
+    def deselect_all(self, grouping_name: str) -> list[ElementWrapper]:
         group = self.get_group(grouping_name)
-        group.unhighlight_all()
+        return group.deselect_all()
 
-    def deselect_all(self, grouping_name: str) -> None:
-        group = self.get_group(grouping_name)
-        group.deselect_all()
-
-    def get_selected_elements(
-        self, grouping_name: str
-    ) -> tuple[list[str], list[ElementWrapper]]:
+    def get_selected_elements(self, grouping_name: str) -> list[ElementWrapper]:
         group = self.get_group(grouping_name)
         return group.get_selected_elements()
 

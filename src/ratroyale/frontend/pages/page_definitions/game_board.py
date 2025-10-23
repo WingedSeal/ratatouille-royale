@@ -12,7 +12,6 @@ from ratroyale.event_tokens.payloads import (
     SqueakPayload,
     EntityMovementPayload,
     SkillTargetingPayload,
-    AbilityTargetPayload,
     EntityDamagedPayload,
     AbilityActivationPayload,
 )
@@ -383,58 +382,16 @@ class GameBoard(Page):
     # region Tile Related Events
 
     @input_event_bind("SELECTMASK", GestureType.CLICK.to_pygame_event())
-    def _on_tile_click(self, msg: pygame.event.Event) -> None:
+    def on_tile_click(self, msg: pygame.event.Event) -> None:
         id = get_id(msg)
         assert id
-        print(self.game_state)
-        if self.game_state == GameState.MOVEMENT:
-            # Get the entity on the old selected tile first.
-            selected_tiles = self.get_selected_tiles()
-            selected_entity = selected_tiles[0].entities[0]
-
-            # Then get the target tile
-            self._element_manager.select_element(id)
-            selected_tiles = self.get_selected_tiles()
-
-            target = selected_tiles[0].coord
-            self.coordination_manager.put_message(
-                GameManagerEvent(
-                    "resolve_movement",
-                    EntityMovementPayload(selected_entity, [target]),
-                )
-            )
-            self.game_state = GameState.PLAY
-
-            self._element_manager.deselect_all("SELECTMASK")
-            self._element_manager.deselect_all("AVAILABLEMASK")
-        elif self.game_state == GameState.ABILITY:
-
-            hovered_tile = self.get_hover_tiles()
-            available_tiles = self.get_available_tiles()
-            if hovered_tile[0] not in available_tiles:
-                return
-            self._element_manager.select_element(id)
-            selected_tiles = self.get_selected_tiles()
-            if len(selected_tiles) == self.temp_ability_target_count:
-                selected_coords = []
-                for tile in selected_tiles:
-                    selected_coords.append(tile.coord)
-                target_payload = AbilityTargetPayload(selected_coords)
-                self.coordination_manager.put_message(
-                    GameManagerEvent("target_selected", target_payload)
-                )
-
-                self._element_manager.deselect_all("SELECTMASK")
-                self._element_manager.deselect_all("AVAILABLEMASK")
-
-                self.game_state = GameState.PLAY
-        elif self.game_state in (GameState.ABILITY_PANEL, GameState.WAIT):
-            return
-        else:
-            if self._display_ability_menu(msg):
-                return None
-            self._element_manager.toggle_element(id)
-            self._close_ability_menu()
+        self._element_manager.select_element(id)
+        selected_tiles = self.get_selected_tiles()
+        if selected_tiles:
+            tile = selected_tiles[0]
+            print(tile)
+            # TODO: send to player info page
+            # TODO: then, player info page pings back the first entity's info to rodent data page
 
     @input_event_bind("HOVERMASK", GestureType.HOVER.to_pygame_event())
     def _tile_hover_test(self, msg: pygame.event.Event) -> None:
@@ -442,14 +399,18 @@ class GameBoard(Page):
         id = get_id(msg)
         assert id
         self._element_manager.select_element(id)
-        # For testing purposes, we just print the hover info
-        # Will send data over to player info layer later
+        selected_tiles = self.get_selected_tiles()
+        if selected_tiles:
+            tile = selected_tiles[0]
+            print(tile)
+            # TODO: send to player info page
 
     # endregion
 
     # region Entity Related Events
 
     # @input_event_bind("SELECTMASK", GestureType.HOLD.to_pygame_event())
+    # TODO: Change to InspectEntity's responsibility
     def _display_ability_menu(self, msg: pygame.event.Event) -> bool:
         """Display the ability menu for the selected entity."""
 
@@ -569,7 +530,7 @@ class GameBoard(Page):
         gesture_data = get_gesture_data(msg)
         assert squeak_element_id
         self._element_manager.select_element(squeak_element_id)
-        squeak_elements = self._element_manager.get_selected_elements("SQUEAK")[1]
+        squeak_elements = self._element_manager.get_selected_elements("SQUEAK")
 
         if squeak_elements:
             squeak_elements[0].spatial_component.center_to_screen_pos(
@@ -590,7 +551,7 @@ class GameBoard(Page):
     # Called while dragging; moves element regardless of hitbox
     @input_event_bind(None, GestureType.DRAG.to_pygame_event())
     def _on_drag(self, msg: pygame.event.Event) -> None:
-        squeak_element = self._element_manager.get_selected_elements("SQUEAK")[1]
+        squeak_element = self._element_manager.get_selected_elements("SQUEAK")
         gesture_data = get_gesture_data(msg)
 
         if squeak_element and gesture_data.mouse_pos:
@@ -620,23 +581,21 @@ class GameBoard(Page):
             GameState.ABILITY,
             GameState.ABILITY_PANEL,
         ):
-            selected_squeak_id, selected_squeaks = (
-                self._element_manager.get_selected_elements("SQUEAK")
-            )
+            selected_squeaks = self._element_manager.get_selected_elements("SQUEAK")
 
             selected_tiles = self.get_selected_tiles()
             available_tiles = self.get_available_tiles()
 
-            if selected_tiles and selected_squeak_id:
+            if selected_tiles and selected_squeaks:
                 # Check if selected tiles are valid or not and return to hand if not
                 if selected_tiles[0] not in available_tiles:
                     self.return_squeak_to_hand(selected_squeaks[0])
                 else:
                     self.trigger_squeak_placement(
-                        selected_squeak_id[0], selected_tiles[0].coord
+                        selected_squeaks[0].registered_name, selected_tiles[0].coord
                     )
             else:
-                if selected_squeak_id:
+                if selected_squeaks:
                     self.return_squeak_to_hand(selected_squeaks[0])
 
             self._element_manager.deselect_all("SELECTMASK")
@@ -661,7 +620,7 @@ class GameBoard(Page):
 
     def get_selected_tiles(self) -> list[Tile]:
         tiles = []
-        tile_masks = self._element_manager.get_selected_elements("SELECTMASK")[1]
+        tile_masks = self._element_manager.get_selected_elements("SELECTMASK")
         for tile_elem in tile_masks:
             tiles.append(tile_elem.get_payload(TilePayload).tile)
         return tiles
@@ -670,14 +629,14 @@ class GameBoard(Page):
         tiles = []
         tile_mask_elements = self._element_manager.get_selected_elements(
             "AVAILABLEMASK"
-        )[1]
+        )
         for tile_elem in tile_mask_elements:
             tiles.append(tile_elem.get_payload(TilePayload).tile)
         return tiles
 
     def get_hover_tiles(self) -> list[Tile]:
         tiles = []
-        tile_mask_elements = self._element_manager.get_selected_elements("HOVERMASK")[1]
+        tile_mask_elements = self._element_manager.get_selected_elements("HOVERMASK")
         for tile_elem in tile_mask_elements:
             tiles.append(tile_elem.get_payload(TilePayload).tile)
         return tiles

@@ -40,12 +40,12 @@ class ElementGroup:
             f"At get: the element with registered name: {registered_name} is not found in group {self.group_name}"
         )
 
-    def get_selected_elements(self) -> tuple[list[str], list[ElementWrapper]]:
+    def get_selected_elements(self) -> list[ElementWrapper]:
         elements = []
         for name in self.selected_ids:
             elements.append(self.elements[name])
 
-        return list(self.selected_ids), elements
+        return elements
 
     def remove_element(self, registered_name: str) -> ElementWrapper:
         result = self.elements.pop(registered_name)
@@ -85,13 +85,15 @@ class ElementGroup:
             # Not selected -> try selecting it
             self.select(registered_name, override_policy=override_policy)
 
-    def select(self, registered_name: str, override_policy: bool = False) -> bool:
+    def select(
+        self, registered_name: str, override_policy: bool = False
+    ) -> ElementWrapper | None:
         """Attempts to select an element, respecting selection limits and policy."""
         element = self.get_element(registered_name)
 
         # Already selected -> do nothing
         if registered_name in self.selected_ids:
-            return False
+            return element
 
         # Handle selection limit
         if self.max_selectable is not None and not override_policy:
@@ -104,62 +106,38 @@ class ElementGroup:
                     except KeyError:
                         pass
                 elif self.overselection_policy == OverselectionPolicy.PREVENT_NEW:
-                    return False
+                    return None
 
         # Activate the selection
         success = element.on_select()
         if success:
             self.selected_ids.append(registered_name)
-        return success
+        return element
 
-    def deselect(self, registered_name: str) -> bool:
+    def deselect(self, registered_name: str) -> ElementWrapper | None:
         """Deselects an element if it's currently selected."""
         if registered_name not in self.selected_ids:
-            return False
+            return None
 
         try:
             element = self.get_element(registered_name)
         except KeyError:
             # Element was already removed
             self.selected_ids.remove(registered_name)
-            return False
+            return None
 
         self.selected_ids.remove(registered_name)
-        return element.on_deselect()
+        return element
 
-    def highlight(self, registered_name: str) -> bool:
-        if self.max_highlightable is not None:
-            if len(self.highlighted_ids) == self.max_highlightable:
-                if self.overselection_policy == OverselectionPolicy.REMOVE_OLDEST:
-                    oldest_name = self.highlighted_ids.popleft()
-                    self.get_element(oldest_name).on_unhighlight()
-                elif self.overselection_policy == OverselectionPolicy.PREVENT_NEW:
-                    return False
-
-        if registered_name not in self.highlighted_ids:
-            self.highlighted_ids.append(registered_name)
-            return self.get_element(registered_name).on_highlight()
-        return False
-
-    def unhighlight(self, registered_name: str) -> bool:
-        if registered_name in self.highlighted_ids:
-            self.highlighted_ids.remove(registered_name)
-            return self.get_element(registered_name).on_unhighlight()
-        return False
-
-    def unhighlight_all(self) -> None:
+    def deselect_all(self) -> list[ElementWrapper]:
         # Copy to avoid modifying the deque/set while iterating
-        for registered_name in list(self.highlighted_ids):
-            element = self.get_element(registered_name)
-            element.on_unhighlight()
-        self.highlighted_ids.clear()
-
-    def deselect_all(self) -> None:
-        # Copy to avoid modifying the deque/set while iterating
+        element_list = []
         for registered_name in list(self.selected_ids):
             element = self.get_element(registered_name)
             element.on_deselect()
+            element_list.append(element)
         self.selected_ids.clear()
+        return element_list
 
     def _sort_flattened_by_z_order(self) -> None:
         self.flattened_elements_list.sort(
