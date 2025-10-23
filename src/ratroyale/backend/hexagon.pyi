@@ -1,6 +1,6 @@
 from ..utils import lerp as lerp
 from dataclasses import dataclass, field
-from typing import Callable, Iterator, Protocol, Self, overload
+from typing import Callable, Iterator, Protocol, Self
 
 class IsCoordBlocked(Protocol):
     """
@@ -36,13 +36,8 @@ class OddRCoord:
     def get_distance(self, other: Self) -> int: ...
     def line_draw(self, other: Self) -> Iterator["OddRCoord"]: ...
     def all_in_range(self, N: int) -> Iterator["OddRCoord"]: ...
-    @overload
     def to_pixel(
-        self, hex_size: float, is_bounding_box: bool = False
-    ) -> tuple[float, float]: ...
-    @overload
-    def to_pixel(
-        self, hex_width: float, hex_height: float, is_bounding_box: bool = False
+        self, hex_width: float, hex_height: float = -1.0, is_bounding_box: bool = False
     ) -> tuple[float, float]:
         """
         https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-offset
@@ -83,7 +78,14 @@ class OddRCoord:
         ...
 
     @classmethod
-    def from_pixel(cls, x: float, y: float, hex_size: float) -> OddRCoord: ...
+    def from_pixel(
+        cls,
+        x: float,
+        y: float,
+        hex_width: float,
+        hex_height: float | None,
+        is_bounding_box: bool = False,
+    ) -> OddRCoord: ...
     def __add__(self, other: Self) -> Self: ...
     def __sub__(self, other: Self) -> Self: ...
     def path_find(
@@ -129,7 +131,14 @@ class _AxialCoord:
         ...
 
     @classmethod
-    def from_pixel(cls, x: float, y: float, hex_size: float) -> _AxialCoord:
+    def from_pixel(
+        cls,
+        x: float,
+        y: float,
+        hex_width: float,
+        hex_height: float = -1.0,
+        is_bounding_box: bool = False,
+    ) -> _AxialCoord:
         """
         https://www.redblobgames.com/grids/hexagons/#pixel-to-hex-axial
         https://www.redblobgames.com/grids/hexagons/#pixel-to-hex-mod-origin

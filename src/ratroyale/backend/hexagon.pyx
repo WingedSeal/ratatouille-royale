@@ -135,16 +135,20 @@ cdef class _AxialCoord:
                 yield offset_coord.to_odd_r()
 
     @staticmethod
-    def from_pixel(double x, double y, double hex_size):
-        cdef double _x = x / hex_size
-        cdef double _y = y / hex_size
+    def from_pixel(double x, double y, double hex_width, double hex_height = -1.0, bint is_bounding_box = 0):
         cdef double q, r
-        
-        _x -= 1.0
-        _y -= sqrt(3.0) / 2.0
 
-        q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y
-        r = 2.0 / 3.0 * _y
+        if hex_height == -1.0:
+            hex_height = hex_width
+
+        x /= hex_width
+        y /= hex_height
+        
+        x -= 1.0
+        y -= sqrt(3.0) / 2.0
+
+        q = sqrt(3.0) / 3.0 * x - 1.0 / 3.0 * y
+        r = 2.0 / 3.0 * y
         return _AxialCoordFloat(q, r).round()
 
 
@@ -251,25 +255,21 @@ cdef class OddRCoord:
         double hex_height = -1.0,
         bint is_bounding_box = 0,
     ):
-        cdef double _hex_width = hex_width
-        cdef double _hex_height
         cdef double x, y
         
         if hex_height == -1.0:
-            _hex_height = hex_width
-        else:
-            _hex_height = hex_height
+            hex_height = hex_width
             
         if is_bounding_box:
-            _hex_width /= sqrt(3.0)
-            _hex_height *= 0.5
+            hex_width /= sqrt(3.0)
+            hex_height *= 0.5
             
         x = sqrt(3.0) * (self.x + 0.5 * (self.y & 1))
         y = 1.5 * self.y
         x += 1.0
         y += sqrt(3.0) / 2.0
         
-        return x * _hex_width, y * _hex_height
+        return x * hex_width, y * hex_height
 
     
     cpdef OddRCoord get_neighbor(self, int direction):
@@ -319,8 +319,8 @@ cdef class OddRCoord:
         return visited
 
     @staticmethod
-    def from_pixel(double x, double y, double hex_size):
-        return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
+    def from_pixel(double x, double y, double hex_width, double hex_height = -1.0, bint is_bounding_box = 0):
+        return _AxialCoord.from_pixel(x, y, hex_height, hex_height, is_bounding_box).to_odd_r()
 
     def __add__(self, OddRCoord other):
         return OddRCoord(self.x + other.x, self.y + other.y)
