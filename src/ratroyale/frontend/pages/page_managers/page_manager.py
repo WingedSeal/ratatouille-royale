@@ -19,6 +19,7 @@ from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
+from ratroyale.backend.game_event import GameEvent
 
 
 class PageManager:
@@ -217,6 +218,10 @@ class PageManager:
         """Delegate a PageCallbackEvent to the appropriate page."""
         for page in self.page_stack:
             page.execute_page_callback(msg)
+
+    def execute_game_event_callback(self, game_event: GameEvent) -> None:
+        for page in self.page_stack:
+            page.execute_game_event_callback(game_event)
 
     def execute_visual_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)

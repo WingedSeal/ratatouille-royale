@@ -18,6 +18,7 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
     input_event_bind,
     callback_event_bind,
+    game_event_bind,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
@@ -42,6 +43,7 @@ from ratroyale.event_tokens.payloads import (
     GameOverPayload,
     AbilityTargetPayload,
 )
+from ratroyale.backend.game_event import EndTurnEvent
 from ratroyale.backend.tile import Tile
 
 from enum import Enum, auto
@@ -97,6 +99,12 @@ class GameBoard(Page):
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         return []
+
+    # region Game Event Callbacks
+
+    @game_event_bind(EndTurnEvent)
+    def test_end_turn(self, event: EndTurnEvent) -> None:
+        print(event)
 
     # region Callbacks from Backend
 

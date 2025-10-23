@@ -38,6 +38,7 @@ from ratroyale.backend.game_event import (
 )
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
+from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -45,12 +46,16 @@ class BackendAdapter:
     def __init__(
         self,
         game_manager: GameManager,
+        page_manager: PageManager,
         coordination_manager: CoordinationManager,
-        ai_type: type[BaseAI],
+        ai_type: type[BaseAI] | None,
     ) -> None:
         self.game_manager = game_manager
+        self.page_manager = page_manager
         self.coordination_manager = coordination_manager
-        self.ai: BaseAI = ai_type(self.game_manager, Side.MOUSE)
+        self.ai: BaseAI | None = (
+            ai_type(self.game_manager, Side.MOUSE) if ai_type else None
+        )
         self._ai_turn: bool = False
         self.game_manager_response: dict[str, Callable[[GameManagerEvent], None]] = {
             "start_game": self.handle_game_start,
@@ -107,13 +112,8 @@ class BackendAdapter:
 
             # Process backend -> page messages
             if not msg_queue_from_backend.empty():
-                msg: GameEvent = msg_queue_from_backend.get()
-                handler = self.game_manager_issued_events.get(type(msg))
-                if handler:
-                    handler(msg)
-                else:
-                    pass
-                    # print(f"No handler for backend event type: {type(msg)}")
+                msg_from_backend: GameEvent = msg_queue_from_backend.get()
+                self.page_manager.execute_game_event_callback(msg_from_backend)
 
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
@@ -130,6 +130,7 @@ class BackendAdapter:
                     hand_squeaks=squeak_in_hand_list,
                     starting_crumbs=self.game_manager.crumbs,
                     player_1_side=player_1_side,
+                    playing_with_ai=self.ai is not None,
                 ),
             )
         )
@@ -219,7 +220,8 @@ class BackendAdapter:
 
     def handle_end_turn(self, event: GameManagerEvent) -> None:
         self.game_manager.end_turn()
-        self.ai.run_ai_and_update_game_manager()
+        if self.ai:
+            self.ai.run_ai_and_update_game_manager()
 
     def handle_target_selected(self, event: GameManagerEvent) -> None:
         payload = event.payload
@@ -261,13 +263,12 @@ class BackendAdapter:
         assert isinstance(event, SqueakDrawnEvent)
         hand_index = event.hand_index
         squeak = event.squeak
-        if not self.ai.is_ai_turn():
-            self.coordination_manager.put_message(
-                PageCallbackEvent(
-                    callback_action="squeak_drawn",
-                    payload=SqueakPayload(hand_index, squeak),
-                )
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="squeak_drawn",
+                payload=SqueakPayload(hand_index, squeak),
             )
+        )
 
     def handle_end_turn_event(self, event: GameEvent) -> None:
         assert isinstance(event, EndTurnEvent)

@@ -25,6 +25,7 @@ from ...visual.anim.core.anim_structure import SequentialAnim
 from collections import deque
 
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.backend.game_event import GameEvent
 
 from typing import TypeVar
 
@@ -37,6 +38,10 @@ class InputHandler(Protocol):
 
 class CallbackHandler(Protocol):
     def __call__(self, event: PageCallbackEvent) -> None: ...
+
+
+class GameEventHandler(Protocol):
+    def __call__(self, event: GameEvent) -> None: ...
 
 
 class Page(ABC):
@@ -71,6 +76,8 @@ class Page(ABC):
         self._input_bindings: dict[tuple[str | None, int], InputHandler] = {}
         """ Maps (element_id, gesture_type) to handler functions """
         self._callback_bindings: dict[str, CallbackHandler] = {}
+        """ Maps (game_action) to handler functions """
+        self._game_event_bindings: dict[type[GameEvent], GameEventHandler] = {}
         """ Maps (game_action) to handler functions """
 
         self._animation_lock: bool = False
@@ -156,6 +163,13 @@ class Page(ABC):
                 for page_event in getattr(attr, "_callback_bindings"):
                     self._callback_bindings[page_event] = cast(CallbackHandler, attr)
 
+            # --- Game event bindings ---
+            if hasattr(attr, "_game_event_bindings"):
+                for game_event_type in getattr(attr, "_game_event_bindings"):
+                    self._game_event_bindings[game_event_type] = cast(
+                        GameEventHandler, attr
+                    )
+
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
         Dispatch a GestureData object to the appropriate Elements(s).
@@ -199,6 +213,17 @@ class Page(ABC):
         executed = False
         for callback_action, handler in self._callback_bindings.items():
             if callback_action == msg.callback_action:
+                handler(msg)
+                executed = True
+        return executed
+
+    def execute_game_event_callback(self, msg: GameEvent) -> bool:
+        """
+        Executes the callback associated with the given PageCallbackEvent.
+        """
+        executed = False
+        for callback_action, handler in self._game_event_bindings.items():
+            if type(msg) is not callback_action:
                 handler(msg)
                 executed = True
         return executed

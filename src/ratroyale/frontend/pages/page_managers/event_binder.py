@@ -1,6 +1,7 @@
 from typing import Callable, ParamSpec, TypeVar
 
 from ratroyale.event_tokens.page_token import *
+from ratroyale.backend.game_event import GameEvent
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -44,6 +45,20 @@ def callback_event_bind(
         bindings = getattr(func, "_callback_bindings", [])
         bindings.append(callback_action)
         setattr(func, "_callback_bindings", bindings)
+        return func
+
+    return decorator
+
+
+def game_event_bind(
+    game_event: type[GameEvent],
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
+
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
+
+        bindings = getattr(func, "_game_event_bindings", [])
+        bindings.append(game_event)
+        setattr(func, "_game_event_bindings", bindings)
         return func
 
     return decorator

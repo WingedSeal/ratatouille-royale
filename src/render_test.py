@@ -106,6 +106,7 @@ def main():
 
     backend_adapter = BackendAdapter(
         game_manager=game_manager,
+        page_manager=page_manager,
         coordination_manager=coordination_manager,
         ai_type=RushBAI,
     )

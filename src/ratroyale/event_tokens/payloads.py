@@ -34,6 +34,7 @@ class GameSetupPayload(Payload):
     hand_squeaks: list[Squeak]
     starting_crumbs: int
     player_1_side: Side
+    playing_with_ai: bool
 
 
 @dataclass
