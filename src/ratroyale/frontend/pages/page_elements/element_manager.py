@@ -143,9 +143,9 @@ class ElementManager:
         registered_name: str,
         grouping_name: str | None = None,
         override_policy: bool = False,
-    ) -> None:
+    ) -> ElementWrapper | None:
         group = self.get_group_without_grouping_name(registered_name, grouping_name)
-        group.toggle_element(registered_name, override_policy)
+        return group.toggle_element(registered_name, override_policy)
 
     def select_element(
         self, registered_name: str, grouping_name: str | None = None

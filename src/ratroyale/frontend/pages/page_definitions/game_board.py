@@ -1,9 +1,8 @@
 import pygame
-import pygame_gui
 
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.input_token import get_gesture_data, get_id
+from ratroyale.event_tokens.input_token import get_gesture_data, get_id, get_payload
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureType
@@ -13,7 +12,6 @@ from ratroyale.event_tokens.payloads import (
     EntityMovementPayload,
     SkillTargetingPayload,
     EntityDamagedPayload,
-    AbilityActivationPayload,
 )
 
 from ..page_managers.base_page import Page
@@ -40,16 +38,12 @@ from ratroyale.event_tokens.payloads import (
     TilePayload,
     EntityPayload,
     GameSetupPayload,
-    CrumbUpdatePayload,
-    PlayableTiles,
+    PlayableTilesPayload,
     GameOverPayload,
+    AbilityTargetPayload,
 )
 from ratroyale.backend.tile import Tile
 
-from ratroyale.frontend.visual.asset_management.visual_component import VisualComponent
-from ratroyale.frontend.visual.asset_management.spritesheet_structure import (
-    SpritesheetComponent,
-)
 from enum import Enum, auto
 
 from ..page_elements.preset_elements.tile_element import TileElement
@@ -73,10 +67,9 @@ italic_bold_arial = pygame.font.SysFont("Arial", 48, bold=True, italic=True)
 
 class GameState(Enum):
     PLAY = auto()
-    MOVEMENT = auto()
-    ABILITY = auto()
     WAIT = auto()
-    ABILITY_PANEL = auto()
+    SKILL_TARGETING = auto()
+    MOVEMENT_TARGETING = auto()
 
 
 @register_page
@@ -88,18 +81,15 @@ class GameBoard(Page):
         self.squeak_in_hand: list[str] = []
         self.hand_slots_element: list[str] = []
 
-        self.current_crumb: int = 0
-
         self.coord_to_tile_mapping: dict[OddRCoord, tuple[str, str, str]] = {}
         """Maps coord to HOVERMASK, SELECTMASK, and AVAILABLEMASK"""
         self.entity_to_element_id_mapping: dict[Entity, str] = {}
 
-        self.ability_panel_id: str | None = None
-        self.temp_ability_target_count: int = 0
+        self.temp_skill_target_count: int = 0
+        self.temp_skill_entity_source: Entity | None = None
 
         self.player_1_side: Side = Side.MOUSE
 
-        # TODO: make separate object
         self.game_state: GameState = GameState.PLAY
 
     def on_open(self) -> None:
@@ -169,30 +159,6 @@ class GameBoard(Page):
                         feature_element = FeatureElement(feature, coord, self.camera)
                         element_configs.append(feature_element)
 
-            starting_crumbs = payload.starting_crumbs
-            self.current_crumb = starting_crumbs
-            crumb_display_text = italic_bold_arial.render(
-                str(starting_crumbs), False, pygame.Color(255, 255, 255)
-            )
-
-            crumb_display_rect = pygame.Rect(20, 25, 100, 40)
-
-            # Create cost element
-            crumb_display_element = ElementWrapper(
-                registered_name="crumb_display",
-                grouping_name="UI_ELEMENT",
-                camera=self.camera,
-                spatial_component=SpatialComponent(
-                    crumb_display_rect, space_mode="SCREEN", z_order=102
-                ),
-                interactable_component=None,
-                is_blocking=False,
-                visual_component=VisualComponent(
-                    SpritesheetComponent(spritesheet_reference=crumb_display_text),
-                    "NONE",
-                ),
-            )
-
             squeak_list = payload.hand_squeaks
 
             for i, squeak in enumerate(squeak_list):
@@ -224,49 +190,46 @@ class GameBoard(Page):
                 element_configs.append(squeak_name_element)
                 element_configs.append(slot)
 
-            element_configs.append(crumb_display_element)
-
             self.setup_elements(element_configs)
 
             for squeak_id in self.squeak_in_hand:
                 squeak_element = self.get_element(squeak_id, "SQUEAK", SqueakElement)
-                squeak_element.decide_interactivity(self.current_crumb)
 
         else:
             raise RuntimeError(f"Failed to start game: {msg.error_msg}")
 
-    @callback_event_bind("crumb_update")
-    def _crumb_update(self, msg: PageCallbackEvent) -> None:
-        """Handle crumb update from backend."""
-        if msg.success and msg.payload and GameState.PLAY:
-            assert isinstance(msg.payload, CrumbUpdatePayload)
-            new_crumb_amt = msg.payload.new_crumb_amount
-            self.current_crumb = new_crumb_amt
+    # @callback_event_bind("crumb_update")
+    # def _crumb_update(self, msg: PageCallbackEvent) -> None:
+    #     """Handle crumb update from backend."""
+    #     if msg.success and msg.payload and GameState.PLAY:
+    #         assert isinstance(msg.payload, CrumbUpdatePayload)
+    #         new_crumb_amt = msg.payload.new_crumb_amount
+    #         self.current_crumb = new_crumb_amt
 
-            crumb_display_elem = self.get_element(
-                "crumb_display", "UI_ELEMENT", ElementWrapper
-            )
+    #         crumb_display_elem = self.get_element(
+    #             "crumb_display", "UI_ELEMENT", ElementWrapper
+    #         )
 
-            crumb_display_text = italic_bold_arial.render(
-                str(new_crumb_amt), False, pygame.Color(255, 255, 255)
-            )
+    #         crumb_display_text = italic_bold_arial.render(
+    #             str(new_crumb_amt), False, pygame.Color(255, 255, 255)
+    #         )
 
-            vis = crumb_display_elem.visual_component
-            assert vis
-            spr = vis.spritesheet_component
-            assert spr
-            spr.spritesheet_reference = crumb_display_text
+    #         vis = crumb_display_elem.visual_component
+    #         assert vis
+    #         spr = vis.spritesheet_component
+    #         assert spr
+    #         spr.spritesheet_reference = crumb_display_text
 
-            # disable interactivity for squeaks whose cost is above new crumb amount
-            for squeak_id in self.squeak_in_hand:
-                squeak_element = self.get_element(squeak_id, "SQUEAK", SqueakElement)
-                squeak_element.decide_interactivity(new_crumb_amt)
+    #         # disable interactivity for squeaks whose cost is above new crumb amount
+    #         for squeak_id in self.squeak_in_hand:
+    #             squeak_element = self.get_element(squeak_id, "SQUEAK", SqueakElement)
+    #             squeak_element.decide_interactivity(new_crumb_amt)
 
     @callback_event_bind("handle_squeak_placable_tiles")
     def _handle_squeak_placable_tiles(self, msg: PageCallbackEvent) -> None:
         """Handle squeak placable tiles from backend."""
         if msg.success and msg.payload:
-            assert isinstance(msg.payload, PlayableTiles)
+            assert isinstance(msg.payload, PlayableTilesPayload)
             coord_list = msg.payload.coord_list
             self.set_available_tiles(coord_list)
 
@@ -297,18 +260,20 @@ class GameBoard(Page):
             )
 
             assert isinstance(squeak_element, SqueakElement)
-            squeak_element.decide_interactivity(self.current_crumb)
             self.squeak_in_hand.insert(hand_index, squeak_element.registered_name)
 
     @callback_event_bind("reachable_coords")
     def _handle_rodent_reachable_tiles(self, msg: PageCallbackEvent) -> None:
         """Handle rodent movable tiles from backend."""
         if msg.success and msg.payload:
-            assert isinstance(msg.payload, PlayableTiles)
+            assert isinstance(msg.payload, EntityMovementPayload)
             coord_list = msg.payload.coord_list
+            entity = msg.payload.entity
+            self.temp_skill_entity_source = entity
             self.set_available_tiles(coord_list)
+            self.select_entity(entity)
 
-            self.game_state = GameState.MOVEMENT
+            self.game_state = GameState.MOVEMENT_TARGETING
 
     # TODO: make animation sequential per element
     @callback_event_bind("move_entity")
@@ -316,7 +281,7 @@ class GameBoard(Page):
         if msg.success and msg.payload:
             assert isinstance(msg.payload, EntityMovementPayload)
             entity = msg.payload.entity
-            path = msg.payload.path
+            path = msg.payload.coord_list
 
             entity_id = self.entity_to_element_id_mapping[entity]
             entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
@@ -325,18 +290,21 @@ class GameBoard(Page):
     @callback_event_bind("skill_targeting")
     def _handle_skill_targeting(self, msg: PageCallbackEvent) -> None:
         if msg.success and msg.payload:
+            self.game_state = GameState.SKILL_TARGETING
+            self._element_manager.deselect_all("SELECTMASK")
+
             assert isinstance(msg.payload, SkillTargetingPayload)
+
             info = msg.payload.skill_targeting
             if isinstance(info, SkillTargeting):
                 self._element_manager.set_max_selectable(
                     "SELECTMASK", info.target_count
                 )
                 self.set_available_tiles(info.available_targets)
-                self.temp_ability_target_count = info.target_count
+                self.temp_skill_target_count = info.target_count
             else:
+                # TODO: relay information to alert page
                 print(info)
-
-            self.game_state = GameState.ABILITY
 
     @callback_event_bind("entity_damaged")
     def _handle_entity_damaged(self, msg: PageCallbackEvent) -> None:
@@ -377,6 +345,22 @@ class GameBoard(Page):
                 PageCallbackEvent("who_won", payload=payload)
             )
 
+    @callback_event_bind("skill_canceled")
+    def _handle_skill_canceled(self, msg: PageCallbackEvent) -> None:
+        if msg.success:
+            self.clear_selections()
+
+    @callback_event_bind("entity_data")
+    def center_on_entity(self, msg: PageCallbackEvent) -> None:
+        """Upon inspecting entity, center the camera onto the entity's occupied tile"""
+        if msg.success and msg.payload:
+            payload = get_payload(msg, EntityPayload)
+            assert payload
+            entity_id = self.entity_to_element_id_mapping[payload.entity]
+            entity_elem_wrapper = self._element_manager.get_element(entity_id)
+            spatial = entity_elem_wrapper.spatial_component.get_screen_rect(self.camera)
+            self.camera.move_to(*self.camera.screen_to_world(spatial.x, spatial.y))
+
     # endregion
 
     # region Tile Related Events
@@ -385,140 +369,96 @@ class GameBoard(Page):
     def on_tile_click(self, msg: pygame.event.Event) -> None:
         id = get_id(msg)
         assert id
-        self._element_manager.select_element(id)
-        selected_tiles = self.get_selected_tiles()
-        if selected_tiles:
-            tile = selected_tiles[0]
-            print(tile)
-            # TODO: send to player info page
-            # TODO: then, player info page pings back the first entity's info to rodent data page
+        if self.game_state == GameState.PLAY:
+            self.play_state_tile_interaction(id)
+        elif self.game_state == GameState.SKILL_TARGETING:
+            targeting_done = self.skill_targeting_state_tile_interaction(id)
+            self.game_state = GameState.PLAY if targeting_done else self.game_state
+        elif self.game_state == GameState.MOVEMENT_TARGETING:
+            targeting_done = self.movement_targeting_state_tile_interaction(id)
+            self.game_state = GameState.PLAY if targeting_done else self.game_state
+
+    def play_state_tile_interaction(self, id: str) -> None:
+        """Selects or toggle tiles, and send data to GameInfo page"""
+        tile_element = self._element_manager.toggle_element(id)
+        tiles = self.get_selected_tiles()
+        if tiles and tile_element:
+            CoordinationManager.put_message(
+                PageCallbackEvent("tile_selected", payload=TilePayload(tiles[0]))
+            )
+        else:
+            CoordinationManager.put_message(PageCallbackEvent("tile_deselected"))
+
+    def skill_targeting_state_tile_interaction(self, id: str) -> bool:
+        # Tiles can only be selected if they are in the available options.
+        hovered_tile = self.get_hover_tiles()[0]
+        available_tiles = self.get_available_tiles()
+        if hovered_tile in available_tiles:
+            self._element_manager.select_element(id)
+            selected_tiles = self.get_selected_tiles()
+
+            # If the player has chosen enough tiles for the ability, it activates immediately.
+            if len(selected_tiles) == self.temp_skill_target_count:
+                coord_list = [tile.coord for tile in selected_tiles]
+                CoordinationManager.put_message(
+                    GameManagerEvent(
+                        "target_selected", AbilityTargetPayload(coord_list)
+                    )
+                )
+
+                # Clean up highlight effects, close SelectTargetPrompt page, and set self's state to PLAY
+                self.clear_selections()
+                CoordinationManager.put_message(
+                    PageNavigationEvent(
+                        [(PageNavigation.CLOSE, "SelectTargetPromptPage")]
+                    )
+                )
+
+                return True
+
+        return False
+
+    def movement_targeting_state_tile_interaction(self, id: str) -> bool:
+        # Tiles can only be selected if they are in the available options.
+        hovered_tile = self.get_hover_tiles()[0]
+        available_tiles = self.get_available_tiles()
+        if hovered_tile in available_tiles:
+            self._element_manager.select_element(id)
+            selected_tile_coord = self.get_selected_tiles()[0].coord
+            assert self.temp_skill_entity_source, selected_tile_coord
+
+            CoordinationManager.put_message(
+                GameManagerEvent(
+                    "resolve_movement",
+                    EntityMovementPayload(
+                        self.temp_skill_entity_source, [selected_tile_coord]
+                    ),
+                )
+            )
+
+            # Clean up highlight effects, close SelectTargetPrompt page, clear temp selected entity and set self's state to PLAY
+            self.clear_selections()
+            CoordinationManager.put_message(
+                PageNavigationEvent([(PageNavigation.CLOSE, "SelectTargetPromptPage")])
+            )
+            self.temp_skill_entity_source = None
+
+            return True
+        return False
 
     @input_event_bind("HOVERMASK", GestureType.HOVER.to_pygame_event())
     def _tile_hover_test(self, msg: pygame.event.Event) -> None:
-        """Test hover event on tile."""
         id = get_id(msg)
         assert id
         self._element_manager.select_element(id)
-        selected_tiles = self.get_selected_tiles()
-        if selected_tiles:
-            tile = selected_tiles[0]
-            print(tile)
-            # TODO: send to player info page
+        tile_payload = get_payload(msg, TilePayload)
+        CoordinationManager.put_message(
+            PageCallbackEvent("tile_hovered", payload=tile_payload)
+        )
 
     # endregion
 
     # region Entity Related Events
-
-    # @input_event_bind("SELECTMASK", GestureType.HOLD.to_pygame_event())
-    # TODO: Change to InspectEntity's responsibility
-    def _display_ability_menu(self, msg: pygame.event.Event) -> bool:
-        """Display the ability menu for the selected entity."""
-
-        id = get_id(msg)
-        assert id
-        self._element_manager.select_element(id)
-
-        tile = self.get_selected_tiles()[0]
-
-        if not tile.entities:
-            return False
-
-        entity = tile.entities[0]
-
-        if entity.side != self.player_1_side:
-            return False
-
-        entity_id = self.entity_to_element_id_mapping[entity]
-        entity_element = self._element_manager.get_element(entity_id)
-
-        # region Create ability panel
-
-        entity_spatial_rect = entity_element.spatial_component.get_screen_rect(
-            self.camera
-        )
-        entity_center_x = entity_spatial_rect.x + entity_spatial_rect.width / 2
-        entity_center_y = entity_spatial_rect.y + entity_spatial_rect.height / 2
-        self.camera.move_to(
-            *self.camera.screen_to_world(entity_center_x, entity_center_y)
-        )
-
-        entity_spatial_rect = entity_element.spatial_component.get_screen_rect(
-            self.camera
-        )
-        entity_center_x = entity_spatial_rect.x + entity_spatial_rect.width / 2
-        entity_center_y = entity_spatial_rect.y + entity_spatial_rect.height / 2
-
-        panel_width = 160
-        panel_x = entity_center_x - panel_width / 2
-        panel_y = entity_center_y + entity_spatial_rect.height
-        panel_id = "ability_panel"
-        self.ability_panel_id = panel_id
-        panel_rect = pygame.Rect(
-            panel_x, panel_y, panel_width, len(entity.skills) * 30 + 30 + 10
-        )
-        panel_object = pygame_gui.elements.UIPanel(
-            relative_rect=panel_rect,
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="AbilityPanel", object_id=panel_id
-            ),
-        )
-
-        panel_element = ElementWrapper(
-            registered_name=panel_id,
-            grouping_name="UI_ELEMENT",
-            camera=self.camera,
-            spatial_component=SpatialComponent(
-                panel_object.get_abs_rect(), z_order=200
-            ),
-            interactable_component=panel_object,
-            visual_component=VisualComponent(),
-            is_blocking=True,
-        )
-        self.setup_elements([panel_element])
-
-        # --- Create ability buttons inside the panel ---
-        for i, skill in enumerate(entity.skills):
-            element_id = f"ability_{i}"
-
-            pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(0, i * 30, 150, 30),
-                text=skill.name,
-                manager=self.gui_manager,
-                container=panel_object,
-                object_id=pygame_gui.core.ObjectID(
-                    class_id="AbilityButton", object_id=element_id
-                ),
-            )
-
-        # After all skills, add the "Move" button
-        move_button_y = len(entity.skills) * 30  # Position after the last skill
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(0, move_button_y, 150, 30),
-            text="Move",
-            manager=self.gui_manager,
-            container=panel_object,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="AbilityButton", object_id="ability_-1"
-            ),
-        )
-
-        self.game_state = GameState.ABILITY_PANEL
-
-        return True
-        # endregion
-
-    @input_event_bind("ability", pygame_gui.UI_BUTTON_PRESSED)
-    def _activate_ability(self, msg: pygame.event.Event) -> None:
-        """Activate selected ability."""
-        ability_id = self._get_ability_id(msg)
-        tile = self.get_selected_tiles()[0]
-        entity = tile.entities[0]
-        ability_payload = AbilityActivationPayload(ability_id, entity)
-        self.coordination_manager.put_message(
-            GameManagerEvent("ability_activation", ability_payload)
-        )
-        self._close_ability_menu()
 
     # endregion
 
@@ -559,16 +499,15 @@ class GameBoard(Page):
                 gesture_data.mouse_pos, self.camera
             )
         else:
-            if self.game_state is not GameState.ABILITY_PANEL:
+            if self.game_state is not GameState.SKILL_TARGETING:
                 self.camera.drag_to(pygame.mouse.get_pos())
             return
 
     @input_event_bind("SELECTMASK", GestureType.DRAG.to_pygame_event())
     def _on_drag_tile(self, msg: pygame.event.Event) -> None:
         if self.game_state not in (
-            GameState.MOVEMENT,
-            GameState.ABILITY,
-            GameState.ABILITY_PANEL,
+            GameState.MOVEMENT_TARGETING,
+            GameState.SKILL_TARGETING,
         ):
             tile_mask_id = get_id(msg)
             assert tile_mask_id
@@ -577,9 +516,8 @@ class GameBoard(Page):
     @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
         if self.game_state not in (
-            GameState.MOVEMENT,
-            GameState.ABILITY,
-            GameState.ABILITY_PANEL,
+            GameState.MOVEMENT_TARGETING,
+            GameState.SKILL_TARGETING,
         ):
             selected_squeaks = self._element_manager.get_selected_elements("SQUEAK")
 
@@ -617,6 +555,20 @@ class GameBoard(Page):
     # endregion
 
     # region UTILITY METHODS
+
+    def select_entity(self, entity: Entity) -> None:
+        entity_elem_id = self.entity_to_element_id_mapping[entity]
+        self._element_manager.select_element(entity_elem_id)
+
+    def deselect_entity(self, entity: Entity) -> None:
+        entity_elem_id = self.entity_to_element_id_mapping[entity]
+        self._element_manager.deselect_element(entity_elem_id)
+
+    def clear_selections(self) -> None:
+        self._element_manager.deselect_all("SELECTMASK")
+        self._element_manager.deselect_all("AVAILABLEMASK")
+        self._element_manager.deselect_all("ENTITY")
+        CoordinationManager.put_message(PageCallbackEvent("tile_deselected"))
 
     def get_selected_tiles(self) -> list[Tile]:
         tiles = []
@@ -678,27 +630,6 @@ class GameBoard(Page):
         assert isinstance(squeak_element, SqueakElement)
         self._element_manager.deselect_element(squeak_element.registered_name)
         squeak_element.return_to_position(target_rect)
-
-    def _close_ability_menu(self) -> None:
-        """Close the ability menu if open."""
-        if self.ability_panel_id:
-            self._element_manager.remove_element(self.ability_panel_id)
-            self.ability_panel_id = None
-
-    def try_movement(self) -> None:
-        """Triggers when the player selects an entity before selecting a tile."""
-
-    def _get_ability_id(self, msg: pygame.event.Event) -> int:
-        element_id = get_id(msg)
-        if not element_id:
-            raise ValueError(
-                "Wrong event type received. Make sure it is a gesture type event!"
-            )
-        ability_button_elem_id = self.get_leaf_object_id(element_id)
-        if ability_button_elem_id:
-            return int(ability_button_elem_id.split("_")[1])
-        else:
-            raise ValueError("Ability button elem id is None.")
 
     # endregion
 

@@ -75,6 +75,7 @@ class PageManager:
         closed_page.on_close()
 
     def remove_page(self, page_type: type[Page]) -> None:
+        print("page to be removed:", page_type)
         for i, page in enumerate(self.page_stack):
             if isinstance(page, page_type):
                 closed_page = self.page_stack.pop(i)
@@ -173,9 +174,7 @@ class PageManager:
 
         # Step 6: for remaining unconsumed gesture, post it into event queue anyways with empty element_id.
         for gesture in gestures:
-            post_gesture_event(
-                InputManagerEvent[None](element_id=None, gesture_data=gesture)
-            )
+            post_gesture_event(InputManagerEvent(element_id=None, gesture_data=gesture))
 
         # Step 5: other_events gets broadcasted.
         self._broadcast_input(other_events)

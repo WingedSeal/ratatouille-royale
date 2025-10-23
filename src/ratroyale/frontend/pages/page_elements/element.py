@@ -215,6 +215,7 @@ def ui_element_wrapper(
     registered_name: str,
     camera: Camera,
     grouping_name: str = "UI_ELEMENT",
+    z_order: int = 1,
 ) -> ElementWrapper:
     """
     Convenience helper to wrap a pygame_gui element into an ElementWrapper.
@@ -232,7 +233,7 @@ def ui_element_wrapper(
     rect = element.relative_rect
 
     # Build the spatial component using the element's rect
-    spatial = SpatialComponent(rect)
+    spatial = SpatialComponent(rect, z_order=z_order)
 
     # Build the visual and interactable components
     visual = VisualComponent()

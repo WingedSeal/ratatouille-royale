@@ -24,7 +24,7 @@ class SelectTargetPromptPage(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
-        super().__init__(coordination_manager, camera)
+        super().__init__(coordination_manager, camera, is_blocking=False)
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
@@ -60,10 +60,12 @@ class SelectTargetPromptPage(Page):
 
     @input_event_bind("cancel_skill_button", pygame_gui.UI_BUTTON_PRESSED)
     def close_panel(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
+        CoordinationManager.put_message(
             PageNavigationEvent(
                 action_list=[
                     (PageNavigation.CLOSE, "SelectTargetPromptPage"),
                 ]
             )
         )
+        CoordinationManager.put_message(PageCallbackEvent("skill_canceled"))
+        CoordinationManager.put_message(GameManagerEvent("skill_canceled"))

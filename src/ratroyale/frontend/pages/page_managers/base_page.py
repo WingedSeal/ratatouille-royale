@@ -233,7 +233,7 @@ class Page(ABC):
 
     def on_close(self) -> None:
         """Called when the page is destroyed. Override in subclasses if needed."""
-        pass
+        self._element_manager.clear_all()
 
     def render(self, time_delta: float) -> pygame.Surface:
         if self.is_visible:

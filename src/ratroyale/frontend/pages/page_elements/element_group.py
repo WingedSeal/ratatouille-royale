@@ -33,12 +33,13 @@ class ElementGroup:
         self._sort_flattened_by_z_order()
 
     def get_element(self, registered_name: str) -> ElementWrapper:
-        result = self.elements[registered_name]
-        if result:
+        try:
+            result = self.elements[registered_name]
             return result
-        raise KeyError(
-            f"At get: the element with registered name: {registered_name} is not found in group {self.group_name}"
-        )
+        except KeyError:
+            raise KeyError(
+                f"At get: the element with registered name: {registered_name} is not found in group {self.group_name}"
+            )
 
     def get_selected_elements(self) -> list[ElementWrapper]:
         elements = []
@@ -48,8 +49,9 @@ class ElementGroup:
         return elements
 
     def remove_element(self, registered_name: str) -> ElementWrapper:
-        result = self.elements.pop(registered_name)
-        if not result:
+        try:
+            result = self.elements.pop(registered_name)
+        except KeyError:
             raise KeyError(
                 f"At removal: the element with registered name: {registered_name} is not found in group {self.group_name}"
             )
@@ -76,14 +78,14 @@ class ElementGroup:
 
     def toggle_element(
         self, registered_name: str, override_policy: bool = False
-    ) -> None:
+    ) -> ElementWrapper | None:
         """Toggles selection state of an element."""
         if registered_name in self.selected_ids:
             # Already selected -> deselect it
-            self.deselect(registered_name)
+            return self.deselect(registered_name)
         else:
             # Not selected -> try selecting it
-            self.select(registered_name, override_policy=override_policy)
+            return self.select(registered_name, override_policy=override_policy)
 
     def select(
         self, registered_name: str, override_policy: bool = False
@@ -127,6 +129,7 @@ class ElementGroup:
             return None
 
         self.selected_ids.remove(registered_name)
+        element.on_deselect()
         return element
 
     def deselect_all(self) -> list[ElementWrapper]:

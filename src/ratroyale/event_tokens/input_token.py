@@ -1,21 +1,25 @@
 from dataclasses import dataclass
-from typing import Any
 
 import pygame
 
 from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
 
 from .base import EventToken
+from .page_token import PageCallbackEvent
+from .payloads import Payload
+from typing import TypeVar
+
+T = TypeVar("T", bound="Payload")
 
 
 @dataclass
-class InputManagerEvent[T](EventToken):
+class InputManagerEvent(EventToken):
     element_id: str | None
     gesture_data: GestureData
-    payload: T | None = None
+    payload: Payload | None = None
 
 
-def post_gesture_event(input_manager_event: InputManagerEvent[Any]) -> None:
+def post_gesture_event(input_manager_event: InputManagerEvent) -> None:
     """
     Posts a GestureData event to Pygame's event queue using the
     hybrid gesture-specific event type mapping. The listener can
@@ -74,9 +78,23 @@ def get_gesture_data(event: pygame.event.Event) -> GestureData:
     raise TypeError(f"Event {event} does not contain GestureData.")
 
 
-def get_payload(event: pygame.event.Event) -> object:
-    """Extracts the payload from an InputManagerEvent if present, else returns None."""
-    input_mgr_event = getattr(event, "input_manager_event", None)
-    if isinstance(input_mgr_event, InputManagerEvent):
+def get_payload(
+    obj_with_payload: pygame.event.Event | PageCallbackEvent,
+    payload_type: type[T],
+) -> T | None:
+    """
+    Extracts and type-checks the payload from an InputManagerEvent attached
+    to a pygame event. Returns None if not found or not of the expected type.
+    """
+
+    if isinstance(obj_with_payload, PageCallbackEvent) and isinstance(
+        obj_with_payload.payload, payload_type
+    ):
+        return obj_with_payload.payload
+
+    input_mgr_event = getattr(obj_with_payload, "input_manager_event", None)
+    if isinstance(input_mgr_event, InputManagerEvent) and isinstance(
+        input_mgr_event.payload, payload_type
+    ):
         return input_mgr_event.payload
     return None

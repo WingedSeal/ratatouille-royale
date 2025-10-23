@@ -103,9 +103,8 @@ class MainMenu(Page):
                 action_list=[
                     (PageNavigation.CLOSE_ALL, None),
                     (PageNavigation.OPEN, "GameBoard"),
+                    (PageNavigation.OPEN, "GameInfoPage"),
                     (PageNavigation.OPEN, "PauseButton"),
-                    (PageNavigation.OPEN, "InspectHistory"),
-                    # (PageNavigation.OPEN, "InspectEntity"),
                 ]
             )
         )
