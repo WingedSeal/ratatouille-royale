@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ratroyale = "main:main"
+ratroyale = "ratroyale.__main__:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -69,7 +69,7 @@ sequence = [
 [[tool.poe.tasks.prof.args]]
 name = "PROFILE_PATH" 
 positional = true
-required = true
+default = ""
 [[tool.poe.tasks.prof.args]]
 name = "COUNT"
 options = ["-c", "--count"]
@@ -79,7 +79,7 @@ type = "integer"
 [tool.mypy]
 python_version = "3.12"
 mypy_path = ["stubs", "src", "tests"]
-files = ["./src/ratroyale/", "./src/main.py", "./tests/"]
+files = ["./src/ratroyale/", "./tests/"]
 strict = true
 warn_return_any = true
 warn_unused_configs = true
