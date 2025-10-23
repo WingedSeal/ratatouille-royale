@@ -3,20 +3,22 @@ from dataclasses import asdict, dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeAlias, TypeVar, cast
 
-from .instant_kill import InstantKill
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
+
 from .entity_effect import EntityEffect
 from .hexagon import OddRCoord
+from .instant_kill import InstantKill
 from .side import Side
 from .skill_callback import SkillCallback
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .tags import EntityTag, SkillTag
 
 if TYPE_CHECKING:
     from .game_manager import GameManager
     from .feature import Feature
+    from .board import Board
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class EntitySkill:
     name: str
     method_name: str
@@ -26,7 +28,7 @@ class EntitySkill:
     tags: list[SkillTag]
 
 
-@dataclass
+@dataclass(frozen=True)
 class SkillTargeting:
     target_count: int
     source_enitity: "Entity"
@@ -44,7 +46,7 @@ class SkillCompleted(Enum):
 SkillResult: TypeAlias = SkillTargeting | SkillCompleted
 
 
-@dataclass
+@dataclass(frozen=True)
 class CallableEntitySkill(EntitySkill):
     func: Callable[["Entity", "GameManager"], SkillResult]
 
@@ -59,6 +61,7 @@ class Entity:
 
     pos: OddRCoord
     effects: dict[str, EntityEffect]
+    """Dictionary of its effect name and its effect"""
     name: str
     max_health: int | None
     health: int | None
@@ -72,6 +75,7 @@ class Entity:
     height: int
     side: Side | None
     skills: list[CallableEntitySkill]
+    is_dead: bool
     PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
     """Map of preplaced-able entities' IDs to the entity class"""
 
@@ -94,6 +98,7 @@ class Entity:
         self.pos = pos
         self.side = side
         self.effects = {}
+        self.is_dead = False
 
     def on_damage_taken(
         self,
@@ -101,6 +106,12 @@ class Entity:
         damage: int | InstantKill,
         source: SourceOfDamageOrHeal,
     ) -> int | None:
+        pass
+
+    def on_summon(self, game_manager: "GameManager") -> None:
+        pass
+
+    def on_spawn(self, board: "Board") -> None:
         pass
 
     def on_hp_loss(
@@ -117,6 +128,22 @@ class Entity:
         self, game_manager: "GameManager", heal: int, source: SourceOfDamageOrHeal
     ) -> int | None:
         pass
+
+    def on_ally_move(
+        self,
+        game_manager: "GameManager",
+        ally: "Entity",
+        path: list[OddRCoord],
+        origin: OddRCoord,
+    ) -> None: ...
+
+    def on_enemy_move(
+        self,
+        game_manager: "GameManager",
+        enemy: "Entity",
+        path: list[OddRCoord],
+        origin: OddRCoord,
+    ) -> None: ...
 
     def on_turn_change(
         self, game_manager: "GameManager", turn_change_to: Side
@@ -190,6 +217,7 @@ class Entity:
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
+            self.is_dead = True
             self.on_hp_loss(game_manager, damage_taken, source)
             return True, damage_taken
         self.on_hp_loss(game_manager, damage_taken, source)

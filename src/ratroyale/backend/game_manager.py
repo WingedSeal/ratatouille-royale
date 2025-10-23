@@ -4,10 +4,8 @@ from typing import Iterator
 from dataclasses import dataclass, field
 from collections import defaultdict
 
-from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EntityEffect
@@ -19,6 +17,7 @@ from .error import (
     NotEnoughCrumbError,
     NotEnoughMoveStaminaError,
     NotEnoughSkillStaminaError,
+    UpdatingTheDeadError,
 )
 from .feature import Feature
 from .features.common import DeploymentZone, Lair
@@ -40,12 +39,14 @@ from .game_event import (
     SqueakPlacedEvent,
     SqueakSetResetEvent,
 )
+from .player_info.squeak_set import HAND_LENGTH
 from .hexagon import OddRCoord
+from .instant_kill import InstantKill
 from .map import Map
 from .player_info.player_info import PlayerInfo
-from .player_info.squeak_set import HAND_LENGTH
 from .player_info.squeak import Squeak
 from .side import Side
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .timer import Timer
 
 
@@ -175,6 +176,8 @@ class GameManager:
                 skill_result = self.game_manager.apply_skill_callback(selected_targets)
         ```
         """
+        if entity.is_dead:
+            raise UpdatingTheDeadError(entity)
         self._validate_not_selecting_target()
         skill = entity.skills[skill_index]
         if self.crumbs < skill.crumb_cost:
@@ -211,51 +214,6 @@ class GameManager:
             return entity
         return None
 
-    def get_enemy_on_pos(self, pos: OddRCoord) -> Entity | None:
-        """
-        Get enemy at the end of the list (top) at position or None if there's nothing there
-        """
-        tile = self.board.get_tile(pos)
-        if tile is None:
-            raise ValueError("There is no tile on the coord")
-        for entity in reversed(tile.entities):
-            if entity.health is None:
-                continue
-            if entity.side == self.turn:
-                continue
-            return entity
-        return None
-
-    def get_ally_on_pos(self, pos: OddRCoord) -> Entity | None:
-        """
-        Get ally at the end of the list (top) at position or None if there's nothing there
-        """
-        tile = self.board.get_tile(pos)
-        if tile is None:
-            raise ValueError("There is no tile on the coord")
-        for entity in reversed(tile.entities):
-            if entity.health is None:
-                continue
-            if entity.side != self.turn:
-                continue
-            return entity
-        return None
-
-    def get_feature_on_pos(self, pos: OddRCoord) -> Feature | None:
-        """
-        Get feature at the end of the list (top) at position or None if there's nothing there
-        """
-        tile = self.board.get_tile(pos)
-        if tile is None:
-            raise ValueError("There is no tile on the coord")
-        for feature in reversed(tile.features):
-            if feature.health is None:
-                continue
-            if feature.side == self.turn:
-                continue
-            return feature
-        return None
-
     def _trigger_feature_on_move(self, path: list[OddRCoord], entity: Entity) -> None:
         for path_coord in path:
             path_tile = self.board.get_tile(path_coord)
@@ -285,8 +243,11 @@ class GameManager:
         :param custom_path: Force rodent to move in a specific path if not None, defaults to `None`
         :returns: Path the rodent took to get there
         """
+        if rodent.is_dead:
+            raise UpdatingTheDeadError(rodent)
         from_pos = rodent.pos
         self._validate_not_selecting_target()
+        origin = rodent.pos
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
         if rodent.move_stamina <= 0:
@@ -308,6 +269,13 @@ class GameManager:
         event = EntityMoveEvent(path, rodent, from_pos)
         self.event_queue.put_nowait(event)
         self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
+        if rodent.side is not None:
+            for entity in self.board.cache.entities_with_on_ally_move[rodent.side]:
+                entity.on_ally_move(self, rodent, path, origin)
+            for entity in self.board.cache.entities_with_on_enemy_move[
+                rodent.side.other_side()
+            ]:
+                entity.on_enemy_move(self, rodent, path, origin)
         return path
 
     def move_entity_uncheck(
@@ -320,7 +288,9 @@ class GameManager:
         :param target: Target to move to
         :returns: Path the rodent took to get there
         """
-        from_pos = entity.pos
+        if entity.is_dead:
+            raise UpdatingTheDeadError(entity)
+        origin = entity.pos
         path = self.board.path_find(
             entity, target, custom_jump_height=custom_jump_height
         )
@@ -330,7 +300,14 @@ class GameManager:
         if not is_success:
             raise InvalidMoveTargetError("Cannot move entity there")
         self._trigger_feature_on_move(path, entity)
-        self.event_queue.put(EntityMoveEvent(path, entity, from_pos))
+        self.event_queue.put(EntityMoveEvent(path, entity, origin))
+        if entity.side is not None:
+            for _entity in self.board.cache.entities_with_on_ally_move[entity.side]:
+                _entity.on_ally_move(self, entity, path, origin)
+            for _entity in self.board.cache.entities_with_on_enemy_move[
+                entity.side.other_side()
+            ]:
+                entity.on_enemy_move(self, entity, path, origin)
         return path
 
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
@@ -425,13 +402,14 @@ class GameManager:
         self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
 
     def apply_timer(self, timer: Timer) -> None:
+        if timer.entity.is_dead:
+            raise UpdatingTheDeadError(timer.entity)
         self.board.cache.timers.append(timer)
 
-    def apply_effect(
-        self, entity: Entity, effect: EntityEffect, stack_intensity: bool = False
-    ) -> None:
-        if entity.health == 0:
-            return None
+    def apply_effect(self, effect: EntityEffect, stack_intensity: bool = False) -> None:
+        entity = effect.entity
+        if entity.is_dead:
+            raise UpdatingTheDeadError(entity)
         old_effect = entity.effects.get(effect.name)
         if stack_intensity and old_effect is not None:
             old_effect.intensity += effect.intensity
@@ -519,8 +497,8 @@ class GameManager:
         """
         Damage an entity. Throw error if called on entity with no health.
         """
-        if entity.health == 0:
-            return None
+        if entity.is_dead:
+            raise UpdatingTheDeadError(entity)
         is_dead, damage_taken = entity._take_damage(self, damage, source)
         self.event_queue.put_nowait(
             EntityDamagedEvent(entity, damage, damage_taken, source)
@@ -551,21 +529,21 @@ class GameManager:
         """
         Heal an entity. Throw error if called on entity with no health.
         """
-        if entity.health == 0:
-            return None
+        if entity.is_dead:
+            raise UpdatingTheDeadError(entity)
         heal_taken = entity._heal(self, heal, source, overheal_cap)
         self.event_queue.put_nowait(
             EntityHealedEvent(entity, heal, heal_taken, overheal_cap, source)
         )
 
     def damage_feature(
-        self, feature: Feature, damage: int, source: SourceOfDamageOrHeal
+        self, feature: Feature, damage: int | InstantKill, source: SourceOfDamageOrHeal
     ) -> None:
         """
         Damage a feature. Throw error if called on feature with no health.
         """
-        if feature.health == 0:
-            return None
+        if feature.is_dead:
+            raise UpdatingTheDeadError(feature)
         is_dead, damage_taken = feature._take_damage(self, damage, source)
         self.event_queue.put_nowait(
             FeatureDamagedEvent(feature, damage, damage_taken, source)

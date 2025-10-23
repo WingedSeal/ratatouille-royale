@@ -1,7 +1,10 @@
 from dataclasses import dataclass
+
 import pygame
-from .spritesheet_manager import SpritesheetManager
+
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+
+from .spritesheet_manager import SpritesheetManager
 
 
 @dataclass

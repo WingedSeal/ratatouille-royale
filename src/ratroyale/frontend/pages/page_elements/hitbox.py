@@ -1,7 +1,8 @@
+from abc import ABC, abstractmethod
+
 import pygame
 
-from abc import ABC, abstractmethod
-from .spatial_component import SpatialComponent, Camera
+from .spatial_component import Camera, SpatialComponent
 
 
 class Hitbox(ABC):

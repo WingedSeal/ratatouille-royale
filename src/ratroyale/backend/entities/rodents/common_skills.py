@@ -1,266 +1,465 @@
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Callable, Iterable, Self, TypeAlias
 
-from ...source_of_damage_or_heal import SourceOfDamageOrHeal
 from ...entities.rodent import Rodent
 from ...entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from ...entity_effect import EntityEffect
-from ...error import InvalidMoveTargetError, ShortHandSkillCallbackError
+from ...feature import Feature
+from ...hexagon import OddRCoord
+from ...instant_kill import InstantKill
 from ...skill_callback import SkillCallback, skill_callback_check
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
+from ...tile import Tile
 from ...timer import Timer, TimerCallback, TimerClearSide
 
 if TYPE_CHECKING:
-    from ...board import Board
-    from ...entity import CallableEntitySkill
     from ...game_manager import GameManager
-    from ...hexagon import OddRCoord
+
+Target: TypeAlias = Entity | Feature
+
+CanSelectCallback = Callable[["GameManager", Tile], bool]
+TargetToCoords = Callable[["GameManager", list[OddRCoord]], list[OddRCoord]]
+Acquire = Callable[["GameManager", Tile], Target | None]
+CallbackToTarget = Callable[["GameManager", Target, SourceOfDamageOrHeal], SkillResult]
+CustomAction = Callable[["GameManager", list[OddRCoord]], SkillResult]
 
 
-def select_any_tile(
-    board: "Board",
-    rodent: "Rodent",
-    skill: "CallableEntitySkill",
-    callback: "SkillCallback",
-    target_count: int = 1,
-    *,
-    can_cancel: bool = True,
-) -> SkillTargeting:
-    coords = board.get_attackable_coords(rodent, skill)
-    return SkillTargeting(
-        target_count, rodent, skill, list(coords), callback, can_cancel
-    )
+def _single_target(
+    game_manager: "GameManager", coords: list[OddRCoord]
+) -> list[OddRCoord]:
+    return coords
 
 
-def select_targetable(
-    board: "Board",
-    rodent: "Rodent",
-    skill: "CallableEntitySkill",
-    callback: "SkillCallback" | Iterable["SkillCallback"],
-    target_count: int = 1,
-    *,
-    is_feature_targetable: bool = True,
-    is_any_tile: bool = False,
-    can_cancel: bool = True,
-) -> SkillTargeting:
+class TargetAction:
+    Target: TypeAlias = Entity | Feature
 
-    @skill_callback_check
-    def skill_callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> SkillResult:
-        if isinstance(callback, Iterable):
-            for c in callback:
-                result_enum = c(game_manager, selected_targets)
-                if result_enum != SkillCompleted.SUCCESS:
-                    raise ShortHandSkillCallbackError(
-                        f"{select_targetable.__name__} is used with shorthand callback (iterable of callback) but one of them didn't succeed instantly."
-                    )
+    def __init__(self, source: SourceOfDamageOrHeal) -> None:
+        self.source = source
+        self.target_to_coords: TargetToCoords = _single_target
+        self.acquires: list[Acquire] = []
+        self.callbacks_to_target: list[CallbackToTarget] = []
+
+    @staticmethod
+    def merge(
+        target_actions: Iterable["TargetAction" | CustomAction],
+        source: SourceOfDamageOrHeal,
+    ) -> SkillCallback:
+        @skill_callback_check
+        def callback(
+            game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        ) -> SkillResult:
+            skill_results: list[SkillResult] = []
+            for target_action in target_actions:
+                if isinstance(target_action, TargetAction):
+                    skill_callback = target_action.build_skill_callback()
+                    skill_result = skill_callback(game_manager, selected_targets)
+                    skill_results.append(skill_result)
+                else:
+                    skill_results.append(target_action(game_manager, selected_targets))
+
+            for skill_result in skill_results[:-1]:
+                if skill_result != SkillCompleted.SUCCESS:
+                    raise ValueError("SkillResult is not success in a chain")
+            return skill_results[-1]
+
+        return callback
+
+    def run(
+        self, game_manager: "GameManager", selected_targets: list[OddRCoord]
+    ) -> None:
+        self.build_skill_callback()(game_manager, selected_targets)
+
+    def build_skill_callback(self) -> SkillCallback:
+        if len(self.acquires) == 0:
+            raise ValueError("TargetAction without acquires is useless")
+
+        @skill_callback_check
+        def callback(
+            game_manager: "GameManager", selected_targets: list["OddRCoord"]
+        ) -> SkillResult:
+            selected_targets = self.target_to_coords(game_manager, selected_targets)
+            skill_results: list[SkillResult] = []
+            for selected_target in selected_targets:
+                tile = game_manager.board.get_tile(selected_target)
+                if tile is None:
+                    continue
+                target: Target | None = None
+                for acquire in self.acquires:
+                    target = acquire(game_manager, tile)
+                    if target is not None:
+                        break
+                if target is None:
+                    continue
+                if target.is_dead:
+                    continue
+                for callback_to_target in self.callbacks_to_target:
+                    result = callback_to_target(game_manager, target, self.source)
+                    skill_results.append(result)
+                    if target.is_dead:
+                        break
+            if not skill_results:
+                return SkillCompleted.CANCELLED
+            for skill_result in skill_results[:-1]:
+                if skill_result != SkillCompleted.SUCCESS:
+                    raise ValueError("SkillResult is not success in a chain")
+            return skill_results[-1]
+
+        return callback
+
+    def custom_action(self, action: CallbackToTarget) -> Self:
+        self.callbacks_to_target.append(action)
+        return self
+
+    def damage(self, damage: int | InstantKill) -> Self:
+        def callback_to_target(
+            game_manager: "GameManager",
+            target: Entity | Feature,
+            source: SourceOfDamageOrHeal,
+        ) -> SkillResult:
+            if isinstance(target, Entity):
+                game_manager.damage_entity(target, damage, source)
+            elif isinstance(target, Feature):
+                game_manager.damage_feature(target, damage, source)
             return SkillCompleted.SUCCESS
-        return callback(game_manager, selected_targets)
 
-    coords = board.get_attackable_coords(rodent, skill)
-    targets: list[OddRCoord] = []
-    for coord in coords:
-        tile = board.get_tile(coord)
-        if tile is None:
-            continue
-        if is_any_tile:
-            targets.append(coord)
-            continue
-        if any(
-            entity.side != rodent.side and entity.health is not None
-            for entity in tile.entities
-        ):
-            targets.append(coord)
-            continue
-        if is_feature_targetable and any(
-            feature.side != rodent.side and feature.health is not None
-            for feature in tile.features
-        ):
-            targets.append(coord)
-            continue
-    return SkillTargeting(
-        target_count, rodent, skill, targets, skill_callback, can_cancel
-    )
+        self.callbacks_to_target.append(callback_to_target)
+        return self
 
+    def heal(self, amount: int) -> Self:
+        def callback_to_target(
+            game_manager: "GameManager",
+            target: Entity | Feature,
+            source: SourceOfDamageOrHeal,
+        ) -> SkillResult:
+            if isinstance(target, Entity):
+                game_manager.heal_entity(target, amount, source)
+            return SkillCompleted.SUCCESS
 
-def move(self: Entity, *, custom_jump_height: int | None = None) -> SkillCallback:
-    @skill_callback_check
-    def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> SkillCompleted:
-        if len(selected_targets) != 1:
-            raise ValueError("Multiple targets for teleport.")
-        try:
-            game_manager.move_entity_uncheck(
-                self, selected_targets[0], custom_jump_height=custom_jump_height
+        self.callbacks_to_target.append(callback_to_target)
+        return self
+
+    def apply_effect(
+        self,
+        effect: type[EntityEffect],
+        *,
+        duration: int | None,
+        intensity: float = 0,
+    ) -> Self:
+        def callback_to_target(
+            game_manager: "GameManager",
+            target: Entity | Feature,
+            source: SourceOfDamageOrHeal,
+        ) -> SkillResult:
+            if isinstance(target, Feature):
+                return SkillCompleted.SUCCESS
+            game_manager.apply_effect(
+                effect(target, duration=duration, intensity=intensity)
             )
-        except InvalidMoveTargetError:
-            return SkillCompleted.CANCELLED
-        return SkillCompleted.SUCCESS
+            return SkillCompleted.SUCCESS
 
-    return callback
+        self.callbacks_to_target.append(callback_to_target)
+        return self
 
-
-def normal_damage(
-    damage: int, source: SourceOfDamageOrHeal, *, is_feature_targetable: bool = True
-) -> SkillCallback:
-    """
-    Apply normal damage
-    :param damage: Damage to deal
-    """
-
-    @skill_callback_check
-    def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> SkillCompleted:
-        for target in selected_targets:
-            enemy = game_manager.get_enemy_on_pos(target)
-            if enemy is not None:
-                game_manager.damage_entity(enemy, damage, source)
-                continue
-            if not is_feature_targetable:
+    def force_clear_effect(
+        self, effect: type[EntityEffect], *, raise_error_if_not_exist: bool = False
+    ) -> Self:
+        def callback_to_target(
+            game_manager: "GameManager",
+            target: Entity | Feature,
+            source: SourceOfDamageOrHeal,
+        ) -> SkillResult:
+            if isinstance(target, Feature):
                 return SkillCompleted.SUCCESS
-            feature = game_manager.get_feature_on_pos(target)
-            if feature is None:
-                return SkillCompleted.SUCCESS
-            game_manager.damage_feature(feature, damage, source)
-        return SkillCompleted.SUCCESS
+            if effect.name not in target.effects:
+                if raise_error_if_not_exist:
+                    raise ValueError(
+                        f"Effect {effect.name} doesn't exist in {target.name}"
+                    )
+                else:
+                    return SkillCompleted.SUCCESS
+            game_manager.force_clear_effect(target.effects[effect.name])
+            return SkillCompleted.SUCCESS
 
-    return callback
+        self.callbacks_to_target.append(callback_to_target)
+        return self
 
-
-def apply_timer(
-    timer_clear_side: TimerClearSide,
-    *,
-    duration: int,
-    on_turn_change: TimerCallback | None = None,
-    on_timer_over: TimerCallback | None = None,
-    is_ally_instead: bool = False,
-) -> SkillCallback:
-    """
-    Apply timer on enemy (or ally if `is_ally_instead`) rodent
-    :is_ally_instead: Target ally instead of enemy
-    """
-
-    @skill_callback_check
-    def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> SkillCompleted:
-        for target in selected_targets:
-            if is_ally_instead:
-                entity = game_manager.get_ally_on_pos(target)
-            else:
-                entity = game_manager.get_enemy_on_pos(target)
-            if entity is None:
+    def apply_timer(
+        self,
+        timer_clear_side: TimerClearSide,
+        *,
+        duration: int,
+        on_turn_change: TimerCallback | None = None,
+        on_timer_over: TimerCallback | None = None,
+    ) -> Self:
+        def callback_to_target(
+            game_manager: "GameManager",
+            target: Entity | Feature,
+            source: SourceOfDamageOrHeal,
+        ) -> SkillResult:
+            if isinstance(target, Feature):
                 return SkillCompleted.SUCCESS
             game_manager.apply_timer(
                 Timer(
-                    entity,
+                    target,
                     timer_clear_side,
                     duration=duration,
                     on_turn_change=on_turn_change,
                     on_timer_over=on_timer_over,
                 ),
             )
-        return SkillCompleted.SUCCESS
+            return SkillCompleted.SUCCESS
 
-    return callback
+        self.callbacks_to_target.append(callback_to_target)
+        return self
 
-
-def apply_effect(
-    effect: type[EntityEffect],
-    *,
-    duration: int | None,
-    intensity: float,
-    is_ally_instead: bool = False,
-    stack_intensity: bool = False,
-) -> SkillCallback:
-    """
-    Apply effect on enemy (or ally if `is_ally_instead`) rodent
-    :param effect: EntityEffect to apply to enemy
-    :is_ally_instead: Target ally instead of enemy
-    :stack_intensity: Whether to stack intensity and extend the duration instead (Note that it'll not recall on_apply)
-    """
-
-    @skill_callback_check
-    def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> SkillCompleted:
-        for target in selected_targets:
-            if is_ally_instead:
-                entity = game_manager.get_ally_on_pos(target)
-            else:
-                entity = game_manager.get_enemy_on_pos(target)
-            if entity is None:
-                return SkillCompleted.SUCCESS
-            game_manager.apply_effect(
-                entity,
-                effect(entity, duration=duration, intensity=intensity),
-                stack_intensity=stack_intensity,
-            )
-        return SkillCompleted.SUCCESS
-
-    return callback
-
-
-def aoe_damage(
-    damage: int,
-    radius: int,
-    source: SourceOfDamageOrHeal,
-    *,
-    is_stackable: bool = False,
-    is_feature_targetable: bool = True,
-    is_friendly_fire: bool = False,
-) -> SkillCallback:
-    """
-    Deal aoe damage
-    :param damage: Damage to deal
-    :param radius: Radius of the aoe damage, this number is also altitude for checking line of sight
-    :param is_stackable: Whether the same tile should get hit multiple times when selected area overlaps,
-        defaults to `False`
-    :param is_friendly_fire: Whether the damage also affect ally
-    :returns: SkillCallback
-    """
-
-    @skill_callback_check
-    def callback(
-        game_manager: "GameManager", selected_targets: list["OddRCoord"]
-    ) -> SkillCompleted:
-        tagged_coord: set["OddRCoord"] = set()
-        for selected_target in selected_targets:
-            selected_tile = game_manager.board.get_tile(selected_target)
-            if selected_tile is None:
-                raise ValueError("Invalid Tile was selected")
-            selected_tile_ = selected_tile
-
-            def __is_coord_blocked(
-                target_coord: "OddRCoord", source_coord: "OddRCoord"
-            ) -> bool:
-                tile = game_manager.board.get_tile(target_coord)
-                if tile is None:
-                    return True
-                return selected_tile_.height + radius < tile.get_total_height(
-                    game_manager.turn
-                )
-
-            for coord in selected_target.get_reachable_coords(
-                radius, __is_coord_blocked, is_include_self=True
-            ):
-                if not is_stackable and coord in tagged_coord:
+    def acquire_ally_entity(self, with_hp: bool = True) -> Self:
+        def acquire(game_manager: "GameManager", tile: Tile) -> Entity | None:
+            for entity in reversed(tile.entities):
+                if entity.side == game_manager.turn.other_side():
                     continue
-                if is_friendly_fire:
-                    enemy = game_manager.get_both_side_on_pos(coord)
-                else:
-                    enemy = game_manager.get_enemy_on_pos(coord)
-                if enemy is not None:
-                    game_manager.damage_entity(enemy, damage, source)
+                if with_hp and entity.health is None:
                     continue
-                if not is_feature_targetable:
-                    raise ValueError("Trying to damage entity that is not there")
-                feature = game_manager.get_feature_on_pos(coord)
-                if feature is not None:
-                    game_manager.damage_feature(feature, damage, source)
-                if not is_stackable:
-                    tagged_coord.add(coord)
-        return SkillCompleted.SUCCESS
+                return entity
+            return None
 
-    return callback
+        self.acquires.append(acquire)
+        return self
+
+    def acquire_custom(self, acquire: Acquire) -> Self:
+        self.acquires.append(acquire)
+        return self
+
+    def acquire_any(self, with_hp: bool = True) -> Self:
+        return self.acquire_any_entity(with_hp).acquire_any_feature(with_hp)
+
+    def acquire_any_entity(self, with_hp: bool = True) -> Self:
+        def acquire(game_manager: "GameManager", tile: Tile) -> Entity | None:
+            for entity in reversed(tile.entities):
+                if with_hp and entity.health is None:
+                    continue
+                return entity
+            return None
+
+        self.acquires.append(acquire)
+        return self
+
+    def acquire_any_feature(self, with_hp: bool = True) -> Self:
+        def acquire(game_manager: "GameManager", tile: Tile) -> Feature | None:
+            for feature in reversed(tile.features):
+                if with_hp and feature.health is None:
+                    continue
+                return feature
+            return None
+
+        self.acquires.append(acquire)
+        return self
+
+    def acquire_enemy_feature(self, with_hp: bool = True) -> Self:
+        def acquire(game_manager: "GameManager", tile: Tile) -> Feature | None:
+            for feature in reversed(tile.features):
+                if feature.side == game_manager.turn:
+                    continue
+                if with_hp and feature.health is None:
+                    continue
+                return feature
+            return None
+
+        self.acquires.append(acquire)
+        return self
+
+    def acquire_enemy_entity(self, with_hp: bool = True) -> Self:
+        def acquire(game_manager: "GameManager", tile: Tile) -> Entity | None:
+            for entity in reversed(tile.entities):
+                if entity.side == game_manager.turn:
+                    continue
+                if with_hp and entity.health is None:
+                    continue
+                return entity
+            return None
+
+        self.acquires.append(acquire)
+        return self
+
+    def acquire_enemy(self) -> Self:
+        return self.acquire_enemy_entity().acquire_enemy_feature()
+
+    def acquire_ally_feature(self, with_hp: bool = True) -> Self:
+        def acquire(game_manager: "GameManager", tile: Tile) -> Feature | None:
+            for feature in reversed(tile.features):
+                if feature.side == game_manager.turn.other_side():
+                    continue
+                if with_hp and feature.health is None:
+                    continue
+                return feature
+            return None
+
+        self.acquires.append(acquire)
+        return self
+
+    def aoe(self, radius: int) -> Self:
+        def _multi_target(
+            game_manager: "GameManager", coords: list[OddRCoord]
+        ) -> list[OddRCoord]:
+            result_coords: set[OddRCoord] = set()
+            for coord in coords:
+                selected_tile = game_manager.board.get_tile(coord)
+                if selected_tile is None:
+                    continue
+
+                def __is_coord_blocked(
+                    target_coord: "OddRCoord", source_coord: "OddRCoord"
+                ) -> bool:
+                    tile = game_manager.board.get_tile(target_coord)
+                    if tile is None:
+                        return True
+                    return tile.height + radius < tile.get_total_height(
+                        game_manager.turn
+                    )
+
+                for result_coord in coord.get_reachable_coords(
+                    radius, __is_coord_blocked, is_include_self=True
+                ):
+                    result_coords.add(result_coord)
+            return list(result_coords)
+
+        self.target_to_coords = _multi_target
+        return self
+
+
+GetAttackableCoords = Callable[["GameManager"], Iterable[OddRCoord]]
+
+
+class SelectTarget:
+    def __init__(
+        self, rodent: Rodent, *, skill_index: int, target_count: int = 1
+    ) -> None:
+        self.rodent = rodent
+        self.skill_index = skill_index
+        self.target_count = target_count
+        self.can_select_callbacks: list[CanSelectCallback] = []
+        self.target_actions: list[TargetAction | CustomAction] = []
+        self.get_attackable_coords: GetAttackableCoords = self._get_attackable_coords
+
+    def add_target_action(self, target_action: TargetAction) -> Self:
+        self.target_actions.append(target_action)
+        return self
+
+    def add_custom_action(self, custom_action: CustomAction) -> Self:
+        self.target_actions.append(custom_action)
+        return self
+
+    def _get_attackable_coords(
+        self, game_manager: "GameManager"
+    ) -> Iterable[OddRCoord]:
+        return game_manager.board.get_attackable_coords(
+            self.rodent, self.rodent.skills[self.skill_index]
+        )
+
+    def custom_attackable_coords(
+        self, get_attackable_coords: GetAttackableCoords
+    ) -> Self:
+        self.get_attackable_coords = get_attackable_coords
+        return self
+
+    def build_targets(self, game_manager: "GameManager") -> list[OddRCoord]:
+        if len(self.can_select_callbacks) == 0:
+            raise ValueError("SelectTarget without can_select is useless")
+        coords = self.get_attackable_coords(game_manager)
+        targets: list[OddRCoord] = []
+        for coord in coords:
+            tile = game_manager.board.get_tile(coord)
+            if tile is None:
+                continue
+            for can_select_callback in self.can_select_callbacks:
+                if can_select_callback(game_manager, tile):
+                    targets.append(coord)
+                    continue
+                continue
+        return targets
+
+    def to_skill_targeting(
+        self, game_manager: "GameManager", *, can_canel: bool = True
+    ) -> SkillTargeting:
+        targets = self.build_targets(game_manager)
+        return SkillTargeting(
+            self.target_count,
+            self.rodent,
+            self.rodent.skills[self.skill_index],
+            targets,
+            TargetAction.merge(self.target_actions, self.rodent),
+            can_canel,
+        )
+
+    def can_select_enemy(self, with_hp: bool = True) -> Self:
+        return self.can_select_enemy_feature(with_hp).can_select_enemy_entity(with_hp)
+
+    def can_select_custom(self, can_select_callback: CanSelectCallback) -> Self:
+        self.can_select_callbacks.append(can_select_callback)
+        return self
+
+    def can_select_tile_without_collision(
+        self, is_source_entity_collision: bool = True
+    ) -> Self:
+        def can_select(game_manager: "GameManager", tile: Tile) -> bool:
+            return not tile.is_collision(is_source_entity_collision)
+
+        self.can_select_callbacks.append(can_select)
+        return self
+
+    def can_select_any_tile(self) -> Self:
+        def can_select(game_manager: "GameManager", tile: Tile) -> bool:
+            return True
+
+        self.can_select_callbacks.append(can_select)
+        return self
+
+    def can_select_ally_entity(self, with_hp: bool = True) -> Self:
+        def can_select(game_manager: "GameManager", tile: Tile) -> bool:
+            for entity in reversed(tile.entities):
+                if entity.side == game_manager.turn.other_side():
+                    continue
+                if with_hp and entity.health is None:
+                    continue
+                return True
+            return False
+
+        self.can_select_callbacks.append(can_select)
+        return self
+
+    def can_select_ally_feature(self, with_hp: bool = True) -> Self:
+        def can_select(game_manager: "GameManager", tile: Tile) -> bool:
+            for feature in reversed(tile.features):
+                if feature.side == game_manager.turn.other_side():
+                    continue
+                if with_hp and feature.health is None:
+                    continue
+                return True
+            return False
+
+        self.can_select_callbacks.append(can_select)
+        return self
+
+    def can_select_enemy_entity(self, with_hp: bool = True) -> Self:
+        def can_select(game_manager: "GameManager", tile: Tile) -> bool:
+            for entity in reversed(tile.entities):
+                if entity.side == game_manager.turn:
+                    continue
+                if with_hp and entity.health is None:
+                    continue
+                return True
+            return False
+
+        self.can_select_callbacks.append(can_select)
+        return self
+
+    def can_select_enemy_feature(self, with_hp: bool = True) -> Self:
+        def can_select(game_manager: "GameManager", tile: Tile) -> bool:
+            for feature in reversed(tile.features):
+                if feature.side == game_manager.turn:
+                    continue
+                if with_hp and feature.health is None:
+                    continue
+                return True
+            return False
+
+        self.can_select_callbacks.append(can_select)
+        return self

@@ -1,7 +1,9 @@
-from .game_obj_to_sprite_registry import SpritesheetMetadata
-from pathlib import Path
-import pygame
 from dataclasses import dataclass, field
+from pathlib import Path
+
+import pygame
+
+from .game_obj_to_sprite_registry import SpritesheetMetadata
 
 
 @dataclass

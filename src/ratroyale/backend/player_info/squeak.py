@@ -7,6 +7,7 @@ from ..hexagon import OddRCoord
 if TYPE_CHECKING:
     from ..entities.rodent import Rodent
     from ..game_manager import GameManager
+    from ..entity import Entity
 
 
 class SqueakType(Enum):
@@ -58,15 +59,17 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
 
 def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
     def on_place(game_manager: "GameManager", coord: OddRCoord) -> None:
-        return summon(game_manager, coord, rodent_type)
+        summon(game_manager, coord, rodent_type)
 
     return on_place
 
 
 def summon(
     game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]
-) -> None:
+) -> "Entity":
     tile = game_manager.board.get_tile(coord)
     if tile is None:
         raise ValueError("Trying to summon rodent on None tile")
-    game_manager.board.add_entity(rodent_type(coord, game_manager.turn))
+    entity = rodent_type(coord, game_manager.turn)
+    game_manager.board.add_entity(entity, game_manager)
+    return entity

@@ -1,3 +1,11 @@
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from .entity import Entity
+    from .feature import Feature
+
+
 class RatRoyaleBackendError(Exception):
     pass
 
@@ -60,3 +68,9 @@ class AICantPathfind(RatRoyaleBackendError):
 
 class InvalidDeckError(RatRoyaleBackendError):
     pass
+
+
+class UpdatingTheDeadError(RatRoyaleBackendError):
+    def __init__(self, the_dead: "Feature | Entity") -> None:
+        assert the_dead.is_dead
+        super().__init__(f"{the_dead} is already dead but it is getting updated")

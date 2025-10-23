@@ -11,5 +11,8 @@ class InstantKill:
             cls._instance = super().__new__(cls)
         return cls._instance
 
+    def __str__(self) -> str:
+        return "InstantKill"
+
 
 INSTANT_KILL = InstantKill()

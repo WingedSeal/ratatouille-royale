@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-import pygame
 from typing import Literal
+
+import pygame
+
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
 
 SpaceMode = Literal["WORLD", "SCREEN"]
