@@ -19,7 +19,11 @@ dependencies = [
 ratroyale = "ratroyale.__main__:main"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = [
+  "poetry-core>=2.0.0,<3.0.0", 
+  "cython (>=3.1.5,<4.0.0)",
+  "setuptools (>=80.9.0,<81.0.0)",
+]
 build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
@@ -31,16 +35,12 @@ dev = [
   "pytest (>=8.4.2,<9.0.0)",
   "isort (>=6.1.0,<7.0.0)",
 ]
-build = [
-    "setuptools (>=80.9.0,<81.0.0)",
-    "cython (>=3.1.5,<4.0.0)"
-]
+
+[project.optional-dependencies]
 tools = [
   "numpy (>=2.3.3,<3.0.0)",
   "pillow (>=11.3.0,<12.0.0)",
 ]
-
-[project.optional-dependencies]
 prof = [
     "pytest-profiling (>=1.8.1,<2.0.0)",
     "pytest-repeat (>=0.9.4,<0.10.0)",
@@ -52,6 +52,7 @@ prof = [
 packages = [
   { include = "ratroyale", from = "src" },
 ]
+build = "build.py"
 
 [tool.poe.tasks]
 render-test = "python ./src/render_test.py"

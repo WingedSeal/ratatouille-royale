@@ -12,29 +12,30 @@ TEMP_BUILD_DIR = Path("temp_cython_build")
 SOURCE_EXTENSIONS = (".c", ".cpp")
 COMPILED_EXTENSIONS = (".so", ".pyd", ".dll")
 
-
-def clean_build_artifacts() -> None:
-
-    for file_path in SOURCE_DIR.rglob("*"):
-        if not file_path.is_file():
-            continue
-
-        if file_path.suffix in SOURCE_EXTENSIONS:
-            file_path.unlink()
-        elif file_path.suffix in COMPILED_EXTENSIONS:
-            try:
-                file_path.relative_to(TEMP_BUILD_DIR)
-                continue
-            except ValueError:
-                pass
-            file_path.unlink()
-
-    if TEMP_BUILD_DIR.exists():
-        shutil.rmtree(TEMP_BUILD_DIR)
+#
+# def clean_build_artifacts() -> None:
+#
+#     for file_path in SOURCE_DIR.rglob("*"):
+#         if not file_path.is_file():
+#             continue
+#
+#         if file_path.suffix in SOURCE_EXTENSIONS:
+#             file_path.unlink()
+#         elif file_path.suffix in COMPILED_EXTENSIONS:
+#             try:
+#                 file_path.relative_to(TEMP_BUILD_DIR)
+#                 continue
+#             except ValueError:
+#                 pass
+#             file_path.unlink()
+#
+#     if TEMP_BUILD_DIR.exists():
+#         shutil.rmtree(TEMP_BUILD_DIR)
+#
 
 
 def compile_cython_files() -> None:
-    clean_build_artifacts()
+    # clean_build_artifacts()
     pyx_files = [f for f in SOURCE_DIR.rglob("*.pyx") if not f.name.startswith("_")]
     if not pyx_files:
         return
