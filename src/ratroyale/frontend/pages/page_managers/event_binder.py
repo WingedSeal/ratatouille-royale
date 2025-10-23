@@ -2,13 +2,19 @@ from typing import Callable, ParamSpec, TypeVar
 
 from ratroyale.event_tokens.page_token import *
 from ratroyale.backend.game_event import GameEvent
+from enum import Enum, auto
 
 P = ParamSpec("P")
 R = TypeVar("R")
 
 
+class SpecialInputScope(Enum):
+    GLOBAL = auto()
+    UNCONSUMED = auto()
+
+
 def input_event_bind(
-    element_id: str | None, event_type: int
+    element_id: str | SpecialInputScope, event_type: int
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator used for attaching input bindings to methods.
@@ -51,13 +57,13 @@ def callback_event_bind(
 
 
 def game_event_bind(
-    game_event: type[GameEvent],
+    game_event_type: type[GameEvent],
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
 
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
 
         bindings = getattr(func, "_game_event_bindings", [])
-        bindings.append(game_event)
+        bindings.append(game_event_type)
         setattr(func, "_game_event_bindings", bindings)
         return func
 

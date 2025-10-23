@@ -11,7 +11,9 @@ from ....visual.anim.presets.presets import (
     on_select_color_fade_in,
     on_select_color_fade_out,
 )
-from ....visual.asset_management.sprite_key_registry import TYPICAL_TILE_SIZE
+from ....visual.asset_management.game_obj_to_sprite_registry import (
+    TYPICAL_TILE_SIZE,
+)
 
 import pygame
 

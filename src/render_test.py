@@ -2,6 +2,8 @@
 
 import pygame
 
+pygame.init()
+
 from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
 from ratroyale.backend.player_info.squeaks.rodents.duelist import (
@@ -36,14 +38,20 @@ from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.features.common import Lair, DeploymentZone
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.side import Side
+from ratroyale.backend.hexagon import OddRCoord
 
 import random
 
 
 def main():
-    pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
     clock = pygame.time.Clock()
+
+    coord = OddRCoord(10, 10)
+    to_pixel = coord.to_pixel(64, 64, is_bounding_box=True)
+    print("TO PIXEL:", to_pixel)
+    from_pixel = OddRCoord.from_pixel(*to_pixel, 64)
+    print("FROM PIXEL:", from_pixel)
 
     coordination_manager = CoordinationManager()
 
@@ -75,6 +83,14 @@ def main():
             mouse_zone,
             rat_zone,
         ],
+    )
+    map = Map(
+        "Example Map",
+        5,
+        5,
+        heights_to_tiles([[1 for i in range(5)] for i in range(5)]),
+        entities=[],
+        features=[],
     )
 
     # Player 1: create a SqueakSet directly in the constructor

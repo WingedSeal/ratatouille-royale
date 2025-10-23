@@ -2,10 +2,15 @@ from .element import ElementWrapper
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.coordination_manager import CoordinationManager
 from .spatial_component import Camera
-from .element_group import ElementGroup
+from .element_group import ElementGroup, HitTestPolicy
 
 from pygame import Surface
 from pygame_gui import UIManager
+from ....event_tokens.payloads import Payload
+from typing import TypeVar
+
+T = TypeVar("T", bound="Payload")
+U = TypeVar("U", bound="ElementWrapper")
 
 
 class ElementManager:
@@ -22,31 +27,47 @@ class ElementManager:
     ) -> None:
         self.ui_manager = ui_manager
         self.coordination_manager = coordination_manager
-        self.master_group: ElementGroup = ElementGroup(
-            group_name="_MASTER", max_selectable=None
-        )
+
         self.element_groups: dict[str, ElementGroup] = {}
+        self.flattened_element_groups: list[ElementGroup] = []
         self.element_to_group_mapping: dict[ElementWrapper, str] = {}
 
         self._is_processing_input: bool = True
         self._camera: Camera = camera
+
+        self.master_group: ElementGroup = ElementGroup(
+            group_name="_MASTER", max_selectable=None, camera=self._camera
+        )
 
     # region Collection Management
 
     def set_processing_status(self, is_processing_input: bool) -> None:
         self._is_processing_input = is_processing_input
 
-    def create_group(self, group_name: str) -> ElementGroup:
+    def create_group(
+        self,
+        group_name: str,
+        hittest_policy: HitTestPolicy = HitTestPolicy.REGULAR,
+        hittest_priority: int = 1,
+    ) -> ElementGroup:
         """Initializes a new group for the given element type."""
         if group_name not in self.element_groups:
-            self.element_groups[group_name] = ElementGroup(group_name)
+            new_group = ElementGroup(group_name, self._camera)
+            self.element_groups[group_name] = new_group
+            self.flattened_element_groups.append(new_group)
+            new_group.hittest_policy = hittest_policy
+            new_group.hittest_priority = hittest_priority
+            self.sort_group_by_hittest_priority()
         return self.element_groups[group_name]
 
     def get_group(self, group_name: str) -> ElementGroup:
         """Retrieves the collection for the given element type, creating it if necessary."""
         if group_name not in self.element_groups:
-            self.create_group(group_name)
-        return self.element_groups[group_name]
+            print(f"group name {group_name} not already exists")
+            group = self.create_group(group_name)
+        else:
+            group = self.element_groups[group_name]
+        return group
 
     def add_element(self, element: ElementWrapper) -> None:
         """Adds an element to the master group and its specific group, respecting parent-children relationships."""
@@ -167,13 +188,33 @@ class ElementManager:
         group = self.get_group(grouping_name)
         return group.get_selected_elements()
 
-    def set_max_highlightable(self, group_name: str, amount: int | None) -> None:
-        group = self.get_group(group_name)
-        group.max_highlightable = amount
-
     def set_max_selectable(self, group_name: str, amount: int | None) -> None:
         group = self.get_group(group_name)
         group.max_selectable = amount
+
+    def get_payload_from_element(self, registered_name: str, cls: type[T]) -> T:
+        element = self.get_element(registered_name)
+        return element.get_payload(cls)
+
+    def get_element_with_typecheck(self, registered_name: str, cls: type[U]) -> U:
+        element = self.get_element(registered_name)
+        if type(element) is cls:
+            return element
+        else:
+            raise TypeError(
+                f"Element {registered_name} is of type {type(element).__name__}, not {cls}."
+            )
+
+    def set_group_hittest_priority(self, group_name: str, new_priority: int) -> None:
+        self.get_group(group_name).hittest_priority = new_priority
+
+    def sort_group_by_hittest_priority(self) -> None:
+        self.flattened_element_groups.sort(
+            key=lambda x: x.hittest_priority, reverse=True
+        )
+
+    def get_all_groups(self) -> list[ElementGroup]:
+        return self.flattened_element_groups
 
     # endregion
 
@@ -201,18 +242,9 @@ class ElementManager:
         """
         remaining_gestures: list[GestureData] = []
 
-        for gesture in gestures:
-            consumed = False
-
-            for element in self.get_all_elements():
-                if not element.interactable_component:
-                    continue
-
-                if element.handle_gesture(gesture, self._is_processing_input):
-                    consumed = True
-                    break
-
-            if not consumed:
-                remaining_gestures.append(gesture)
+        for element_group in self.get_all_groups():
+            remaining_gestures = element_group.handle_gestures(
+                gestures, self._is_processing_input
+            )
 
         return remaining_gestures

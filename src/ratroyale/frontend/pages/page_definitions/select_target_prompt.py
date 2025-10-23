@@ -60,12 +60,6 @@ class SelectTargetPromptPage(Page):
 
     @input_event_bind("cancel_skill_button", pygame_gui.UI_BUTTON_PRESSED)
     def close_panel(self, msg: pygame.event.Event) -> None:
-        CoordinationManager.put_message(
-            PageNavigationEvent(
-                action_list=[
-                    (PageNavigation.CLOSE, "SelectTargetPromptPage"),
-                ]
-            )
-        )
-        CoordinationManager.put_message(PageCallbackEvent("skill_canceled"))
-        CoordinationManager.put_message(GameManagerEvent("skill_canceled"))
+        self.close_self()
+        self.post(PageCallbackEvent("skill_canceled"))
+        self.post(GameManagerEvent("skill_canceled"))

@@ -102,18 +102,24 @@ class SpatialComponent:
 
     def get_screen_rect(self, camera: "Camera") -> pygame.Rect | pygame.FRect:
         if self.space_mode == "WORLD":
-            x, y = self.local_rect.topleft
-            total_scale = camera.scale * self.scale
+            x, y = self.local_rect.center  # center instead of topleft
             sx, sy = camera.world_to_screen(x, y)
+            total_scale = camera.scale * self.scale
             w = self.local_rect.width * total_scale
             h = self.local_rect.height * total_scale
-            rect: pygame.Rect | pygame.FRect = pygame.Rect(sx, sy, w, h)
+            rect = pygame.Rect(sx - w / 2, sy - h / 2, w, h)  # keep it centered
         else:
             rect = self.local_rect.copy()
         return rect
 
     def get_rect(self) -> pygame.Rect | pygame.FRect:
         return self.local_rect
+
+    def get_center_of_local_rect(self) -> tuple[float, float]:
+        return (
+            self.local_rect.x + self.local_rect.width / 2,
+            self.local_rect.y + self.local_rect.height / 2,
+        )
 
     def set_position(self, topleft: tuple[float, float]) -> None:
         self.local_rect.topleft = topleft

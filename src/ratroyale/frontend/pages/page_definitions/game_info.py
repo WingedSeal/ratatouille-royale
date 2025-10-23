@@ -8,6 +8,7 @@ from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
     input_event_bind,
     callback_event_bind,
+    game_event_bind,
 )
 from ratroyale.event_tokens.input_token import get_id
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
@@ -25,6 +26,7 @@ from ratroyale.event_tokens.payloads import (
     CrumbUpdatePayload,
 )
 from ratroyale.backend.tile import Tile
+from ratroyale.backend.game_event import CrumbChangeEvent
 
 import pygame_gui
 import pygame
@@ -137,6 +139,14 @@ class GameInfoPage(Page):
 
         return gui_elements
 
+    @game_event_bind(CrumbChangeEvent)
+    def crumb_change_event(self, event: CrumbChangeEvent) -> None:
+        self.crumbs = event.new_crumbs
+        show_crumbs_button = self._element_manager.get_element("show_crumbs_button")
+        show_crumbs_button.get_interactable(pygame_gui.elements.UIButton).set_text(
+            f"Crumbs: {self.crumbs}"
+        )
+
     @callback_event_bind("start_game")
     def start_game(self, msg: PageCallbackEvent) -> None:
         if msg.success and msg.payload:
@@ -167,7 +177,7 @@ class GameInfoPage(Page):
 
     @input_event_bind("view_deck", pygame_gui.UI_BUTTON_PRESSED)
     def on_view_deck_click(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
+        self.post(
             PageNavigationEvent(
                 action_list=[
                     (PageNavigation.OPEN, "InspectDeckPage"),
@@ -177,9 +187,7 @@ class GameInfoPage(Page):
 
     @input_event_bind("end_turn", pygame_gui.UI_BUTTON_PRESSED)
     def on_end_turn_click(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
-            GameManagerEvent(game_action="end_turn", payload=None)
-        )
+        self.post(GameManagerEvent(game_action="end_turn", payload=None))
 
     @callback_event_bind("tile_hovered")
     def on_tile_hover(self, msg: PageCallbackEvent) -> None:
@@ -198,6 +206,11 @@ class GameInfoPage(Page):
             self.temp_hovered_tile = payload.tile
             self.update_entity_info(self.temp_hovered_tile)
             self.update_tile_info(self.temp_hovered_tile)
+
+    @callback_event_bind("no_hovered")
+    def no_hovered(self, msg: PageCallbackEvent) -> None:
+        self.temp_hovered_tile = None
+        self.kill_old_tile_data()
 
     @callback_event_bind("move_history")
     def _move_history(self, msg: PageCallbackEvent) -> None:
@@ -228,8 +241,6 @@ class GameInfoPage(Page):
 
         assert self.temp_selected_tile
         entity = self.temp_selected_tile.entities[entity_index]
-
-        print(entity)
 
         CoordinationManager.put_message(
             PageNavigationEvent([(PageNavigation.OPEN, "InspectEntity")])
@@ -280,18 +291,25 @@ class GameInfoPage(Page):
         tile_hover_data_panel_object = tile_hover_data_panel.get_interactable(
             pygame_gui.elements.UIPanel
         )
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(0, 0, 100, 20),
-            text=f"Odd-R: {tile.coord}",
-            manager=self.gui_manager,
-            container=tile_hover_data_panel_object,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="OddRCoordButton",
-                object_id="odd_r_coord_button",
-            ),
-        )
-
         new_element_wrappers = []
+        coord_button_id = f"odd_r_coord_btn_{id(tile.coord)}"
+        coord_button_wrapper = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(0, 0, 100, 20),
+                text=f"Odd-R: {tile.coord}",
+                manager=self.gui_manager,
+                container=tile_hover_data_panel_object,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="OddRCoordButton",
+                    object_id="odd_r_coord_button",
+                ),
+            ),
+            registered_name=coord_button_id,
+            camera=self.camera,
+        )
+        self.temp_saved_buttons.append(coord_button_id)
+        new_element_wrappers.append(coord_button_wrapper)
+
         for index, feature in enumerate(tile.features):
             feature_button_id = f"ShowFeatureButton_{id(feature)}"
             feature_button_wrapper = ui_element_wrapper(

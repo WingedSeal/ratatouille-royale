@@ -3,7 +3,9 @@ from ..spatial_component import Camera
 from ratroyale.backend.entity import Entity
 from ....visual.asset_management.game_obj_to_sprite_registry import (
     SPRITE_METADATA_REGISTRY,
+    TYPICAL_TILE_SIZE,
 )
+
 from ....visual.asset_management.spritesheet_manager import SpritesheetManager
 from ..spatial_component import SpatialComponent
 from ..hitbox import RectangleHitbox
@@ -17,7 +19,6 @@ from ....visual.anim.presets.presets import (
     move_entity,
     entity_hurt,
 )
-from ....visual.asset_management.sprite_key_registry import TYPICAL_TILE_SIZE
 from .....backend.hexagon import OddRCoord
 
 import pygame

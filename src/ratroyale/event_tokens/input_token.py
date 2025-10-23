@@ -78,7 +78,7 @@ def get_gesture_data(event: pygame.event.Event) -> GestureData:
     raise TypeError(f"Event {event} does not contain GestureData.")
 
 
-def get_payload(
+def get_payload_from_msg(
     obj_with_payload: pygame.event.Event | PageCallbackEvent,
     payload_type: type[T],
 ) -> T | None:

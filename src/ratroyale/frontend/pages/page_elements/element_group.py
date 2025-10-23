@@ -2,6 +2,13 @@ from .element import ElementWrapper
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from collections import deque
+from ratroyale.frontend.gesture.gesture_data import GestureData
+from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
+    TYPICAL_TILE_SIZE,
+)
+from ..page_elements.spatial_component import Camera
+from ratroyale.event_tokens.payloads import TilePayload
 
 
 class OverselectionPolicy(Enum):
@@ -9,9 +16,16 @@ class OverselectionPolicy(Enum):
     PREVENT_NEW = auto()
 
 
+class HitTestPolicy(Enum):
+    REGULAR = auto()
+    NO_HITTEST = auto()
+    HEXGRID = auto()
+
+
 @dataclass
 class ElementGroup:
     group_name: str
+    camera: Camera
     elements: dict[str, ElementWrapper] = field(default_factory=dict)
     flattened_elements_list: list[ElementWrapper] = field(default_factory=list)
     selected_ids: deque[str] = field(default_factory=deque)
@@ -23,6 +37,12 @@ class ElementGroup:
     overselection_policy: OverselectionPolicy = OverselectionPolicy.REMOVE_OLDEST
     active: bool = True
 
+    hittest_priority: int = 0
+    hittest_policy: HitTestPolicy = HitTestPolicy.REGULAR
+    hexgrid_pos_for_element: dict[OddRCoord, ElementWrapper] = field(
+        default_factory=dict
+    )
+
     def add_element(self, element: ElementWrapper) -> None:
         if element.registered_name in self.elements:
             raise KeyError(
@@ -30,6 +50,13 @@ class ElementGroup:
             )
         self.elements[element.registered_name] = element
         self.flattened_elements_list.append(element)
+
+        print(self.hittest_policy)
+
+        if self.hittest_policy == HitTestPolicy.HEXGRID:
+            # Very quick and dirty.
+            if type(element.payload) is TilePayload:
+                self.hexgrid_pos_for_element[element.payload.tile.coord] = element
         self._sort_flattened_by_z_order()
 
     def get_element(self, registered_name: str) -> ElementWrapper:
@@ -146,3 +173,63 @@ class ElementGroup:
         self.flattened_elements_list.sort(
             key=lambda x: x.spatial_component.z_order, reverse=True
         )
+
+    def handle_gestures(
+        self, gestures: list[GestureData], is_processing_input: bool
+    ) -> list[GestureData]:
+        """
+        Dispatch a GestureData object to all non-gui elements.
+        Elements then produces the corresponding event, which is
+        handled by the page.
+        """
+        remaining_gestures: list[GestureData] = []
+
+        if self.hittest_policy == HitTestPolicy.REGULAR:
+            for gesture in gestures:
+                consumed = False
+
+                for element in self.flattened_elements_list:
+                    consumed = element.handle_gesture(gesture, is_processing_input)
+                    if consumed:
+                        break
+
+                if not consumed:
+                    remaining_gestures.append(gesture)
+        elif self.hittest_policy == HitTestPolicy.NO_HITTEST:
+            return gestures
+        elif self.hittest_policy == HitTestPolicy.HEXGRID:
+            for gesture in gestures:
+                consumed = False
+
+                world_pos = self.camera.screen_to_world(*gesture.mouse_pos)
+
+                odd_r_coord = OddRCoord.from_pixel(*world_pos, TYPICAL_TILE_SIZE[0])
+                if odd_r_coord in self.hexgrid_pos_for_element:
+                    element = self.hexgrid_pos_for_element[odd_r_coord]
+                else:
+                    element = None
+
+                print("Mouse pos:", gesture.mouse_pos)
+                print("Camera pos:", (self.camera.world_x, self.camera.world_y))
+                print(
+                    "Camera screen offset:",
+                    (self.camera.screen_offset_x, self.camera.screen_offset_y),
+                )
+                print("World pos:", world_pos)
+                print("Mouse falls on coord:", odd_r_coord)
+                print("HEXGRID mode: Hittesting against element", element)
+                if element:
+                    print(
+                        "Element's actual position:",
+                        element.spatial_component.get_rect(),
+                    )
+
+                consumed = (
+                    element.handle_gesture(gesture, is_processing_input)
+                    if element
+                    else False
+                )
+
+                if not consumed:
+                    remaining_gestures.append(gesture)
+        return remaining_gestures

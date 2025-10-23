@@ -4,6 +4,7 @@ from ratroyale.backend.feature import Feature
 from ratroyale.backend.hexagon import OddRCoord
 from ....visual.asset_management.game_obj_to_sprite_registry import (
     FEATURE_SPRITE_METADATA,
+    TYPICAL_TILE_SIZE,
 )
 from ....visual.asset_management.spritesheet_manager import SpritesheetManager
 from ..spatial_component import SpatialComponent
@@ -11,7 +12,6 @@ from ..hitbox import HexHitbox
 from ....visual.asset_management.visual_component import VisualComponent
 from ....visual.asset_management.spritesheet_structure import SpritesheetComponent
 from .....event_tokens.payloads import TilePayload
-from ....visual.asset_management.sprite_key_registry import TYPICAL_TILE_SIZE
 import uuid
 
 import pygame
@@ -19,7 +19,6 @@ import pygame
 
 class FeatureElement(ElementWrapper):
     def __init__(self, feature: Feature, coord: OddRCoord, camera: Camera):
-        print(feature.FEATURE_ID())
         sprite_metadata = FEATURE_SPRITE_METADATA[feature.FEATURE_ID()]
         spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata

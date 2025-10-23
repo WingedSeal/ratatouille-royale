@@ -84,7 +84,7 @@ class ElementWrapper:
             raise AttributeError("This element wrapper does not have a payload.")
         if not isinstance(self.payload, cls):
             raise TypeError(
-                f"The type provided {cls.__name__} was incorrect. The actual type was {type(self.payload).__name__}"
+                f"The element {self.registered_name} has payload type {type(self.payload).__name__}, not {cls.__name__}."
             )
         else:
             return self.payload
@@ -97,10 +97,14 @@ class ElementWrapper:
             return False
 
         if not self.is_interactable:
-            return self.is_blocking
+            return False
 
         pos = gesture.mouse_pos
-        if pos is None or not self.interactable_component.contains_point(pos):
+        # print("Inside the element:", pos)
+        if self.spatial_component.space_mode == "WORLD":
+            pos = self.camera.screen_to_world(*pos)
+            # print(pos)
+        if not self.interactable_component.contains_point(pos):
             return False
 
         post_gesture_event(

@@ -11,7 +11,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
     input_event_bind,
     callback_event_bind,
 )
-from ratroyale.event_tokens.input_token import get_id, get_payload
+from ratroyale.event_tokens.input_token import get_id, get_payload_from_msg
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.frontend.pages.page_elements.element import (
@@ -51,13 +51,11 @@ class InspectEntity(Page):
 
     @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
     def close_page(self, msg: PageCallbackEvent) -> None:
-        CoordinationManager.put_message(
-            PageNavigationEvent([(PageNavigation.CLOSE, "InspectEntity")])
-        )
+        self.post(PageNavigationEvent([(PageNavigation.CLOSE, "InspectEntity")]))
 
     @callback_event_bind("entity_data")
     def show_entity_data(self, msg: PageCallbackEvent) -> None:
-        payload = get_payload(msg, EntityPayload)
+        payload = get_payload_from_msg(msg, EntityPayload)
         assert payload
         self.entity = payload.entity
         entity = self.entity
@@ -277,13 +275,17 @@ class InspectEntity(Page):
             )
             elements.append(stam_label)
 
-        self.skill_panel(entity)
+        self.post(
+            PageCallbackEvent(
+                "can_show_skill_panel_or_not", payload=EntityPayload(self.entity)
+            )
+        )
 
         self.setup_elements(elements)
 
     @callback_event_bind("crumb")
     def set_crumb(self, msg: PageCallbackEvent) -> None:
-        payload = get_payload(msg, CrumbUpdatePayload)
+        payload = get_payload_from_msg(msg, CrumbUpdatePayload)
         assert payload
         self.crumb = payload.new_crumb_amount
         print(self.crumb)
@@ -296,17 +298,15 @@ class InspectEntity(Page):
         skill_id = int(id.split("_")[-1])
 
         ability_payload = SkillActivationPayload(skill_id, self.entity)
-        CoordinationManager.put_message(
+        self.close_self()
+        self.post(
             PageNavigationEvent(
                 [
-                    (PageNavigation.CLOSE, "InspectEntity"),
                     (PageNavigation.OPEN, "SelectTargetPromptPage"),
                 ]
             )
         )
-        CoordinationManager.put_message(
-            GameManagerEvent("ability_activation", ability_payload)
-        )
+        self.post(GameManagerEvent("ability_activation", ability_payload))
 
     @input_event_bind("skill", pygame_gui.UI_BUTTON_ON_UNHOVERED)
     def close_skill_description(self, msg: pygame.event.Event) -> None:
@@ -379,8 +379,9 @@ class InspectEntity(Page):
 
         self.temp_skill_panel_id = skill_panel_id
 
-    def skill_panel(self, entity: Entity) -> None:
-        # region Create ability panel
+    @callback_event_bind("can_show_skill_panel")
+    def skill_panel(self, msg: PageCallbackEvent) -> None:
+        entity = self.entity
         panel_width = 160
         panel_x = 350
         panel_y = 100

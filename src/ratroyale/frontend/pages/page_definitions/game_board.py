@@ -2,7 +2,11 @@ import pygame
 
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.input_token import get_gesture_data, get_id, get_payload
+from ratroyale.event_tokens.input_token import (
+    get_gesture_data,
+    get_id,
+    get_payload_from_msg,
+)
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureType
@@ -19,12 +23,16 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
     input_event_bind,
     callback_event_bind,
     game_event_bind,
+    SpecialInputScope,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
+)
+from ratroyale.frontend.pages.page_elements.element_group import (
+    HitTestPolicy,
 )
 
 
@@ -43,7 +51,13 @@ from ratroyale.event_tokens.payloads import (
     GameOverPayload,
     AbilityTargetPayload,
 )
-from ratroyale.backend.game_event import EndTurnEvent
+from ratroyale.backend.game_event import (
+    EndTurnEvent,
+    EntitySpawnEvent,
+    EntityMoveEvent,
+    CrumbChangeEvent,
+    SqueakDrawnEvent,
+)
 from ratroyale.backend.tile import Tile
 
 from enum import Enum, auto
@@ -90,7 +104,9 @@ class GameBoard(Page):
         self.temp_skill_target_count: int = 0
         self.temp_skill_entity_source: Entity | None = None
 
-        self.player_1_side: Side = Side.MOUSE
+        self.is_player_1_now: bool = True
+        self.player_1_side: Side = Side.RAT
+        self.is_playing_with_ai: bool = True
 
         self.game_state: GameState = GameState.PLAY
 
@@ -103,10 +119,58 @@ class GameBoard(Page):
     # region Game Event Callbacks
 
     @game_event_bind(EndTurnEvent)
-    def test_end_turn(self, event: EndTurnEvent) -> None:
-        print(event)
+    def end_turn_event(self, event: EndTurnEvent) -> None:
+        self.is_player_1_now = not event.is_from_first_turn_side
 
-    # region Callbacks from Backend
+    @game_event_bind(EntitySpawnEvent)
+    def entity_spawn_event(self, event: EntitySpawnEvent) -> None:
+        """Handle spawning entity from backend."""
+        entity = event.entity
+        entity_element = EntityElement(entity, self.camera)
+        temp_stat = entity_element._temp_stat_generators()
+        self.setup_elements([entity_element, *temp_stat])
+        self.entity_to_element_id_mapping[entity] = entity_element.registered_name
+
+    @game_event_bind(EntityMoveEvent)
+    def entity_move_event(self, event: EntityMoveEvent) -> None:
+        entity = event.entity
+        path = event.path
+
+        entity_id = self.entity_to_element_id_mapping[entity]
+        entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
+        entity_element.move_entity(path)
+
+    @game_event_bind(CrumbChangeEvent)
+    def crumb_change_event(self, event: CrumbChangeEvent) -> None:
+        new_crumbs = event.new_crumbs
+        for squeak_id in self.squeak_in_hand:
+            squeak_element = self._element_manager.get_element_with_typecheck(
+                squeak_id, SqueakElement
+            )
+            squeak_element.decide_interactivity(new_crumbs)
+        pass
+
+    @game_event_bind(SqueakDrawnEvent)
+    def squeak_drawn_event(self, event: SqueakDrawnEvent) -> None:
+        # Skip drawing AI's cards
+        if self.is_playing_with_ai and not self.is_player_1_now:
+            return
+
+        squeak = event.squeak
+        hand_index = event.hand_index
+        squeak_element = SqueakElement(
+            squeak, hand_index, self.camera, italic_bold_arial
+        )
+        squeak_cost_element = squeak_element.create_cost_element()
+        squeak_name_element = squeak_element._temp_name_generator()
+        self.setup_elements([squeak_element, squeak_cost_element, squeak_name_element])
+
+        assert isinstance(squeak_element, SqueakElement)
+        self.squeak_in_hand.insert(hand_index, squeak_element.registered_name)
+
+    # endregion
+
+    # region Modified Callbacks from Backend
 
     @callback_event_bind("start_game")
     def _start_game(self, msg: PageCallbackEvent) -> None:
@@ -119,6 +183,12 @@ class GameBoard(Page):
             board = payload.board
             element_configs: list[ElementWrapper] = []
             tiles = board.tiles
+            self.is_playing_with_ai = payload.playing_with_ai
+
+            # Create tile groups with appropriate Hittest policies first.
+            group_names = ["TILE", "SELECTMASK", "HOVERMASK", "AVAILABLEMASK"]
+            for name in group_names:
+                self._element_manager.create_group(name, HitTestPolicy.HEXGRID, 50)
 
             for tile_row in tiles:
                 for tile in tile_row:
@@ -163,7 +233,6 @@ class GameBoard(Page):
                 coord_list = feature.shape
                 if coord_list:
                     for coord in coord_list:
-                        print("creating features")
                         feature_element = FeatureElement(feature, coord, self.camera)
                         element_configs.append(feature_element)
 
@@ -206,32 +275,15 @@ class GameBoard(Page):
         else:
             raise RuntimeError(f"Failed to start game: {msg.error_msg}")
 
-    # @callback_event_bind("crumb_update")
-    # def _crumb_update(self, msg: PageCallbackEvent) -> None:
-    #     """Handle crumb update from backend."""
-    #     if msg.success and msg.payload and GameState.PLAY:
-    #         assert isinstance(msg.payload, CrumbUpdatePayload)
-    #         new_crumb_amt = msg.payload.new_crumb_amount
-    #         self.current_crumb = new_crumb_amt
+    @callback_event_bind("can_show_skill_panel_or_not")
+    def can_show_skill_panel_or_not_response(self, msg: PageCallbackEvent) -> None:
+        if msg.success and msg.payload:
+            payload = get_payload_from_msg(msg, EntityPayload)
+            assert payload
+            if payload.entity.side != self.player_1_side:
+                return
 
-    #         crumb_display_elem = self.get_element(
-    #             "crumb_display", "UI_ELEMENT", ElementWrapper
-    #         )
-
-    #         crumb_display_text = italic_bold_arial.render(
-    #             str(new_crumb_amt), False, pygame.Color(255, 255, 255)
-    #         )
-
-    #         vis = crumb_display_elem.visual_component
-    #         assert vis
-    #         spr = vis.spritesheet_component
-    #         assert spr
-    #         spr.spritesheet_reference = crumb_display_text
-
-    #         # disable interactivity for squeaks whose cost is above new crumb amount
-    #         for squeak_id in self.squeak_in_hand:
-    #             squeak_element = self.get_element(squeak_id, "SQUEAK", SqueakElement)
-    #             squeak_element.decide_interactivity(new_crumb_amt)
+            self.post(PageCallbackEvent("can_show_skill_panel"))
 
     @callback_event_bind("handle_squeak_placable_tiles")
     def _handle_squeak_placable_tiles(self, msg: PageCallbackEvent) -> None:
@@ -240,17 +292,6 @@ class GameBoard(Page):
             assert isinstance(msg.payload, PlayableTilesPayload)
             coord_list = msg.payload.coord_list
             self.set_available_tiles(coord_list)
-
-    @callback_event_bind("spawn_entity")
-    def _spawn_entity(self, msg: PageCallbackEvent) -> None:
-        """Handle spawning entity from backend."""
-        if msg.success and msg.payload:
-            assert isinstance(msg.payload, EntityPayload)
-            entity = msg.payload.entity
-            entity_element = EntityElement(entity, self.camera)
-            temp_stat = entity_element._temp_stat_generators()
-            self.setup_elements([entity_element, *temp_stat])
-            self.entity_to_element_id_mapping[entity] = entity_element.registered_name
 
     @callback_event_bind("squeak_drawn")
     def _squeak_drawn(self, msg: PageCallbackEvent) -> None:
@@ -346,12 +387,8 @@ class GameBoard(Page):
             assert isinstance(msg.payload, GameOverPayload)
             payload = msg.payload
 
-            CoordinationManager.put_message(
-                PageNavigationEvent([(PageNavigation.OPEN, "GameOver")])
-            )
-            CoordinationManager.put_message(
-                PageCallbackEvent("who_won", payload=payload)
-            )
+            self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
+            self.post(PageCallbackEvent("who_won", payload=payload))
 
     @callback_event_bind("skill_canceled")
     def _handle_skill_canceled(self, msg: PageCallbackEvent) -> None:
@@ -362,7 +399,7 @@ class GameBoard(Page):
     def center_on_entity(self, msg: PageCallbackEvent) -> None:
         """Upon inspecting entity, center the camera onto the entity's occupied tile"""
         if msg.success and msg.payload:
-            payload = get_payload(msg, EntityPayload)
+            payload = get_payload_from_msg(msg, EntityPayload)
             assert payload
             entity_id = self.entity_to_element_id_mapping[payload.entity]
             entity_elem_wrapper = self._element_manager.get_element(entity_id)
@@ -391,11 +428,9 @@ class GameBoard(Page):
         tile_element = self._element_manager.toggle_element(id)
         tiles = self.get_selected_tiles()
         if tiles and tile_element:
-            CoordinationManager.put_message(
-                PageCallbackEvent("tile_selected", payload=TilePayload(tiles[0]))
-            )
+            self.post(PageCallbackEvent("tile_selected", payload=TilePayload(tiles[0])))
         else:
-            CoordinationManager.put_message(PageCallbackEvent("tile_deselected"))
+            self.post(PageCallbackEvent("tile_deselected"))
 
     def skill_targeting_state_tile_interaction(self, id: str) -> bool:
         # Tiles can only be selected if they are in the available options.
@@ -408,7 +443,7 @@ class GameBoard(Page):
             # If the player has chosen enough tiles for the ability, it activates immediately.
             if len(selected_tiles) == self.temp_skill_target_count:
                 coord_list = [tile.coord for tile in selected_tiles]
-                CoordinationManager.put_message(
+                self.post(
                     GameManagerEvent(
                         "target_selected", AbilityTargetPayload(coord_list)
                     )
@@ -416,7 +451,7 @@ class GameBoard(Page):
 
                 # Clean up highlight effects, close SelectTargetPrompt page, and set self's state to PLAY
                 self.clear_selections()
-                CoordinationManager.put_message(
+                self.post(
                     PageNavigationEvent(
                         [(PageNavigation.CLOSE, "SelectTargetPromptPage")]
                     )
@@ -435,7 +470,7 @@ class GameBoard(Page):
             selected_tile_coord = self.get_selected_tiles()[0].coord
             assert self.temp_skill_entity_source, selected_tile_coord
 
-            CoordinationManager.put_message(
+            self.post(
                 GameManagerEvent(
                     "resolve_movement",
                     EntityMovementPayload(
@@ -446,7 +481,7 @@ class GameBoard(Page):
 
             # Clean up highlight effects, close SelectTargetPrompt page, clear temp selected entity and set self's state to PLAY
             self.clear_selections()
-            CoordinationManager.put_message(
+            self.post(
                 PageNavigationEvent([(PageNavigation.CLOSE, "SelectTargetPromptPage")])
             )
             self.temp_skill_entity_source = None
@@ -455,14 +490,17 @@ class GameBoard(Page):
         return False
 
     @input_event_bind("HOVERMASK", GestureType.HOVER.to_pygame_event())
-    def _tile_hover_test(self, msg: pygame.event.Event) -> None:
+    def _tile_hover(self, msg: pygame.event.Event) -> None:
         id = get_id(msg)
         assert id
         self._element_manager.select_element(id)
-        tile_payload = get_payload(msg, TilePayload)
-        CoordinationManager.put_message(
-            PageCallbackEvent("tile_hovered", payload=tile_payload)
-        )
+        tile_payload = get_payload_from_msg(msg, TilePayload)
+        self.post(PageCallbackEvent("tile_hovered", payload=tile_payload))
+
+    @input_event_bind(SpecialInputScope.UNCONSUMED, GestureType.HOVER.to_pygame_event())
+    def _hovering_nothing(self, msg: pygame.event.Event) -> None:
+        self._element_manager.deselect_all("HOVERMASK")
+        self.post(PageCallbackEvent("no_hovered"))
 
     # endregion
 
@@ -478,26 +516,24 @@ class GameBoard(Page):
         gesture_data = get_gesture_data(msg)
         assert squeak_element_id
         self._element_manager.select_element(squeak_element_id)
-        squeak_elements = self._element_manager.get_selected_elements("SQUEAK")
+        squeak_elements = self._element_manager.get_element(squeak_element_id)
+        assert squeak_elements
 
-        if squeak_elements:
-            squeak_elements[0].spatial_component.center_to_screen_pos(
-                gesture_data.mouse_pos, self.camera
-            )
+        squeak_elements.spatial_component.center_to_screen_pos(
+            gesture_data.mouse_pos, self.camera
+        )
 
-            squeak = squeak_elements[0].get_payload(SqueakPayload)
-            self.coordination_manager.put_message(
-                GameManagerEvent(
-                    game_action="get_squeak_placable_tiles", payload=squeak
-                )
-            )
+        squeak = squeak_elements.get_payload(SqueakPayload)
+        self.post(
+            GameManagerEvent(game_action="get_squeak_placable_tiles", payload=squeak)
+        )
 
     # endregion
 
     # region Dragging logic
 
     # Called while dragging; moves element regardless of hitbox
-    @input_event_bind(None, GestureType.DRAG.to_pygame_event())
+    @input_event_bind(SpecialInputScope.GLOBAL, GestureType.DRAG.to_pygame_event())
     def _on_drag(self, msg: pygame.event.Event) -> None:
         squeak_element = self._element_manager.get_selected_elements("SQUEAK")
         gesture_data = get_gesture_data(msg)
@@ -521,7 +557,7 @@ class GameBoard(Page):
             assert tile_mask_id
             self._element_manager.select_element(tile_mask_id)
 
-    @input_event_bind(None, GestureType.DRAG_END.to_pygame_event())
+    @input_event_bind(SpecialInputScope.GLOBAL, GestureType.DRAG_END.to_pygame_event())
     def _on_drag_end(self, msg: pygame.event.Event) -> None:
         if self.game_state not in (
             GameState.MOVEMENT_TARGETING,
@@ -553,7 +589,7 @@ class GameBoard(Page):
 
     # region Camera Zooming Logic
 
-    @input_event_bind(None, pygame.MOUSEWHEEL)
+    @input_event_bind(SpecialInputScope.GLOBAL, pygame.MOUSEWHEEL)
     def _on_scroll(self, msg: pygame.event.Event) -> None:
         if msg.y == 1:
             self.camera.zoom_at(self.camera.scale + 0.1, pygame.mouse.get_pos())
@@ -576,7 +612,7 @@ class GameBoard(Page):
         self._element_manager.deselect_all("SELECTMASK")
         self._element_manager.deselect_all("AVAILABLEMASK")
         self._element_manager.deselect_all("ENTITY")
-        CoordinationManager.put_message(PageCallbackEvent("tile_deselected"))
+        self.post(PageCallbackEvent("tile_deselected"))
 
     def get_selected_tiles(self) -> list[Tile]:
         tiles = []
@@ -615,7 +651,7 @@ class GameBoard(Page):
         self, selected_squeak_id: str, tile_coord: OddRCoord
     ) -> None:
         """Trigger the squeak placement animation."""
-        self.coordination_manager.put_message(
+        self.post(
             GameManagerEvent(
                 game_action="squeak_tile_interaction",
                 payload=SqueakPlacementPayload(

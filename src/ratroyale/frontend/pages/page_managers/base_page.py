@@ -18,7 +18,10 @@ from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.gesture.gesture_data import GestureData
 from ratroyale.frontend.pages.page_elements.element_manager import ElementManager
-from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_managers.event_binder import (
+    input_event_bind,
+    SpecialInputScope,
+)
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ...visual.anim.core.anim_structure import SequentialAnim
@@ -73,7 +76,9 @@ class Page(ABC):
         """ Pygame_gui elements will constantly fire hovered events instead of once during entry.
         Use this variable to keep track of scenarios where you want something to trigger only on beginning of hover. """
 
-        self._input_bindings: dict[tuple[str | None, int], InputHandler] = {}
+        self._input_bindings: dict[
+            tuple[str | SpecialInputScope, int], InputHandler
+        ] = {}
         """ Maps (element_id, gesture_type) to handler functions """
         self._callback_bindings: dict[str, CallbackHandler] = {}
         """ Maps (game_action) to handler functions """
@@ -108,7 +113,7 @@ class Page(ABC):
         """
         ...
 
-    @input_event_bind(None, pygame.QUIT)
+    @input_event_bind(SpecialInputScope.GLOBAL, pygame.QUIT)
     def quit_game(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.stop_game()
 
@@ -134,6 +139,11 @@ class Page(ABC):
             raise TypeError(
                 f"Element is of type {type(element).__name__}, expected {cls.__name__}"
             )
+
+    def close_self(self) -> None:
+        self.post(
+            PageNavigationEvent([(PageNavigation.CLOSE, f"{type(self).__name__}")])
+        )
 
     def setup_event_bindings(self) -> None:
         """
@@ -189,21 +199,31 @@ class Page(ABC):
 
         Supports:
         - Prefix matching for element IDs (e.g., 'inventory' matches 'inventory_slot_1')
-        - Global handlers with prefix=None for non-targeted events
+        - Special input scope handlers for GLOBAL and UNCONSUMED events.
 
         Returns True if one or more handlers were executed.
         """
         element_id = self.get_leaf_object_id(get_id(msg))
-
         executed = False
+
         for (prefix, event_type), handler in self._input_bindings.items():
             if event_type != msg.type:
                 continue
-            if prefix is None or (
-                element_id and (element_id == prefix or element_id.startswith(prefix))
-            ):
-                handler(msg)
-                executed = True
+
+            if isinstance(prefix, SpecialInputScope):
+                if prefix is SpecialInputScope.GLOBAL:
+                    handler(msg)
+                    executed = True
+                elif prefix is SpecialInputScope.UNCONSUMED and not element_id:
+                    handler(msg)
+                    executed = True
+            else:
+                if element_id and (
+                    element_id == prefix or element_id.startswith(prefix)
+                ):
+                    handler(msg)
+                    executed = True
+
         return executed
 
     def execute_page_callback(self, msg: PageCallbackEvent) -> bool:
@@ -223,7 +243,7 @@ class Page(ABC):
         """
         executed = False
         for callback_action, handler in self._game_event_bindings.items():
-            if type(msg) is not callback_action:
+            if type(msg) is callback_action:
                 handler(msg)
                 executed = True
         return executed
