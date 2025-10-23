@@ -12,6 +12,8 @@ cdef float _get_default_cost(OddRCoord a, OddRCoord b) noexcept:
 cdef bint _coord_never_blocked(OddRCoord target_coord, OddRCoord source_coord) noexcept:
     return 0
 
+cdef class IsCoordBlocked:
+    pass
 
 cdef class _AxialCoord
 cdef class _CubeCoord
