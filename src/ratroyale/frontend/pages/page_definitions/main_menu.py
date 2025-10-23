@@ -104,7 +104,8 @@ class MainMenu(Page):
                     (PageNavigation.CLOSE_ALL, None),
                     (PageNavigation.OPEN, "GameBoard"),
                     (PageNavigation.OPEN, "PauseButton"),
-                    (PageNavigation.OPEN, "GameInfoPage"),
+                    (PageNavigation.OPEN, "InspectHistory"),
+                    # (PageNavigation.OPEN, "InspectEntity"),
                 ]
             )
         )
