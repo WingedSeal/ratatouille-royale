@@ -113,7 +113,7 @@ def main():
     coordination_manager.put_message(
         PageNavigationEvent(
             action_list=[
-                (PageNavigation.OPEN, "InspectCrumb"),
+                (PageNavigation.OPEN, "InspectFeature"),
             ]
         )  # change this to test your page
     )

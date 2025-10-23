@@ -76,6 +76,17 @@ class InspectFeature(Page):
             ),
         )
 
+        # === Skill image ===
+        portrait_surface = pygame.Surface((50, 200), flags=pygame.SRCALPHA)
+        portrait_surface.fill((220, 220, 255))
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(0, 280, 300, 150),
+            image_surface=portrait_surface,
+            manager=self.gui_manager,
+            container=panel_element,
+            anchors={"centerx": "centerx"},
+        )
+
         return gui_elements
 
     @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)

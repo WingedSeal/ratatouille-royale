@@ -6,7 +6,7 @@ from ratroyale.event_tokens.game_token import *
 
 
 from ..page_managers.base_page import Page
-
+from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.frontend.pages.page_elements.element import (
@@ -20,7 +20,7 @@ import pygame
 
 
 @register_page
-class InspectCard(Page):
+class InspectSqueak(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
@@ -40,6 +40,18 @@ class InspectCard(Page):
             panel_element, "main_panel", self.camera
         )
         gui_elements.append(panel_element_wrapper)
+
+        # === Close button ===
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(-40, 12, 28, 28),
+            text="x",
+            manager=self.gui_manager,
+            container=panel_element,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CloseButton", object_id="close_button"
+            ),
+            anchors={"right": "right", "top": "top"},
+        )
 
         # === Rat image ===
         portrait_surface = pygame.Surface((140, 180), flags=pygame.SRCALPHA)
@@ -255,3 +267,9 @@ class InspectCard(Page):
 
         skill_card.set_dimensions((card_width, total_height))
         return total_height + padding
+
+    @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
+    def close_panel(self, msg: pygame.event.Event) -> None:
+        self.post(
+            PageNavigationEvent(action_list=[(PageNavigation.CLOSE, "InspectSqueak")])
+        )
