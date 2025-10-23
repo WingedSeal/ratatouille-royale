@@ -24,20 +24,29 @@ build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
 dev = [
-  "numpy (>=2.3.3,<3.0.0)",
   "poethepoet (>=0.37.0,<0.38.0)",
   "mypy (>=1.18.2,<2.0.0)",
   "black (>=25.9.0,<26.0.0)",
   "pre-commit (>=4.3.0,<5.0.0)",
   "pytest (>=8.4.2,<9.0.0)",
-  "pillow (>=11.3.0,<12.0.0)",
   "isort (>=6.1.0,<7.0.0)",
 ]
+
+[project.optional-dependencies]
+tools = [
+  "numpy (>=2.3.3,<3.0.0)",
+  "pillow (>=11.3.0,<12.0.0)",
+]
+prof = [
+    "pytest-profiling (>=1.8.1,<2.0.0)",
+    "pytest-repeat (>=0.9.4,<0.10.0)",
+    "snakeviz (>=2.2.2,<3.0.0)"
+]
+
 
 [tool.poetry]
 packages = [
   { include = "ratroyale", from = "src" },
-  { include = "main.py", from = "src" },
 ]
 
 [tool.poe.tasks]
@@ -50,6 +59,22 @@ fix = [
 ]
 check = "pre-commit run --all-files"
 tiled-cli = { cmd = "python ${POE_ROOT}/src/tiled_cli.py", cwd = "${POE_PWD}" }
+
+[tool.poe.tasks.prof]
+sequence = [
+    { cmd = "pytest --profile ${PROFILE_PATH} --count=${COUNT}" },
+    { cmd = "snakeviz ./prof/combined.prof" },
+    { cmd = "python -c \"import shutil; shutil.rmtree('./prof')\""}
+]
+[[tool.poe.tasks.prof.args]]
+name = "PROFILE_PATH" 
+positional = true
+required = true
+[[tool.poe.tasks.prof.args]]
+name = "COUNT"
+options = ["-c", "--count"]
+default = 1
+type = "integer"
 
 [tool.mypy]
 python_version = "3.12"
