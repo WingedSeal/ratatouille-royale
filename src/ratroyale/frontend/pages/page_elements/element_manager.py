@@ -147,6 +147,9 @@ class ElementManager:
         self.master_group.clear()
 
     def get_all_elements(self) -> list[ElementWrapper]:
+        if self.master_group._needs_resort:
+            self.master_group._sort_flattened_by_z_order()
+            self.master_group._needs_resort = False
         return self.master_group.flattened_elements_list
 
     def get_group_without_grouping_name(
@@ -229,6 +232,8 @@ class ElementManager:
         """Default rendering: renders all elements in z-order."""
         for element in reversed(self.get_all_elements()):
             element.render(surface)
+
+        self._camera.clear_dirty()
 
     # endregion
 

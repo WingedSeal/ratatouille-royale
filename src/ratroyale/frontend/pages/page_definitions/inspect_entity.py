@@ -25,7 +25,6 @@ from ratroyale.event_tokens.payloads import (
     SkillActivationPayload,
 )
 from ratroyale.backend.entities.rodent import Rodent
-from ratroyale.backend.entity import Entity
 
 import uuid
 
@@ -288,7 +287,6 @@ class InspectEntity(Page):
         payload = get_payload_from_msg(msg, CrumbUpdatePayload)
         assert payload
         self.crumb = payload.new_crumb_amount
-        print(self.crumb)
 
     @input_event_bind("skill", pygame_gui.UI_BUTTON_PRESSED)
     def activate_skill(self, msg: pygame.event.Event) -> None:

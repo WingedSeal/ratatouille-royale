@@ -72,17 +72,34 @@ class EntityElement(ElementWrapper):
 
     @classmethod
     def _define_entity_rect(cls, entity: Entity) -> pygame.Rect:
-        """Given an Entity, return its bounding rectangle as (x, y, width, height)."""
+        """Given an Entity, return its bounding rectangle as (x, y, width, height).
+        Assumes pos.to_pixel() returns the *center* of the hex tile.
+        """
         pixel_x, pixel_y = EntityElement._define_position(entity.pos)
-        return pygame.Rect((pixel_x, pixel_y, *cls._ENTITY_WIDTH_HEIGHT))
+        width, height = cls._ENTITY_WIDTH_HEIGHT
+
+        # Shift from center to top-left
+        top_left_x = pixel_x - width / 2
+        top_left_y = pixel_y - height / 2
+
+        return pygame.Rect(top_left_x, top_left_y, width, height)
 
     @classmethod
     def _define_position(cls, pos: OddRCoord) -> tuple[float, float]:
+        """Return the *center* pixel position of an entity on the hex grid.
+        Adjusts based on tile and entity dimensions.
+        """
+        # Get hex center
         pixel_x, pixel_y = pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-        width, height = cls._ENTITY_WIDTH_HEIGHT
-        pixel_x += (TYPICAL_TILE_SIZE[0] - width) / 2
-        pixel_y += (TYPICAL_TILE_SIZE[1] - height) / 2
-        return pixel_x, pixel_y
+        tile_w, tile_h = TYPICAL_TILE_SIZE
+        ent_w, ent_h = cls._ENTITY_WIDTH_HEIGHT
+
+        # Center the entity relative to the hex center
+        # (so a smaller entity stays centered on its tile)
+        pixel_x += (tile_w - ent_w) / 2 - tile_w / 2
+        pixel_y += (tile_h - ent_h) / 2 - tile_h / 2
+
+        return pixel_x + ent_w / 2, pixel_y + ent_h / 2
 
     def _temp_stat_generators(self) -> list[ElementWrapper]:
         elements = []

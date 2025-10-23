@@ -42,6 +42,7 @@ class ElementGroup:
     hexgrid_pos_for_element: dict[OddRCoord, ElementWrapper] = field(
         default_factory=dict
     )
+    _needs_resort = True
 
     def add_element(self, element: ElementWrapper) -> None:
         if element.registered_name in self.elements:
@@ -51,13 +52,11 @@ class ElementGroup:
         self.elements[element.registered_name] = element
         self.flattened_elements_list.append(element)
 
-        print(self.hittest_policy)
-
         if self.hittest_policy == HitTestPolicy.HEXGRID:
             # Very quick and dirty.
             if type(element.payload) is TilePayload:
                 self.hexgrid_pos_for_element[element.payload.tile.coord] = element
-        self._sort_flattened_by_z_order()
+        self._needs_resort = True
 
     def get_element(self, registered_name: str) -> ElementWrapper:
         try:
@@ -86,7 +85,7 @@ class ElementGroup:
             self.selected_ids.remove(registered_name)
         self.flattened_elements_list.remove(result)
         result.destroy()
-        self._sort_flattened_by_z_order()
+        self._needs_resort = True
         return result
 
     def clear(self) -> list[str]:
@@ -182,6 +181,10 @@ class ElementGroup:
         Elements then produces the corresponding event, which is
         handled by the page.
         """
+        if self._needs_resort:
+            self._sort_flattened_by_z_order()
+            self._needs_resort = False
+
         remaining_gestures: list[GestureData] = []
 
         if self.hittest_policy == HitTestPolicy.REGULAR:
@@ -203,26 +206,13 @@ class ElementGroup:
 
                 world_pos = self.camera.screen_to_world(*gesture.mouse_pos)
 
-                odd_r_coord = OddRCoord.from_pixel(*world_pos, TYPICAL_TILE_SIZE[0])
+                odd_r_coord = OddRCoord.from_pixel(
+                    *world_pos, TYPICAL_TILE_SIZE[0], is_bounding_box=True
+                )
                 if odd_r_coord in self.hexgrid_pos_for_element:
                     element = self.hexgrid_pos_for_element[odd_r_coord]
                 else:
                     element = None
-
-                print("Mouse pos:", gesture.mouse_pos)
-                print("Camera pos:", (self.camera.world_x, self.camera.world_y))
-                print(
-                    "Camera screen offset:",
-                    (self.camera.screen_offset_x, self.camera.screen_offset_y),
-                )
-                print("World pos:", world_pos)
-                print("Mouse falls on coord:", odd_r_coord)
-                print("HEXGRID mode: Hittesting against element", element)
-                if element:
-                    print(
-                        "Element's actual position:",
-                        element.spatial_component.get_rect(),
-                    )
 
                 consumed = (
                     element.handle_gesture(gesture, is_processing_input)

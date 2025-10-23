@@ -1,3 +1,5 @@
+import pygame
+
 # Should actually be floats but I don't have the energy to deal with this right now.
 DIAG: int = 200
 SCREEN_RATIO: tuple[int, int] = (4, 3)  # 4:3 width to height ratio
@@ -8,3 +10,4 @@ SCREEN_SIZE: tuple[int, int] = (
 )
 SCREEN_SIZE_HALVED: tuple[int, int] = (SCREEN_SIZE[0] // 2, SCREEN_SIZE[1] // 2)
 THEME_PATH: str = ""
+screen_rect = pygame.Rect((0, 0), SCREEN_SIZE)

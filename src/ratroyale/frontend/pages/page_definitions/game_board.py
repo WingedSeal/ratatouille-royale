@@ -62,11 +62,11 @@ from ratroyale.backend.tile import Tile
 
 from enum import Enum, auto
 
-from ..page_elements.preset_elements.tile_element import TileElement
 from ..page_elements.preset_elements.entity_element import EntityElement
 from ..page_elements.preset_elements.squeak_element import SqueakElement
 from ..page_elements.preset_elements.tile_mask_element import TileMaskElement
 from ..page_elements.preset_elements.feature_element import FeatureElement
+from ..page_elements.preset_elements.tilemap_element import ChunkedTileMapElement
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.side import Side
 
@@ -185,16 +185,27 @@ class GameBoard(Page):
             tiles = board.tiles
             self.is_playing_with_ai = payload.playing_with_ai
 
+            CHUNK_SIZE = 20
+
+            # Create chunked tilemaps
+            for row_start in range(0, len(tiles), CHUNK_SIZE):
+                for col_start in range(0, len(tiles[0]), CHUNK_SIZE):
+                    sub_grid = [
+                        row[col_start : col_start + CHUNK_SIZE]
+                        for row in tiles[row_start : row_start + CHUNK_SIZE]
+                    ]
+                    chunk = ChunkedTileMapElement(sub_grid, self.camera)
+                    element_configs.append(chunk)
+
             # Create tile groups with appropriate Hittest policies first.
-            group_names = ["TILE", "SELECTMASK", "HOVERMASK", "AVAILABLEMASK"]
+            group_names = ["SELECTMASK", "HOVERMASK", "AVAILABLEMASK"]
             for name in group_names:
                 self._element_manager.create_group(name, HitTestPolicy.HEXGRID, 50)
 
             for tile_row in tiles:
                 for tile in tile_row:
                     if tile:
-                        tile_element = TileElement(tile, self.camera)
-                        coord = tile_element.get_coord()
+                        coord = tile.coord
 
                         tile_hover_mask_element = TileMaskElement(
                             tile, self.camera, "HOVERMASK", 50, pygame.Color(255, 0, 0)
@@ -222,7 +233,6 @@ class GameBoard(Page):
                             tile_available_mask_element.get_registered_name(),
                         )
 
-                        element_configs.append(tile_element)
                         element_configs.append(tile_hover_mask_element)
                         element_configs.append(tile_select_mask_element)
                         element_configs.append(tile_available_mask_element)
@@ -499,8 +509,13 @@ class GameBoard(Page):
 
     @input_event_bind(SpecialInputScope.UNCONSUMED, GestureType.HOVER.to_pygame_event())
     def _hovering_nothing(self, msg: pygame.event.Event) -> None:
+        print("hello")
         self._element_manager.deselect_all("HOVERMASK")
         self.post(PageCallbackEvent("no_hovered"))
+
+    @input_event_bind("TILEMAP", GestureType.HOVER.to_pygame_event())
+    def tile_map_hovering_test(self, msg: pygame.event.Event) -> None:
+        print("IM PISSED")
 
     # endregion
 

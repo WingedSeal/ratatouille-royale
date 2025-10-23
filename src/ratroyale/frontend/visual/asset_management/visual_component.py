@@ -109,6 +109,9 @@ class VisualComponent:
                 frame = self.spritesheet_component.output_frame(
                     spatial_rect, self._camera
                 )
+                # Prevents fully transparent masks from being drawn.
+                if frame.get_alpha() == 0:
+                    return
                 if frame:
                     surface.blit(frame, spatial_rect.topleft)
 

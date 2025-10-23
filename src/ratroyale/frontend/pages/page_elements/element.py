@@ -13,6 +13,7 @@ from ratroyale.frontend.visual.anim.core.anim_structure import (
     SequentialAnim,
     GroupedAnim,
 )
+from ...visual.screen_constants import screen_rect
 
 T = TypeVar("T")
 
@@ -60,6 +61,8 @@ class ElementWrapper:
         self.visual_component: VisualComponent | None = visual_component
 
         self.camera: Camera = camera
+        self._is_visible: bool = True
+        """Cached visibility status"""
 
         if isinstance(self.interactable_component, Hitbox):
             self.interactable_component._bind(spatial_component, camera)
@@ -100,22 +103,17 @@ class ElementWrapper:
             return False
 
         pos = gesture.mouse_pos
-        # print("Inside the element:", pos)
-        if self.spatial_component.space_mode == "WORLD":
-            pos = self.camera.screen_to_world(*pos)
-            # print(pos)
-        if not self.interactable_component.contains_point(pos):
-            return False
-
-        post_gesture_event(
-            InputManagerEvent(
-                element_id=self.registered_name,
-                gesture_data=gesture,
-                payload=self.payload,
+        if self.interactable_component.contains_point(pos):
+            post_gesture_event(
+                InputManagerEvent(
+                    element_id=self.registered_name,
+                    gesture_data=gesture,
+                    payload=self.payload,
+                )
             )
-        )
-
-        return self.is_blocking
+            return self.is_blocking
+        else:
+            return False
 
     def destroy(self) -> None:
         if isinstance(self.interactable_component, UIElement):
@@ -140,6 +138,9 @@ class ElementWrapper:
 
     # TODO: somethings wrong here
     def _set_absolute_rect(self) -> pygame.Rect | pygame.FRect:
+        # Invalidate cache if local_rect changed (optional, in case it can mutate elsewhere)
+        self.spatial_component.invalidate_cache()
+
         my_rect = self.spatial_component.get_screen_rect(self.camera).copy()
 
         if self.parent:
@@ -150,6 +151,14 @@ class ElementWrapper:
         return my_rect
 
     def render(self, surface: pygame.Surface) -> None:
+        # Only recompute visibility if camera moved
+        if self.camera._dirty:
+            self.update_visibility()
+
+        # Skip entirely if not visible
+        if not self._is_visible:
+            return
+
         abs_rect = self._set_absolute_rect()
         if self.visual_component:
             self.visual_component.render(
@@ -160,6 +169,14 @@ class ElementWrapper:
 
         # DRAW RECT DEBUG
         # pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
+
+    def update_visibility(self) -> None:
+        """Recompute visibility only if camera is dirty or element moved."""
+        spatial = self.spatial_component.get_screen_rect(self.camera)
+        if spatial:
+            self._is_visible = spatial.colliderect(screen_rect)
+        else:
+            self._is_visible = False
 
     def queue_override_animation(
         self, anim_event: AnimEvent | SequentialAnim | GroupedAnim

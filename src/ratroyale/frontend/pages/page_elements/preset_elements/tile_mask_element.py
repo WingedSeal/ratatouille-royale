@@ -52,10 +52,17 @@ class TileMaskElement(ElementWrapper):
 
     @classmethod
     def _define_tile_rect(cls, tile: Tile) -> pygame.Rect:
-        """Given a Tile, return its bounding rectangle as (x, y, width, height)."""
-        pixel_x, pixel_y = tile.coord.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
+        """Given a Tile, return its bounding rectangle as (x, y, width, height).
+        Assumes tile.coord.to_pixel() returns the *center* of the hex tile.
+        """
         width, height = TYPICAL_TILE_SIZE
-        return pygame.Rect((pixel_x, pixel_y, width, height))
+        pixel_x, pixel_y = tile.coord.to_pixel(width, height, is_bounding_box=True)
+
+        # Shift from center → top-left of bounding box
+        top_left_x = pixel_x - width / 2
+        top_left_y = pixel_y - height / 2
+
+        return pygame.Rect(top_left_x, top_left_y, width, height)
 
     def on_select(self) -> bool:
         visual_component = self.visual_component

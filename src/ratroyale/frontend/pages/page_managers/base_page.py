@@ -210,17 +210,17 @@ class Page(ABC):
             if event_type != msg.type:
                 continue
 
-            if isinstance(prefix, SpecialInputScope):
+            if not isinstance(prefix, SpecialInputScope):
+                if element_id and (
+                    element_id == prefix or element_id.startswith(prefix)
+                ):
+                    handler(msg)
+                    executed = True
+            else:
                 if prefix is SpecialInputScope.GLOBAL:
                     handler(msg)
                     executed = True
                 elif prefix is SpecialInputScope.UNCONSUMED and not element_id:
-                    handler(msg)
-                    executed = True
-            else:
-                if element_id and (
-                    element_id == prefix or element_id.startswith(prefix)
-                ):
                     handler(msg)
                     executed = True
 
