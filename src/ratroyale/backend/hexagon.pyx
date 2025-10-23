@@ -17,7 +17,6 @@ cdef class IsCoordBlocked:
 
 cdef class _AxialCoord
 cdef class _CubeCoord
-cdef class OddRCoord
 cdef class _CubeCoordFloat
 cdef class _AxialCoordFloat
 
@@ -38,7 +37,6 @@ cdef class _AStarCoord:
 
 
 cdef class _CubeCoord:
-    cdef public int q, r, s
 
     def __init__(self, int q, int r, int s):
         self.q = q
@@ -97,7 +95,6 @@ cdef class _CubeCoord:
 
 
 cdef class _AxialCoord:
-    cdef public int q, r
 
     def __init__(self, int q, int r):
         self.q = q
@@ -137,8 +134,8 @@ cdef class _AxialCoord:
                 offset_coord = self + _AxialCoord(q, r)
                 yield offset_coord.to_odd_r()
 
-    
-    cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):
+    @staticmethod
+    def from_pixel(double x, double y, double hex_size):
         cdef double _x = x / hex_size
         cdef double _y = y / hex_size
         cdef double q, r
@@ -152,7 +149,6 @@ cdef class _AxialCoord:
 
 
 cdef class _CubeCoordFloat:
-    cdef public double q, r, s
 
     def __init__(self, double q, double r, double s):
         self.q = q
@@ -207,9 +203,6 @@ cdef int[2][6][2] DIRECTION_DIFFERENCES = [
     [[1, 0], [1, -1], [0, -1], [-1, 0], [0, 1], [1, 1]],
 ]
 cdef class OddRCoord:
-    cdef public int x, y
-
-
     def __init__(self, int x, int y):
         self.x = x
         self.y = y
@@ -325,8 +318,9 @@ cdef class OddRCoord:
 
         return visited
 
-    cpdef OddRCoord from_pixel(cls, double x, double y, double hex_size):
-        return _AxialCoord.from_pixel(cls, x, y, hex_size).to_odd_r()
+    @staticmethod
+    def from_pixel(double x, double y, double hex_size):
+        return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
 
     def __add__(self, OddRCoord other):
         return OddRCoord(self.x + other.x, self.y + other.y)

@@ -1350,6 +1350,7 @@ static const char *__pyx_filename;
 static const char* const __pyx_f[] = {
   "src/ratroyale/backend/hexagon.pyx",
   "<stringsource>",
+  "src/ratroyale/backend/hexagon.pxd",
 };
 /* #### Code section: utility_code_proto_before_types ### */
 /* Atomics.proto */
@@ -1516,13 +1517,13 @@ static const char* const __pyx_f[] = {
 /* #### Code section: type_declarations ### */
 
 /*--- Type declarations ---*/
-struct __pyx_obj_9ratroyale_7backend_7hexagon_IsCoordBlocked;
-struct __pyx_obj_9ratroyale_7backend_7hexagon__AStarCoord;
+struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat;
 struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord;
 struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord;
-struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat;
-struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat;
 struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord;
+struct __pyx_obj_9ratroyale_7backend_7hexagon_IsCoordBlocked;
+struct __pyx_obj_9ratroyale_7backend_7hexagon__AStarCoord;
+struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat;
 struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw;
 struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range;
 struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr;
@@ -1530,27 +1531,52 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors
 struct __pyx_obj___pyx_scope_struct____Pyx_CFunc_bf987c__9ratroyale_7backend_7hexagon_bint__lParenOddRC__etc_to_py_12target_coord_12source_coord;
 struct __pyx_obj___pyx_scope_struct____Pyx_CFunc_f05d64__9ratroyale_7backend_7hexagon_float__lParenOddR__etc_to_py_1a_1b;
 struct __pyx_opt_args_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float;
+struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find;
+struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords;
 struct __pyx_ctuple_double__and_double;
 typedef struct __pyx_ctuple_double__and_double __pyx_ctuple_double__and_double;
 struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel;
-struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords;
-struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find;
 
-/* "ratroyale/backend/hexagon.pyx":86
- * 
- * 
+/* "ratroyale/backend/hexagon.pxd":16
+ *     cpdef OddRCoord to_odd_r(self)
+ *     cpdef int get_distance(self, _CubeCoord other)
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
- *         self, tuple add_epsilon = None
- *     ):
+ *         self, tuple add_epsilon = *
+ *     )
 */
 struct __pyx_opt_args_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float {
   int __pyx_n;
   PyObject *add_epsilon;
 };
 
-/* "ratroyale/backend/hexagon.pyx":255
- * 
- * 
+/* "ratroyale/backend/hexagon.pxd":27
+ * cdef class OddRCoord:
+ *     cdef public int x, y
+ *     cpdef list[OddRCoord] path_find(             # <<<<<<<<<<<<<<
+ *         self,
+ *         OddRCoord goal,
+*/
+struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find {
+  int __pyx_n;
+  PyObject *get_cost;
+};
+
+/* "ratroyale/backend/hexagon.pxd":33
+ *         get_cost: Callable[[OddRCoord, OddRCoord], float] = *,
+ *     )
+ *     cpdef set[OddRCoord] get_reachable_coords(             # <<<<<<<<<<<<<<
+ *         self,
+ *         int reach,
+*/
+struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords {
+  int __pyx_n;
+  PyObject *is_coord_blocked;
+  int is_include_self;
+};
+
+/* "ratroyale/backend/hexagon.pxd":40
+ *     )
+ *     cpdef OddRCoord get_neighbor(self, int direction)
  *     cpdef tuple[double, double] to_pixel(             # <<<<<<<<<<<<<<
  *         self,
  *         double hex_width,
@@ -1565,30 +1591,64 @@ struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel {
   int is_bounding_box;
 };
 
-/* "ratroyale/backend/hexagon.pyx":301
- *             yield self.get_neighbor(i)
+/* "ratroyale/backend/hexagon.pxd":4
+ * cdef class OddRCoord
+ * cdef class _CubeCoord
+ * cdef class _CubeCoordFloat             # <<<<<<<<<<<<<<
  * 
- *     cpdef set[OddRCoord] get_reachable_coords(             # <<<<<<<<<<<<<<
- *         self,
- *         int reach,
+ * cdef class _CubeCoordFloat:
 */
-struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords {
-  int __pyx_n;
-  PyObject *is_coord_blocked;
-  int is_include_self;
+struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_vtab;
+  double q;
+  double r;
+  double s;
 };
 
-/* "ratroyale/backend/hexagon.pyx":337
- *         return OddRCoord(self.x - other.x, self.y - other.y)
+
+/* "ratroyale/backend/hexagon.pxd":3
+ * cdef class _AxialCoord
+ * cdef class OddRCoord
+ * cdef class _CubeCoord             # <<<<<<<<<<<<<<
+ * cdef class _CubeCoordFloat
  * 
- *     cpdef list[OddRCoord] path_find(             # <<<<<<<<<<<<<<
- *         self,
- *         OddRCoord goal,
 */
-struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find {
-  int __pyx_n;
-  PyObject *get_cost;
+struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_vtab;
+  double q;
+  double r;
+  double s;
 };
+
+
+/* "ratroyale/backend/hexagon.pxd":1
+ * cdef class _AxialCoord             # <<<<<<<<<<<<<<
+ * cdef class OddRCoord
+ * cdef class _CubeCoord
+*/
+struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_vtab;
+  int q;
+  int r;
+};
+
+
+/* "ratroyale/backend/hexagon.pxd":2
+ * cdef class _AxialCoord
+ * cdef class OddRCoord             # <<<<<<<<<<<<<<
+ * cdef class _CubeCoord
+ * cdef class _CubeCoordFloat
+*/
+struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_vtab;
+  int x;
+  int y;
+};
+
 
 /* "ratroyale/backend/hexagon.pyx":15
  *     return 0
@@ -1602,7 +1662,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon_IsCoordBlocked {
 };
 
 
-/* "ratroyale/backend/hexagon.pyx":24
+/* "ratroyale/backend/hexagon.pyx":23
  * cdef class _AxialCoordFloat
  * 
  * cdef class _AStarCoord:             # <<<<<<<<<<<<<<
@@ -1616,55 +1676,8 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon__AStarCoord {
 };
 
 
-/* "ratroyale/backend/hexagon.pyx":19
- * 
- * cdef class _AxialCoord
- * cdef class _CubeCoord             # <<<<<<<<<<<<<<
- * cdef class OddRCoord
- * cdef class _CubeCoordFloat
-*/
-struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_vtab;
-  int q;
-  int r;
-  int s;
-};
-
-
-/* "ratroyale/backend/hexagon.pyx":18
- *     pass
- * 
- * cdef class _AxialCoord             # <<<<<<<<<<<<<<
- * cdef class _CubeCoord
- * cdef class OddRCoord
-*/
-struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_vtab;
-  int q;
-  int r;
-};
-
-
 /* "ratroyale/backend/hexagon.pyx":21
  * cdef class _CubeCoord
- * cdef class OddRCoord
- * cdef class _CubeCoordFloat             # <<<<<<<<<<<<<<
- * cdef class _AxialCoordFloat
- * 
-*/
-struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_vtab;
-  double q;
-  double r;
-  double s;
-};
-
-
-/* "ratroyale/backend/hexagon.pyx":22
- * cdef class OddRCoord
  * cdef class _CubeCoordFloat
  * cdef class _AxialCoordFloat             # <<<<<<<<<<<<<<
  * 
@@ -1678,22 +1691,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat {
 };
 
 
-/* "ratroyale/backend/hexagon.pyx":20
- * cdef class _AxialCoord
- * cdef class _CubeCoord
- * cdef class OddRCoord             # <<<<<<<<<<<<<<
- * cdef class _CubeCoordFloat
- * cdef class _AxialCoordFloat
-*/
-struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_vtab;
-  int x;
-  int y;
-};
-
-
-/* "ratroyale/backend/hexagon.pyx":68
+/* "ratroyale/backend/hexagon.pyx":66
  * 
  * 
  *     def line_draw(self, _CubeCoord other):             # <<<<<<<<<<<<<<
@@ -1714,7 +1712,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw {
 };
 
 
-/* "ratroyale/backend/hexagon.pyx":131
+/* "ratroyale/backend/hexagon.pyx":128
  * 
  * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
@@ -1738,7 +1736,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range 
 };
 
 
-/* "ratroyale/backend/hexagon.pyx":248
+/* "ratroyale/backend/hexagon.pyx":241
  * 
  *     def line_draw(self, OddRCoord other):
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))             # <<<<<<<<<<<<<<
@@ -1755,7 +1753,7 @@ struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr {
 };
 
 
-/* "ratroyale/backend/hexagon.pyx":296
+/* "ratroyale/backend/hexagon.pyx":289
  * 
  * 
  *     def get_neighbors(self):             # <<<<<<<<<<<<<<
@@ -1789,28 +1787,47 @@ struct __pyx_obj___pyx_scope_struct____Pyx_CFunc_f05d64__9ratroyale_7backend_7he
 
 
 
-/* "ratroyale/backend/hexagon.pyx":99
+/* "ratroyale/backend/hexagon.pyx":97
  * 
  * 
  * cdef class _AxialCoord:             # <<<<<<<<<<<<<<
- *     cdef public int q, r
  * 
+ *     def __init__(self, int q, int r):
 */
 
 struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord {
   struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*to_cube)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *, int __pyx_skip_dispatch);
   struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*to_odd_r)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*from_pixel)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *, double, double, double, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_vtabptr_9ratroyale_7backend_7hexagon__AxialCoord;
 
 
-/* "ratroyale/backend/hexagon.pyx":40
+/* "ratroyale/backend/hexagon.pyx":205
+ *     [[1, 0], [1, -1], [0, -1], [-1, 0], [0, 1], [1, 1]],
+ * ]
+ * cdef class OddRCoord:             # <<<<<<<<<<<<<<
+ *     def __init__(self, int x, int y):
+ *         self.x = x
+*/
+
+struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord {
+  PyObject *(*path_find)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find *__pyx_optional_args);
+  PyObject *(*get_reachable_coords)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords *__pyx_optional_args);
+  struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*get_neighbor)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int, int __pyx_skip_dispatch);
+  __pyx_ctuple_double__and_double (*to_pixel)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, double, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel *__pyx_optional_args);
+  int (*get_distance)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch);
+  struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*to_cube)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch);
+  struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*to_axial)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch);
+};
+static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord;
+
+
+/* "ratroyale/backend/hexagon.pyx":39
  * 
  * 
  * cdef class _CubeCoord:             # <<<<<<<<<<<<<<
- *     cdef public int q, r, s
  * 
+ *     def __init__(self, int q, int r, int s):
 */
 
 struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord {
@@ -1822,33 +1839,12 @@ struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord {
 static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoord;
 
 
-/* "ratroyale/backend/hexagon.pyx":209
- *     [[1, 0], [1, -1], [0, -1], [-1, 0], [0, 1], [1, 1]],
- * ]
- * cdef class OddRCoord:             # <<<<<<<<<<<<<<
- *     cdef public int x, y
- * 
-*/
-
-struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord {
-  struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*to_axial)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch);
-  struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*to_cube)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch);
-  int (*get_distance)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch);
-  __pyx_ctuple_double__and_double (*to_pixel)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, double, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel *__pyx_optional_args);
-  struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*get_neighbor)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int, int __pyx_skip_dispatch);
-  PyObject *(*get_reachable_coords)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords *__pyx_optional_args);
-  struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*from_pixel)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, double, double, double, int __pyx_skip_dispatch);
-  PyObject *(*path_find)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find *__pyx_optional_args);
-};
-static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord;
-
-
-/* "ratroyale/backend/hexagon.pyx":154
+/* "ratroyale/backend/hexagon.pyx":151
  * 
  * 
  * cdef class _CubeCoordFloat:             # <<<<<<<<<<<<<<
- *     cdef public double q, r, s
  * 
+ *     def __init__(self, double q, double r, double s):
 */
 
 struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat {
@@ -1858,7 +1854,7 @@ struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat {
 static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoordFloat;
 
 
-/* "ratroyale/backend/hexagon.pyx":190
+/* "ratroyale/backend/hexagon.pyx":186
  *         )
  * 
  * cdef class _AxialCoordFloat:             # <<<<<<<<<<<<<<
@@ -2571,13 +2567,6 @@ static int __Pyx_validate_bases_tuple(const char *type_name, Py_ssize_t dictoffs
 /* PyType_Ready.proto */
 CYTHON_UNUSED static int __Pyx_PyType_Ready(PyTypeObject *t);
 
-/* DelItemOnTypeDict.proto */
-static int __Pyx__DelItemOnTypeDict(PyTypeObject *tp, PyObject *k);
-#define __Pyx_DelItemOnTypeDict(tp, k) __Pyx__DelItemOnTypeDict((PyTypeObject*)tp, k)
-
-/* SetupReduce.proto */
-static int __Pyx_setup_reduce(PyObject* type_obj);
-
 /* SetVTable.proto */
 static int __Pyx_SetVtable(PyTypeObject* typeptr , void* vtable);
 
@@ -2587,8 +2576,19 @@ static void* __Pyx_GetVtable(PyTypeObject *type);
 /* MergeVTables.proto */
 static int __Pyx_MergeVtables(PyTypeObject *type);
 
+/* DelItemOnTypeDict.proto */
+static int __Pyx__DelItemOnTypeDict(PyTypeObject *tp, PyObject *k);
+#define __Pyx_DelItemOnTypeDict(tp, k) __Pyx__DelItemOnTypeDict((PyTypeObject*)tp, k)
+
+/* SetupReduce.proto */
+static int __Pyx_setup_reduce(PyObject* type_obj);
+
 /* ListPack.proto */
 static PyObject *__Pyx_PyList_Pack(Py_ssize_t n, ...);
+
+/* GetNameInClass.proto */
+#define __Pyx_GetNameInClass(var, nmspace, name)  (var) = __Pyx__GetNameInClass(nmspace, name)
+static PyObject *__Pyx__GetNameInClass(PyObject *nmspace, PyObject *name);
 
 /* CLineInTraceback.proto */
 #if CYTHON_CLINE_IN_TRACEBACK && CYTHON_CLINE_IN_TRACEBACK_RUNTIME
@@ -2880,7 +2880,6 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(struct
 static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float *__pyx_optional_args); /* proto*/
 static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_cube(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_odd_r(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
-static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_from_pixel(CYTHON_UNUSED struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_cls, double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size, int __pyx_skip_dispatch); /* proto*/
 static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_round(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_lerp(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_v_self, struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_v_other, double __pyx_v_t, int __pyx_skip_dispatch); /* proto*/
 static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_to_cube_float(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
@@ -2891,7 +2890,6 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance(struct _
 static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, double __pyx_v_hex_width, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel *__pyx_optional_args); /* proto*/
 static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_neighbor(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, int __pyx_v_direction, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, int __pyx_v_reach, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords *__pyx_optional_args); /* proto*/
-static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_from_pixel(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_cls, double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_goal, PyObject *__pyx_v_is_coord_blocked, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find *__pyx_optional_args); /* proto*/
 
 /* Module declarations from "libc.math" */
@@ -2920,6 +2918,7 @@ int __pyx_module_is_main_ratroyale__backend__hexagon = 0;
 
 /* Implementation of "ratroyale.backend.hexagon" */
 /* #### Code section: global_var ### */
+static PyObject *__pyx_builtin_staticmethod;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_round;
 static PyObject *__pyx_builtin_ValueError;
@@ -2947,13 +2946,14 @@ static const char __pyx_k_AV1[] = "\200\001\330\004,\250A\250V\2601";
 static const char __pyx_k_A_Q[] = "\200A\330\010\035\230Q";
 static const char __pyx_k_QfA[] = "\200\001\330\004-\250Q\250f\260A";
 static const char __pyx_k_avQ[] = "\200\001\330\004.\250a\250v\260Q";
-static const char __pyx_k_cls[] = "cls";
 static const char __pyx_k_get[] = "get";
 static const char __pyx_k_new[] = "__new__";
 static const char __pyx_k_pop[] = "pop";
 static const char __pyx_k_put[] = "put";
 static const char __pyx_k_q_2[] = "\200\001\330\004(\250\001\250\026\250q";
 static const char __pyx_k_q_a[] = "\200\001\330\004'\240q\250\006\250a";
+static const char __pyx_k_x_2[] = "_x";
+static const char __pyx_k_y_2[] = "_y";
 static const char __pyx_k_Self[] = "Self";
 static const char __pyx_k_cube[] = "cube";
 static const char __pyx_k_dict[] = "__dict__";
@@ -2995,7 +2995,7 @@ static const char __pyx_k_A_t9Biq[] = "\200A\330\010\017\210t\2209\230B\230i\240
 static const char __pyx_k_disable[] = "disable";
 static const char __pyx_k_genexpr[] = "genexpr";
 static const char __pyx_k_to_cube[] = "to_cube";
-static const char __pyx_k_A_Qe3c_1[] = "\200A\330\010\032\230+\240Q\240e\2503\250c\260\031\270)\3001";
+static const char __pyx_k_A_Qc_IYa[] = "\200A\340\010\017\210{\230+\240Q\240c\250\023\250I\260Y\270a";
 static const char __pyx_k_A_t9Bm1A[] = "\200A\330\010\017\210t\2209\230B\230m\2501\250A";
 static const char __pyx_k_A_t_6_9A[] = "\200A\330\010\017\210t\220>\240\022\2406\250\022\2509\260A";
 static const char __pyx_k_Callable[] = "Callable";
@@ -3041,6 +3041,7 @@ static const char __pyx_k_is_coroutine[] = "_is_coroutine";
 static const char __pyx_k_offset_coord[] = "offset_coord";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_source_coord[] = "source_coord";
+static const char __pyx_k_staticmethod[] = "staticmethod";
 static const char __pyx_k_stringsource[] = "<stringsource>";
 static const char __pyx_k_target_coord[] = "target_coord";
 static const char __pyx_k_use_setstate[] = "use_setstate";
@@ -3129,7 +3130,7 @@ static const char __pyx_k_CubeCoordFloat___setstate_cytho[] = "_CubeCoordFloat._
 static const char __pyx_k_T_T_G1F_a_vWA_q_q_q_1_Qg_q_1_Qg[] = "\200\001\360\010\000\005\016\210T\220\024\220T\230\021\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220A\330\010\022\220!\330\010\027\220q\340\010\027\220q\330\004\007\200q\330\010\017\320\0171\260\024\260Q\260g\270[\310\007\310q\340\010\017\320\0171\260\024\260Q\260g\270[\310\001";
 static const char __pyx_k_T_T_T_G1F_a_vWA_q_q_q_0_AWKwa_0[] = "\200\001\360\010\000\005\016\210T\220\024\220T\230\024\230T\240\021\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220A\330\010\022\220!\330\010\027\220q\340\010\027\220q\330\004\007\200q\330\010\017\320\0170\260\004\260A\260W\270K\300w\310a\340\010\017\320\0170\260\004\260A\260W\270K\300q";
 static const char __pyx_k_direction_must_be_between_0_and[] = "direction must be between 0 and 5";
-static const char __pyx_k_A_2Q_2Q_a_d_5_D_b_Bc_4r_Rq_D_b_q[] = "\200A\330\010\031\230\022\2302\230Q\330\010\031\230\022\2302\230Q\360\006\000\t\017\210a\330\010\016\210d\220!\2205\230\002\230!\340\010\014\210D\220\001\220\025\220b\230\004\230B\230c\240\022\2404\240r\250\024\250R\250q\330\010\014\210D\220\002\220$\220b\230\001\330\010\017\320\017\037\230q\240\003\2402\240V\2501";
+static const char __pyx_k_A_2Q_2Q_a_d_5_D_b_Bc_4r_Rq_D_b_q[] = "\200A\340\010\031\230\022\2302\230Q\330\010\031\230\022\2302\230Q\360\006\000\t\017\210a\330\010\016\210d\220!\2205\230\002\230!\340\010\014\210D\220\001\220\025\220b\230\004\230B\230c\240\022\2404\240r\250\024\250R\250q\330\010\014\210D\220\002\220$\220b\230\001\330\010\017\320\017\037\230q\240\003\2402\240V\2501";
 static const char __pyx_k_A_5_Qd_5_Qd_5_Qd_axr_Q_axr_Q_axr[] = "\200A\330\010\033\2305\240\005\240Q\240d\250!\330\010\033\2305\240\005\240Q\240d\250!\330\010\033\2305\240\005\240Q\240d\250!\360\006\000\t\022\220\025\220a\220x\230r\240\024\240Q\330\010\021\220\025\220a\220x\230r\240\024\240Q\330\010\021\220\025\220a\220x\230r\240\024\240Q\340\010\013\2107\220\"\220G\2304\230w\240b\250\001\330\014\026\220a\220x\230r\240\021\330\r\024\220B\220a\330\014\026\220a\220x\230r\240\021\340\014\026\220a\220x\230r\240\021\340\010\017\210z\230\021\230)\2409\250A";
 static const char __pyx_k_A_A_A_vQ_q_A_a_d_HD_m1_xs_g_1_1L[] = "\200A\360\010\000\023=\270A\340\010\037\230}\250A\330\010\037\230v\240Q\330\010!\240\026\240q\360\020\000\t\021\220\004\220A\220[\240\001\240\025\240a\340\010\016\210d\220(\230&\240\001\330\014\034\230H\240D\250\001\330\014\026\220m\2401\340\014\017\210x\220s\230!\330\020\021\340\014\020\220\016\230g\240^\2601\330\020\023\320\023#\2401\240L\260\001\330\024\025\340\020\033\230;\240a\240y\260\002\260(\270!\2709\300A\340\020\023\220;\230g\240\\\260\023\260I\270R\270{\310!\3101\330\024\037\230q\240\016\250a\330\024\037\230y\250\002\250$\250m\2701\270A\330\024\034\230D\240\001\240\033\250A\250Z\260q\330\024\035\230Q\230n\250A\340\010\013\2105\220\007\220q\330\014\023\2201\340\010\017\210q\330\010\023\2201\330\010\016\210i\220w\230a\330\014\020\220\007\220q\230\001\330\014\027\220y\240\001\240\021\340\010\014\210D\220\001\330\010\014\210H\220A\330\010\017\210q";
 static const char __pyx_k_A_Q_c_1_aq_1_D_c_S_c_S_D_a_Q_T_r[] = "\200A\360\006\000\035\036\230Q\330\037 \340\010!\240\021\360\010\000\t\014\210;\220c\230\021\330\014\032\230!\340\014\032\230!\340\010\013\2101\330\014\032\230$\230a\230q\330\014\033\2301\340\010\014\210D\220\001\220\025\220c\230\024\230S\240\002\240$\240c\250\024\250S\260\002\260!\330\010\014\210D\220\002\220$\220a\330\010\r\210Q\330\010\r\210T\220\021\220%\220r\230\021\340\010\017\210r\220\022\220<\230r\240\022\2401";
@@ -3184,7 +3185,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_8to_odd_r(s
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_10__add__(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self, struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_other); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_12__sub__(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self, struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_other); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_14all_in_range(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self, int __pyx_v_N); /* proto */
-static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_17from_pixel(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_cls, double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size); /* proto */
+static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_17from_pixel(double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_1q___get__(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self); /* proto */
 static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_1q_2__set__(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_1r___get__(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self); /* proto */
@@ -3226,7 +3227,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_16to_pixel(str
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_18get_neighbor(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, int __pyx_v_direction); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_20get_neighbors(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_23get_reachable_coords(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, int __pyx_v_reach, PyObject *__pyx_v_is_coord_blocked, int __pyx_v_is_include_self); /* proto */
-static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_25from_pixel(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_cls, double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size); /* proto */
+static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_25from_pixel(double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_27__add__(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_other); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_29__sub__(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_other); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_31path_find(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_goal, PyObject *__pyx_v_is_coord_blocked, PyObject *__pyx_v_get_cost); /* proto */
@@ -3244,11 +3245,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_6__pyx_unpickle__AxialCoo
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_8__pyx_unpickle__CubeCoordFloat(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10__pyx_unpickle__AxialCoordFloat(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_12__pyx_unpickle_OddRCoord(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon_IsCoordBlocked(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon__AxialCoord(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon__CubeCoord(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon_OddRCoord(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon__CubeCoord(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon__CubeCoordFloat(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon_IsCoordBlocked(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon__AxialCoordFloat(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon__AStarCoord(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -3295,11 +3296,11 @@ typedef struct {
   #ifdef __Pyx_Coroutine_USED
   PyTypeObject *__pyx_CoroutineType;
   #endif
-  PyObject *__pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked;
   PyObject *__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord;
-  PyObject *__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord;
   PyObject *__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord;
+  PyObject *__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord;
   PyObject *__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat;
+  PyObject *__pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked;
   PyObject *__pyx_type_9ratroyale_7backend_7hexagon__AxialCoordFloat;
   PyObject *__pyx_type_9ratroyale_7backend_7hexagon__AStarCoord;
   PyObject *__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw;
@@ -3308,11 +3309,11 @@ typedef struct {
   PyObject *__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors;
   PyObject *__pyx_scope_struct____Pyx_CFunc_bf987c__9ratroyale_7backend_7hexagon_bint__lParenOddRC__etc_to_py_12target_coord_12source_coord;
   PyObject *__pyx_scope_struct____Pyx_CFunc_f05d64__9ratroyale_7backend_7hexagon_float__lParenOddR__etc_to_py_1a_1b;
-  PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked;
   PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord;
-  PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord;
   PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord;
+  PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord;
   PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat;
+  PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked;
   PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat;
   PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord;
   PyTypeObject *__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw;
@@ -3328,7 +3329,7 @@ typedef struct {
   PyObject *__pyx_k__3;
   PyObject *__pyx_tuple[7];
   PyObject *__pyx_codeobj_tab[48];
-  PyObject *__pyx_string_tab[174];
+  PyObject *__pyx_string_tab[176];
   PyObject *__pyx_float_0_0;
   PyObject *__pyx_float_1eneg_6;
   PyObject *__pyx_float_2eneg_6;
@@ -3497,87 +3498,87 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_cfunc_to_py __pyx_string_tab[73]
 #define __pyx_n_u_cline_in_traceback __pyx_string_tab[74]
 #define __pyx_n_u_close __pyx_string_tab[75]
-#define __pyx_n_u_cls __pyx_string_tab[76]
-#define __pyx_n_u_coord __pyx_string_tab[77]
-#define __pyx_n_u_cube __pyx_string_tab[78]
-#define __pyx_n_u_dict __pyx_string_tab[79]
-#define __pyx_n_u_dict_2 __pyx_string_tab[80]
-#define __pyx_n_u_direction __pyx_string_tab[81]
-#define __pyx_kp_u_direction_must_be_between_0_and __pyx_string_tab[82]
-#define __pyx_kp_u_disable __pyx_string_tab[83]
-#define __pyx_n_u_empty __pyx_string_tab[84]
-#define __pyx_kp_u_enable __pyx_string_tab[85]
-#define __pyx_n_u_from_pixel __pyx_string_tab[86]
-#define __pyx_n_u_func __pyx_string_tab[87]
-#define __pyx_kp_u_gc __pyx_string_tab[88]
-#define __pyx_n_u_genexpr __pyx_string_tab[89]
-#define __pyx_n_u_get __pyx_string_tab[90]
-#define __pyx_n_u_get_cost __pyx_string_tab[91]
-#define __pyx_n_u_get_distance __pyx_string_tab[92]
-#define __pyx_n_u_get_neighbor __pyx_string_tab[93]
-#define __pyx_n_u_get_neighbors __pyx_string_tab[94]
-#define __pyx_n_u_get_reachable_coords __pyx_string_tab[95]
-#define __pyx_n_u_getstate __pyx_string_tab[96]
-#define __pyx_n_u_goal __pyx_string_tab[97]
-#define __pyx_n_u_hex_height __pyx_string_tab[98]
-#define __pyx_n_u_hex_size __pyx_string_tab[99]
-#define __pyx_n_u_hex_width __pyx_string_tab[100]
-#define __pyx_n_u_i __pyx_string_tab[101]
-#define __pyx_n_u_is_bounding_box __pyx_string_tab[102]
-#define __pyx_n_u_is_coord_blocked __pyx_string_tab[103]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[104]
-#define __pyx_n_u_is_include_self __pyx_string_tab[105]
-#define __pyx_kp_u_isenabled __pyx_string_tab[106]
-#define __pyx_n_u_lerp __pyx_string_tab[107]
-#define __pyx_n_u_line_draw __pyx_string_tab[108]
-#define __pyx_n_u_line_draw_locals_genexpr __pyx_string_tab[109]
-#define __pyx_n_u_main __pyx_string_tab[110]
-#define __pyx_n_u_module __pyx_string_tab[111]
-#define __pyx_n_u_name __pyx_string_tab[112]
-#define __pyx_n_u_new __pyx_string_tab[113]
-#define __pyx_n_u_next __pyx_string_tab[114]
-#define __pyx_n_u_offset_coord __pyx_string_tab[115]
-#define __pyx_n_u_other __pyx_string_tab[116]
-#define __pyx_n_u_other_float __pyx_string_tab[117]
-#define __pyx_n_u_path_find __pyx_string_tab[118]
-#define __pyx_n_u_pickle __pyx_string_tab[119]
-#define __pyx_n_u_pop __pyx_string_tab[120]
-#define __pyx_n_u_priority __pyx_string_tab[121]
-#define __pyx_n_u_put __pyx_string_tab[122]
-#define __pyx_n_u_pyx_PickleError __pyx_string_tab[123]
-#define __pyx_n_u_pyx_checksum __pyx_string_tab[124]
-#define __pyx_n_u_pyx_result __pyx_string_tab[125]
-#define __pyx_n_u_pyx_state __pyx_string_tab[126]
-#define __pyx_n_u_pyx_type __pyx_string_tab[127]
-#define __pyx_n_u_pyx_unpickle_IsCoordBlocked __pyx_string_tab[128]
-#define __pyx_n_u_pyx_unpickle_OddRCoord __pyx_string_tab[129]
-#define __pyx_n_u_pyx_unpickle__AStarCoord __pyx_string_tab[130]
-#define __pyx_n_u_pyx_unpickle__AxialCoord __pyx_string_tab[131]
-#define __pyx_n_u_pyx_unpickle__AxialCoordFloat __pyx_string_tab[132]
-#define __pyx_n_u_pyx_unpickle__CubeCoord __pyx_string_tab[133]
-#define __pyx_n_u_pyx_unpickle__CubeCoordFloat __pyx_string_tab[134]
-#define __pyx_n_u_pyx_vtable __pyx_string_tab[135]
-#define __pyx_n_u_q __pyx_string_tab[136]
-#define __pyx_n_u_qualname __pyx_string_tab[137]
-#define __pyx_n_u_queue __pyx_string_tab[138]
-#define __pyx_n_u_r __pyx_string_tab[139]
-#define __pyx_n_u_range __pyx_string_tab[140]
-#define __pyx_n_u_ratroyale_backend_hexagon __pyx_string_tab[141]
-#define __pyx_n_u_reach __pyx_string_tab[142]
-#define __pyx_n_u_reduce __pyx_string_tab[143]
-#define __pyx_n_u_reduce_cython __pyx_string_tab[144]
-#define __pyx_n_u_reduce_ex __pyx_string_tab[145]
-#define __pyx_n_u_round __pyx_string_tab[146]
-#define __pyx_n_u_s __pyx_string_tab[147]
-#define __pyx_n_u_self __pyx_string_tab[148]
-#define __pyx_n_u_self_float __pyx_string_tab[149]
-#define __pyx_n_u_send __pyx_string_tab[150]
-#define __pyx_n_u_set_name __pyx_string_tab[151]
-#define __pyx_n_u_setstate __pyx_string_tab[152]
-#define __pyx_n_u_setstate_cython __pyx_string_tab[153]
-#define __pyx_n_u_source_coord __pyx_string_tab[154]
-#define __pyx_kp_u_src_ratroyale_backend_hexagon_py __pyx_string_tab[155]
-#define __pyx_n_u_state __pyx_string_tab[156]
+#define __pyx_n_u_coord __pyx_string_tab[76]
+#define __pyx_n_u_cube __pyx_string_tab[77]
+#define __pyx_n_u_dict __pyx_string_tab[78]
+#define __pyx_n_u_dict_2 __pyx_string_tab[79]
+#define __pyx_n_u_direction __pyx_string_tab[80]
+#define __pyx_kp_u_direction_must_be_between_0_and __pyx_string_tab[81]
+#define __pyx_kp_u_disable __pyx_string_tab[82]
+#define __pyx_n_u_empty __pyx_string_tab[83]
+#define __pyx_kp_u_enable __pyx_string_tab[84]
+#define __pyx_n_u_from_pixel __pyx_string_tab[85]
+#define __pyx_n_u_func __pyx_string_tab[86]
+#define __pyx_kp_u_gc __pyx_string_tab[87]
+#define __pyx_n_u_genexpr __pyx_string_tab[88]
+#define __pyx_n_u_get __pyx_string_tab[89]
+#define __pyx_n_u_get_cost __pyx_string_tab[90]
+#define __pyx_n_u_get_distance __pyx_string_tab[91]
+#define __pyx_n_u_get_neighbor __pyx_string_tab[92]
+#define __pyx_n_u_get_neighbors __pyx_string_tab[93]
+#define __pyx_n_u_get_reachable_coords __pyx_string_tab[94]
+#define __pyx_n_u_getstate __pyx_string_tab[95]
+#define __pyx_n_u_goal __pyx_string_tab[96]
+#define __pyx_n_u_hex_height __pyx_string_tab[97]
+#define __pyx_n_u_hex_size __pyx_string_tab[98]
+#define __pyx_n_u_hex_width __pyx_string_tab[99]
+#define __pyx_n_u_i __pyx_string_tab[100]
+#define __pyx_n_u_is_bounding_box __pyx_string_tab[101]
+#define __pyx_n_u_is_coord_blocked __pyx_string_tab[102]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[103]
+#define __pyx_n_u_is_include_self __pyx_string_tab[104]
+#define __pyx_kp_u_isenabled __pyx_string_tab[105]
+#define __pyx_n_u_lerp __pyx_string_tab[106]
+#define __pyx_n_u_line_draw __pyx_string_tab[107]
+#define __pyx_n_u_line_draw_locals_genexpr __pyx_string_tab[108]
+#define __pyx_n_u_main __pyx_string_tab[109]
+#define __pyx_n_u_module __pyx_string_tab[110]
+#define __pyx_n_u_name __pyx_string_tab[111]
+#define __pyx_n_u_new __pyx_string_tab[112]
+#define __pyx_n_u_next __pyx_string_tab[113]
+#define __pyx_n_u_offset_coord __pyx_string_tab[114]
+#define __pyx_n_u_other __pyx_string_tab[115]
+#define __pyx_n_u_other_float __pyx_string_tab[116]
+#define __pyx_n_u_path_find __pyx_string_tab[117]
+#define __pyx_n_u_pickle __pyx_string_tab[118]
+#define __pyx_n_u_pop __pyx_string_tab[119]
+#define __pyx_n_u_priority __pyx_string_tab[120]
+#define __pyx_n_u_put __pyx_string_tab[121]
+#define __pyx_n_u_pyx_PickleError __pyx_string_tab[122]
+#define __pyx_n_u_pyx_checksum __pyx_string_tab[123]
+#define __pyx_n_u_pyx_result __pyx_string_tab[124]
+#define __pyx_n_u_pyx_state __pyx_string_tab[125]
+#define __pyx_n_u_pyx_type __pyx_string_tab[126]
+#define __pyx_n_u_pyx_unpickle_IsCoordBlocked __pyx_string_tab[127]
+#define __pyx_n_u_pyx_unpickle_OddRCoord __pyx_string_tab[128]
+#define __pyx_n_u_pyx_unpickle__AStarCoord __pyx_string_tab[129]
+#define __pyx_n_u_pyx_unpickle__AxialCoord __pyx_string_tab[130]
+#define __pyx_n_u_pyx_unpickle__AxialCoordFloat __pyx_string_tab[131]
+#define __pyx_n_u_pyx_unpickle__CubeCoord __pyx_string_tab[132]
+#define __pyx_n_u_pyx_unpickle__CubeCoordFloat __pyx_string_tab[133]
+#define __pyx_n_u_pyx_vtable __pyx_string_tab[134]
+#define __pyx_n_u_q __pyx_string_tab[135]
+#define __pyx_n_u_qualname __pyx_string_tab[136]
+#define __pyx_n_u_queue __pyx_string_tab[137]
+#define __pyx_n_u_r __pyx_string_tab[138]
+#define __pyx_n_u_range __pyx_string_tab[139]
+#define __pyx_n_u_ratroyale_backend_hexagon __pyx_string_tab[140]
+#define __pyx_n_u_reach __pyx_string_tab[141]
+#define __pyx_n_u_reduce __pyx_string_tab[142]
+#define __pyx_n_u_reduce_cython __pyx_string_tab[143]
+#define __pyx_n_u_reduce_ex __pyx_string_tab[144]
+#define __pyx_n_u_round __pyx_string_tab[145]
+#define __pyx_n_u_s __pyx_string_tab[146]
+#define __pyx_n_u_self __pyx_string_tab[147]
+#define __pyx_n_u_self_float __pyx_string_tab[148]
+#define __pyx_n_u_send __pyx_string_tab[149]
+#define __pyx_n_u_set_name __pyx_string_tab[150]
+#define __pyx_n_u_setstate __pyx_string_tab[151]
+#define __pyx_n_u_setstate_cython __pyx_string_tab[152]
+#define __pyx_n_u_source_coord __pyx_string_tab[153]
+#define __pyx_kp_u_src_ratroyale_backend_hexagon_py __pyx_string_tab[154]
+#define __pyx_n_u_state __pyx_string_tab[155]
+#define __pyx_n_u_staticmethod __pyx_string_tab[156]
 #define __pyx_kp_u_stringsource __pyx_string_tab[157]
 #define __pyx_n_u_t __pyx_string_tab[158]
 #define __pyx_n_u_target_coord __pyx_string_tab[159]
@@ -3594,7 +3595,9 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_value __pyx_string_tab[170]
 #define __pyx_n_u_wrap __pyx_string_tab[171]
 #define __pyx_n_u_x __pyx_string_tab[172]
-#define __pyx_n_u_y __pyx_string_tab[173]
+#define __pyx_n_u_x_2 __pyx_string_tab[173]
+#define __pyx_n_u_y __pyx_string_tab[174]
+#define __pyx_n_u_y_2 __pyx_string_tab[175]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -3615,16 +3618,16 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   __Pyx_State_RemoveModule(NULL);
   #endif
-  Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked);
-  Py_CLEAR(clear_module_state->__pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked);
   Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord);
   Py_CLEAR(clear_module_state->__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord);
-  Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord);
-  Py_CLEAR(clear_module_state->__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord);
   Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
   Py_CLEAR(clear_module_state->__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord);
+  Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord);
+  Py_CLEAR(clear_module_state->__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord);
   Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat);
   Py_CLEAR(clear_module_state->__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat);
+  Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked);
+  Py_CLEAR(clear_module_state->__pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked);
   Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat);
   Py_CLEAR(clear_module_state->__pyx_type_9ratroyale_7backend_7hexagon__AxialCoordFloat);
   Py_CLEAR(clear_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord);
@@ -3645,7 +3648,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_k__3);
   for (int i=0; i<7; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<48; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<174; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<176; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   Py_CLEAR(clear_module_state->__pyx_float_0_0);
   Py_CLEAR(clear_module_state->__pyx_float_1eneg_6);
   Py_CLEAR(clear_module_state->__pyx_float_2eneg_6);
@@ -3686,16 +3689,16 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   #ifdef __Pyx_FusedFunction_USED
   Py_VISIT(traverse_module_state->__pyx_FusedFunctionType);
   #endif
-  Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked);
-  Py_VISIT(traverse_module_state->__pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked);
   Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord);
   Py_VISIT(traverse_module_state->__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord);
-  Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord);
-  Py_VISIT(traverse_module_state->__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord);
   Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
   Py_VISIT(traverse_module_state->__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord);
+  Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord);
+  Py_VISIT(traverse_module_state->__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord);
   Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat);
   Py_VISIT(traverse_module_state->__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat);
+  Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked);
+  Py_VISIT(traverse_module_state->__pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked);
   Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat);
   Py_VISIT(traverse_module_state->__pyx_type_9ratroyale_7backend_7hexagon__AxialCoordFloat);
   Py_VISIT(traverse_module_state->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord);
@@ -3716,7 +3719,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_k__3);
   for (int i=0; i<7; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<48; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<174; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<176; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_float_0_0);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_float_1eneg_6);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_float_2eneg_6);
@@ -4918,7 +4921,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_14IsCoordBlocked_2__setst
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":28
+/* "ratroyale/backend/hexagon.pyx":27
  *     cdef public OddRCoord coord
  * 
  *     def __init__(self, priority: float, coord: OddRCoord):             # <<<<<<<<<<<<<<
@@ -4949,39 +4952,39 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_11_AStarCoord_1__init__(PyObjec
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_priority,&__pyx_mstate_global->__pyx_n_u_coord,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 28, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 27, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 28, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 27, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 28, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 27, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 28, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 27, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 28, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 27, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 28, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 27, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 28, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 27, __pyx_L3_error)
     }
-    __pyx_v_priority = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_priority == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L3_error)
+    __pyx_v_priority = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_priority == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L3_error)
     __pyx_v_coord = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)values[1]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 28, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 27, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4992,7 +4995,7 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_11_AStarCoord_1__init__(PyObjec
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_coord), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 0, "coord", 0))) __PYX_ERR(0, 28, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_coord), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 0, "coord", 0))) __PYX_ERR(0, 27, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord___init__(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AStarCoord *)__pyx_v_self), __pyx_v_priority, __pyx_v_coord);
 
   /* function exit code */
@@ -5017,7 +5020,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord___init__(struct _
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":29
+  /* "ratroyale/backend/hexagon.pyx":28
  * 
  *     def __init__(self, priority: float, coord: OddRCoord):
  *         self.priority = <float>priority             # <<<<<<<<<<<<<<
@@ -5026,7 +5029,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord___init__(struct _
 */
   __pyx_v_self->priority = ((float)__pyx_v_priority);
 
-  /* "ratroyale/backend/hexagon.pyx":30
+  /* "ratroyale/backend/hexagon.pyx":29
  *     def __init__(self, priority: float, coord: OddRCoord):
  *         self.priority = <float>priority
  *         self.coord = coord             # <<<<<<<<<<<<<<
@@ -5039,7 +5042,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord___init__(struct _
   __Pyx_DECREF((PyObject *)__pyx_v_self->coord);
   __pyx_v_self->coord = __pyx_v_coord;
 
-  /* "ratroyale/backend/hexagon.pyx":28
+  /* "ratroyale/backend/hexagon.pyx":27
  *     cdef public OddRCoord coord
  * 
  *     def __init__(self, priority: float, coord: OddRCoord):             # <<<<<<<<<<<<<<
@@ -5053,7 +5056,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord___init__(struct _
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":32
+/* "ratroyale/backend/hexagon.pyx":31
  *         self.coord = coord
  * 
  *     def __lt__(self, other):             # <<<<<<<<<<<<<<
@@ -5087,7 +5090,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_2__lt__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__lt__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":33
+  /* "ratroyale/backend/hexagon.pyx":32
  * 
  *     def __lt__(self, other):
  *         return self.priority < other.priority             # <<<<<<<<<<<<<<
@@ -5095,18 +5098,18 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_2__lt__(str
  *     def __eq__(self, other):
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->priority); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->priority); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_priority); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_priority); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, __pyx_t_2, Py_LT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, __pyx_t_2, Py_LT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":32
+  /* "ratroyale/backend/hexagon.pyx":31
  *         self.coord = coord
  * 
  *     def __lt__(self, other):             # <<<<<<<<<<<<<<
@@ -5127,7 +5130,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_2__lt__(str
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":35
+/* "ratroyale/backend/hexagon.pyx":34
  *         return self.priority < other.priority
  * 
  *     def __eq__(self, other):             # <<<<<<<<<<<<<<
@@ -5161,7 +5164,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_4__eq__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__eq__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":36
+  /* "ratroyale/backend/hexagon.pyx":35
  * 
  *     def __eq__(self, other):
  *         return self.priority == other.priority             # <<<<<<<<<<<<<<
@@ -5169,18 +5172,18 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_4__eq__(str
  * 
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->priority); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->priority); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_priority); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_priority); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 35, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, __pyx_t_2, Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, __pyx_t_2, Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 35, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":35
+  /* "ratroyale/backend/hexagon.pyx":34
  *         return self.priority < other.priority
  * 
  *     def __eq__(self, other):             # <<<<<<<<<<<<<<
@@ -5201,7 +5204,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_4__eq__(str
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":25
+/* "ratroyale/backend/hexagon.pyx":24
  * 
  * cdef class _AStarCoord:
  *     cdef public float priority             # <<<<<<<<<<<<<<
@@ -5233,7 +5236,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_8priority__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->priority); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->priority); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5271,7 +5274,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_8priority_2__set_
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 24, __pyx_L1_error)
   __pyx_v_self->priority = __pyx_t_1;
 
   /* function exit code */
@@ -5284,7 +5287,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_8priority_2__set_
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":26
+/* "ratroyale/backend/hexagon.pyx":25
  * cdef class _AStarCoord:
  *     cdef public float priority
  *     cdef public OddRCoord coord             # <<<<<<<<<<<<<<
@@ -5348,7 +5351,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_5coord_2__set__(s
   __Pyx_RefNannySetupContext("__set__", 0);
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 26, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF((PyObject *)__pyx_v_self->coord);
   __Pyx_DECREF((PyObject *)__pyx_v_self->coord);
@@ -5794,8 +5797,8 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AStarCoord_8__setstate
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":43
- *     cdef public int q, r, s
+/* "ratroyale/backend/hexagon.pyx":41
+ * cdef class _CubeCoord:
  * 
  *     def __init__(self, int q, int r, int s):             # <<<<<<<<<<<<<<
  *         self.q = q
@@ -5826,46 +5829,46 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_1__init__(PyObject
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_q,&__pyx_mstate_global->__pyx_n_u_r,&__pyx_mstate_global->__pyx_n_u_s,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 43, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 41, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_VARARGS(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 43, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 41, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 43, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 41, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 43, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 41, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 43, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 41, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, i); __PYX_ERR(0, 43, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, i); __PYX_ERR(0, 41, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 43, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 41, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 43, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 41, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_VARARGS(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 43, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 41, __pyx_L3_error)
     }
-    __pyx_v_q = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_q == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 43, __pyx_L3_error)
-    __pyx_v_r = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_r == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 43, __pyx_L3_error)
-    __pyx_v_s = __Pyx_PyLong_As_int(values[2]); if (unlikely((__pyx_v_s == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 43, __pyx_L3_error)
+    __pyx_v_q = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_q == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L3_error)
+    __pyx_v_r = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_r == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L3_error)
+    __pyx_v_s = __Pyx_PyLong_As_int(values[2]); if (unlikely((__pyx_v_s == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 43, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 41, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5889,7 +5892,7 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_1__init__(PyObject
 static int __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord___init__(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_v_self, int __pyx_v_q, int __pyx_v_r, int __pyx_v_s) {
   int __pyx_r;
 
-  /* "ratroyale/backend/hexagon.pyx":44
+  /* "ratroyale/backend/hexagon.pyx":42
  * 
  *     def __init__(self, int q, int r, int s):
  *         self.q = q             # <<<<<<<<<<<<<<
@@ -5898,7 +5901,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord___init__(struct __
 */
   __pyx_v_self->q = __pyx_v_q;
 
-  /* "ratroyale/backend/hexagon.pyx":45
+  /* "ratroyale/backend/hexagon.pyx":43
  *     def __init__(self, int q, int r, int s):
  *         self.q = q
  *         self.r = r             # <<<<<<<<<<<<<<
@@ -5907,7 +5910,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord___init__(struct __
 */
   __pyx_v_self->r = __pyx_v_r;
 
-  /* "ratroyale/backend/hexagon.pyx":46
+  /* "ratroyale/backend/hexagon.pyx":44
  *         self.q = q
  *         self.r = r
  *         self.s = s             # <<<<<<<<<<<<<<
@@ -5916,8 +5919,8 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord___init__(struct __
 */
   __pyx_v_self->s = __pyx_v_s;
 
-  /* "ratroyale/backend/hexagon.pyx":43
- *     cdef public int q, r, s
+  /* "ratroyale/backend/hexagon.pyx":41
+ * cdef class _CubeCoord:
  * 
  *     def __init__(self, int q, int r, int s):             # <<<<<<<<<<<<<<
  *         self.q = q
@@ -5929,7 +5932,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord___init__(struct __
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":48
+/* "ratroyale/backend/hexagon.pyx":46
  *         self.s = s
  * 
  *     def __hash__(self):             # <<<<<<<<<<<<<<
@@ -5965,36 +5968,36 @@ static Py_hash_t __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_2__hash__(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__hash__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":49
+  /* "ratroyale/backend/hexagon.pyx":47
  * 
  *     def __hash__(self):
  *         return hash((self.q, self.r, self.s))             # <<<<<<<<<<<<<<
  * 
  *     def __eq__(self, other):
 */
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_self->s); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 49, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 47, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 49, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 47, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_3);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_t_3) != (0)) __PYX_ERR(0, 49, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_t_3) != (0)) __PYX_ERR(0, 47, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
   __pyx_t_3 = 0;
-  __pyx_t_5 = PyObject_Hash(__pyx_t_4); if (unlikely(__pyx_t_5 == ((Py_hash_t)-1))) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_5 = PyObject_Hash(__pyx_t_4); if (unlikely(__pyx_t_5 == ((Py_hash_t)-1))) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_r = __pyx_t_5;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":48
+  /* "ratroyale/backend/hexagon.pyx":46
  *         self.s = s
  * 
  *     def __hash__(self):             # <<<<<<<<<<<<<<
@@ -6016,7 +6019,7 @@ static Py_hash_t __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_2__hash__(st
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":51
+/* "ratroyale/backend/hexagon.pyx":49
  *         return hash((self.q, self.r, self.s))
  * 
  *     def __eq__(self, other):             # <<<<<<<<<<<<<<
@@ -6053,7 +6056,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__eq__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":52
+  /* "ratroyale/backend/hexagon.pyx":50
  * 
  *     def __eq__(self, other):
  *         if not isinstance(other, _CubeCoord): return False             # <<<<<<<<<<<<<<
@@ -6069,7 +6072,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
     goto __pyx_L0;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":53
+  /* "ratroyale/backend/hexagon.pyx":51
  *     def __eq__(self, other):
  *         if not isinstance(other, _CubeCoord): return False
  *         return self.q == other.q and self.r == other.r and self.s == other.s             # <<<<<<<<<<<<<<
@@ -6077,14 +6080,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
  * 
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_q); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_q); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyObject_RichCompare(__pyx_t_4, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_6 = PyObject_RichCompare(__pyx_t_4, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 51, __pyx_L1_error)
   if (__pyx_t_2) {
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   } else {
@@ -6093,14 +6096,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_r); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_r); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyObject_RichCompare(__pyx_t_6, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_4 = PyObject_RichCompare(__pyx_t_6, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 51, __pyx_L1_error)
   if (__pyx_t_2) {
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   } else {
@@ -6109,11 +6112,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_self->s); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_s); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_s); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyObject_RichCompare(__pyx_t_4, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_6 = PyObject_RichCompare(__pyx_t_4, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_INCREF(__pyx_t_6);
@@ -6124,7 +6127,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":51
+  /* "ratroyale/backend/hexagon.pyx":49
  *         return hash((self.q, self.r, self.s))
  * 
  *     def __eq__(self, other):             # <<<<<<<<<<<<<<
@@ -6146,7 +6149,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_4__eq__(stru
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":56
+/* "ratroyale/backend/hexagon.pyx":54
  * 
  * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
@@ -6190,7 +6193,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_axial); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_axial); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_7to_axial)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -6214,10 +6217,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 56, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 54, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -6236,7 +6239,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":57
+  /* "ratroyale/backend/hexagon.pyx":55
  * 
  *     cpdef _AxialCoord to_axial(self):
  *         return _AxialCoord(self.q, self.r)             # <<<<<<<<<<<<<<
@@ -6247,9 +6250,9 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord);
   __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord); 
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 55, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 55, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_5 = 1;
   {
@@ -6259,14 +6262,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 55, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":56
+  /* "ratroyale/backend/hexagon.pyx":54
  * 
  * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
@@ -6340,7 +6343,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_6to_axial(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("to_axial", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_axial(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_axial(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6357,7 +6360,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_6to_axial(st
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":60
+/* "ratroyale/backend/hexagon.pyx":58
  * 
  * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
@@ -6400,7 +6403,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_odd_r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_odd_r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_9to_odd_r)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -6424,10 +6427,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 60, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 58, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 60, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 58, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -6446,7 +6449,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":61
+  /* "ratroyale/backend/hexagon.pyx":59
  * 
  *     cpdef OddRCoord to_odd_r(self):
  *         return self.to_axial().to_odd_r()             # <<<<<<<<<<<<<<
@@ -6454,16 +6457,16 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
  *     cpdef int get_distance(self, _CubeCoord other) except *:
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1)->__pyx_vtab)->to_odd_r(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1)->__pyx_vtab)->to_odd_r(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_2);
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":60
+  /* "ratroyale/backend/hexagon.pyx":58
  * 
  * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
@@ -6536,7 +6539,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_8to_odd_r(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("to_odd_r", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_odd_r(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_odd_r(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6553,7 +6556,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_8to_odd_r(st
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":63
+/* "ratroyale/backend/hexagon.pyx":61
  *         return self.to_axial().to_odd_r()
  * 
  *     cpdef int get_distance(self, _CubeCoord other) except *:             # <<<<<<<<<<<<<<
@@ -6598,7 +6601,7 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(struct
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_11get_distance)) {
         __pyx_t_3 = NULL;
@@ -6621,10 +6624,10 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(struct
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 61, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_6;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -6643,20 +6646,20 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(struct
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":64
+  /* "ratroyale/backend/hexagon.pyx":62
  * 
  *     cpdef int get_distance(self, _CubeCoord other) except *:
  *         cdef _CubeCoord vec = self - other             # <<<<<<<<<<<<<<
  *         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
  * 
 */
-  __pyx_t_1 = PyNumber_Subtract(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Subtract(((PyObject *)__pyx_v_self), ((PyObject *)__pyx_v_other)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord))))) __PYX_ERR(0, 64, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord))))) __PYX_ERR(0, 62, __pyx_L1_error)
   __pyx_v_vec = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":65
+  /* "ratroyale/backend/hexagon.pyx":63
  *     cpdef int get_distance(self, _CubeCoord other) except *:
  *         cdef _CubeCoord vec = self - other
  *         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)             # <<<<<<<<<<<<<<
@@ -6666,7 +6669,7 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(struct
   __pyx_r = ((int)(((fabs(__pyx_v_vec->q) + fabs(__pyx_v_vec->r)) + fabs(__pyx_v_vec->s)) / 2.0));
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":63
+  /* "ratroyale/backend/hexagon.pyx":61
  *         return self.to_axial().to_odd_r()
  * 
  *     cpdef int get_distance(self, _CubeCoord other) except *:             # <<<<<<<<<<<<<<
@@ -6727,32 +6730,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_other,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 63, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 61, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 63, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 61, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_distance", 0) < (0)) __PYX_ERR(0, 63, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_distance", 0) < (0)) __PYX_ERR(0, 61, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_distance", 1, 1, 1, i); __PYX_ERR(0, 63, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_distance", 1, 1, 1, i); __PYX_ERR(0, 61, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 63, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 61, __pyx_L3_error)
     }
     __pyx_v_other = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_distance", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 63, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_distance", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 61, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6763,7 +6766,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, 1, "other", 0))) __PYX_ERR(0, 63, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, 1, "other", 0))) __PYX_ERR(0, 61, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_10get_distance(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_self), __pyx_v_other);
 
   /* function exit code */
@@ -6793,8 +6796,8 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_10get_distan
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_distance", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(__pyx_v_self, __pyx_v_other, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance(__pyx_v_self, __pyx_v_other, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -6812,7 +6815,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_10get_distan
 }
 static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "ratroyale/backend/hexagon.pyx":68
+/* "ratroyale/backend/hexagon.pyx":66
  * 
  * 
  *     def line_draw(self, _CubeCoord other):             # <<<<<<<<<<<<<<
@@ -6859,32 +6862,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_other,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 68, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 66, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 68, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 66, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "line_draw", 0) < (0)) __PYX_ERR(0, 68, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "line_draw", 0) < (0)) __PYX_ERR(0, 66, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("line_draw", 1, 1, 1, i); __PYX_ERR(0, 68, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("line_draw", 1, 1, 1, i); __PYX_ERR(0, 66, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 68, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 66, __pyx_L3_error)
     }
     __pyx_v_other = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("line_draw", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 68, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("line_draw", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 66, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6895,7 +6898,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, 1, "other", 0))) __PYX_ERR(0, 68, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, 1, "other", 0))) __PYX_ERR(0, 66, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_12line_draw(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_self), __pyx_v_other);
 
   /* function exit code */
@@ -6927,7 +6930,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_12line_draw(
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 68, __pyx_L1_error)
+    __PYX_ERR(0, 66, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -6938,7 +6941,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_12line_draw(
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_other);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_other);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_line_draw, __pyx_mstate_global->__pyx_n_u_CubeCoord_line_draw, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon); if (unlikely(!gen)) __PYX_ERR(0, 68, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_line_draw, __pyx_mstate_global->__pyx_n_u_CubeCoord_line_draw, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon); if (unlikely(!gen)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -6979,20 +6982,20 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started generator");
-    __PYX_ERR(0, 68, __pyx_L1_error)
+    __PYX_ERR(0, 66, __pyx_L1_error)
   }
 
-  /* "ratroyale/backend/hexagon.pyx":69
+  /* "ratroyale/backend/hexagon.pyx":67
  * 
  *     def line_draw(self, _CubeCoord other):
  *         cdef int N = self.get_distance(other)             # <<<<<<<<<<<<<<
  *         cdef int i
  *         cdef _CubeCoordFloat self_float = self.to_cube_float(add_epsilon=(1e-6, 2e-6, -3e-6))
 */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_cur_scope->__pyx_v_self->__pyx_vtab)->get_distance(__pyx_cur_scope->__pyx_v_self, __pyx_cur_scope->__pyx_v_other, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_cur_scope->__pyx_v_self->__pyx_vtab)->get_distance(__pyx_cur_scope->__pyx_v_self, __pyx_cur_scope->__pyx_v_other, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 67, __pyx_L1_error)
   __pyx_cur_scope->__pyx_v_N = __pyx_t_1;
 
-  /* "ratroyale/backend/hexagon.pyx":71
+  /* "ratroyale/backend/hexagon.pyx":69
  *         cdef int N = self.get_distance(other)
  *         cdef int i
  *         cdef _CubeCoordFloat self_float = self.to_cube_float(add_epsilon=(1e-6, 2e-6, -3e-6))             # <<<<<<<<<<<<<<
@@ -7001,26 +7004,26 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
 */
   __pyx_t_3.__pyx_n = 1;
   __pyx_t_3.add_epsilon = __pyx_mstate_global->__pyx_tuple[0];
-  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_cur_scope->__pyx_v_self->__pyx_vtab)->to_cube_float(__pyx_cur_scope->__pyx_v_self, 0, &__pyx_t_3)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_cur_scope->__pyx_v_self->__pyx_vtab)->to_cube_float(__pyx_cur_scope->__pyx_v_self, 0, &__pyx_t_3)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_2);
   __pyx_cur_scope->__pyx_v_self_float = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":72
+  /* "ratroyale/backend/hexagon.pyx":70
  *         cdef int i
  *         cdef _CubeCoordFloat self_float = self.to_cube_float(add_epsilon=(1e-6, 2e-6, -3e-6))
  *         cdef _CubeCoordFloat other_float = other.to_cube_float()             # <<<<<<<<<<<<<<
  * 
  *         for i in range(N):
 */
-  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_cur_scope->__pyx_v_other->__pyx_vtab)->to_cube_float(__pyx_cur_scope->__pyx_v_other, 0, NULL)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_cur_scope->__pyx_v_other->__pyx_vtab)->to_cube_float(__pyx_cur_scope->__pyx_v_other, 0, NULL)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_2);
   __pyx_cur_scope->__pyx_v_other_float = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":74
+  /* "ratroyale/backend/hexagon.pyx":72
  *         cdef _CubeCoordFloat other_float = other.to_cube_float()
  * 
  *         for i in range(N):             # <<<<<<<<<<<<<<
@@ -7032,7 +7035,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
   for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
     __pyx_cur_scope->__pyx_v_i = __pyx_t_5;
 
-    /* "ratroyale/backend/hexagon.pyx":76
+    /* "ratroyale/backend/hexagon.pyx":74
  *         for i in range(N):
  *             yield self_float.lerp(
  *                 other_float, <double>i / <double>N             # <<<<<<<<<<<<<<
@@ -7041,27 +7044,27 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
 */
     if (unlikely(((double)__pyx_cur_scope->__pyx_v_N) == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 76, __pyx_L1_error)
+      __PYX_ERR(0, 74, __pyx_L1_error)
     }
 
-    /* "ratroyale/backend/hexagon.pyx":75
+    /* "ratroyale/backend/hexagon.pyx":73
  * 
  *         for i in range(N):
  *             yield self_float.lerp(             # <<<<<<<<<<<<<<
  *                 other_float, <double>i / <double>N
  *             ).round()
 */
-    __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_cur_scope->__pyx_v_self_float->__pyx_vtab)->lerp(__pyx_cur_scope->__pyx_v_self_float, __pyx_cur_scope->__pyx_v_other_float, (((double)__pyx_cur_scope->__pyx_v_i) / ((double)__pyx_cur_scope->__pyx_v_N)), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_cur_scope->__pyx_v_self_float->__pyx_vtab)->lerp(__pyx_cur_scope->__pyx_v_self_float, __pyx_cur_scope->__pyx_v_other_float, (((double)__pyx_cur_scope->__pyx_v_i) / ((double)__pyx_cur_scope->__pyx_v_N)), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
 
-    /* "ratroyale/backend/hexagon.pyx":77
+    /* "ratroyale/backend/hexagon.pyx":75
  *             yield self_float.lerp(
  *                 other_float, <double>i / <double>N
  *             ).round()             # <<<<<<<<<<<<<<
  * 
  *     def __add__(self, _CubeCoord other):
 */
-    __pyx_t_6 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2)->__pyx_vtab)->round(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2), 0)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 77, __pyx_L1_error)
+    __pyx_t_6 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2)->__pyx_vtab)->round(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2), 0)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 75, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_r = __pyx_t_6;
@@ -7079,11 +7082,11 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
     __pyx_t_1 = __pyx_cur_scope->__pyx_t_0;
     __pyx_t_4 = __pyx_cur_scope->__pyx_t_1;
     __pyx_t_5 = __pyx_cur_scope->__pyx_t_2;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 75, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 73, __pyx_L1_error)
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "ratroyale/backend/hexagon.pyx":68
+  /* "ratroyale/backend/hexagon.pyx":66
  * 
  * 
  *     def line_draw(self, _CubeCoord other):             # <<<<<<<<<<<<<<
@@ -7112,7 +7115,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_10_CubeCoord_14generator(
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":79
+/* "ratroyale/backend/hexagon.pyx":77
  *             ).round()
  * 
  *     def __add__(self, _CubeCoord other):             # <<<<<<<<<<<<<<
@@ -7131,7 +7134,7 @@ static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_16__add__(Py
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__add__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, 1, "other", 0))) __PYX_ERR(0, 79, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, 1, "other", 0))) __PYX_ERR(0, 77, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_15__add__(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_self), ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_other));
 
   /* function exit code */
@@ -7160,7 +7163,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_15__add__(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__add__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":80
+  /* "ratroyale/backend/hexagon.pyx":78
  * 
  *     def __add__(self, _CubeCoord other):
  *         return _CubeCoord(self.q + other.q, self.r + other.r, self.s + other.s)             # <<<<<<<<<<<<<<
@@ -7171,11 +7174,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_15__add__(st
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord);
   __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord); 
-  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->q + __pyx_v_other->q)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble((__pyx_v_self->q + __pyx_v_other->q)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->r + __pyx_v_other->r)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble((__pyx_v_self->r + __pyx_v_other->r)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_PyLong_From_int((__pyx_v_self->s + __pyx_v_other->s)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble((__pyx_v_self->s + __pyx_v_other->s)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_7 = 1;
   {
@@ -7186,14 +7189,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_15__add__(st
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((PyObject *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":79
+  /* "ratroyale/backend/hexagon.pyx":77
  *             ).round()
  * 
  *     def __add__(self, _CubeCoord other):             # <<<<<<<<<<<<<<
@@ -7217,7 +7220,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_15__add__(st
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":82
+/* "ratroyale/backend/hexagon.pyx":80
  *         return _CubeCoord(self.q + other.q, self.r + other.r, self.s + other.s)
  * 
  *     def __sub__(self, _CubeCoord other):             # <<<<<<<<<<<<<<
@@ -7236,7 +7239,7 @@ static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_18__sub__(Py
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__sub__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, 1, "other", 0))) __PYX_ERR(0, 82, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, 1, "other", 0))) __PYX_ERR(0, 80, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_17__sub__(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_self), ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_other));
 
   /* function exit code */
@@ -7265,7 +7268,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_17__sub__(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__sub__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":83
+  /* "ratroyale/backend/hexagon.pyx":81
  * 
  *     def __sub__(self, _CubeCoord other):
  *         return _CubeCoord(self.q - other.q, self.r - other.r, self.s - other.s)             # <<<<<<<<<<<<<<
@@ -7276,11 +7279,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_17__sub__(st
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord);
   __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord); 
-  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->q - __pyx_v_other->q)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble((__pyx_v_self->q - __pyx_v_other->q)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->r - __pyx_v_other->r)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble((__pyx_v_self->r - __pyx_v_other->r)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_PyLong_From_int((__pyx_v_self->s - __pyx_v_other->s)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble((__pyx_v_self->s - __pyx_v_other->s)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_7 = 1;
   {
@@ -7291,14 +7294,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_17__sub__(st
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((PyObject *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":82
+  /* "ratroyale/backend/hexagon.pyx":80
  *         return _CubeCoord(self.q + other.q, self.r + other.r, self.s + other.s)
  * 
  *     def __sub__(self, _CubeCoord other):             # <<<<<<<<<<<<<<
@@ -7322,7 +7325,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_17__sub__(st
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":86
+/* "ratroyale/backend/hexagon.pyx":84
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
@@ -7339,7 +7342,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 ); /*proto*/
 static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float *__pyx_optional_args) {
 
-  /* "ratroyale/backend/hexagon.pyx":87
+  /* "ratroyale/backend/hexagon.pyx":85
  * 
  *     cpdef _CubeCoordFloat to_cube_float(
  *         self, tuple add_epsilon = None             # <<<<<<<<<<<<<<
@@ -7369,7 +7372,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     }
   }
 
-  /* "ratroyale/backend/hexagon.pyx":86
+  /* "ratroyale/backend/hexagon.pyx":84
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
@@ -7392,7 +7395,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_cube_float); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_cube_float); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_20to_cube_float)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -7416,10 +7419,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat))))) __PYX_ERR(0, 86, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat))))) __PYX_ERR(0, 84, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -7438,7 +7441,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":89
+  /* "ratroyale/backend/hexagon.pyx":87
  *         self, tuple add_epsilon = None
  *     ):
  *         if add_epsilon is None:             # <<<<<<<<<<<<<<
@@ -7448,7 +7451,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
   __pyx_t_6 = (__pyx_v_add_epsilon == ((PyObject*)Py_None));
   if (__pyx_t_6) {
 
-    /* "ratroyale/backend/hexagon.pyx":90
+    /* "ratroyale/backend/hexagon.pyx":88
  *     ):
  *         if add_epsilon is None:
  *             return _CubeCoordFloat(self.q, self.r, self.s)             # <<<<<<<<<<<<<<
@@ -7459,11 +7462,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     __pyx_t_2 = NULL;
     __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat);
     __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat); 
-    __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 88, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 88, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_8 = __Pyx_PyLong_From_int(__pyx_v_self->s); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_8 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 88, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __pyx_t_5 = 1;
     {
@@ -7474,14 +7477,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 90, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
       __Pyx_GOTREF((PyObject *)__pyx_t_1);
     }
     __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_1);
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "ratroyale/backend/hexagon.pyx":89
+    /* "ratroyale/backend/hexagon.pyx":87
  *         self, tuple add_epsilon = None
  *     ):
  *         if add_epsilon is None:             # <<<<<<<<<<<<<<
@@ -7490,7 +7493,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
 */
   }
 
-  /* "ratroyale/backend/hexagon.pyx":92
+  /* "ratroyale/backend/hexagon.pyx":90
  *             return _CubeCoordFloat(self.q, self.r, self.s)
  *         else:
  *             return _CubeCoordFloat(             # <<<<<<<<<<<<<<
@@ -7503,62 +7506,62 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat);
     __pyx_t_8 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat); 
 
-    /* "ratroyale/backend/hexagon.pyx":93
+    /* "ratroyale/backend/hexagon.pyx":91
  *         else:
  *             return _CubeCoordFloat(
  *                 self.q + add_epsilon[0],             # <<<<<<<<<<<<<<
  *                 self.r + add_epsilon[1],
  *                 self.s + add_epsilon[2],
 */
-    __pyx_t_7 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 93, __pyx_L1_error)
+    __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     if (unlikely(__pyx_v_add_epsilon == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 93, __pyx_L1_error)
+      __PYX_ERR(0, 91, __pyx_L1_error)
     }
-    __pyx_t_3 = __Pyx_GetItemInt_Tuple(__pyx_v_add_epsilon, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 93, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt_Tuple(__pyx_v_add_epsilon, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = PyNumber_Add(__pyx_t_7, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 93, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_Add(__pyx_t_7, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "ratroyale/backend/hexagon.pyx":94
+    /* "ratroyale/backend/hexagon.pyx":92
  *             return _CubeCoordFloat(
  *                 self.q + add_epsilon[0],
  *                 self.r + add_epsilon[1],             # <<<<<<<<<<<<<<
  *                 self.s + add_epsilon[2],
  *             )
 */
-    __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (unlikely(__pyx_v_add_epsilon == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 94, __pyx_L1_error)
+      __PYX_ERR(0, 92, __pyx_L1_error)
     }
-    __pyx_t_7 = __Pyx_GetItemInt_Tuple(__pyx_v_add_epsilon, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 94, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_GetItemInt_Tuple(__pyx_v_add_epsilon, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_9 = PyNumber_Add(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 94, __pyx_L1_error)
+    __pyx_t_9 = PyNumber_Add(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "ratroyale/backend/hexagon.pyx":95
+    /* "ratroyale/backend/hexagon.pyx":93
  *                 self.q + add_epsilon[0],
  *                 self.r + add_epsilon[1],
  *                 self.s + add_epsilon[2],             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-    __pyx_t_7 = __Pyx_PyLong_From_int(__pyx_v_self->s); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 95, __pyx_L1_error)
+    __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     if (unlikely(__pyx_v_add_epsilon == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 95, __pyx_L1_error)
+      __PYX_ERR(0, 93, __pyx_L1_error)
     }
-    __pyx_t_3 = __Pyx_GetItemInt_Tuple(__pyx_v_add_epsilon, 2, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 95, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt_Tuple(__pyx_v_add_epsilon, 2, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_10 = PyNumber_Add(__pyx_t_7, __pyx_t_3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 95, __pyx_L1_error)
+    __pyx_t_10 = PyNumber_Add(__pyx_t_7, __pyx_t_3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -7571,7 +7574,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 92, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 90, __pyx_L1_error)
       __Pyx_GOTREF((PyObject *)__pyx_t_1);
     }
     __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_1);
@@ -7579,7 +7582,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     goto __pyx_L0;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":86
+  /* "ratroyale/backend/hexagon.pyx":84
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
@@ -7644,20 +7647,20 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_add_epsilon,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 86, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 84, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 86, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 84, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "to_cube_float", 0) < (0)) __PYX_ERR(0, 86, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "to_cube_float", 0) < (0)) __PYX_ERR(0, 84, __pyx_L3_error)
 
-      /* "ratroyale/backend/hexagon.pyx":87
+      /* "ratroyale/backend/hexagon.pyx":85
  * 
  *     cpdef _CubeCoordFloat to_cube_float(
  *         self, tuple add_epsilon = None             # <<<<<<<<<<<<<<
@@ -7669,7 +7672,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 86, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 84, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
@@ -7680,7 +7683,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("to_cube_float", 0, 0, 1, __pyx_nargs); __PYX_ERR(0, 86, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("to_cube_float", 0, 0, 1, __pyx_nargs); __PYX_ERR(0, 84, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7691,10 +7694,10 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_add_epsilon), (&PyTuple_Type), 1, "add_epsilon", 1))) __PYX_ERR(0, 87, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_add_epsilon), (&PyTuple_Type), 1, "add_epsilon", 1))) __PYX_ERR(0, 85, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_19to_cube_float(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_v_self), __pyx_v_add_epsilon);
 
-  /* "ratroyale/backend/hexagon.pyx":86
+  /* "ratroyale/backend/hexagon.pyx":84
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
@@ -7731,7 +7734,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_19to_cube_fl
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 1;
   __pyx_t_2.add_epsilon = __pyx_v_add_epsilon;
-  __pyx_t_1 = ((PyObject *)__pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoord->to_cube_float(__pyx_v_self, 1, &__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoord->to_cube_float(__pyx_v_self, 1, &__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7748,12 +7751,12 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_19to_cube_fl
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":41
+/* "ratroyale/backend/hexagon.pxd":12
  * 
  * cdef class _CubeCoord:
- *     cdef public int q, r, s             # <<<<<<<<<<<<<<
- * 
- *     def __init__(self, int q, int r, int s):
+ *     cdef public double q, r, s             # <<<<<<<<<<<<<<
+ *     cpdef _AxialCoord to_axial(self)
+ *     cpdef OddRCoord to_odd_r(self)
 */
 
 /* Python wrapper */
@@ -7780,7 +7783,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_1q___get__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7814,11 +7817,11 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_1q_3__set__(PyObje
 
 static int __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_1q_2__set__(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
-  int __pyx_t_1;
+  double __pyx_t_1;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(2, 12, __pyx_L1_error)
   __pyx_v_self->q = __pyx_t_1;
 
   /* function exit code */
@@ -7855,7 +7858,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_1r___get__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7889,11 +7892,11 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_1r_3__set__(PyObje
 
 static int __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_1r_2__set__(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
-  int __pyx_t_1;
+  double __pyx_t_1;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(2, 12, __pyx_L1_error)
   __pyx_v_self->r = __pyx_t_1;
 
   /* function exit code */
@@ -7930,7 +7933,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_1s___get__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->s); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7964,11 +7967,11 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_10_CubeCoord_1s_3__set__(PyObje
 
 static int __pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_1s_2__set__(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
-  int __pyx_t_1;
+  double __pyx_t_1;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(2, 12, __pyx_L1_error)
   __pyx_v_self->s = __pyx_t_1;
 
   /* function exit code */
@@ -8052,11 +8055,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_21__reduce_c
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None:
 */
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 5, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 5, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_self->s); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 5, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -8385,8 +8388,8 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_10_CubeCoord_23__setstate
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":102
- *     cdef public int q, r
+/* "ratroyale/backend/hexagon.pyx":99
+ * cdef class _AxialCoord:
  * 
  *     def __init__(self, int q, int r):             # <<<<<<<<<<<<<<
  *         self.q = q
@@ -8416,39 +8419,39 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_1__init__(PyObjec
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_q,&__pyx_mstate_global->__pyx_n_u_r,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 102, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 99, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 102, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 99, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 102, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 99, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 102, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 99, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 102, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 99, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 102, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 99, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 102, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 99, __pyx_L3_error)
     }
-    __pyx_v_q = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_q == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 102, __pyx_L3_error)
-    __pyx_v_r = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_r == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 102, __pyx_L3_error)
+    __pyx_v_q = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_q == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 99, __pyx_L3_error)
+    __pyx_v_r = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_r == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 99, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 102, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 99, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8472,7 +8475,7 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_1__init__(PyObjec
 static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord___init__(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_self, int __pyx_v_q, int __pyx_v_r) {
   int __pyx_r;
 
-  /* "ratroyale/backend/hexagon.pyx":103
+  /* "ratroyale/backend/hexagon.pyx":100
  * 
  *     def __init__(self, int q, int r):
  *         self.q = q             # <<<<<<<<<<<<<<
@@ -8481,7 +8484,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord___init__(struct _
 */
   __pyx_v_self->q = __pyx_v_q;
 
-  /* "ratroyale/backend/hexagon.pyx":104
+  /* "ratroyale/backend/hexagon.pyx":101
  *     def __init__(self, int q, int r):
  *         self.q = q
  *         self.r = r             # <<<<<<<<<<<<<<
@@ -8490,8 +8493,8 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord___init__(struct _
 */
   __pyx_v_self->r = __pyx_v_r;
 
-  /* "ratroyale/backend/hexagon.pyx":102
- *     cdef public int q, r
+  /* "ratroyale/backend/hexagon.pyx":99
+ * cdef class _AxialCoord:
  * 
  *     def __init__(self, int q, int r):             # <<<<<<<<<<<<<<
  *         self.q = q
@@ -8503,7 +8506,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord___init__(struct _
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":106
+/* "ratroyale/backend/hexagon.pyx":103
  *         self.r = r
  * 
  *     def __hash__(self):             # <<<<<<<<<<<<<<
@@ -8538,31 +8541,31 @@ static Py_hash_t __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_2__hash__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__hash__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":107
+  /* "ratroyale/backend/hexagon.pyx":104
  * 
  *     def __hash__(self):
  *         return hash((self.q, self.r))             # <<<<<<<<<<<<<<
  * 
  *     def __eq__(self, other):
 */
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 107, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 104, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 107, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 104, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_4 = PyObject_Hash(__pyx_t_3); if (unlikely(__pyx_t_4 == ((Py_hash_t)-1))) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Hash(__pyx_t_3); if (unlikely(__pyx_t_4 == ((Py_hash_t)-1))) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_4;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":106
+  /* "ratroyale/backend/hexagon.pyx":103
  *         self.r = r
  * 
  *     def __hash__(self):             # <<<<<<<<<<<<<<
@@ -8583,7 +8586,7 @@ static Py_hash_t __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_2__hash__(s
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":109
+/* "ratroyale/backend/hexagon.pyx":106
  *         return hash((self.q, self.r))
  * 
  *     def __eq__(self, other):             # <<<<<<<<<<<<<<
@@ -8620,7 +8623,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_4__eq__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__eq__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":110
+  /* "ratroyale/backend/hexagon.pyx":107
  * 
  *     def __eq__(self, other):
  *         if not isinstance(other, _AxialCoord): return False             # <<<<<<<<<<<<<<
@@ -8636,7 +8639,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_4__eq__(str
     goto __pyx_L0;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":111
+  /* "ratroyale/backend/hexagon.pyx":108
  *     def __eq__(self, other):
  *         if not isinstance(other, _AxialCoord): return False
  *         return self.q == other.q and self.r == other.r             # <<<<<<<<<<<<<<
@@ -8644,14 +8647,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_4__eq__(str
  * 
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_q); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_q); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyObject_RichCompare(__pyx_t_4, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_6 = PyObject_RichCompare(__pyx_t_4, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 108, __pyx_L1_error)
   if (__pyx_t_2) {
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   } else {
@@ -8660,11 +8663,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_4__eq__(str
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_r); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_r); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyObject_RichCompare(__pyx_t_6, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_4 = PyObject_RichCompare(__pyx_t_6, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_INCREF(__pyx_t_4);
@@ -8675,7 +8678,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_4__eq__(str
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":109
+  /* "ratroyale/backend/hexagon.pyx":106
  *         return hash((self.q, self.r))
  * 
  *     def __eq__(self, other):             # <<<<<<<<<<<<<<
@@ -8697,7 +8700,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_4__eq__(str
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":114
+/* "ratroyale/backend/hexagon.pyx":111
  * 
  * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
@@ -8742,7 +8745,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_cube); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 114, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_cube); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 111, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_7to_cube)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -8766,10 +8769,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 114, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 111, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord))))) __PYX_ERR(0, 114, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord))))) __PYX_ERR(0, 111, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -8788,7 +8791,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":115
+  /* "ratroyale/backend/hexagon.pyx":112
  * 
  *     cpdef _CubeCoord to_cube(self):
  *         return _CubeCoord(self.q, self.r, -self.q - self.r)             # <<<<<<<<<<<<<<
@@ -8799,11 +8802,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord);
   __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord); 
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyLong_From_int(((-__pyx_v_self->q) - __pyx_v_self->r)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyLong_From_int(((-__pyx_v_self->q) - __pyx_v_self->r)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_5 = 1;
   {
@@ -8814,14 +8817,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 112, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":114
+  /* "ratroyale/backend/hexagon.pyx":111
  * 
  * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
@@ -8896,7 +8899,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_6to_cube(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("to_cube", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_cube(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_cube(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8913,7 +8916,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_6to_cube(st
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":118
+/* "ratroyale/backend/hexagon.pyx":115
  * 
  * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
@@ -8961,7 +8964,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_odd_r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_odd_r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_9to_odd_r)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -8985,10 +8988,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 118, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 115, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 118, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 115, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -9007,7 +9010,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":119
+  /* "ratroyale/backend/hexagon.pyx":116
  * 
  *     cpdef OddRCoord to_odd_r(self):
  *         cdef int parity = self.r & 1             # <<<<<<<<<<<<<<
@@ -9016,7 +9019,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
 */
   __pyx_v_parity = (__pyx_v_self->r & 1);
 
-  /* "ratroyale/backend/hexagon.pyx":120
+  /* "ratroyale/backend/hexagon.pyx":117
  *     cpdef OddRCoord to_odd_r(self):
  *         cdef int parity = self.r & 1
  *         cdef int col = self.q + (self.r - parity) // 2             # <<<<<<<<<<<<<<
@@ -9025,7 +9028,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
 */
   __pyx_v_col = (__pyx_v_self->q + __Pyx_div_long((__pyx_v_self->r - __pyx_v_parity), 2, 1));
 
-  /* "ratroyale/backend/hexagon.pyx":121
+  /* "ratroyale/backend/hexagon.pyx":118
  *         cdef int parity = self.r & 1
  *         cdef int col = self.q + (self.r - parity) // 2
  *         cdef int row = self.r             # <<<<<<<<<<<<<<
@@ -9035,7 +9038,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
   __pyx_t_6 = __pyx_v_self->r;
   __pyx_v_row = __pyx_t_6;
 
-  /* "ratroyale/backend/hexagon.pyx":122
+  /* "ratroyale/backend/hexagon.pyx":119
  *         cdef int col = self.q + (self.r - parity) // 2
  *         cdef int row = self.r
  *         return OddRCoord(col, row)             # <<<<<<<<<<<<<<
@@ -9046,9 +9049,9 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
   __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord); 
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_col); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_col); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 119, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyLong_From_int(__pyx_v_row); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyLong_From_int(__pyx_v_row); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 119, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_5 = 1;
   {
@@ -9058,14 +9061,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 119, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":118
+  /* "ratroyale/backend/hexagon.pyx":115
  * 
  * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
@@ -9139,7 +9142,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_8to_odd_r(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("to_odd_r", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_odd_r(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_odd_r(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9156,7 +9159,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_8to_odd_r(s
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":124
+/* "ratroyale/backend/hexagon.pyx":121
  *         return OddRCoord(col, row)
  * 
  *     def __add__(self, _AxialCoord other):             # <<<<<<<<<<<<<<
@@ -9175,7 +9178,7 @@ static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_11__add__(P
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__add__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, 1, "other", 0))) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, 1, "other", 0))) __PYX_ERR(0, 121, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_10__add__(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_v_self), ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_v_other));
 
   /* function exit code */
@@ -9203,7 +9206,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_10__add__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__add__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":125
+  /* "ratroyale/backend/hexagon.pyx":122
  * 
  *     def __add__(self, _AxialCoord other):
  *         return _AxialCoord(self.q + other.q, self.r + other.r)             # <<<<<<<<<<<<<<
@@ -9214,9 +9217,9 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_10__add__(s
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord);
   __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord); 
-  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->q + __pyx_v_other->q)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->q + __pyx_v_other->q)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->r + __pyx_v_other->r)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->r + __pyx_v_other->r)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_6 = 1;
   {
@@ -9226,14 +9229,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_10__add__(s
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 125, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((PyObject *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":124
+  /* "ratroyale/backend/hexagon.pyx":121
  *         return OddRCoord(col, row)
  * 
  *     def __add__(self, _AxialCoord other):             # <<<<<<<<<<<<<<
@@ -9256,7 +9259,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_10__add__(s
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":127
+/* "ratroyale/backend/hexagon.pyx":124
  *         return _AxialCoord(self.q + other.q, self.r + other.r)
  * 
  *     def __sub__(self, _AxialCoord other):             # <<<<<<<<<<<<<<
@@ -9275,7 +9278,7 @@ static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_13__sub__(P
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__sub__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, 1, "other", 0))) __PYX_ERR(0, 127, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, 1, "other", 0))) __PYX_ERR(0, 124, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_12__sub__(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_v_self), ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_v_other));
 
   /* function exit code */
@@ -9303,7 +9306,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_12__sub__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__sub__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":128
+  /* "ratroyale/backend/hexagon.pyx":125
  * 
  *     def __sub__(self, _AxialCoord other):
  *         return _AxialCoord(self.q - other.q, self.r - other.r)             # <<<<<<<<<<<<<<
@@ -9314,9 +9317,9 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_12__sub__(s
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord);
   __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord); 
-  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->q - __pyx_v_other->q)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->q - __pyx_v_other->q)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->r - __pyx_v_other->r)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->r - __pyx_v_other->r)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_6 = 1;
   {
@@ -9326,14 +9329,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_12__sub__(s
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 128, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 125, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((PyObject *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":127
+  /* "ratroyale/backend/hexagon.pyx":124
  *         return _AxialCoord(self.q + other.q, self.r + other.r)
  * 
  *     def __sub__(self, _AxialCoord other):             # <<<<<<<<<<<<<<
@@ -9357,7 +9360,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_12__sub__(s
 }
 static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "ratroyale/backend/hexagon.pyx":131
+/* "ratroyale/backend/hexagon.pyx":128
  * 
  * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
@@ -9404,32 +9407,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_N,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 131, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 128, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 131, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 128, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "all_in_range", 0) < (0)) __PYX_ERR(0, 131, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "all_in_range", 0) < (0)) __PYX_ERR(0, 128, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("all_in_range", 1, 1, 1, i); __PYX_ERR(0, 131, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("all_in_range", 1, 1, 1, i); __PYX_ERR(0, 128, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 131, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 128, __pyx_L3_error)
     }
-    __pyx_v_N = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 131, __pyx_L3_error)
+    __pyx_v_N = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 128, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("all_in_range", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 131, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("all_in_range", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 128, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9462,7 +9465,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_14all_in_ra
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 131, __pyx_L1_error)
+    __PYX_ERR(0, 128, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -9471,7 +9474,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_14all_in_ra
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __pyx_cur_scope->__pyx_v_N = __pyx_v_N;
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator1, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_all_in_range, __pyx_mstate_global->__pyx_n_u_AxialCoord_all_in_range, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon); if (unlikely(!gen)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator1, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_all_in_range, __pyx_mstate_global->__pyx_n_u_AxialCoord_all_in_range, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon); if (unlikely(!gen)) __PYX_ERR(0, 128, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -9521,10 +9524,10 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started generator");
-    __PYX_ERR(0, 131, __pyx_L1_error)
+    __PYX_ERR(0, 128, __pyx_L1_error)
   }
 
-  /* "ratroyale/backend/hexagon.pyx":135
+  /* "ratroyale/backend/hexagon.pyx":132
  *         cdef _AxialCoord offset_coord
  * 
  *         for q in range(-N, N + 1):             # <<<<<<<<<<<<<<
@@ -9536,7 +9539,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
   for (__pyx_t_3 = (-__pyx_cur_scope->__pyx_v_N); __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_cur_scope->__pyx_v_q = __pyx_t_3;
 
-    /* "ratroyale/backend/hexagon.pyx":136
+    /* "ratroyale/backend/hexagon.pyx":133
  * 
  *         for q in range(-N, N + 1):
  *             for r in range(max(-N, -q - N), min(N, -q + N) + 1):             # <<<<<<<<<<<<<<
@@ -9564,7 +9567,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
     for (__pyx_t_6 = __pyx_t_5; __pyx_t_6 < __pyx_t_9; __pyx_t_6+=1) {
       __pyx_cur_scope->__pyx_v_r = __pyx_t_6;
 
-      /* "ratroyale/backend/hexagon.pyx":137
+      /* "ratroyale/backend/hexagon.pyx":134
  *         for q in range(-N, N + 1):
  *             for r in range(max(-N, -q - N), min(N, -q + N) + 1):
  *                 offset_coord = self + _AxialCoord(q, r)             # <<<<<<<<<<<<<<
@@ -9574,9 +9577,9 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
       __pyx_t_11 = NULL;
       __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord);
       __pyx_t_12 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord); 
-      __pyx_t_13 = __Pyx_PyLong_From_int(__pyx_cur_scope->__pyx_v_q); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 137, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_PyLong_From_int(__pyx_cur_scope->__pyx_v_q); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 134, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_14 = __Pyx_PyLong_From_int(__pyx_cur_scope->__pyx_v_r); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 137, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyLong_From_int(__pyx_cur_scope->__pyx_v_r); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 134, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_14);
       __pyx_t_15 = 1;
       {
@@ -9586,26 +9589,26 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
         __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 137, __pyx_L1_error)
+        if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 134, __pyx_L1_error)
         __Pyx_GOTREF((PyObject *)__pyx_t_10);
       }
-      __pyx_t_12 = PyNumber_Add(((PyObject *)__pyx_cur_scope->__pyx_v_self), ((PyObject *)__pyx_t_10)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 137, __pyx_L1_error)
+      __pyx_t_12 = PyNumber_Add(((PyObject *)__pyx_cur_scope->__pyx_v_self), ((PyObject *)__pyx_t_10)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 134, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF((PyObject *)__pyx_t_10); __pyx_t_10 = 0;
-      if (!(likely(((__pyx_t_12) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_12, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 137, __pyx_L1_error)
+      if (!(likely(((__pyx_t_12) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_12, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 134, __pyx_L1_error)
       __Pyx_XGOTREF((PyObject *)__pyx_cur_scope->__pyx_v_offset_coord);
       __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_offset_coord, ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_12));
       __Pyx_GIVEREF(__pyx_t_12);
       __pyx_t_12 = 0;
 
-      /* "ratroyale/backend/hexagon.pyx":138
+      /* "ratroyale/backend/hexagon.pyx":135
  *             for r in range(max(-N, -q - N), min(N, -q + N) + 1):
  *                 offset_coord = self + _AxialCoord(q, r)
  *                 yield offset_coord.to_odd_r()             # <<<<<<<<<<<<<<
  * 
- * 
+ *     @staticmethod
 */
-      __pyx_t_12 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_cur_scope->__pyx_v_offset_coord->__pyx_vtab)->to_odd_r(__pyx_cur_scope->__pyx_v_offset_coord, 0)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 138, __pyx_L1_error)
+      __pyx_t_12 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_cur_scope->__pyx_v_offset_coord->__pyx_vtab)->to_odd_r(__pyx_cur_scope->__pyx_v_offset_coord, 0)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 135, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
       __pyx_r = __pyx_t_12;
       __pyx_t_12 = 0;
@@ -9630,12 +9633,12 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
       __pyx_t_6 = __pyx_cur_scope->__pyx_t_4;
       __pyx_t_8 = __pyx_cur_scope->__pyx_t_5;
       __pyx_t_9 = __pyx_cur_scope->__pyx_t_6;
-      if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 138, __pyx_L1_error)
+      if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 135, __pyx_L1_error)
     }
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "ratroyale/backend/hexagon.pyx":131
+  /* "ratroyale/backend/hexagon.pyx":128
  * 
  * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
@@ -9667,233 +9670,16 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_11_AxialCoord_16generator
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":141
+/* "ratroyale/backend/hexagon.pyx":137
+ *                 yield offset_coord.to_odd_r()
  * 
- * 
- *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
+ *     @staticmethod             # <<<<<<<<<<<<<<
+ *     def from_pixel(double x, double y, double hex_size):
  *         cdef double _x = x / hex_size
- *         cdef double _y = y / hex_size
 */
-
-static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel(PyObject *__pyx_v_cls, 
-#if CYTHON_METH_FASTCALL
-PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
-#else
-PyObject *__pyx_args, PyObject *__pyx_kwds
-#endif
-); /*proto*/
-static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_from_pixel(CYTHON_UNUSED struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_cls, double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size, int __pyx_skip_dispatch) {
-  double __pyx_v__x;
-  double __pyx_v__y;
-  double __pyx_v_q;
-  double __pyx_v_r;
-  struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  PyObject *__pyx_t_7 = NULL;
-  size_t __pyx_t_8;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("from_pixel", 0);
-  /* Check if called by wrapper */
-  if (unlikely(__pyx_skip_dispatch)) ;
-  /* Check if overridden in Python */
-  else if (
-  #if !CYTHON_USE_TYPE_SLOTS
-  unlikely(Py_TYPE(((PyObject *)__pyx_v_cls)) != __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord &&
-  __Pyx_PyType_HasFeature(Py_TYPE(((PyObject *)__pyx_v_cls)), Py_TPFLAGS_HAVE_GC))
-  #else
-  unlikely(Py_TYPE(((PyObject *)__pyx_v_cls))->tp_dictoffset != 0 || __Pyx_PyType_HasFeature(Py_TYPE(((PyObject *)__pyx_v_cls)), (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))
-  #endif
-  ) {
-    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
-    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_cls), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
-      PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_cls));
-      #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_cls), __pyx_mstate_global->__pyx_n_u_from_pixel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel)) {
-        __Pyx_XDECREF((PyObject *)__pyx_r);
-        __pyx_t_3 = NULL;
-        __Pyx_INCREF(__pyx_t_1);
-        __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 141, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 141, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = PyFloat_FromDouble(__pyx_v_hex_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 141, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_7);
-        __pyx_t_8 = 1;
-        #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_4))) {
-          __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
-          assert(__pyx_t_3);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
-          __Pyx_INCREF(__pyx_t_3);
-          __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
-          __pyx_t_8 = 0;
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[4] = {__pyx_t_3, __pyx_t_5, __pyx_t_6, __pyx_t_7};
-          __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_8, (4-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
-        }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 141, __pyx_L1_error)
-        __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_2);
-        __pyx_t_2 = 0;
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        goto __pyx_L0;
-      }
-      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_cls));
-      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_cls));
-      if (unlikely(__pyx_typedict_guard != __pyx_tp_dict_version)) {
-        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
-      }
-      #endif
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-    }
-    #endif
-  }
-
-  /* "ratroyale/backend/hexagon.pyx":142
- * 
- *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):
- *         cdef double _x = x / hex_size             # <<<<<<<<<<<<<<
- *         cdef double _y = y / hex_size
- *         cdef double q, r
-*/
-  if (unlikely(__pyx_v_hex_size == 0)) {
-    PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 142, __pyx_L1_error)
-  }
-  __pyx_v__x = (__pyx_v_x / __pyx_v_hex_size);
-
-  /* "ratroyale/backend/hexagon.pyx":143
- *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):
- *         cdef double _x = x / hex_size
- *         cdef double _y = y / hex_size             # <<<<<<<<<<<<<<
- *         cdef double q, r
- * 
-*/
-  if (unlikely(__pyx_v_hex_size == 0)) {
-    PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 143, __pyx_L1_error)
-  }
-  __pyx_v__y = (__pyx_v_y / __pyx_v_hex_size);
-
-  /* "ratroyale/backend/hexagon.pyx":146
- *         cdef double q, r
- * 
- *         _x -= 1.0             # <<<<<<<<<<<<<<
- *         _y -= sqrt(3.0) / 2.0
- * 
-*/
-  __pyx_v__x = (__pyx_v__x - 1.0);
-
-  /* "ratroyale/backend/hexagon.pyx":147
- * 
- *         _x -= 1.0
- *         _y -= sqrt(3.0) / 2.0             # <<<<<<<<<<<<<<
- * 
- *         q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y
-*/
-  __pyx_v__y = (__pyx_v__y - (sqrt(3.0) / 2.0));
-
-  /* "ratroyale/backend/hexagon.pyx":149
- *         _y -= sqrt(3.0) / 2.0
- * 
- *         q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y             # <<<<<<<<<<<<<<
- *         r = 2.0 / 3.0 * _y
- *         return _AxialCoordFloat(q, r).round()
-*/
-  __pyx_v_q = (((sqrt(3.0) / 3.0) * __pyx_v__x) - ((1.0 / 3.0) * __pyx_v__y));
-
-  /* "ratroyale/backend/hexagon.pyx":150
- * 
- *         q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y
- *         r = 2.0 / 3.0 * _y             # <<<<<<<<<<<<<<
- *         return _AxialCoordFloat(q, r).round()
- * 
-*/
-  __pyx_v_r = ((2.0 / 3.0) * __pyx_v__y);
-
-  /* "ratroyale/backend/hexagon.pyx":151
- *         q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y
- *         r = 2.0 / 3.0 * _y
- *         return _AxialCoordFloat(q, r).round()             # <<<<<<<<<<<<<<
- * 
- * 
-*/
-  __Pyx_XDECREF((PyObject *)__pyx_r);
-  __pyx_t_2 = NULL;
-  __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat);
-  __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat); 
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_q); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 151, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 151, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_8 = 1;
-  {
-    PyObject *__pyx_callargs[3] = {__pyx_t_2, __pyx_t_7, __pyx_t_6};
-    __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_8, (3-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 151, __pyx_L1_error)
-    __Pyx_GOTREF((PyObject *)__pyx_t_1);
-  }
-  __pyx_t_4 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoordFloat *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat *)__pyx_t_1)->__pyx_vtab)->round(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 151, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF((PyObject *)__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_4);
-  __pyx_t_4 = 0;
-  goto __pyx_L0;
-
-  /* "ratroyale/backend/hexagon.pyx":141
- * 
- * 
- *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
- *         cdef double _x = x / hex_size
- *         cdef double _y = y / hex_size
-*/
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("ratroyale.backend.hexagon._AxialCoord.from_pixel", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  __pyx_L0:;
-  __Pyx_XGIVEREF((PyObject *)__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel(PyObject *__pyx_v_cls, 
+static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel(CYTHON_UNUSED PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9901,7 +9687,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel = {"from_pixel", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel(PyObject *__pyx_v_cls, 
+static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel(CYTHON_UNUSED PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9933,46 +9719,46 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_x,&__pyx_mstate_global->__pyx_n_u_y,&__pyx_mstate_global->__pyx_n_u_hex_size,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 141, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 137, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 141, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 137, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 141, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 137, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 141, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 137, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "from_pixel", 0) < (0)) __PYX_ERR(0, 141, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "from_pixel", 0) < (0)) __PYX_ERR(0, 137, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("from_pixel", 1, 3, 3, i); __PYX_ERR(0, 141, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("from_pixel", 1, 3, 3, i); __PYX_ERR(0, 137, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 141, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 137, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 141, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 137, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 141, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 137, __pyx_L3_error)
     }
-    __pyx_v_x = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 141, __pyx_L3_error)
-    __pyx_v_y = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 141, __pyx_L3_error)
-    __pyx_v_hex_size = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_hex_size == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 141, __pyx_L3_error)
+    __pyx_v_x = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 138, __pyx_L3_error)
+    __pyx_v_y = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 138, __pyx_L3_error)
+    __pyx_v_hex_size = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_hex_size == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 138, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("from_pixel", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 141, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("from_pixel", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 137, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9983,7 +9769,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_17from_pixel(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_v_cls), __pyx_v_x, __pyx_v_y, __pyx_v_hex_size);
+  __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_17from_pixel(__pyx_v_x, __pyx_v_y, __pyx_v_hex_size);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -9993,24 +9779,134 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_17from_pixel(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_v_cls, double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size) {
+static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_17from_pixel(double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size) {
+  double __pyx_v__x;
+  double __pyx_v__y;
+  double __pyx_v_q;
+  double __pyx_v_r;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  size_t __pyx_t_6;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("from_pixel", 0);
+
+  /* "ratroyale/backend/hexagon.pyx":139
+ *     @staticmethod
+ *     def from_pixel(double x, double y, double hex_size):
+ *         cdef double _x = x / hex_size             # <<<<<<<<<<<<<<
+ *         cdef double _y = y / hex_size
+ *         cdef double q, r
+*/
+  if (unlikely(__pyx_v_hex_size == 0)) {
+    PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+    __PYX_ERR(0, 139, __pyx_L1_error)
+  }
+  __pyx_v__x = (__pyx_v_x / __pyx_v_hex_size);
+
+  /* "ratroyale/backend/hexagon.pyx":140
+ *     def from_pixel(double x, double y, double hex_size):
+ *         cdef double _x = x / hex_size
+ *         cdef double _y = y / hex_size             # <<<<<<<<<<<<<<
+ *         cdef double q, r
+ * 
+*/
+  if (unlikely(__pyx_v_hex_size == 0)) {
+    PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+    __PYX_ERR(0, 140, __pyx_L1_error)
+  }
+  __pyx_v__y = (__pyx_v_y / __pyx_v_hex_size);
+
+  /* "ratroyale/backend/hexagon.pyx":143
+ *         cdef double q, r
+ * 
+ *         _x -= 1.0             # <<<<<<<<<<<<<<
+ *         _y -= sqrt(3.0) / 2.0
+ * 
+*/
+  __pyx_v__x = (__pyx_v__x - 1.0);
+
+  /* "ratroyale/backend/hexagon.pyx":144
+ * 
+ *         _x -= 1.0
+ *         _y -= sqrt(3.0) / 2.0             # <<<<<<<<<<<<<<
+ * 
+ *         q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y
+*/
+  __pyx_v__y = (__pyx_v__y - (sqrt(3.0) / 2.0));
+
+  /* "ratroyale/backend/hexagon.pyx":146
+ *         _y -= sqrt(3.0) / 2.0
+ * 
+ *         q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y             # <<<<<<<<<<<<<<
+ *         r = 2.0 / 3.0 * _y
+ *         return _AxialCoordFloat(q, r).round()
+*/
+  __pyx_v_q = (((sqrt(3.0) / 3.0) * __pyx_v__x) - ((1.0 / 3.0) * __pyx_v__y));
+
+  /* "ratroyale/backend/hexagon.pyx":147
+ * 
+ *         q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y
+ *         r = 2.0 / 3.0 * _y             # <<<<<<<<<<<<<<
+ *         return _AxialCoordFloat(q, r).round()
+ * 
+*/
+  __pyx_v_r = ((2.0 / 3.0) * __pyx_v__y);
+
+  /* "ratroyale/backend/hexagon.pyx":148
+ *         q = sqrt(3.0) / 3.0 * _x - 1.0 / 3.0 * _y
+ *         r = 2.0 / 3.0 * _y
+ *         return _AxialCoordFloat(q, r).round()             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_from_pixel(__pyx_v_cls, __pyx_v_x, __pyx_v_y, __pyx_v_hex_size, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
+  __pyx_t_2 = NULL;
+  __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat);
+  __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat); 
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_q); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_r); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = 1;
+  {
+    PyObject *__pyx_callargs[3] = {__pyx_t_2, __pyx_t_4, __pyx_t_5};
+    __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+__pyx_t_6, (3-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
+    __Pyx_GOTREF((PyObject *)__pyx_t_1);
+  }
+  __pyx_t_3 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoordFloat *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat *)__pyx_t_1)->__pyx_vtab)->round(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF((PyObject *)__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_r = __pyx_t_3;
+  __pyx_t_3 = 0;
   goto __pyx_L0;
+
+  /* "ratroyale/backend/hexagon.pyx":137
+ *                 yield offset_coord.to_odd_r()
+ * 
+ *     @staticmethod             # <<<<<<<<<<<<<<
+ *     def from_pixel(double x, double y, double hex_size):
+ *         cdef double _x = x / hex_size
+*/
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
   __Pyx_AddTraceback("ratroyale.backend.hexagon._AxialCoord.from_pixel", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -10019,12 +9915,12 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_17from_pixe
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":100
+/* "ratroyale/backend/hexagon.pxd":21
  * 
  * cdef class _AxialCoord:
  *     cdef public int q, r             # <<<<<<<<<<<<<<
- * 
- *     def __init__(self, int q, int r):
+ *     cpdef _CubeCoord to_cube(self)
+ *     cpdef OddRCoord to_odd_r(self)
 */
 
 /* Python wrapper */
@@ -10051,7 +9947,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_1q___get__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10089,7 +9985,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_1q_2__set__(struc
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 21, __pyx_L1_error)
   __pyx_v_self->q = __pyx_t_1;
 
   /* function exit code */
@@ -10126,7 +10022,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_1r___get__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->r); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10164,7 +10060,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_1r_2__set__(struc
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 21, __pyx_L1_error)
   __pyx_v_self->r = __pyx_t_1;
 
   /* function exit code */
@@ -10574,8 +10470,8 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_11_AxialCoord_21__setstat
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":157
- *     cdef public double q, r, s
+/* "ratroyale/backend/hexagon.pyx":153
+ * cdef class _CubeCoordFloat:
  * 
  *     def __init__(self, double q, double r, double s):             # <<<<<<<<<<<<<<
  *         self.q = q
@@ -10606,46 +10502,46 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1__init__(PyO
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_q,&__pyx_mstate_global->__pyx_n_u_r,&__pyx_mstate_global->__pyx_n_u_s,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 157, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 153, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_VARARGS(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 157, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 153, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 157, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 153, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 157, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 153, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 157, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 153, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, i); __PYX_ERR(0, 157, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, i); __PYX_ERR(0, 153, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 157, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 153, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 157, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 153, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_VARARGS(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 157, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 153, __pyx_L3_error)
     }
-    __pyx_v_q = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_q == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L3_error)
-    __pyx_v_r = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_r == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L3_error)
-    __pyx_v_s = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_s == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L3_error)
+    __pyx_v_q = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_q == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L3_error)
+    __pyx_v_r = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_r == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L3_error)
+    __pyx_v_s = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_s == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 157, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 153, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -10669,7 +10565,7 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1__init__(PyO
 static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat___init__(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_v_self, double __pyx_v_q, double __pyx_v_r, double __pyx_v_s) {
   int __pyx_r;
 
-  /* "ratroyale/backend/hexagon.pyx":158
+  /* "ratroyale/backend/hexagon.pyx":154
  * 
  *     def __init__(self, double q, double r, double s):
  *         self.q = q             # <<<<<<<<<<<<<<
@@ -10678,7 +10574,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat___init__(stru
 */
   __pyx_v_self->q = __pyx_v_q;
 
-  /* "ratroyale/backend/hexagon.pyx":159
+  /* "ratroyale/backend/hexagon.pyx":155
  *     def __init__(self, double q, double r, double s):
  *         self.q = q
  *         self.r = r             # <<<<<<<<<<<<<<
@@ -10687,7 +10583,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat___init__(stru
 */
   __pyx_v_self->r = __pyx_v_r;
 
-  /* "ratroyale/backend/hexagon.pyx":160
+  /* "ratroyale/backend/hexagon.pyx":156
  *         self.q = q
  *         self.r = r
  *         self.s = s             # <<<<<<<<<<<<<<
@@ -10696,8 +10592,8 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat___init__(stru
 */
   __pyx_v_self->s = __pyx_v_s;
 
-  /* "ratroyale/backend/hexagon.pyx":157
- *     cdef public double q, r, s
+  /* "ratroyale/backend/hexagon.pyx":153
+ * cdef class _CubeCoordFloat:
  * 
  *     def __init__(self, double q, double r, double s):             # <<<<<<<<<<<<<<
  *         self.q = q
@@ -10709,7 +10605,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat___init__(stru
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":163
+/* "ratroyale/backend/hexagon.pyx":159
  * 
  * 
  *     cpdef _CubeCoord round(self):             # <<<<<<<<<<<<<<
@@ -10763,7 +10659,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_round); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_round); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_3round)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -10787,10 +10683,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 163, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord))))) __PYX_ERR(0, 163, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord))))) __PYX_ERR(0, 159, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -10809,7 +10705,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":164
+  /* "ratroyale/backend/hexagon.pyx":160
  * 
  *     cpdef _CubeCoord round(self):
  *         cdef int round_q = <int>round(self.q)             # <<<<<<<<<<<<<<
@@ -10819,7 +10715,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   __pyx_t_2 = NULL;
   __Pyx_INCREF(__pyx_builtin_round);
   __pyx_t_4 = __pyx_builtin_round; 
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = 1;
   {
@@ -10828,14 +10724,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 164, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 164, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_round_q = ((int)__pyx_t_6);
 
-  /* "ratroyale/backend/hexagon.pyx":165
+  /* "ratroyale/backend/hexagon.pyx":161
  *     cpdef _CubeCoord round(self):
  *         cdef int round_q = <int>round(self.q)
  *         cdef int round_r = <int>round(self.r)             # <<<<<<<<<<<<<<
@@ -10845,7 +10741,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   __pyx_t_4 = NULL;
   __Pyx_INCREF(__pyx_builtin_round);
   __pyx_t_3 = __pyx_builtin_round; 
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 165, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = 1;
   {
@@ -10854,14 +10750,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 165, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 161, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 165, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_round_r = ((int)__pyx_t_6);
 
-  /* "ratroyale/backend/hexagon.pyx":166
+  /* "ratroyale/backend/hexagon.pyx":162
  *         cdef int round_q = <int>round(self.q)
  *         cdef int round_r = <int>round(self.r)
  *         cdef int round_s = <int>round(self.s)             # <<<<<<<<<<<<<<
@@ -10871,7 +10767,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   __pyx_t_3 = NULL;
   __Pyx_INCREF(__pyx_builtin_round);
   __pyx_t_2 = __pyx_builtin_round; 
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 166, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 162, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = 1;
   {
@@ -10880,14 +10776,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 166, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 162, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 166, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 162, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_round_s = ((int)__pyx_t_6);
 
-  /* "ratroyale/backend/hexagon.pyx":169
+  /* "ratroyale/backend/hexagon.pyx":165
  *         cdef double q_diff, r_diff, s_diff
  * 
  *         q_diff = c_abs(round_q - self.q)             # <<<<<<<<<<<<<<
@@ -10896,7 +10792,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
 */
   __pyx_v_q_diff = fabs((__pyx_v_round_q - __pyx_v_self->q));
 
-  /* "ratroyale/backend/hexagon.pyx":170
+  /* "ratroyale/backend/hexagon.pyx":166
  * 
  *         q_diff = c_abs(round_q - self.q)
  *         r_diff = c_abs(round_r - self.r)             # <<<<<<<<<<<<<<
@@ -10905,7 +10801,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
 */
   __pyx_v_r_diff = fabs((__pyx_v_round_r - __pyx_v_self->r));
 
-  /* "ratroyale/backend/hexagon.pyx":171
+  /* "ratroyale/backend/hexagon.pyx":167
  *         q_diff = c_abs(round_q - self.q)
  *         r_diff = c_abs(round_r - self.r)
  *         s_diff = c_abs(round_s - self.s)             # <<<<<<<<<<<<<<
@@ -10914,7 +10810,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
 */
   __pyx_v_s_diff = fabs((__pyx_v_round_s - __pyx_v_self->s));
 
-  /* "ratroyale/backend/hexagon.pyx":173
+  /* "ratroyale/backend/hexagon.pyx":169
  *         s_diff = c_abs(round_s - self.s)
  * 
  *         if q_diff > r_diff and q_diff > s_diff:             # <<<<<<<<<<<<<<
@@ -10932,7 +10828,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_7) {
 
-    /* "ratroyale/backend/hexagon.pyx":174
+    /* "ratroyale/backend/hexagon.pyx":170
  * 
  *         if q_diff > r_diff and q_diff > s_diff:
  *             round_q = -round_r - round_s             # <<<<<<<<<<<<<<
@@ -10941,7 +10837,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
 */
     __pyx_v_round_q = ((-__pyx_v_round_r) - __pyx_v_round_s);
 
-    /* "ratroyale/backend/hexagon.pyx":173
+    /* "ratroyale/backend/hexagon.pyx":169
  *         s_diff = c_abs(round_s - self.s)
  * 
  *         if q_diff > r_diff and q_diff > s_diff:             # <<<<<<<<<<<<<<
@@ -10951,7 +10847,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     goto __pyx_L3;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":175
+  /* "ratroyale/backend/hexagon.pyx":171
  *         if q_diff > r_diff and q_diff > s_diff:
  *             round_q = -round_r - round_s
  *         elif r_diff > s_diff:             # <<<<<<<<<<<<<<
@@ -10961,7 +10857,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   __pyx_t_7 = (__pyx_v_r_diff > __pyx_v_s_diff);
   if (__pyx_t_7) {
 
-    /* "ratroyale/backend/hexagon.pyx":176
+    /* "ratroyale/backend/hexagon.pyx":172
  *             round_q = -round_r - round_s
  *         elif r_diff > s_diff:
  *             round_r = -round_q - round_s             # <<<<<<<<<<<<<<
@@ -10970,7 +10866,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
 */
     __pyx_v_round_r = ((-__pyx_v_round_q) - __pyx_v_round_s);
 
-    /* "ratroyale/backend/hexagon.pyx":175
+    /* "ratroyale/backend/hexagon.pyx":171
  *         if q_diff > r_diff and q_diff > s_diff:
  *             round_q = -round_r - round_s
  *         elif r_diff > s_diff:             # <<<<<<<<<<<<<<
@@ -10980,7 +10876,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     goto __pyx_L3;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":178
+  /* "ratroyale/backend/hexagon.pyx":174
  *             round_r = -round_q - round_s
  *         else:
  *             round_s = -round_q - round_r             # <<<<<<<<<<<<<<
@@ -10992,7 +10888,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   }
   __pyx_L3:;
 
-  /* "ratroyale/backend/hexagon.pyx":180
+  /* "ratroyale/backend/hexagon.pyx":176
  *             round_s = -round_q - round_r
  * 
  *         return _CubeCoord(round_q, round_r, round_s)             # <<<<<<<<<<<<<<
@@ -11003,11 +10899,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord);
   __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord); 
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_round_q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_round_q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_9 = __Pyx_PyLong_From_int(__pyx_v_round_r); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyLong_From_int(__pyx_v_round_r); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_10 = __Pyx_PyLong_From_int(__pyx_v_round_s); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyLong_From_int(__pyx_v_round_s); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __pyx_t_5 = 1;
   {
@@ -11018,14 +10914,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 176, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":163
+  /* "ratroyale/backend/hexagon.pyx":159
  * 
  * 
  *     cpdef _CubeCoord round(self):             # <<<<<<<<<<<<<<
@@ -11100,7 +10996,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_2round(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("round", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_round(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_round(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11117,7 +11013,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_2round(
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":183
+/* "ratroyale/backend/hexagon.pyx":179
  * 
  * 
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):             # <<<<<<<<<<<<<<
@@ -11162,14 +11058,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_lerp); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 183, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_lerp); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 179, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_5lerp)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_t); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 183, __pyx_L1_error)
+        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_t); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __pyx_t_6 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -11189,10 +11085,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 179, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat))))) __PYX_ERR(0, 183, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat))))) __PYX_ERR(0, 179, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -11211,7 +11107,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":184
+  /* "ratroyale/backend/hexagon.pyx":180
  * 
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):
  *         return _CubeCoordFloat(             # <<<<<<<<<<<<<<
@@ -11223,34 +11119,34 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat);
   __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat); 
 
-  /* "ratroyale/backend/hexagon.pyx":185
+  /* "ratroyale/backend/hexagon.pyx":181
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):
  *         return _CubeCoordFloat(
  *             lerp(self.q, other.q, t),             # <<<<<<<<<<<<<<
  *             lerp(self.r, other.r, t),
  *             lerp(self.s, other.s, t),
 */
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_f_9ratroyale_7backend_7hexagon_lerp(__pyx_v_self->q, __pyx_v_other->q, __pyx_v_t)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_f_9ratroyale_7backend_7hexagon_lerp(__pyx_v_self->q, __pyx_v_other->q, __pyx_v_t)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 181, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
 
-  /* "ratroyale/backend/hexagon.pyx":186
+  /* "ratroyale/backend/hexagon.pyx":182
  *         return _CubeCoordFloat(
  *             lerp(self.q, other.q, t),
  *             lerp(self.r, other.r, t),             # <<<<<<<<<<<<<<
  *             lerp(self.s, other.s, t),
  *         )
 */
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_f_9ratroyale_7backend_7hexagon_lerp(__pyx_v_self->r, __pyx_v_other->r, __pyx_v_t)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 186, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_f_9ratroyale_7backend_7hexagon_lerp(__pyx_v_self->r, __pyx_v_other->r, __pyx_v_t)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 182, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "ratroyale/backend/hexagon.pyx":187
+  /* "ratroyale/backend/hexagon.pyx":183
  *             lerp(self.q, other.q, t),
  *             lerp(self.r, other.r, t),
  *             lerp(self.s, other.s, t),             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_f_9ratroyale_7backend_7hexagon_lerp(__pyx_v_self->s, __pyx_v_other->s, __pyx_v_t)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 187, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_f_9ratroyale_7backend_7hexagon_lerp(__pyx_v_self->s, __pyx_v_other->s, __pyx_v_t)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 183, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_6 = 1;
   {
@@ -11261,14 +11157,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":183
+  /* "ratroyale/backend/hexagon.pyx":179
  * 
  * 
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):             # <<<<<<<<<<<<<<
@@ -11332,39 +11228,39 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_other,&__pyx_mstate_global->__pyx_n_u_t,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 183, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 179, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 183, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 179, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 183, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 179, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "lerp", 0) < (0)) __PYX_ERR(0, 183, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "lerp", 0) < (0)) __PYX_ERR(0, 179, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("lerp", 1, 2, 2, i); __PYX_ERR(0, 183, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("lerp", 1, 2, 2, i); __PYX_ERR(0, 179, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 183, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 179, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 183, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 179, __pyx_L3_error)
     }
     __pyx_v_other = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)values[0]);
-    __pyx_v_t = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_t == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L3_error)
+    __pyx_v_t = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_t == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 179, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lerp", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 183, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lerp", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 179, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -11375,7 +11271,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, 1, "other", 0))) __PYX_ERR(0, 183, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, 1, "other", 0))) __PYX_ERR(0, 179, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_4lerp(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_v_self), __pyx_v_other, __pyx_v_t);
 
   /* function exit code */
@@ -11404,7 +11300,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_4lerp(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("lerp", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_lerp(__pyx_v_self, __pyx_v_other, __pyx_v_t, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_lerp(__pyx_v_self, __pyx_v_other, __pyx_v_t, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 179, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11421,12 +11317,12 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_4lerp(s
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":155
+/* "ratroyale/backend/hexagon.pxd":7
  * 
  * cdef class _CubeCoordFloat:
  *     cdef public double q, r, s             # <<<<<<<<<<<<<<
- * 
- *     def __init__(self, double q, double r, double s):
+ *     cpdef _CubeCoord round(self)
+ *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t)
 */
 
 /* Python wrapper */
@@ -11453,7 +11349,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1q___ge
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11491,7 +11387,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1q_2__set__(s
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(2, 7, __pyx_L1_error)
   __pyx_v_self->q = __pyx_t_1;
 
   /* function exit code */
@@ -11528,7 +11424,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1r___ge
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11566,7 +11462,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1r_2__set__(s
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(2, 7, __pyx_L1_error)
   __pyx_v_self->r = __pyx_t_1;
 
   /* function exit code */
@@ -11603,7 +11499,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1s___ge
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->s); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11641,7 +11537,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1s_2__set__(s
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(2, 7, __pyx_L1_error)
   __pyx_v_self->s = __pyx_t_1;
 
   /* function exit code */
@@ -12058,7 +11954,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_8__sets
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":193
+/* "ratroyale/backend/hexagon.pyx":189
  *     cdef public double q, r
  * 
  *     def __init__(self, double q, double r):             # <<<<<<<<<<<<<<
@@ -12089,39 +11985,39 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_1__init__(Py
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_q,&__pyx_mstate_global->__pyx_n_u_r,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 193, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 189, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 193, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 189, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 193, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 189, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 193, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 189, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 193, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 189, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 193, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 189, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 193, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 189, __pyx_L3_error)
     }
-    __pyx_v_q = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_q == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 193, __pyx_L3_error)
-    __pyx_v_r = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_r == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 193, __pyx_L3_error)
+    __pyx_v_q = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_q == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 189, __pyx_L3_error)
+    __pyx_v_r = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_r == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 189, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 193, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 189, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -12145,7 +12041,7 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_1__init__(Py
 static int __pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat___init__(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat *__pyx_v_self, double __pyx_v_q, double __pyx_v_r) {
   int __pyx_r;
 
-  /* "ratroyale/backend/hexagon.pyx":194
+  /* "ratroyale/backend/hexagon.pyx":190
  * 
  *     def __init__(self, double q, double r):
  *         self.q = q             # <<<<<<<<<<<<<<
@@ -12154,7 +12050,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat___init__(str
 */
   __pyx_v_self->q = __pyx_v_q;
 
-  /* "ratroyale/backend/hexagon.pyx":195
+  /* "ratroyale/backend/hexagon.pyx":191
  *     def __init__(self, double q, double r):
  *         self.q = q
  *         self.r = r             # <<<<<<<<<<<<<<
@@ -12163,7 +12059,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat___init__(str
 */
   __pyx_v_self->r = __pyx_v_r;
 
-  /* "ratroyale/backend/hexagon.pyx":193
+  /* "ratroyale/backend/hexagon.pyx":189
  *     cdef public double q, r
  * 
  *     def __init__(self, double q, double r):             # <<<<<<<<<<<<<<
@@ -12176,7 +12072,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat___init__(str
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":198
+/* "ratroyale/backend/hexagon.pyx":194
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(self):             # <<<<<<<<<<<<<<
@@ -12221,7 +12117,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_cube_float); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_cube_float); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_3to_cube_float)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -12245,10 +12141,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat))))) __PYX_ERR(0, 198, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat))))) __PYX_ERR(0, 194, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -12267,7 +12163,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":199
+  /* "ratroyale/backend/hexagon.pyx":195
  * 
  *     cpdef _CubeCoordFloat to_cube_float(self):
  *         return _CubeCoordFloat(self.q, self.r, -self.q - self.r)             # <<<<<<<<<<<<<<
@@ -12278,11 +12174,11 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat);
   __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat); 
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = PyFloat_FromDouble(((-__pyx_v_self->q) - __pyx_v_self->r)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(((-__pyx_v_self->q) - __pyx_v_self->r)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_5 = 1;
   {
@@ -12293,14 +12189,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *__pyx_f_9r
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":198
+  /* "ratroyale/backend/hexagon.pyx":194
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(self):             # <<<<<<<<<<<<<<
@@ -12375,7 +12271,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_2to_cu
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("to_cube_float", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_to_cube_float(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_to_cube_float(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12392,7 +12288,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_2to_cu
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":202
+/* "ratroyale/backend/hexagon.pyx":198
  * 
  * 
  *     cpdef _AxialCoord round(self):             # <<<<<<<<<<<<<<
@@ -12435,7 +12331,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_round); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_round); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_5round)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -12459,10 +12355,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 202, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 202, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 198, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -12481,7 +12377,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":203
+  /* "ratroyale/backend/hexagon.pyx":199
  * 
  *     cpdef _AxialCoord round(self):
  *         return self.to_cube_float().round().to_axial()             # <<<<<<<<<<<<<<
@@ -12489,19 +12385,19 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
  * cdef int[2][6][2] DIRECTION_DIFFERENCES = [
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoordFloat *)__pyx_v_self->__pyx_vtab)->to_cube_float(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoordFloat *)__pyx_v_self->__pyx_vtab)->to_cube_float(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_1)->__pyx_vtab)->round(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_1)->__pyx_vtab)->round(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2)->__pyx_vtab)->to_axial(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2), 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2)->__pyx_vtab)->to_axial(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2), 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":202
+  /* "ratroyale/backend/hexagon.pyx":198
  * 
  * 
  *     cpdef _AxialCoord round(self):             # <<<<<<<<<<<<<<
@@ -12574,7 +12470,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_4round
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("round", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_round(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_round(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12591,7 +12487,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_4round
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":191
+/* "ratroyale/backend/hexagon.pyx":187
  * 
  * cdef class _AxialCoordFloat:
  *     cdef public double q, r             # <<<<<<<<<<<<<<
@@ -12623,7 +12519,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_1q___g
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->q); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12661,7 +12557,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_1q_2__set__(
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 187, __pyx_L1_error)
   __pyx_v_self->q = __pyx_t_1;
 
   /* function exit code */
@@ -12698,7 +12594,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_1r___g
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->r); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12736,7 +12632,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_1r_2__set__(
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 187, __pyx_L1_error)
   __pyx_v_self->r = __pyx_t_1;
 
   /* function exit code */
@@ -13146,9 +13042,9 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_8__set
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":213
- * 
- * 
+/* "ratroyale/backend/hexagon.pyx":206
+ * ]
+ * cdef class OddRCoord:
  *     def __init__(self, int x, int y):             # <<<<<<<<<<<<<<
  *         self.x = x
  *         self.y = y
@@ -13177,39 +13073,39 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1__init__(PyObject *
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_x,&__pyx_mstate_global->__pyx_n_u_y,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 213, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 206, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 213, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 206, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 213, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 206, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 213, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 206, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 213, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 206, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 213, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 206, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 213, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 206, __pyx_L3_error)
     }
-    __pyx_v_x = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_x == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 213, __pyx_L3_error)
-    __pyx_v_y = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_y == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 213, __pyx_L3_error)
+    __pyx_v_x = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_x == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 206, __pyx_L3_error)
+    __pyx_v_y = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_y == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 206, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 213, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 206, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -13233,8 +13129,8 @@ static int __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1__init__(PyObject *
 static int __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord___init__(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_self, int __pyx_v_x, int __pyx_v_y) {
   int __pyx_r;
 
-  /* "ratroyale/backend/hexagon.pyx":214
- * 
+  /* "ratroyale/backend/hexagon.pyx":207
+ * cdef class OddRCoord:
  *     def __init__(self, int x, int y):
  *         self.x = x             # <<<<<<<<<<<<<<
  *         self.y = y
@@ -13242,7 +13138,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord___init__(struct __py
 */
   __pyx_v_self->x = __pyx_v_x;
 
-  /* "ratroyale/backend/hexagon.pyx":215
+  /* "ratroyale/backend/hexagon.pyx":208
  *     def __init__(self, int x, int y):
  *         self.x = x
  *         self.y = y             # <<<<<<<<<<<<<<
@@ -13251,9 +13147,9 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord___init__(struct __py
 */
   __pyx_v_self->y = __pyx_v_y;
 
-  /* "ratroyale/backend/hexagon.pyx":213
- * 
- * 
+  /* "ratroyale/backend/hexagon.pyx":206
+ * ]
+ * cdef class OddRCoord:
  *     def __init__(self, int x, int y):             # <<<<<<<<<<<<<<
  *         self.x = x
  *         self.y = y
@@ -13264,7 +13160,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord___init__(struct __py
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":217
+/* "ratroyale/backend/hexagon.pyx":210
  *         self.y = y
  * 
  *     def __hash__(self):             # <<<<<<<<<<<<<<
@@ -13299,31 +13195,31 @@ static Py_hash_t __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_2__hash__(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__hash__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":218
+  /* "ratroyale/backend/hexagon.pyx":211
  * 
  *     def __hash__(self):
  *         return hash((self.x, self.y))             # <<<<<<<<<<<<<<
  * 
  *     def __eq__(self, other):
 */
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_self->y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_v_self->y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 218, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 211, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 218, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 211, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_4 = PyObject_Hash(__pyx_t_3); if (unlikely(__pyx_t_4 == ((Py_hash_t)-1))) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Hash(__pyx_t_3); if (unlikely(__pyx_t_4 == ((Py_hash_t)-1))) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_4;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":217
+  /* "ratroyale/backend/hexagon.pyx":210
  *         self.y = y
  * 
  *     def __hash__(self):             # <<<<<<<<<<<<<<
@@ -13344,7 +13240,7 @@ static Py_hash_t __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_2__hash__(stru
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":220
+/* "ratroyale/backend/hexagon.pyx":213
  *         return hash((self.x, self.y))
  * 
  *     def __eq__(self, other):             # <<<<<<<<<<<<<<
@@ -13381,7 +13277,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_4__eq__(struct
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__eq__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":221
+  /* "ratroyale/backend/hexagon.pyx":214
  * 
  *     def __eq__(self, other):
  *         if not isinstance(other, OddRCoord): return False             # <<<<<<<<<<<<<<
@@ -13397,7 +13293,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_4__eq__(struct
     goto __pyx_L0;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":222
+  /* "ratroyale/backend/hexagon.pyx":215
  *     def __eq__(self, other):
  *         if not isinstance(other, OddRCoord): return False
  *         return self.x == other.x and self.y == other.y             # <<<<<<<<<<<<<<
@@ -13405,14 +13301,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_4__eq__(struct
  *     @property
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyObject_RichCompare(__pyx_t_4, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_6 = PyObject_RichCompare(__pyx_t_4, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 215, __pyx_L1_error)
   if (__pyx_t_2) {
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   } else {
@@ -13421,11 +13317,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_4__eq__(struct
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_other, __pyx_mstate_global->__pyx_n_u_y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyObject_RichCompare(__pyx_t_6, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_4 = PyObject_RichCompare(__pyx_t_6, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_INCREF(__pyx_t_4);
@@ -13436,7 +13332,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_4__eq__(struct
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":220
+  /* "ratroyale/backend/hexagon.pyx":213
  *         return hash((self.x, self.y))
  * 
  *     def __eq__(self, other):             # <<<<<<<<<<<<<<
@@ -13458,7 +13354,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_4__eq__(struct
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":224
+/* "ratroyale/backend/hexagon.pyx":217
  *         return self.x == other.x and self.y == other.y
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -13490,7 +13386,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_3row___get__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":226
+  /* "ratroyale/backend/hexagon.pyx":219
  *     @property
  *     def row(self) -> int:
  *         return self.y             # <<<<<<<<<<<<<<
@@ -13498,13 +13394,13 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_3row___get__(s
  *     @property
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 226, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":224
+  /* "ratroyale/backend/hexagon.pyx":217
  *         return self.x == other.x and self.y == other.y
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -13523,7 +13419,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_3row___get__(s
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":228
+/* "ratroyale/backend/hexagon.pyx":221
  *         return self.y
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -13555,7 +13451,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_3col___get__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":230
+  /* "ratroyale/backend/hexagon.pyx":223
  *     @property
  *     def col(self) -> int:
  *         return self.x             # <<<<<<<<<<<<<<
@@ -13563,13 +13459,13 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_3col___get__(s
  * 
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 230, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":228
+  /* "ratroyale/backend/hexagon.pyx":221
  *         return self.y
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -13588,7 +13484,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_3col___get__(s
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":233
+/* "ratroyale/backend/hexagon.pyx":226
  * 
  * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
@@ -13636,7 +13532,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_axial); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_axial); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 226, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_7to_axial)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -13660,10 +13556,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 233, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 226, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -13682,7 +13578,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":234
+  /* "ratroyale/backend/hexagon.pyx":227
  * 
  *     cpdef _AxialCoord to_axial(self):
  *         cdef int parity = self.y & 1             # <<<<<<<<<<<<<<
@@ -13691,7 +13587,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
 */
   __pyx_v_parity = (__pyx_v_self->y & 1);
 
-  /* "ratroyale/backend/hexagon.pyx":235
+  /* "ratroyale/backend/hexagon.pyx":228
  *     cpdef _AxialCoord to_axial(self):
  *         cdef int parity = self.y & 1
  *         cdef int q = self.x - (self.y - parity) // 2             # <<<<<<<<<<<<<<
@@ -13700,7 +13596,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
 */
   __pyx_v_q = (__pyx_v_self->x - __Pyx_div_long((__pyx_v_self->y - __pyx_v_parity), 2, 1));
 
-  /* "ratroyale/backend/hexagon.pyx":236
+  /* "ratroyale/backend/hexagon.pyx":229
  *         cdef int parity = self.y & 1
  *         cdef int q = self.x - (self.y - parity) // 2
  *         cdef int r = self.y             # <<<<<<<<<<<<<<
@@ -13710,7 +13606,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
   __pyx_t_6 = __pyx_v_self->y;
   __pyx_v_r = __pyx_t_6;
 
-  /* "ratroyale/backend/hexagon.pyx":237
+  /* "ratroyale/backend/hexagon.pyx":230
  *         cdef int q = self.x - (self.y - parity) // 2
  *         cdef int r = self.y
  *         return _AxialCoord(q, r)             # <<<<<<<<<<<<<<
@@ -13721,9 +13617,9 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord);
   __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord); 
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_q); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyLong_From_int(__pyx_v_r); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyLong_From_int(__pyx_v_r); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_5 = 1;
   {
@@ -13733,14 +13629,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *__pyx_f_9ratro
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 237, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 230, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":233
+  /* "ratroyale/backend/hexagon.pyx":226
  * 
  * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
@@ -13814,7 +13710,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_6to_axial(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("to_axial", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_axial(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_axial(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13831,7 +13727,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_6to_axial(stru
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":240
+/* "ratroyale/backend/hexagon.pyx":233
  * 
  * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
@@ -13874,7 +13770,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_cube); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 240, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_cube); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_9to_cube)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -13898,10 +13794,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord))))) __PYX_ERR(0, 240, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord))))) __PYX_ERR(0, 233, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -13920,7 +13816,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":241
+  /* "ratroyale/backend/hexagon.pyx":234
  * 
  *     cpdef _CubeCoord to_cube(self):
  *         return self.to_axial().to_cube()             # <<<<<<<<<<<<<<
@@ -13928,16 +13824,16 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *__pyx_f_9ratroy
  *     cpdef int get_distance(self, OddRCoord other) except *:
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 234, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1)->__pyx_vtab)->to_cube(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1)->__pyx_vtab)->to_cube(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2);
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":240
+  /* "ratroyale/backend/hexagon.pyx":233
  * 
  * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
@@ -14010,7 +13906,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_8to_cube(struc
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("to_cube", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_cube(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 240, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_cube(__pyx_v_self, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -14027,7 +13923,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_8to_cube(struc
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":243
+/* "ratroyale/backend/hexagon.pyx":236
  *         return self.to_axial().to_cube()
  * 
  *     cpdef int get_distance(self, OddRCoord other) except *:             # <<<<<<<<<<<<<<
@@ -14071,7 +13967,7 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance(struct _
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 243, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 236, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_11get_distance)) {
         __pyx_t_3 = NULL;
@@ -14094,10 +13990,10 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance(struct _
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 236, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 243, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyLong_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 236, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_6;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -14116,24 +14012,24 @@ static int __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance(struct _
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":244
+  /* "ratroyale/backend/hexagon.pyx":237
  * 
  *     cpdef int get_distance(self, OddRCoord other) except *:
  *         return self.to_cube().get_distance(other.to_cube())             # <<<<<<<<<<<<<<
  * 
  * 
 */
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_cube(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 244, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_cube(__pyx_v_self, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_other->__pyx_vtab)->to_cube(__pyx_v_other, 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_other->__pyx_vtab)->to_cube(__pyx_v_other, 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = ((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_1)->__pyx_vtab)->get_distance(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_1), ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2), 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 244, __pyx_L1_error)
+  __pyx_t_6 = ((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_1)->__pyx_vtab)->get_distance(((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_1), ((struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *)__pyx_t_2), 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_6;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":243
+  /* "ratroyale/backend/hexagon.pyx":236
  *         return self.to_axial().to_cube()
  * 
  *     cpdef int get_distance(self, OddRCoord other) except *:             # <<<<<<<<<<<<<<
@@ -14193,32 +14089,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_other,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 243, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 236, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 243, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 236, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_distance", 0) < (0)) __PYX_ERR(0, 243, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_distance", 0) < (0)) __PYX_ERR(0, 236, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_distance", 1, 1, 1, i); __PYX_ERR(0, 243, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_distance", 1, 1, 1, i); __PYX_ERR(0, 236, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 243, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 236, __pyx_L3_error)
     }
     __pyx_v_other = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_distance", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 243, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_distance", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 236, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -14229,7 +14125,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "other", 0))) __PYX_ERR(0, 243, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "other", 0))) __PYX_ERR(0, 236, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_10get_distance(((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self), __pyx_v_other);
 
   /* function exit code */
@@ -14259,8 +14155,8 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_10get_distance
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_distance", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance(__pyx_v_self, __pyx_v_other, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 243, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance(__pyx_v_self, __pyx_v_other, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyLong_From_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 236, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -14277,7 +14173,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_10get_distance
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":247
+/* "ratroyale/backend/hexagon.pyx":240
  * 
  * 
  *     def line_draw(self, OddRCoord other):             # <<<<<<<<<<<<<<
@@ -14324,32 +14220,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_other,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 247, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 240, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 247, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 240, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "line_draw", 0) < (0)) __PYX_ERR(0, 247, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "line_draw", 0) < (0)) __PYX_ERR(0, 240, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("line_draw", 1, 1, 1, i); __PYX_ERR(0, 247, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("line_draw", 1, 1, 1, i); __PYX_ERR(0, 240, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 247, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 240, __pyx_L3_error)
     }
     __pyx_v_other = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("line_draw", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 247, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("line_draw", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 240, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -14360,7 +14256,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "other", 0))) __PYX_ERR(0, 247, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "other", 0))) __PYX_ERR(0, 240, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_12line_draw(((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self), __pyx_v_other);
 
   /* function exit code */
@@ -14381,7 +14277,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 }
 static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2generator3(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "ratroyale/backend/hexagon.pyx":248
+/* "ratroyale/backend/hexagon.pyx":241
  * 
  *     def line_draw(self, OddRCoord other):
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))             # <<<<<<<<<<<<<<
@@ -14401,7 +14297,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_gen
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 248, __pyx_L1_error)
+    __PYX_ERR(0, 241, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -14409,7 +14305,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_gen
   __Pyx_INCREF(__pyx_cur_scope->__pyx_genexpr_arg_0);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_genexpr_arg_0);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2generator3, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_genexpr, __pyx_mstate_global->__pyx_n_u_line_draw_locals_genexpr, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon); if (unlikely(!gen)) __PYX_ERR(0, 248, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2generator3, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_genexpr, __pyx_mstate_global->__pyx_n_u_line_draw_locals_genexpr, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon); if (unlikely(!gen)) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -14450,17 +14346,17 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2ge
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started generator");
-    __PYX_ERR(0, 248, __pyx_L1_error)
+    __PYX_ERR(0, 241, __pyx_L1_error)
   }
-  if (unlikely(!__pyx_cur_scope->__pyx_genexpr_arg_0)) { __Pyx_RaiseUnboundLocalError(".0"); __PYX_ERR(0, 248, __pyx_L1_error) }
+  if (unlikely(!__pyx_cur_scope->__pyx_genexpr_arg_0)) { __Pyx_RaiseUnboundLocalError(".0"); __PYX_ERR(0, 241, __pyx_L1_error) }
   if (likely(PyList_CheckExact(__pyx_cur_scope->__pyx_genexpr_arg_0)) || PyTuple_CheckExact(__pyx_cur_scope->__pyx_genexpr_arg_0)) {
     __pyx_t_1 = __pyx_cur_scope->__pyx_genexpr_arg_0; __Pyx_INCREF(__pyx_t_1);
     __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_cur_scope->__pyx_genexpr_arg_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_cur_scope->__pyx_genexpr_arg_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 248, __pyx_L1_error)
+    __pyx_t_3 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
@@ -14468,7 +14364,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2ge
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
           #if !CYTHON_ASSUME_SAFE_SIZE
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 248, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 241, __pyx_L1_error)
           #endif
           if (__pyx_t_2 >= __pyx_temp) break;
         }
@@ -14478,7 +14374,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2ge
         {
           Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_1);
           #if !CYTHON_ASSUME_SAFE_SIZE
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 248, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 241, __pyx_L1_error)
           #endif
           if (__pyx_t_2 >= __pyx_temp) break;
         }
@@ -14489,13 +14385,13 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2ge
         #endif
         ++__pyx_t_2;
       }
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 248, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 241, __pyx_L1_error)
     } else {
       __pyx_t_4 = __pyx_t_3(__pyx_t_1);
       if (unlikely(!__pyx_t_4)) {
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
-          if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 248, __pyx_L1_error)
+          if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 241, __pyx_L1_error)
           PyErr_Clear();
         }
         break;
@@ -14513,7 +14409,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2ge
       PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
       __pyx_t_4 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_to_odd_r, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 248, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 241, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
     }
     __pyx_r = __pyx_t_4;
@@ -14534,7 +14430,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2ge
     __Pyx_XGOTREF(__pyx_t_1);
     __pyx_t_2 = __pyx_cur_scope->__pyx_t_1;
     __pyx_t_3 = __pyx_cur_scope->__pyx_t_2;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 248, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 241, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
@@ -14561,7 +14457,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_2ge
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":247
+/* "ratroyale/backend/hexagon.pyx":240
  * 
  * 
  *     def line_draw(self, OddRCoord other):             # <<<<<<<<<<<<<<
@@ -14583,7 +14479,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_12line_draw(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("line_draw", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":248
+  /* "ratroyale/backend/hexagon.pyx":241
  * 
  *     def line_draw(self, OddRCoord other):
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))             # <<<<<<<<<<<<<<
@@ -14591,11 +14487,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_12line_draw(st
  * 
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_cube(__pyx_v_self, 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 248, __pyx_L1_error)
+  __pyx_t_3 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_cube(__pyx_v_self, 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_t_3;
   __Pyx_INCREF(__pyx_t_2);
-  __pyx_t_4 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_other->__pyx_vtab)->to_cube(__pyx_v_other, 0)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 248, __pyx_L1_error)
+  __pyx_t_4 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_other->__pyx_vtab)->to_cube(__pyx_v_other, 0)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = 0;
   {
@@ -14604,17 +14500,17 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_12line_draw(st
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_3 = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_genexpr(NULL, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 248, __pyx_L1_error)
+  __pyx_t_3 = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_9line_draw_genexpr(NULL, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":247
+  /* "ratroyale/backend/hexagon.pyx":240
  * 
  * 
  *     def line_draw(self, OddRCoord other):             # <<<<<<<<<<<<<<
@@ -14637,7 +14533,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_12line_draw(st
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":251
+/* "ratroyale/backend/hexagon.pyx":244
  * 
  * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
@@ -14684,32 +14580,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_N,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 251, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 244, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 251, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 244, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "all_in_range", 0) < (0)) __PYX_ERR(0, 251, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "all_in_range", 0) < (0)) __PYX_ERR(0, 244, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("all_in_range", 1, 1, 1, i); __PYX_ERR(0, 251, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("all_in_range", 1, 1, 1, i); __PYX_ERR(0, 244, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 251, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 244, __pyx_L3_error)
     }
-    __pyx_v_N = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 251, __pyx_L3_error)
+    __pyx_v_N = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 244, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("all_in_range", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 251, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("all_in_range", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 244, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -14743,7 +14639,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_14all_in_range
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("all_in_range", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":252
+  /* "ratroyale/backend/hexagon.pyx":245
  * 
  *     def all_in_range(self, int N):
  *         return self.to_axial().all_in_range(N)             # <<<<<<<<<<<<<<
@@ -14751,11 +14647,11 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_14all_in_range
  * 
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_3 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self->__pyx_vtab)->to_axial(__pyx_v_self, 0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 245, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_t_3;
   __Pyx_INCREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_N); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_N); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 245, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = 0;
   {
@@ -14764,14 +14660,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_14all_in_range
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":251
+  /* "ratroyale/backend/hexagon.pyx":244
  * 
  * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
@@ -14793,7 +14689,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_14all_in_range
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":255
+/* "ratroyale/backend/hexagon.pyx":248
  * 
  * 
  *     cpdef tuple[double, double] to_pixel(             # <<<<<<<<<<<<<<
@@ -14856,17 +14752,17 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_pixel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 255, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_to_pixel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_17to_pixel)) {
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_hex_width); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 255, __pyx_L1_error)
+        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_hex_width); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 248, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = PyFloat_FromDouble(__pyx_v_hex_height); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 255, __pyx_L1_error)
+        __pyx_t_6 = PyFloat_FromDouble(__pyx_v_hex_height); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 248, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = __Pyx_PyBool_FromLong(__pyx_v_is_bounding_box); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 255, __pyx_L1_error)
+        __pyx_t_7 = __Pyx_PyBool_FromLong(__pyx_v_is_bounding_box); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 248, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_7);
         __pyx_t_8 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -14888,10 +14784,10 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 255, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        __pyx_t_9 = __pyx_convert__from_py___pyx_ctuple_double__and_double(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 255, __pyx_L1_error)
+        __pyx_t_9 = __pyx_convert__from_py___pyx_ctuple_double__and_double(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 248, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_9;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -14910,7 +14806,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":261
+  /* "ratroyale/backend/hexagon.pyx":254
  *         bint is_bounding_box = 0,
  *     ):
  *         cdef double _hex_width = hex_width             # <<<<<<<<<<<<<<
@@ -14919,7 +14815,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
   __pyx_v__hex_width = __pyx_v_hex_width;
 
-  /* "ratroyale/backend/hexagon.pyx":265
+  /* "ratroyale/backend/hexagon.pyx":258
  *         cdef double x, y
  * 
  *         if hex_height == -1.0:             # <<<<<<<<<<<<<<
@@ -14929,7 +14825,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
   __pyx_t_10 = (__pyx_v_hex_height == -1.0);
   if (__pyx_t_10) {
 
-    /* "ratroyale/backend/hexagon.pyx":266
+    /* "ratroyale/backend/hexagon.pyx":259
  * 
  *         if hex_height == -1.0:
  *             _hex_height = hex_width             # <<<<<<<<<<<<<<
@@ -14938,7 +14834,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
     __pyx_v__hex_height = __pyx_v_hex_width;
 
-    /* "ratroyale/backend/hexagon.pyx":265
+    /* "ratroyale/backend/hexagon.pyx":258
  *         cdef double x, y
  * 
  *         if hex_height == -1.0:             # <<<<<<<<<<<<<<
@@ -14948,7 +14844,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
     goto __pyx_L3;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":268
+  /* "ratroyale/backend/hexagon.pyx":261
  *             _hex_height = hex_width
  *         else:
  *             _hex_height = hex_height             # <<<<<<<<<<<<<<
@@ -14960,7 +14856,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
   }
   __pyx_L3:;
 
-  /* "ratroyale/backend/hexagon.pyx":270
+  /* "ratroyale/backend/hexagon.pyx":263
  *             _hex_height = hex_height
  * 
  *         if is_bounding_box:             # <<<<<<<<<<<<<<
@@ -14969,7 +14865,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
   if (__pyx_v_is_bounding_box) {
 
-    /* "ratroyale/backend/hexagon.pyx":271
+    /* "ratroyale/backend/hexagon.pyx":264
  * 
  *         if is_bounding_box:
  *             _hex_width /= sqrt(3.0)             # <<<<<<<<<<<<<<
@@ -14979,11 +14875,11 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
     __pyx_t_11 = sqrt(3.0);
     if (unlikely(__pyx_t_11 == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 271, __pyx_L1_error)
+      __PYX_ERR(0, 264, __pyx_L1_error)
     }
     __pyx_v__hex_width = (__pyx_v__hex_width / __pyx_t_11);
 
-    /* "ratroyale/backend/hexagon.pyx":272
+    /* "ratroyale/backend/hexagon.pyx":265
  *         if is_bounding_box:
  *             _hex_width /= sqrt(3.0)
  *             _hex_height *= 0.5             # <<<<<<<<<<<<<<
@@ -14992,7 +14888,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
     __pyx_v__hex_height = (__pyx_v__hex_height * 0.5);
 
-    /* "ratroyale/backend/hexagon.pyx":270
+    /* "ratroyale/backend/hexagon.pyx":263
  *             _hex_height = hex_height
  * 
  *         if is_bounding_box:             # <<<<<<<<<<<<<<
@@ -15001,7 +14897,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
   }
 
-  /* "ratroyale/backend/hexagon.pyx":274
+  /* "ratroyale/backend/hexagon.pyx":267
  *             _hex_height *= 0.5
  * 
  *         x = sqrt(3.0) * (self.x + 0.5 * (self.y & 1))             # <<<<<<<<<<<<<<
@@ -15010,7 +14906,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
   __pyx_v_x = (sqrt(3.0) * (__pyx_v_self->x + (0.5 * (__pyx_v_self->y & 1))));
 
-  /* "ratroyale/backend/hexagon.pyx":275
+  /* "ratroyale/backend/hexagon.pyx":268
  * 
  *         x = sqrt(3.0) * (self.x + 0.5 * (self.y & 1))
  *         y = 1.5 * self.y             # <<<<<<<<<<<<<<
@@ -15019,7 +14915,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
   __pyx_v_y = (1.5 * __pyx_v_self->y);
 
-  /* "ratroyale/backend/hexagon.pyx":276
+  /* "ratroyale/backend/hexagon.pyx":269
  *         x = sqrt(3.0) * (self.x + 0.5 * (self.y & 1))
  *         y = 1.5 * self.y
  *         x += 1.0             # <<<<<<<<<<<<<<
@@ -15028,7 +14924,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
   __pyx_v_x = (__pyx_v_x + 1.0);
 
-  /* "ratroyale/backend/hexagon.pyx":277
+  /* "ratroyale/backend/hexagon.pyx":270
  *         y = 1.5 * self.y
  *         x += 1.0
  *         y += sqrt(3.0) / 2.0             # <<<<<<<<<<<<<<
@@ -15037,7 +14933,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
 */
   __pyx_v_y = (__pyx_v_y + (sqrt(3.0) / 2.0));
 
-  /* "ratroyale/backend/hexagon.pyx":279
+  /* "ratroyale/backend/hexagon.pyx":272
  *         y += sqrt(3.0) / 2.0
  * 
  *         return x * _hex_width, y * _hex_height             # <<<<<<<<<<<<<<
@@ -15049,7 +14945,7 @@ static __pyx_ctuple_double__and_double __pyx_f_9ratroyale_7backend_7hexagon_9Odd
   __pyx_r = __pyx_t_9;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":255
+  /* "ratroyale/backend/hexagon.pyx":248
  * 
  * 
  *     cpdef tuple[double, double] to_pixel(             # <<<<<<<<<<<<<<
@@ -15114,61 +15010,61 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_hex_width,&__pyx_mstate_global->__pyx_n_u_hex_height,&__pyx_mstate_global->__pyx_n_u_is_bounding_box,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 255, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 248, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 255, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 248, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 255, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 248, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 255, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 248, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "to_pixel", 0) < (0)) __PYX_ERR(0, 255, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "to_pixel", 0) < (0)) __PYX_ERR(0, 248, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("to_pixel", 0, 1, 3, i); __PYX_ERR(0, 255, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("to_pixel", 0, 1, 3, i); __PYX_ERR(0, 248, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 255, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 248, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 255, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 248, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 255, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 248, __pyx_L3_error)
         break;
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_hex_width = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_hex_width == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L3_error)
+    __pyx_v_hex_width = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_hex_width == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 250, __pyx_L3_error)
     if (values[1]) {
-      __pyx_v_hex_height = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_hex_height == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 258, __pyx_L3_error)
+      __pyx_v_hex_height = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_hex_height == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 251, __pyx_L3_error)
     } else {
       __pyx_v_hex_height = __pyx_mstate_global->__pyx_k_;
     }
     if (values[2]) {
-      __pyx_v_is_bounding_box = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_is_bounding_box == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 259, __pyx_L3_error)
+      __pyx_v_is_bounding_box = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_is_bounding_box == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L3_error)
     } else {
       __pyx_v_is_bounding_box = ((int)0);
     }
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("to_pixel", 0, 1, 3, __pyx_nargs); __PYX_ERR(0, 255, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("to_pixel", 0, 1, 3, __pyx_nargs); __PYX_ERR(0, 248, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -15203,8 +15099,8 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_16to_pixel(str
   __pyx_t_2.__pyx_n = 2;
   __pyx_t_2.hex_height = __pyx_v_hex_height;
   __pyx_t_2.is_bounding_box = __pyx_v_is_bounding_box;
-  __pyx_t_1 = __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord->to_pixel(__pyx_v_self, __pyx_v_hex_width, 1, &__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 255, __pyx_L1_error)
-  __pyx_t_3 = __pyx_convert__to_py___pyx_ctuple_double__and_double(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord->to_pixel(__pyx_v_self, __pyx_v_hex_width, 1, &__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 248, __pyx_L1_error)
+  __pyx_t_3 = __pyx_convert__to_py___pyx_ctuple_double__and_double(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
@@ -15221,7 +15117,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_16to_pixel(str
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":282
+/* "ratroyale/backend/hexagon.pyx":275
  * 
  * 
  *     cpdef OddRCoord get_neighbor(self, int direction):             # <<<<<<<<<<<<<<
@@ -15273,14 +15169,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_neighbor); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 282, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_neighbor); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 275, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_19get_neighbor)) {
         __Pyx_XDECREF((PyObject *)__pyx_r);
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_direction); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 282, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_direction); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 275, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __pyx_t_6 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -15300,10 +15196,10 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 275, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 282, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 275, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -15322,7 +15218,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":287
+  /* "ratroyale/backend/hexagon.pyx":280
  *         cdef int dx, dy
  * 
  *         if direction < 0 or direction > 5:             # <<<<<<<<<<<<<<
@@ -15340,7 +15236,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
   __pyx_L4_bool_binop_done:;
   if (unlikely(__pyx_t_7)) {
 
-    /* "ratroyale/backend/hexagon.pyx":288
+    /* "ratroyale/backend/hexagon.pyx":281
  * 
  *         if direction < 0 or direction > 5:
  *             raise ValueError("direction must be between 0 and 5")             # <<<<<<<<<<<<<<
@@ -15356,14 +15252,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
       __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 281, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 288, __pyx_L1_error)
+    __PYX_ERR(0, 281, __pyx_L1_error)
 
-    /* "ratroyale/backend/hexagon.pyx":287
+    /* "ratroyale/backend/hexagon.pyx":280
  *         cdef int dx, dy
  * 
  *         if direction < 0 or direction > 5:             # <<<<<<<<<<<<<<
@@ -15372,7 +15268,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
 */
   }
 
-  /* "ratroyale/backend/hexagon.pyx":290
+  /* "ratroyale/backend/hexagon.pyx":283
  *             raise ValueError("direction must be between 0 and 5")
  * 
  *         parity = self.y & 1             # <<<<<<<<<<<<<<
@@ -15381,20 +15277,20 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
 */
   __pyx_v_parity = (__pyx_v_self->y & 1);
 
-  /* "ratroyale/backend/hexagon.pyx":291
+  /* "ratroyale/backend/hexagon.pyx":284
  * 
  *         parity = self.y & 1
  *         diff = DIRECTION_DIFFERENCES[parity][direction]             # <<<<<<<<<<<<<<
  *         dx, dy = diff
  *         return OddRCoord(self.x + dx, self.y + dy)
 */
-  __pyx_t_1 = __Pyx_carray_to_tuple_int(((__pyx_v_9ratroyale_7backend_7hexagon_DIRECTION_DIFFERENCES[__pyx_v_parity])[__pyx_v_direction]), 2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_carray_to_tuple_int(((__pyx_v_9ratroyale_7backend_7hexagon_DIRECTION_DIFFERENCES[__pyx_v_parity])[__pyx_v_direction]), 2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 284, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(PyTuple_CheckExact(__pyx_t_1)) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_1))) __PYX_ERR(0, 291, __pyx_L1_error)
+  if (!(likely(PyTuple_CheckExact(__pyx_t_1)) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_1))) __PYX_ERR(0, 284, __pyx_L1_error)
   __pyx_v_diff = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":292
+  /* "ratroyale/backend/hexagon.pyx":285
  *         parity = self.y & 1
  *         diff = DIRECTION_DIFFERENCES[parity][direction]
  *         dx, dy = diff             # <<<<<<<<<<<<<<
@@ -15407,7 +15303,7 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     if (unlikely(size != 2)) {
       if (size > 2) __Pyx_RaiseTooManyValuesError(2);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 292, __pyx_L1_error)
+      __PYX_ERR(0, 285, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     __pyx_t_1 = PyTuple_GET_ITEM(sequence, 0);
@@ -15415,20 +15311,20 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     __pyx_t_4 = PyTuple_GET_ITEM(sequence, 1);
     __Pyx_INCREF(__pyx_t_4);
     #else
-    __pyx_t_1 = __Pyx_PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 292, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 285, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 292, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 285, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     #endif
   }
-  __pyx_t_9 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 285, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_10 = __Pyx_PyLong_As_int(__pyx_t_4); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyLong_As_int(__pyx_t_4); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 285, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_dx = __pyx_t_9;
   __pyx_v_dy = __pyx_t_10;
 
-  /* "ratroyale/backend/hexagon.pyx":293
+  /* "ratroyale/backend/hexagon.pyx":286
  *         diff = DIRECTION_DIFFERENCES[parity][direction]
  *         dx, dy = diff
  *         return OddRCoord(self.x + dx, self.y + dy)             # <<<<<<<<<<<<<<
@@ -15439,9 +15335,9 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
   __pyx_t_1 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
   __pyx_t_2 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord); 
-  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->x + __pyx_v_dx)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->x + __pyx_v_dx)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_PyLong_From_int((__pyx_v_self->y + __pyx_v_dy)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int((__pyx_v_self->y + __pyx_v_dy)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_6 = 1;
   {
@@ -15451,14 +15347,14 @@ static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroya
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 293, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 286, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_4);
   }
   __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_4);
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":282
+  /* "ratroyale/backend/hexagon.pyx":275
  * 
  * 
  *     cpdef OddRCoord get_neighbor(self, int direction):             # <<<<<<<<<<<<<<
@@ -15521,32 +15417,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_direction,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 282, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 275, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 282, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 275, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_neighbor", 0) < (0)) __PYX_ERR(0, 282, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_neighbor", 0) < (0)) __PYX_ERR(0, 275, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_neighbor", 1, 1, 1, i); __PYX_ERR(0, 282, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_neighbor", 1, 1, 1, i); __PYX_ERR(0, 275, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 282, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 275, __pyx_L3_error)
     }
-    __pyx_v_direction = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_direction == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 282, __pyx_L3_error)
+    __pyx_v_direction = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_direction == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 275, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_neighbor", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 282, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_neighbor", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 275, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -15576,7 +15472,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_18get_neighbor
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_neighbor", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_neighbor(__pyx_v_self, __pyx_v_direction, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 282, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_neighbor(__pyx_v_self, __pyx_v_direction, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -15594,7 +15490,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_18get_neighbor
 }
 static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "ratroyale/backend/hexagon.pyx":296
+/* "ratroyale/backend/hexagon.pyx":289
  * 
  * 
  *     def get_neighbors(self):             # <<<<<<<<<<<<<<
@@ -15656,7 +15552,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_20get_neighbor
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 296, __pyx_L1_error)
+    __PYX_ERR(0, 289, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -15664,7 +15560,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_20get_neighbor
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_get_neighbors, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_neighbors, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon); if (unlikely(!gen)) __PYX_ERR(0, 296, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_get_neighbors, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_neighbors, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon); if (unlikely(!gen)) __PYX_ERR(0, 289, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -15701,10 +15597,10 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2(_
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started generator");
-    __PYX_ERR(0, 296, __pyx_L1_error)
+    __PYX_ERR(0, 289, __pyx_L1_error)
   }
 
-  /* "ratroyale/backend/hexagon.pyx":298
+  /* "ratroyale/backend/hexagon.pyx":291
  *     def get_neighbors(self):
  *         cdef int i
  *         for i in range(6):             # <<<<<<<<<<<<<<
@@ -15714,14 +15610,14 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2(_
   for (__pyx_t_1 = 0; __pyx_t_1 < 6; __pyx_t_1+=1) {
     __pyx_cur_scope->__pyx_v_i = __pyx_t_1;
 
-    /* "ratroyale/backend/hexagon.pyx":299
+    /* "ratroyale/backend/hexagon.pyx":292
  *         cdef int i
  *         for i in range(6):
  *             yield self.get_neighbor(i)             # <<<<<<<<<<<<<<
  * 
  *     cpdef set[OddRCoord] get_reachable_coords(
 */
-    __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_cur_scope->__pyx_v_self->__pyx_vtab)->get_neighbor(__pyx_cur_scope->__pyx_v_self, __pyx_cur_scope->__pyx_v_i, 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 299, __pyx_L1_error)
+    __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_cur_scope->__pyx_v_self->__pyx_vtab)->get_neighbor(__pyx_cur_scope->__pyx_v_self, __pyx_cur_scope->__pyx_v_i, 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_r = __pyx_t_2;
     __pyx_t_2 = 0;
@@ -15734,11 +15630,11 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2(_
     return __pyx_r;
     __pyx_L6_resume_from_yield:;
     __pyx_t_1 = __pyx_cur_scope->__pyx_t_0;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 299, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 292, __pyx_L1_error)
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "ratroyale/backend/hexagon.pyx":296
+  /* "ratroyale/backend/hexagon.pyx":289
  * 
  * 
  *     def get_neighbors(self):             # <<<<<<<<<<<<<<
@@ -15766,7 +15662,7 @@ static PyObject *__pyx_gb_9ratroyale_7backend_7hexagon_9OddRCoord_22generator2(_
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":301
+/* "ratroyale/backend/hexagon.pyx":294
  *             yield self.get_neighbor(i)
  * 
  *     cpdef set[OddRCoord] get_reachable_coords(             # <<<<<<<<<<<<<<
@@ -15838,16 +15734,16 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_reachable_coords); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 301, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_reachable_coords); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 294, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_24get_reachable_coords)) {
         __Pyx_XDECREF(__pyx_r);
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_reach); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 301, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_reach); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 294, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = __Pyx_PyBool_FromLong(__pyx_v_is_include_self); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 301, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyBool_FromLong(__pyx_v_is_include_self); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 294, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __pyx_t_7 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -15868,10 +15764,10 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 301, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 294, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(PySet_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("set", __pyx_t_2))) __PYX_ERR(0, 301, __pyx_L1_error)
+        if (!(likely(PySet_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("set", __pyx_t_2))) __PYX_ERR(0, 294, __pyx_L1_error)
         __pyx_r = ((PyObject*)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -15890,55 +15786,55 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":307
+  /* "ratroyale/backend/hexagon.pyx":300
  *         bint is_include_self = 0,
  *     ):
  *         cdef set visited = set()             # <<<<<<<<<<<<<<
  *         cdef list fringes = []
  *         cdef int k
 */
-  __pyx_t_1 = PySet_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 307, __pyx_L1_error)
+  __pyx_t_1 = PySet_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_visited = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":308
+  /* "ratroyale/backend/hexagon.pyx":301
  *     ):
  *         cdef set visited = set()
  *         cdef list fringes = []             # <<<<<<<<<<<<<<
  *         cdef int k
  *         cdef OddRCoord coord, neighbor
 */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 308, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 301, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_fringes = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":312
+  /* "ratroyale/backend/hexagon.pyx":305
  *         cdef OddRCoord coord, neighbor
  * 
  *         visited.add(self)             # <<<<<<<<<<<<<<
  *         fringes.append([self])
  * 
 */
-  __pyx_t_8 = PySet_Add(__pyx_v_visited, ((PyObject *)__pyx_v_self)); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 312, __pyx_L1_error)
+  __pyx_t_8 = PySet_Add(__pyx_v_visited, ((PyObject *)__pyx_v_self)); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 305, __pyx_L1_error)
 
-  /* "ratroyale/backend/hexagon.pyx":313
+  /* "ratroyale/backend/hexagon.pyx":306
  * 
  *         visited.add(self)
  *         fringes.append([self])             # <<<<<<<<<<<<<<
  * 
  *         for k in range(reach):
 */
-  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF((PyObject *)__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_v_self);
-  if (__Pyx_PyList_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_self)) != (0)) __PYX_ERR(0, 313, __pyx_L1_error);
-  __pyx_t_8 = __Pyx_PyList_Append(__pyx_v_fringes, __pyx_t_1); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 313, __pyx_L1_error)
+  if (__Pyx_PyList_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_self)) != (0)) __PYX_ERR(0, 306, __pyx_L1_error);
+  __pyx_t_8 = __Pyx_PyList_Append(__pyx_v_fringes, __pyx_t_1); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":315
+  /* "ratroyale/backend/hexagon.pyx":308
  *         fringes.append([self])
  * 
  *         for k in range(reach):             # <<<<<<<<<<<<<<
@@ -15950,35 +15846,35 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
   for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
     __pyx_v_k = __pyx_t_11;
 
-    /* "ratroyale/backend/hexagon.pyx":316
+    /* "ratroyale/backend/hexagon.pyx":309
  * 
  *         for k in range(reach):
  *             fringes.append([])             # <<<<<<<<<<<<<<
  *             for coord in fringes[k]:
  *                 for neighbor in coord.get_neighbors():
 */
-    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 316, __pyx_L1_error)
+    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 309, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_8 = __Pyx_PyList_Append(__pyx_v_fringes, __pyx_t_1); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 316, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyList_Append(__pyx_v_fringes, __pyx_t_1); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 309, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "ratroyale/backend/hexagon.pyx":317
+    /* "ratroyale/backend/hexagon.pyx":310
  *         for k in range(reach):
  *             fringes.append([])
  *             for coord in fringes[k]:             # <<<<<<<<<<<<<<
  *                 for neighbor in coord.get_neighbors():
  *                     if neighbor not in visited and not is_coord_blocked(neighbor, coord):
 */
-    __pyx_t_1 = __Pyx_GetItemInt_List(__pyx_v_fringes, __pyx_v_k, int, 1, __Pyx_PyLong_From_int, 1, 1, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 317, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt_List(__pyx_v_fringes, __pyx_v_k, int, 1, __Pyx_PyLong_From_int, 1, 1, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 310, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
       __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2);
       __pyx_t_12 = 0;
       __pyx_t_13 = NULL;
     } else {
-      __pyx_t_12 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 317, __pyx_L1_error)
+      __pyx_t_12 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 310, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_13 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 317, __pyx_L1_error)
+      __pyx_t_13 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 310, __pyx_L1_error)
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     for (;;) {
@@ -15987,7 +15883,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
           {
             Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
             #if !CYTHON_ASSUME_SAFE_SIZE
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 317, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 310, __pyx_L1_error)
             #endif
             if (__pyx_t_12 >= __pyx_temp) break;
           }
@@ -15997,7 +15893,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
           {
             Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_2);
             #if !CYTHON_ASSUME_SAFE_SIZE
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 317, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 310, __pyx_L1_error)
             #endif
             if (__pyx_t_12 >= __pyx_temp) break;
           }
@@ -16008,24 +15904,24 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
           #endif
           ++__pyx_t_12;
         }
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 317, __pyx_L1_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 310, __pyx_L1_error)
       } else {
         __pyx_t_1 = __pyx_t_13(__pyx_t_2);
         if (unlikely(!__pyx_t_1)) {
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
-            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 317, __pyx_L1_error)
+            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 310, __pyx_L1_error)
             PyErr_Clear();
           }
           break;
         }
       }
       __Pyx_GOTREF(__pyx_t_1);
-      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 317, __pyx_L1_error)
+      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 310, __pyx_L1_error)
       __Pyx_XDECREF_SET(__pyx_v_coord, ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_1));
       __pyx_t_1 = 0;
 
-      /* "ratroyale/backend/hexagon.pyx":318
+      /* "ratroyale/backend/hexagon.pyx":311
  *             fringes.append([])
  *             for coord in fringes[k]:
  *                 for neighbor in coord.get_neighbors():             # <<<<<<<<<<<<<<
@@ -16039,7 +15935,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
         PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
         __pyx_t_1 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_get_neighbors, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 318, __pyx_L1_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 311, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
       if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
@@ -16047,9 +15943,9 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
         __pyx_t_14 = 0;
         __pyx_t_15 = NULL;
       } else {
-        __pyx_t_14 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 318, __pyx_L1_error)
+        __pyx_t_14 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 311, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_15 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 318, __pyx_L1_error)
+        __pyx_t_15 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 311, __pyx_L1_error)
       }
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       for (;;) {
@@ -16058,7 +15954,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
             {
               Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_4);
               #if !CYTHON_ASSUME_SAFE_SIZE
-              if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 318, __pyx_L1_error)
+              if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 311, __pyx_L1_error)
               #endif
               if (__pyx_t_14 >= __pyx_temp) break;
             }
@@ -16068,7 +15964,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
             {
               Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_4);
               #if !CYTHON_ASSUME_SAFE_SIZE
-              if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 318, __pyx_L1_error)
+              if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 311, __pyx_L1_error)
               #endif
               if (__pyx_t_14 >= __pyx_temp) break;
             }
@@ -16079,31 +15975,31 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
             #endif
             ++__pyx_t_14;
           }
-          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 318, __pyx_L1_error)
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 311, __pyx_L1_error)
         } else {
           __pyx_t_1 = __pyx_t_15(__pyx_t_4);
           if (unlikely(!__pyx_t_1)) {
             PyObject* exc_type = PyErr_Occurred();
             if (exc_type) {
-              if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 318, __pyx_L1_error)
+              if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 311, __pyx_L1_error)
               PyErr_Clear();
             }
             break;
           }
         }
         __Pyx_GOTREF(__pyx_t_1);
-        if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 318, __pyx_L1_error)
+        if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 311, __pyx_L1_error)
         __Pyx_XDECREF_SET(__pyx_v_neighbor, ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_1));
         __pyx_t_1 = 0;
 
-        /* "ratroyale/backend/hexagon.pyx":319
+        /* "ratroyale/backend/hexagon.pyx":312
  *             for coord in fringes[k]:
  *                 for neighbor in coord.get_neighbors():
  *                     if neighbor not in visited and not is_coord_blocked(neighbor, coord):             # <<<<<<<<<<<<<<
  *                         visited.add(neighbor)
  *                         fringes[k + 1].append(neighbor)
 */
-        __pyx_t_17 = (__Pyx_PySet_ContainsTF(((PyObject *)__pyx_v_neighbor), __pyx_v_visited, Py_NE)); if (unlikely((__pyx_t_17 < 0))) __PYX_ERR(0, 319, __pyx_L1_error)
+        __pyx_t_17 = (__Pyx_PySet_ContainsTF(((PyObject *)__pyx_v_neighbor), __pyx_v_visited, Py_NE)); if (unlikely((__pyx_t_17 < 0))) __PYX_ERR(0, 312, __pyx_L1_error)
         if (__pyx_t_17) {
         } else {
           __pyx_t_16 = __pyx_t_17;
@@ -16129,26 +16025,26 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
           __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_5, __pyx_callargs+__pyx_t_7, (3-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 319, __pyx_L1_error)
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 312, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_1);
         }
-        __pyx_t_17 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_17 < 0))) __PYX_ERR(0, 319, __pyx_L1_error)
+        __pyx_t_17 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_17 < 0))) __PYX_ERR(0, 312, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_18 = (!__pyx_t_17);
         __pyx_t_16 = __pyx_t_18;
         __pyx_L10_bool_binop_done:;
         if (__pyx_t_16) {
 
-          /* "ratroyale/backend/hexagon.pyx":320
+          /* "ratroyale/backend/hexagon.pyx":313
  *                 for neighbor in coord.get_neighbors():
  *                     if neighbor not in visited and not is_coord_blocked(neighbor, coord):
  *                         visited.add(neighbor)             # <<<<<<<<<<<<<<
  *                         fringes[k + 1].append(neighbor)
  * 
 */
-          __pyx_t_8 = PySet_Add(__pyx_v_visited, ((PyObject *)__pyx_v_neighbor)); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 320, __pyx_L1_error)
+          __pyx_t_8 = PySet_Add(__pyx_v_visited, ((PyObject *)__pyx_v_neighbor)); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 313, __pyx_L1_error)
 
-          /* "ratroyale/backend/hexagon.pyx":321
+          /* "ratroyale/backend/hexagon.pyx":314
  *                     if neighbor not in visited and not is_coord_blocked(neighbor, coord):
  *                         visited.add(neighbor)
  *                         fringes[k + 1].append(neighbor)             # <<<<<<<<<<<<<<
@@ -16156,12 +16052,12 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
  *         if not is_include_self:
 */
           __pyx_t_19 = (__pyx_v_k + 1);
-          __pyx_t_1 = __Pyx_GetItemInt_List(__pyx_v_fringes, __pyx_t_19, long, 1, __Pyx_PyLong_From_long, 1, 1, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 321, __pyx_L1_error)
+          __pyx_t_1 = __Pyx_GetItemInt_List(__pyx_v_fringes, __pyx_t_19, long, 1, __Pyx_PyLong_From_long, 1, 1, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 314, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_1);
-          __pyx_t_8 = __Pyx_PyObject_Append(__pyx_t_1, ((PyObject *)__pyx_v_neighbor)); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 321, __pyx_L1_error)
+          __pyx_t_8 = __Pyx_PyObject_Append(__pyx_t_1, ((PyObject *)__pyx_v_neighbor)); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 314, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-          /* "ratroyale/backend/hexagon.pyx":319
+          /* "ratroyale/backend/hexagon.pyx":312
  *             for coord in fringes[k]:
  *                 for neighbor in coord.get_neighbors():
  *                     if neighbor not in visited and not is_coord_blocked(neighbor, coord):             # <<<<<<<<<<<<<<
@@ -16170,7 +16066,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
 */
         }
 
-        /* "ratroyale/backend/hexagon.pyx":318
+        /* "ratroyale/backend/hexagon.pyx":311
  *             fringes.append([])
  *             for coord in fringes[k]:
  *                 for neighbor in coord.get_neighbors():             # <<<<<<<<<<<<<<
@@ -16180,7 +16076,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
       }
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "ratroyale/backend/hexagon.pyx":317
+      /* "ratroyale/backend/hexagon.pyx":310
  *         for k in range(reach):
  *             fringes.append([])
  *             for coord in fringes[k]:             # <<<<<<<<<<<<<<
@@ -16191,7 +16087,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":323
+  /* "ratroyale/backend/hexagon.pyx":316
  *                         fringes[k + 1].append(neighbor)
  * 
  *         if not is_include_self:             # <<<<<<<<<<<<<<
@@ -16201,16 +16097,16 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
   __pyx_t_16 = (!__pyx_v_is_include_self);
   if (__pyx_t_16) {
 
-    /* "ratroyale/backend/hexagon.pyx":324
+    /* "ratroyale/backend/hexagon.pyx":317
  * 
  *         if not is_include_self:
  *             visited.discard(self)             # <<<<<<<<<<<<<<
  * 
  *         return visited
 */
-    __pyx_t_8 = __Pyx_PySet_Discard(__pyx_v_visited, ((PyObject *)__pyx_v_self)); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 324, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PySet_Discard(__pyx_v_visited, ((PyObject *)__pyx_v_self)); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 317, __pyx_L1_error)
 
-    /* "ratroyale/backend/hexagon.pyx":323
+    /* "ratroyale/backend/hexagon.pyx":316
  *                         fringes[k + 1].append(neighbor)
  * 
  *         if not is_include_self:             # <<<<<<<<<<<<<<
@@ -16219,19 +16115,19 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_c
 */
   }
 
-  /* "ratroyale/backend/hexagon.pyx":326
+  /* "ratroyale/backend/hexagon.pyx":319
  *             visited.discard(self)
  * 
  *         return visited             # <<<<<<<<<<<<<<
  * 
- *     cpdef OddRCoord from_pixel(cls, double x, double y, double hex_size):
+ *     @staticmethod
 */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_visited);
   __pyx_r = __pyx_v_visited;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":301
+  /* "ratroyale/backend/hexagon.pyx":294
  *             yield self.get_neighbor(i)
  * 
  *     cpdef set[OddRCoord] get_reachable_coords(             # <<<<<<<<<<<<<<
@@ -16300,59 +16196,59 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_reach,&__pyx_mstate_global->__pyx_n_u_is_coord_blocked,&__pyx_mstate_global->__pyx_n_u_is_include_self,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 301, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 294, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 301, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 294, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 301, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 294, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 301, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 294, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_reachable_coords", 0) < (0)) __PYX_ERR(0, 301, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_reachable_coords", 0) < (0)) __PYX_ERR(0, 294, __pyx_L3_error)
       if (!values[1]) values[1] = __Pyx_NewRef(__pyx_mstate_global->__pyx_k__2);
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_reachable_coords", 0, 1, 3, i); __PYX_ERR(0, 301, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_reachable_coords", 0, 1, 3, i); __PYX_ERR(0, 294, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 301, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 294, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 301, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 294, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 301, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 294, __pyx_L3_error)
         break;
         default: goto __pyx_L5_argtuple_error;
       }
       if (!values[1]) values[1] = __Pyx_NewRef(__pyx_mstate_global->__pyx_k__2);
     }
-    __pyx_v_reach = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_reach == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 303, __pyx_L3_error)
+    __pyx_v_reach = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_reach == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 296, __pyx_L3_error)
     __pyx_v_is_coord_blocked = values[1];
     if (values[2]) {
-      __pyx_v_is_include_self = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_is_include_self == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 305, __pyx_L3_error)
+      __pyx_v_is_include_self = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_is_include_self == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 298, __pyx_L3_error)
     } else {
       __pyx_v_is_include_self = ((int)0);
     }
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_reachable_coords", 0, 1, 3, __pyx_nargs); __PYX_ERR(0, 301, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_reachable_coords", 0, 1, 3, __pyx_nargs); __PYX_ERR(0, 294, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -16386,7 +16282,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_23get_reachabl
   __pyx_t_2.__pyx_n = 2;
   __pyx_t_2.is_coord_blocked = __pyx_v_is_coord_blocked;
   __pyx_t_2.is_include_self = __pyx_v_is_include_self;
-  __pyx_t_1 = __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord->get_reachable_coords(__pyx_v_self, __pyx_v_reach, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord->get_reachable_coords(__pyx_v_self, __pyx_v_reach, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -16403,152 +16299,16 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_23get_reachabl
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":328
+/* "ratroyale/backend/hexagon.pyx":321
  *         return visited
  * 
- *     cpdef OddRCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
- *         return _AxialCoord.from_pixel(cls, x, y, hex_size).to_odd_r()
- * 
+ *     @staticmethod             # <<<<<<<<<<<<<<
+ *     def from_pixel(double x, double y, double hex_size):
+ *         return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
 */
-
-static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel(PyObject *__pyx_v_cls, 
-#if CYTHON_METH_FASTCALL
-PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
-#else
-PyObject *__pyx_args, PyObject *__pyx_kwds
-#endif
-); /*proto*/
-static struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_from_pixel(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_cls, double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size, int __pyx_skip_dispatch) {
-  struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  PyObject *__pyx_t_7 = NULL;
-  size_t __pyx_t_8;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("from_pixel", 0);
-  /* Check if called by wrapper */
-  if (unlikely(__pyx_skip_dispatch)) ;
-  /* Check if overridden in Python */
-  else if (
-  #if !CYTHON_USE_TYPE_SLOTS
-  unlikely(Py_TYPE(((PyObject *)__pyx_v_cls)) != __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord &&
-  __Pyx_PyType_HasFeature(Py_TYPE(((PyObject *)__pyx_v_cls)), Py_TPFLAGS_HAVE_GC))
-  #else
-  unlikely(Py_TYPE(((PyObject *)__pyx_v_cls))->tp_dictoffset != 0 || __Pyx_PyType_HasFeature(Py_TYPE(((PyObject *)__pyx_v_cls)), (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))
-  #endif
-  ) {
-    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
-    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_cls), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
-      PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_cls));
-      #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_cls), __pyx_mstate_global->__pyx_n_u_from_pixel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 328, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel)) {
-        __Pyx_XDECREF((PyObject *)__pyx_r);
-        __pyx_t_3 = NULL;
-        __Pyx_INCREF(__pyx_t_1);
-        __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 328, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 328, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = PyFloat_FromDouble(__pyx_v_hex_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 328, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_7);
-        __pyx_t_8 = 1;
-        #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_4))) {
-          __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
-          assert(__pyx_t_3);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
-          __Pyx_INCREF(__pyx_t_3);
-          __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
-          __pyx_t_8 = 0;
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[4] = {__pyx_t_3, __pyx_t_5, __pyx_t_6, __pyx_t_7};
-          __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_8, (4-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 328, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
-        }
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 328, __pyx_L1_error)
-        __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_2);
-        __pyx_t_2 = 0;
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        goto __pyx_L0;
-      }
-      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_cls));
-      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_cls));
-      if (unlikely(__pyx_typedict_guard != __pyx_tp_dict_version)) {
-        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
-      }
-      #endif
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-    }
-    #endif
-  }
-
-  /* "ratroyale/backend/hexagon.pyx":329
- * 
- *     cpdef OddRCoord from_pixel(cls, double x, double y, double hex_size):
- *         return _AxialCoord.from_pixel(cls, x, y, hex_size).to_odd_r()             # <<<<<<<<<<<<<<
- * 
- *     def __add__(self, OddRCoord other):
-*/
-  __Pyx_XDECREF((PyObject *)__pyx_r);
-  if (!(likely(((((PyObject *)__pyx_v_cls)) == Py_None) || likely(__Pyx_TypeTest(((PyObject *)__pyx_v_cls), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord))))) __PYX_ERR(0, 329, __pyx_L1_error)
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_from_pixel(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_v_cls), __pyx_v_x, __pyx_v_y, __pyx_v_hex_size, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 329, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = ((PyObject *)((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord *)((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1)->__pyx_vtab)->to_odd_r(((struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 329, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_r = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_2);
-  __pyx_t_2 = 0;
-  goto __pyx_L0;
-
-  /* "ratroyale/backend/hexagon.pyx":328
- *         return visited
- * 
- *     cpdef OddRCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
- *         return _AxialCoord.from_pixel(cls, x, y, hex_size).to_odd_r()
- * 
-*/
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("ratroyale.backend.hexagon.OddRCoord.from_pixel", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  __pyx_L0:;
-  __Pyx_XGIVEREF((PyObject *)__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel(PyObject *__pyx_v_cls, 
+static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel(CYTHON_UNUSED PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -16556,7 +16316,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel = {"from_pixel", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel(PyObject *__pyx_v_cls, 
+static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel(CYTHON_UNUSED PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -16588,46 +16348,46 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_x,&__pyx_mstate_global->__pyx_n_u_y,&__pyx_mstate_global->__pyx_n_u_hex_size,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 328, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 321, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 328, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 321, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 328, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 321, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 328, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 321, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "from_pixel", 0) < (0)) __PYX_ERR(0, 328, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "from_pixel", 0) < (0)) __PYX_ERR(0, 321, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("from_pixel", 1, 3, 3, i); __PYX_ERR(0, 328, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("from_pixel", 1, 3, 3, i); __PYX_ERR(0, 321, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 328, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 321, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 328, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 321, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 328, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 321, __pyx_L3_error)
     }
-    __pyx_v_x = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 328, __pyx_L3_error)
-    __pyx_v_y = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 328, __pyx_L3_error)
-    __pyx_v_hex_size = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_hex_size == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 328, __pyx_L3_error)
+    __pyx_v_x = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 322, __pyx_L3_error)
+    __pyx_v_y = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 322, __pyx_L3_error)
+    __pyx_v_hex_size = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_hex_size == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 322, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("from_pixel", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 328, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("from_pixel", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 321, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -16638,7 +16398,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_25from_pixel(((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_cls), __pyx_v_x, __pyx_v_y, __pyx_v_hex_size);
+  __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_25from_pixel(__pyx_v_x, __pyx_v_y, __pyx_v_hex_size);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -16648,24 +16408,81 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_25from_pixel(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *__pyx_v_cls, double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size) {
+static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_25from_pixel(double __pyx_v_x, double __pyx_v_y, double __pyx_v_hex_size) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  PyObject *__pyx_t_7 = NULL;
+  size_t __pyx_t_8;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("from_pixel", 0);
+
+  /* "ratroyale/backend/hexagon.pyx":323
+ *     @staticmethod
+ *     def from_pixel(double x, double y, double hex_size):
+ *         return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()             # <<<<<<<<<<<<<<
+ * 
+ *     def __add__(self, OddRCoord other):
+*/
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_from_pixel(__pyx_v_cls, __pyx_v_x, __pyx_v_y, __pyx_v_hex_size, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 328, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_4 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord);
+  __Pyx_INCREF(__pyx_t_4);
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_hex_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __pyx_t_8 = 0;
+  {
+    PyObject *__pyx_callargs[4] = {__pyx_t_4, __pyx_t_5, __pyx_t_6, __pyx_t_7};
+    __pyx_t_3 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_from_pixel, __pyx_callargs+__pyx_t_8, (4-__pyx_t_8) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 323, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+  }
+  __pyx_t_2 = __pyx_t_3;
+  __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_8 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_to_odd_r, __pyx_callargs+__pyx_t_8, (1-__pyx_t_8) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 323, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
+  /* "ratroyale/backend/hexagon.pyx":321
+ *         return visited
+ * 
+ *     @staticmethod             # <<<<<<<<<<<<<<
+ *     def from_pixel(double x, double y, double hex_size):
+ *         return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
+*/
+
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_7);
   __Pyx_AddTraceback("ratroyale.backend.hexagon.OddRCoord.from_pixel", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -16674,8 +16491,8 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_25from_pixel(s
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":331
- *         return _AxialCoord.from_pixel(cls, x, y, hex_size).to_odd_r()
+/* "ratroyale/backend/hexagon.pyx":325
+ *         return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
  * 
  *     def __add__(self, OddRCoord other):             # <<<<<<<<<<<<<<
  *         return OddRCoord(self.x + other.x, self.y + other.y)
@@ -16693,7 +16510,7 @@ static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_28__add__(PyOb
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__add__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "other", 0))) __PYX_ERR(0, 331, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "other", 0))) __PYX_ERR(0, 325, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_27__add__(((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self), ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_other));
 
   /* function exit code */
@@ -16721,7 +16538,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_27__add__(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__add__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":332
+  /* "ratroyale/backend/hexagon.pyx":326
  * 
  *     def __add__(self, OddRCoord other):
  *         return OddRCoord(self.x + other.x, self.y + other.y)             # <<<<<<<<<<<<<<
@@ -16732,9 +16549,9 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_27__add__(stru
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
   __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord); 
-  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->x + __pyx_v_other->x)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 332, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->x + __pyx_v_other->x)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 326, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->y + __pyx_v_other->y)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 332, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->y + __pyx_v_other->y)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 326, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_6 = 1;
   {
@@ -16744,15 +16561,15 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_27__add__(stru
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 332, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 326, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((PyObject *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":331
- *         return _AxialCoord.from_pixel(cls, x, y, hex_size).to_odd_r()
+  /* "ratroyale/backend/hexagon.pyx":325
+ *         return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
  * 
  *     def __add__(self, OddRCoord other):             # <<<<<<<<<<<<<<
  *         return OddRCoord(self.x + other.x, self.y + other.y)
@@ -16774,7 +16591,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_27__add__(stru
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":334
+/* "ratroyale/backend/hexagon.pyx":328
  *         return OddRCoord(self.x + other.x, self.y + other.y)
  * 
  *     def __sub__(self, OddRCoord other):             # <<<<<<<<<<<<<<
@@ -16793,7 +16610,7 @@ static PyObject *__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_30__sub__(PyOb
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__sub__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "other", 0))) __PYX_ERR(0, 334, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_other), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "other", 0))) __PYX_ERR(0, 328, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_29__sub__(((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self), ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_other));
 
   /* function exit code */
@@ -16821,7 +16638,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_29__sub__(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__sub__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":335
+  /* "ratroyale/backend/hexagon.pyx":329
  * 
  *     def __sub__(self, OddRCoord other):
  *         return OddRCoord(self.x - other.x, self.y - other.y)             # <<<<<<<<<<<<<<
@@ -16832,9 +16649,9 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_29__sub__(stru
   __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
   __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord); 
-  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->x - __pyx_v_other->x)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int((__pyx_v_self->x - __pyx_v_other->x)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 329, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->y - __pyx_v_other->y)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyLong_From_int((__pyx_v_self->y - __pyx_v_other->y)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 329, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_6 = 1;
   {
@@ -16844,14 +16661,14 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_29__sub__(stru
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 335, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 329, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __pyx_r = ((PyObject *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":334
+  /* "ratroyale/backend/hexagon.pyx":328
  *         return OddRCoord(self.x + other.x, self.y + other.y)
  * 
  *     def __sub__(self, OddRCoord other):             # <<<<<<<<<<<<<<
@@ -16874,7 +16691,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_29__sub__(stru
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":337
+/* "ratroyale/backend/hexagon.pyx":331
  *         return OddRCoord(self.x - other.x, self.y - other.y)
  * 
  *     cpdef list[OddRCoord] path_find(             # <<<<<<<<<<<<<<
@@ -16943,7 +16760,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_path_find); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 337, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_path_find); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 331, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_32path_find)) {
         __Pyx_XDECREF(__pyx_r);
@@ -16967,10 +16784,10 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (4-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 337, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 331, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
-        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_2))) __PYX_ERR(0, 337, __pyx_L1_error)
+        if (!(likely(PyList_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_2))) __PYX_ERR(0, 331, __pyx_L1_error)
         __pyx_r = ((PyObject*)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -16989,7 +16806,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
     #endif
   }
 
-  /* "ratroyale/backend/hexagon.pyx":343
+  /* "ratroyale/backend/hexagon.pyx":337
  *         get_cost: Callable[[OddRCoord, OddRCoord], float] = _get_default_cost,
  *     ):
  *         cdef object frontier = PriorityQueue()             # <<<<<<<<<<<<<<
@@ -16997,7 +16814,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
  *         cdef dict cost_so_far = {self: 0.0}
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_PriorityQueue); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 343, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_PriorityQueue); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -17016,39 +16833,39 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 343, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 337, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_frontier = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":344
+  /* "ratroyale/backend/hexagon.pyx":338
  *     ):
  *         cdef object frontier = PriorityQueue()
  *         cdef dict came_from = {self: None}             # <<<<<<<<<<<<<<
  *         cdef dict cost_so_far = {self: 0.0}
  *         cdef OddRCoord current
 */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 344, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_1, ((PyObject *)__pyx_v_self), Py_None) < (0)) __PYX_ERR(0, 344, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, ((PyObject *)__pyx_v_self), Py_None) < (0)) __PYX_ERR(0, 338, __pyx_L1_error)
   __pyx_v_came_from = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":345
+  /* "ratroyale/backend/hexagon.pyx":339
  *         cdef object frontier = PriorityQueue()
  *         cdef dict came_from = {self: None}
  *         cdef dict cost_so_far = {self: 0.0}             # <<<<<<<<<<<<<<
  *         cdef OddRCoord current
  *         cdef OddRCoord next_coord
 */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 345, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 339, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_1, ((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_float_0_0) < (0)) __PYX_ERR(0, 345, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, ((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_float_0_0) < (0)) __PYX_ERR(0, 339, __pyx_L1_error)
   __pyx_v_cost_so_far = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":353
+  /* "ratroyale/backend/hexagon.pyx":347
  *         cdef _AStarCoord frontier_item
  * 
  *         frontier.put(_AStarCoord(0.0, self))             # <<<<<<<<<<<<<<
@@ -17066,7 +16883,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
     __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_6, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 353, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 347, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_2);
   }
   __pyx_t_5 = 0;
@@ -17075,12 +16892,12 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_put, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF((PyObject *)__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 353, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 347, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":355
+  /* "ratroyale/backend/hexagon.pyx":349
  *         frontier.put(_AStarCoord(0.0, self))
  * 
  *         while not frontier.empty():             # <<<<<<<<<<<<<<
@@ -17095,15 +16912,15 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
       PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
       __pyx_t_1 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_empty, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 355, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
-    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 355, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 349, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_8 = (!__pyx_t_7);
     if (!__pyx_t_8) break;
 
-    /* "ratroyale/backend/hexagon.pyx":356
+    /* "ratroyale/backend/hexagon.pyx":350
  * 
  *         while not frontier.empty():
  *             frontier_item = frontier.get()             # <<<<<<<<<<<<<<
@@ -17117,14 +16934,14 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
       PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
       __pyx_t_1 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_get, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 356, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 350, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord))))) __PYX_ERR(0, 356, __pyx_L1_error)
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord))))) __PYX_ERR(0, 350, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_frontier_item, ((struct __pyx_obj_9ratroyale_7backend_7hexagon__AStarCoord *)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "ratroyale/backend/hexagon.pyx":357
+    /* "ratroyale/backend/hexagon.pyx":351
  *         while not frontier.empty():
  *             frontier_item = frontier.get()
  *             current = frontier_item.coord             # <<<<<<<<<<<<<<
@@ -17136,19 +16953,19 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
     __Pyx_XDECREF_SET(__pyx_v_current, ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "ratroyale/backend/hexagon.pyx":359
+    /* "ratroyale/backend/hexagon.pyx":353
  *             current = frontier_item.coord
  * 
  *             if current == goal:             # <<<<<<<<<<<<<<
  *                 break
  * 
 */
-    __pyx_t_1 = PyObject_RichCompare(((PyObject *)__pyx_v_current), ((PyObject *)__pyx_v_goal), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 359, __pyx_L1_error)
-    __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 359, __pyx_L1_error)
+    __pyx_t_1 = PyObject_RichCompare(((PyObject *)__pyx_v_current), ((PyObject *)__pyx_v_goal), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 353, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 353, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     if (__pyx_t_8) {
 
-      /* "ratroyale/backend/hexagon.pyx":360
+      /* "ratroyale/backend/hexagon.pyx":354
  * 
  *             if current == goal:
  *                 break             # <<<<<<<<<<<<<<
@@ -17157,7 +16974,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
 */
       goto __pyx_L4_break;
 
-      /* "ratroyale/backend/hexagon.pyx":359
+      /* "ratroyale/backend/hexagon.pyx":353
  *             current = frontier_item.coord
  * 
  *             if current == goal:             # <<<<<<<<<<<<<<
@@ -17166,7 +16983,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
 */
     }
 
-    /* "ratroyale/backend/hexagon.pyx":362
+    /* "ratroyale/backend/hexagon.pyx":356
  *                 break
  * 
  *             for next_coord in current.get_neighbors():             # <<<<<<<<<<<<<<
@@ -17180,7 +16997,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
       PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
       __pyx_t_1 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_get_neighbors, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 356, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
     if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
@@ -17188,9 +17005,9 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
       __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
+      __pyx_t_9 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 356, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_10 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 362, __pyx_L1_error)
+      __pyx_t_10 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 356, __pyx_L1_error)
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     for (;;) {
@@ -17199,7 +17016,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
           {
             Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
             #if !CYTHON_ASSUME_SAFE_SIZE
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 362, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 356, __pyx_L1_error)
             #endif
             if (__pyx_t_9 >= __pyx_temp) break;
           }
@@ -17209,7 +17026,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
           {
             Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_2);
             #if !CYTHON_ASSUME_SAFE_SIZE
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 362, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 356, __pyx_L1_error)
             #endif
             if (__pyx_t_9 >= __pyx_temp) break;
           }
@@ -17220,24 +17037,24 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
           #endif
           ++__pyx_t_9;
         }
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 356, __pyx_L1_error)
       } else {
         __pyx_t_1 = __pyx_t_10(__pyx_t_2);
         if (unlikely(!__pyx_t_1)) {
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
-            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 362, __pyx_L1_error)
+            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 356, __pyx_L1_error)
             PyErr_Clear();
           }
           break;
         }
       }
       __Pyx_GOTREF(__pyx_t_1);
-      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 362, __pyx_L1_error)
+      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 356, __pyx_L1_error)
       __Pyx_XDECREF_SET(__pyx_v_next_coord, ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_1));
       __pyx_t_1 = 0;
 
-      /* "ratroyale/backend/hexagon.pyx":363
+      /* "ratroyale/backend/hexagon.pyx":357
  * 
  *             for next_coord in current.get_neighbors():
  *                 if is_coord_blocked(next_coord, current):             # <<<<<<<<<<<<<<
@@ -17264,14 +17081,14 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
         __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_6, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 363, __pyx_L1_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
-      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 363, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 357, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (__pyx_t_8) {
 
-        /* "ratroyale/backend/hexagon.pyx":364
+        /* "ratroyale/backend/hexagon.pyx":358
  *             for next_coord in current.get_neighbors():
  *                 if is_coord_blocked(next_coord, current):
  *                     continue             # <<<<<<<<<<<<<<
@@ -17280,7 +17097,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
 */
         goto __pyx_L6_continue;
 
-        /* "ratroyale/backend/hexagon.pyx":363
+        /* "ratroyale/backend/hexagon.pyx":357
  * 
  *             for next_coord in current.get_neighbors():
  *                 if is_coord_blocked(next_coord, current):             # <<<<<<<<<<<<<<
@@ -17289,14 +17106,14 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
 */
       }
 
-      /* "ratroyale/backend/hexagon.pyx":366
+      /* "ratroyale/backend/hexagon.pyx":360
  *                     continue
  * 
  *                 new_cost = cost_so_far[current] + get_cost(current, next_coord)             # <<<<<<<<<<<<<<
  * 
  *                 if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:
 */
-      __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_cost_so_far, ((PyObject *)__pyx_v_current)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 366, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_cost_so_far, ((PyObject *)__pyx_v_current)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __pyx_t_4 = NULL;
       __Pyx_INCREF(__pyx_v_get_cost);
@@ -17318,66 +17135,66 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
         __pyx_t_6 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 366, __pyx_L1_error)
+        if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 360, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
       }
-      __pyx_t_3 = PyNumber_Add(__pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 366, __pyx_L1_error)
+      __pyx_t_3 = PyNumber_Add(__pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 360, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_11 = __Pyx_PyFloat_AsFloat(__pyx_t_3); if (unlikely((__pyx_t_11 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 366, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyFloat_AsFloat(__pyx_t_3); if (unlikely((__pyx_t_11 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 360, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_new_cost = __pyx_t_11;
 
-      /* "ratroyale/backend/hexagon.pyx":368
+      /* "ratroyale/backend/hexagon.pyx":362
  *                 new_cost = cost_so_far[current] + get_cost(current, next_coord)
  * 
  *                 if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:             # <<<<<<<<<<<<<<
  *                     cost_so_far[next_coord] = new_cost
  *                     priority = new_cost + goal.get_distance(next_coord)
 */
-      __pyx_t_7 = (__Pyx_PyDict_ContainsTF(((PyObject *)__pyx_v_next_coord), __pyx_v_cost_so_far, Py_NE)); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 368, __pyx_L1_error)
+      __pyx_t_7 = (__Pyx_PyDict_ContainsTF(((PyObject *)__pyx_v_next_coord), __pyx_v_cost_so_far, Py_NE)); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 362, __pyx_L1_error)
       if (!__pyx_t_7) {
       } else {
         __pyx_t_8 = __pyx_t_7;
         goto __pyx_L10_bool_binop_done;
       }
-      __pyx_t_3 = PyFloat_FromDouble(__pyx_v_new_cost); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 368, __pyx_L1_error)
+      __pyx_t_3 = PyFloat_FromDouble(__pyx_v_new_cost); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_6 = __Pyx_PyDict_GetItem(__pyx_v_cost_so_far, ((PyObject *)__pyx_v_next_coord)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 368, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyDict_GetItem(__pyx_v_cost_so_far, ((PyObject *)__pyx_v_next_coord)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 362, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_1 = PyObject_RichCompare(__pyx_t_3, __pyx_t_6, Py_LT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 368, __pyx_L1_error)
+      __pyx_t_1 = PyObject_RichCompare(__pyx_t_3, __pyx_t_6, Py_LT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 368, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 362, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_8 = __pyx_t_7;
       __pyx_L10_bool_binop_done:;
       if (__pyx_t_8) {
 
-        /* "ratroyale/backend/hexagon.pyx":369
+        /* "ratroyale/backend/hexagon.pyx":363
  * 
  *                 if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:
  *                     cost_so_far[next_coord] = new_cost             # <<<<<<<<<<<<<<
  *                     priority = new_cost + goal.get_distance(next_coord)
  *                     frontier.put(_AStarCoord(priority, next_coord))
 */
-        __pyx_t_1 = PyFloat_FromDouble(__pyx_v_new_cost); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 369, __pyx_L1_error)
+        __pyx_t_1 = PyFloat_FromDouble(__pyx_v_new_cost); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 363, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        if (unlikely((PyDict_SetItem(__pyx_v_cost_so_far, ((PyObject *)__pyx_v_next_coord), __pyx_t_1) < 0))) __PYX_ERR(0, 369, __pyx_L1_error)
+        if (unlikely((PyDict_SetItem(__pyx_v_cost_so_far, ((PyObject *)__pyx_v_next_coord), __pyx_t_1) < 0))) __PYX_ERR(0, 363, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "ratroyale/backend/hexagon.pyx":370
+        /* "ratroyale/backend/hexagon.pyx":364
  *                 if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:
  *                     cost_so_far[next_coord] = new_cost
  *                     priority = new_cost + goal.get_distance(next_coord)             # <<<<<<<<<<<<<<
  *                     frontier.put(_AStarCoord(priority, next_coord))
  *                     came_from[next_coord] = current
 */
-        __pyx_t_12 = ((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_goal->__pyx_vtab)->get_distance(__pyx_v_goal, __pyx_v_next_coord, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 370, __pyx_L1_error)
+        __pyx_t_12 = ((struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_goal->__pyx_vtab)->get_distance(__pyx_v_goal, __pyx_v_next_coord, 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 364, __pyx_L1_error)
         __pyx_v_priority = (__pyx_v_new_cost + __pyx_t_12);
 
-        /* "ratroyale/backend/hexagon.pyx":371
+        /* "ratroyale/backend/hexagon.pyx":365
  *                     cost_so_far[next_coord] = new_cost
  *                     priority = new_cost + goal.get_distance(next_coord)
  *                     frontier.put(_AStarCoord(priority, next_coord))             # <<<<<<<<<<<<<<
@@ -17389,7 +17206,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
         __pyx_t_4 = NULL;
         __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord);
         __pyx_t_13 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord); 
-        __pyx_t_14 = PyFloat_FromDouble(__pyx_v_priority); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 371, __pyx_L1_error)
+        __pyx_t_14 = PyFloat_FromDouble(__pyx_v_priority); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 365, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_14);
         __pyx_t_5 = 1;
         {
@@ -17398,7 +17215,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 371, __pyx_L1_error)
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 365, __pyx_L1_error)
           __Pyx_GOTREF((PyObject *)__pyx_t_3);
         }
         __pyx_t_5 = 0;
@@ -17407,21 +17224,21 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
           __pyx_t_1 = __Pyx_PyObject_FastCallMethod(__pyx_mstate_global->__pyx_n_u_put, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF((PyObject *)__pyx_t_3); __pyx_t_3 = 0;
-          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 371, __pyx_L1_error)
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 365, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_1);
         }
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "ratroyale/backend/hexagon.pyx":372
+        /* "ratroyale/backend/hexagon.pyx":366
  *                     priority = new_cost + goal.get_distance(next_coord)
  *                     frontier.put(_AStarCoord(priority, next_coord))
  *                     came_from[next_coord] = current             # <<<<<<<<<<<<<<
  * 
  *         if goal not in came_from:
 */
-        if (unlikely((PyDict_SetItem(__pyx_v_came_from, ((PyObject *)__pyx_v_next_coord), ((PyObject *)__pyx_v_current)) < 0))) __PYX_ERR(0, 372, __pyx_L1_error)
+        if (unlikely((PyDict_SetItem(__pyx_v_came_from, ((PyObject *)__pyx_v_next_coord), ((PyObject *)__pyx_v_current)) < 0))) __PYX_ERR(0, 366, __pyx_L1_error)
 
-        /* "ratroyale/backend/hexagon.pyx":368
+        /* "ratroyale/backend/hexagon.pyx":362
  *                 new_cost = cost_so_far[current] + get_cost(current, next_coord)
  * 
  *                 if next_coord not in cost_so_far or new_cost < cost_so_far[next_coord]:             # <<<<<<<<<<<<<<
@@ -17430,7 +17247,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
 */
       }
 
-      /* "ratroyale/backend/hexagon.pyx":362
+      /* "ratroyale/backend/hexagon.pyx":356
  *                 break
  * 
  *             for next_coord in current.get_neighbors():             # <<<<<<<<<<<<<<
@@ -17443,17 +17260,17 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
   }
   __pyx_L4_break:;
 
-  /* "ratroyale/backend/hexagon.pyx":374
+  /* "ratroyale/backend/hexagon.pyx":368
  *                     came_from[next_coord] = current
  * 
  *         if goal not in came_from:             # <<<<<<<<<<<<<<
  *             return None
  * 
 */
-  __pyx_t_8 = (__Pyx_PyDict_ContainsTF(((PyObject *)__pyx_v_goal), __pyx_v_came_from, Py_NE)); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 374, __pyx_L1_error)
+  __pyx_t_8 = (__Pyx_PyDict_ContainsTF(((PyObject *)__pyx_v_goal), __pyx_v_came_from, Py_NE)); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 368, __pyx_L1_error)
   if (__pyx_t_8) {
 
-    /* "ratroyale/backend/hexagon.pyx":375
+    /* "ratroyale/backend/hexagon.pyx":369
  * 
  *         if goal not in came_from:
  *             return None             # <<<<<<<<<<<<<<
@@ -17464,7 +17281,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
     __pyx_r = ((PyObject*)Py_None); __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "ratroyale/backend/hexagon.pyx":374
+    /* "ratroyale/backend/hexagon.pyx":368
  *                     came_from[next_coord] = current
  * 
  *         if goal not in came_from:             # <<<<<<<<<<<<<<
@@ -17473,19 +17290,19 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
 */
   }
 
-  /* "ratroyale/backend/hexagon.pyx":377
+  /* "ratroyale/backend/hexagon.pyx":371
  *             return None
  * 
  *         path = []             # <<<<<<<<<<<<<<
  *         current_ = goal
  *         while current_ is not None:
 */
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 371, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_path = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":378
+  /* "ratroyale/backend/hexagon.pyx":372
  * 
  *         path = []
  *         current_ = goal             # <<<<<<<<<<<<<<
@@ -17495,7 +17312,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
   __Pyx_INCREF((PyObject *)__pyx_v_goal);
   __pyx_v_current_ = __pyx_v_goal;
 
-  /* "ratroyale/backend/hexagon.pyx":379
+  /* "ratroyale/backend/hexagon.pyx":373
  *         path = []
  *         current_ = goal
  *         while current_ is not None:             # <<<<<<<<<<<<<<
@@ -17506,50 +17323,50 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
     __pyx_t_8 = (((PyObject *)__pyx_v_current_) != Py_None);
     if (!__pyx_t_8) break;
 
-    /* "ratroyale/backend/hexagon.pyx":380
+    /* "ratroyale/backend/hexagon.pyx":374
  *         current_ = goal
  *         while current_ is not None:
  *             path.append(current_)             # <<<<<<<<<<<<<<
  *             current_ = came_from[current_]
  * 
 */
-    __pyx_t_15 = __Pyx_PyList_Append(__pyx_v_path, ((PyObject *)__pyx_v_current_)); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 380, __pyx_L1_error)
+    __pyx_t_15 = __Pyx_PyList_Append(__pyx_v_path, ((PyObject *)__pyx_v_current_)); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 374, __pyx_L1_error)
 
-    /* "ratroyale/backend/hexagon.pyx":381
+    /* "ratroyale/backend/hexagon.pyx":375
  *         while current_ is not None:
  *             path.append(current_)
  *             current_ = came_from[current_]             # <<<<<<<<<<<<<<
  * 
  *         path.pop()
 */
-    __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_came_from, ((PyObject *)__pyx_v_current_)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 381, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_came_from, ((PyObject *)__pyx_v_current_)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 375, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 381, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord))))) __PYX_ERR(0, 375, __pyx_L1_error)
     __Pyx_DECREF_SET(__pyx_v_current_, ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_t_2));
     __pyx_t_2 = 0;
   }
 
-  /* "ratroyale/backend/hexagon.pyx":383
+  /* "ratroyale/backend/hexagon.pyx":377
  *             current_ = came_from[current_]
  * 
  *         path.pop()             # <<<<<<<<<<<<<<
  *         path.reverse()
  *         return path
 */
-  __pyx_t_2 = __Pyx_PyList_Pop(__pyx_v_path); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 383, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyList_Pop(__pyx_v_path); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 377, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":384
+  /* "ratroyale/backend/hexagon.pyx":378
  * 
  *         path.pop()
  *         path.reverse()             # <<<<<<<<<<<<<<
  *         return path
  * 
 */
-  __pyx_t_15 = PyList_Reverse(__pyx_v_path); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 384, __pyx_L1_error)
+  __pyx_t_15 = PyList_Reverse(__pyx_v_path); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 378, __pyx_L1_error)
 
-  /* "ratroyale/backend/hexagon.pyx":385
+  /* "ratroyale/backend/hexagon.pyx":379
  *         path.pop()
  *         path.reverse()
  *         return path             # <<<<<<<<<<<<<<
@@ -17561,7 +17378,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find(struc
   __pyx_r = __pyx_v_path;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":337
+  /* "ratroyale/backend/hexagon.pyx":331
  *         return OddRCoord(self.x - other.x, self.y - other.y)
  * 
  *     cpdef list[OddRCoord] path_find(             # <<<<<<<<<<<<<<
@@ -17635,41 +17452,41 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_goal,&__pyx_mstate_global->__pyx_n_u_is_coord_blocked,&__pyx_mstate_global->__pyx_n_u_get_cost,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 337, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 331, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 337, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 331, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 337, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 331, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 337, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 331, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "path_find", 0) < (0)) __PYX_ERR(0, 337, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "path_find", 0) < (0)) __PYX_ERR(0, 331, __pyx_L3_error)
       if (!values[2]) values[2] = __Pyx_NewRef(__pyx_mstate_global->__pyx_k__3);
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("path_find", 0, 2, 3, i); __PYX_ERR(0, 337, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("path_find", 0, 2, 3, i); __PYX_ERR(0, 331, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 337, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 331, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 337, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 331, __pyx_L3_error)
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 337, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 331, __pyx_L3_error)
         break;
         default: goto __pyx_L5_argtuple_error;
       }
@@ -17681,7 +17498,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("path_find", 0, 2, 3, __pyx_nargs); __PYX_ERR(0, 337, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("path_find", 0, 2, 3, __pyx_nargs); __PYX_ERR(0, 331, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -17692,7 +17509,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_goal), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "goal", 0))) __PYX_ERR(0, 339, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_goal), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, 1, "goal", 0))) __PYX_ERR(0, 333, __pyx_L1_error)
   __pyx_r = __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_31path_find(((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)__pyx_v_self), __pyx_v_goal, __pyx_v_is_coord_blocked, __pyx_v_get_cost);
 
   /* function exit code */
@@ -17724,7 +17541,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_31path_find(st
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 1;
   __pyx_t_2.get_cost = __pyx_v_get_cost;
-  __pyx_t_1 = __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord->path_find(__pyx_v_self, __pyx_v_goal, __pyx_v_is_coord_blocked, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 337, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord->path_find(__pyx_v_self, __pyx_v_goal, __pyx_v_is_coord_blocked, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 331, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -17741,7 +17558,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_31path_find(st
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":387
+/* "ratroyale/backend/hexagon.pyx":381
  *         return path
  * 
  *     def __str__(self) -> str:             # <<<<<<<<<<<<<<
@@ -17775,15 +17592,15 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_33__str__(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__str__", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":388
+  /* "ratroyale/backend/hexagon.pyx":382
  * 
  *     def __str__(self) -> str:
  *         return f"({self.x}, {self.y})"             # <<<<<<<<<<<<<<
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyUnicode_From_int(__pyx_v_self->x, 0, ' ', 'd'); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyUnicode_From_int(__pyx_v_self->x, 0, ' ', 'd'); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 382, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyUnicode_From_int(__pyx_v_self->y, 0, ' ', 'd'); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyUnicode_From_int(__pyx_v_self->y, 0, ' ', 'd'); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 382, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3[0] = __pyx_mstate_global->__pyx_kp_u__4;
   __pyx_t_3[1] = __pyx_t_1;
@@ -17791,7 +17608,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_33__str__(stru
   __pyx_t_3[3] = __pyx_t_2;
   __pyx_t_3[4] = __pyx_mstate_global->__pyx_kp_u__6;
   __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_3, 5, 1 * 2 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_1) + 2 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_2), 127);
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 388, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 382, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -17799,7 +17616,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_33__str__(stru
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "ratroyale/backend/hexagon.pyx":387
+  /* "ratroyale/backend/hexagon.pyx":381
  *         return path
  * 
  *     def __str__(self) -> str:             # <<<<<<<<<<<<<<
@@ -17819,12 +17636,12 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_33__str__(stru
   return __pyx_r;
 }
 
-/* "ratroyale/backend/hexagon.pyx":210
- * ]
+/* "ratroyale/backend/hexagon.pxd":26
+ * 
  * cdef class OddRCoord:
  *     cdef public int x, y             # <<<<<<<<<<<<<<
- * 
- * 
+ *     cpdef list[OddRCoord] path_find(
+ *         self,
 */
 
 /* Python wrapper */
@@ -17851,7 +17668,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_1x___get__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->x); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -17889,7 +17706,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_1x_2__set__(struct _
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 26, __pyx_L1_error)
   __pyx_v_self->x = __pyx_t_1;
 
   /* function exit code */
@@ -17926,7 +17743,7 @@ static PyObject *__pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_1y___get__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_From_int(__pyx_v_self->y); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -17964,7 +17781,7 @@ static int __pyx_pf_9ratroyale_7backend_7hexagon_9OddRCoord_1y_2__set__(struct _
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyLong_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 26, __pyx_L1_error)
   __pyx_v_self->y = __pyx_t_1;
 
   /* function exit code */
@@ -19418,7 +19235,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon___pyx_unpickle__CubeCoord_
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  int __pyx_t_2;
+  double __pyx_t_2;
   int __pyx_t_3;
   Py_ssize_t __pyx_t_4;
   int __pyx_t_5;
@@ -19444,7 +19261,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon___pyx_unpickle__CubeCoord_
   }
   __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v___pyx_state, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v___pyx_result->q = __pyx_t_2;
   if (unlikely(__pyx_v___pyx_state == Py_None)) {
@@ -19453,7 +19270,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon___pyx_unpickle__CubeCoord_
   }
   __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v___pyx_state, 1, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v___pyx_result->r = __pyx_t_2;
   if (unlikely(__pyx_v___pyx_state == Py_None)) {
@@ -19462,7 +19279,7 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon___pyx_unpickle__CubeCoord_
   }
   __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v___pyx_state, 2, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v___pyx_result->s = __pyx_t_2;
 
@@ -21140,139 +20957,6 @@ static PyObject *__pyx_f_9ratroyale_7backend_7hexagon___pyx_unpickle_OddRCoord__
   return __pyx_r;
 }
 /* #### Code section: module_exttypes ### */
-
-static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon_IsCoordBlocked(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  PyObject *o;
-  #if CYTHON_COMPILING_IN_LIMITED_API
-  allocfunc alloc_func = (allocfunc)PyType_GetSlot(t, Py_tp_alloc);
-  o = alloc_func(t, 0);
-  #else
-  if (likely(!__Pyx_PyType_HasFeature(t, Py_TPFLAGS_IS_ABSTRACT))) {
-    o = (*t->tp_alloc)(t, 0);
-  } else {
-    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_mstate_global->__pyx_empty_tuple, 0);
-  }
-  if (unlikely(!o)) return 0;
-  #endif
-  return o;
-}
-
-static void __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_IsCoordBlocked(PyObject *o) {
-  #if CYTHON_USE_TP_FINALIZE
-  if (unlikely((PY_VERSION_HEX >= 0x03080000 || __Pyx_PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE)) && __Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && (!PyType_IS_GC(Py_TYPE(o)) || !__Pyx_PyObject_GC_IsFinalized(o))) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_IsCoordBlocked) {
-      if (PyObject_CallFinalizerFromDealloc(o)) return;
-    }
-  }
-  #endif
-  #if CYTHON_USE_TYPE_SLOTS
-  (*Py_TYPE(o)->tp_free)(o);
-  #else
-  {
-    freefunc tp_free = (freefunc)PyType_GetSlot(Py_TYPE(o), Py_tp_free);
-    if (tp_free) tp_free(o);
-  }
-  #endif
-}
-
-static PyMethodDef __pyx_methods_9ratroyale_7backend_7hexagon_IsCoordBlocked[] = {
-  {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_14IsCoordBlocked_1__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_14IsCoordBlocked_3__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {0, 0, 0, 0}
-};
-#if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_9ratroyale_7backend_7hexagon_IsCoordBlocked},
-  {Py_tp_methods, (void *)__pyx_methods_9ratroyale_7backend_7hexagon_IsCoordBlocked},
-  {Py_tp_new, (void *)__pyx_tp_new_9ratroyale_7backend_7hexagon_IsCoordBlocked},
-  {0, 0},
-};
-static PyType_Spec __pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked_spec = {
-  "ratroyale.backend.hexagon.IsCoordBlocked",
-  sizeof(struct __pyx_obj_9ratroyale_7backend_7hexagon_IsCoordBlocked),
-  0,
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE,
-  __pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked_slots,
-};
-#else
-
-static PyTypeObject __pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked = {
-  PyVarObject_HEAD_INIT(0, 0)
-  "ratroyale.backend.hexagon.""IsCoordBlocked", /*tp_name*/
-  sizeof(struct __pyx_obj_9ratroyale_7backend_7hexagon_IsCoordBlocked), /*tp_basicsize*/
-  0, /*tp_itemsize*/
-  __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_IsCoordBlocked, /*tp_dealloc*/
-  #if PY_VERSION_HEX < 0x030800b4
-  0, /*tp_print*/
-  #endif
-  #if PY_VERSION_HEX >= 0x030800b4
-  0, /*tp_vectorcall_offset*/
-  #endif
-  0, /*tp_getattr*/
-  0, /*tp_setattr*/
-  0, /*tp_as_async*/
-  0, /*tp_repr*/
-  0, /*tp_as_number*/
-  0, /*tp_as_sequence*/
-  0, /*tp_as_mapping*/
-  0, /*tp_hash*/
-  0, /*tp_call*/
-  0, /*tp_str*/
-  0, /*tp_getattro*/
-  0, /*tp_setattro*/
-  0, /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  0, /*tp_doc*/
-  0, /*tp_traverse*/
-  0, /*tp_clear*/
-  0, /*tp_richcompare*/
-  0, /*tp_weaklistoffset*/
-  0, /*tp_iter*/
-  0, /*tp_iternext*/
-  __pyx_methods_9ratroyale_7backend_7hexagon_IsCoordBlocked, /*tp_methods*/
-  0, /*tp_members*/
-  0, /*tp_getset*/
-  0, /*tp_base*/
-  0, /*tp_dict*/
-  0, /*tp_descr_get*/
-  0, /*tp_descr_set*/
-  #if !CYTHON_USE_TYPE_SPECS
-  0, /*tp_dictoffset*/
-  #endif
-  0, /*tp_init*/
-  0, /*tp_alloc*/
-  __pyx_tp_new_9ratroyale_7backend_7hexagon_IsCoordBlocked, /*tp_new*/
-  0, /*tp_free*/
-  0, /*tp_is_gc*/
-  0, /*tp_bases*/
-  0, /*tp_mro*/
-  0, /*tp_cache*/
-  0, /*tp_subclasses*/
-  0, /*tp_weaklist*/
-  0, /*tp_del*/
-  0, /*tp_version_tag*/
-  #if CYTHON_USE_TP_FINALIZE
-  0, /*tp_finalize*/
-  #else
-  NULL, /*tp_finalize*/
-  #endif
-  #if PY_VERSION_HEX >= 0x030800b1 && (!CYTHON_COMPILING_IN_PYPY || PYPY_VERSION_NUM >= 0x07030800)
-  0, /*tp_vectorcall*/
-  #endif
-  #if __PYX_NEED_TP_PRINT_SLOT == 1
-  0, /*tp_print*/
-  #endif
-  #if PY_VERSION_HEX >= 0x030C0000
-  0, /*tp_watched*/
-  #endif
-  #if PY_VERSION_HEX >= 0x030d00A4
-  0, /*tp_versions_used*/
-  #endif
-  #if CYTHON_COMPILING_IN_PYPY && PY_VERSION_HEX >= 0x03090000 && PY_VERSION_HEX < 0x030a0000
-  0, /*tp_pypy_flags*/
-  #endif
-};
-#endif
 static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__AxialCoord __pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoord;
 
 static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon__AxialCoord(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
@@ -21437,6 +21121,7 @@ static PyMethodDef __pyx_methods_9ratroyale_7backend_7hexagon__AxialCoord[] = {
   {"__add__", (PyCFunction)__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_11__add__, METH_O|METH_COEXIST, 0},
   {"__sub__", (PyCFunction)__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_13__sub__, METH_O|METH_COEXIST, 0},
   {"all_in_range", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_15all_in_range, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"from_pixel", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_20__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_22__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
@@ -21554,6 +21239,332 @@ static PyTypeObject __pyx_type_9ratroyale_7backend_7hexagon__AxialCoord = {
   __pyx_pw_9ratroyale_7backend_7hexagon_11_AxialCoord_1__init__, /*tp_init*/
   0, /*tp_alloc*/
   __pyx_tp_new_9ratroyale_7backend_7hexagon__AxialCoord, /*tp_new*/
+  0, /*tp_free*/
+  0, /*tp_is_gc*/
+  0, /*tp_bases*/
+  0, /*tp_mro*/
+  0, /*tp_cache*/
+  0, /*tp_subclasses*/
+  0, /*tp_weaklist*/
+  0, /*tp_del*/
+  0, /*tp_version_tag*/
+  #if CYTHON_USE_TP_FINALIZE
+  0, /*tp_finalize*/
+  #else
+  NULL, /*tp_finalize*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030800b1 && (!CYTHON_COMPILING_IN_PYPY || PYPY_VERSION_NUM >= 0x07030800)
+  0, /*tp_vectorcall*/
+  #endif
+  #if __PYX_NEED_TP_PRINT_SLOT == 1
+  0, /*tp_print*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030C0000
+  0, /*tp_watched*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030d00A4
+  0, /*tp_versions_used*/
+  #endif
+  #if CYTHON_COMPILING_IN_PYPY && PY_VERSION_HEX >= 0x03090000 && PY_VERSION_HEX < 0x030a0000
+  0, /*tp_pypy_flags*/
+  #endif
+};
+#endif
+static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord;
+
+static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon_OddRCoord(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *p;
+  PyObject *o;
+  #if CYTHON_COMPILING_IN_LIMITED_API
+  allocfunc alloc_func = (allocfunc)PyType_GetSlot(t, Py_tp_alloc);
+  o = alloc_func(t, 0);
+  #else
+  if (likely(!__Pyx_PyType_HasFeature(t, Py_TPFLAGS_IS_ABSTRACT))) {
+    o = (*t->tp_alloc)(t, 0);
+  } else {
+    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_mstate_global->__pyx_empty_tuple, 0);
+  }
+  if (unlikely(!o)) return 0;
+  #endif
+  p = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)o);
+  p->__pyx_vtab = __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord;
+  return o;
+}
+
+static void __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_OddRCoord(PyObject *o) {
+  #if CYTHON_USE_TP_FINALIZE
+  if (unlikely((PY_VERSION_HEX >= 0x03080000 || __Pyx_PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE)) && __Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && (!PyType_IS_GC(Py_TYPE(o)) || !__Pyx_PyObject_GC_IsFinalized(o))) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_OddRCoord) {
+      if (PyObject_CallFinalizerFromDealloc(o)) return;
+    }
+  }
+  #endif
+  #if CYTHON_USE_TYPE_SLOTS
+  (*Py_TYPE(o)->tp_free)(o);
+  #else
+  {
+    freefunc tp_free = (freefunc)PyType_GetSlot(Py_TYPE(o), Py_tp_free);
+    if (tp_free) tp_free(o);
+  }
+  #endif
+}
+
+static PyObject *__pyx_tp_richcompare_9ratroyale_7backend_7hexagon_OddRCoord(PyObject *o1, PyObject *o2, int op) {
+  switch (op) {
+    case Py_EQ: {
+      return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_5__eq__(o1, o2);
+    }
+    case Py_NE: {
+      PyObject *ret;
+      ret = __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_5__eq__(o1, o2);
+      if (likely(ret && ret != Py_NotImplemented)) {
+        int b = __Pyx_PyObject_IsTrue(ret);
+        Py_DECREF(ret);
+        if (unlikely(b < 0)) return NULL;
+        ret = (b) ? Py_False : Py_True;
+        Py_INCREF(ret);
+      }
+      return ret;
+    }
+    default: {
+      return __Pyx_NewRef(Py_NotImplemented);
+    }
+  }
+}
+
+static CYTHON_INLINE PyObject *__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord_maybe_call_slot(PyTypeObject* type, PyObject *left, PyObject *right ) {
+    binaryfunc slot;
+#if CYTHON_USE_TYPE_SLOTS
+    slot = type->tp_as_number ? type->tp_as_number->nb_add : NULL;
+#else
+    slot = (binaryfunc) PyType_GetSlot(type, Py_nb_add);
+#endif
+    return slot ? slot(left, right ) : __Pyx_NewRef(Py_NotImplemented);
+}
+static PyObject *__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord(PyObject *left, PyObject *right ) {
+    int maybe_self_is_left, maybe_self_is_right = 0;
+    maybe_self_is_left = Py_TYPE(left) == Py_TYPE(right)
+#if CYTHON_USE_TYPE_SLOTS
+            || (Py_TYPE(left)->tp_as_number && Py_TYPE(left)->tp_as_number->nb_add == &__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord)
+#endif
+            || __Pyx_TypeCheck(left, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
+    if (maybe_self_is_left) {
+        PyObject *res;
+        res = __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_28__add__(left, right);
+        if (res != Py_NotImplemented) return res;
+        Py_DECREF(res);
+    }
+    maybe_self_is_right = Py_TYPE(left) == Py_TYPE(right)
+#if CYTHON_USE_TYPE_SLOTS
+            || (Py_TYPE(right)->tp_as_number && Py_TYPE(right)->tp_as_number->nb_add == &__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord)
+#endif
+            || PyType_IsSubtype(Py_TYPE(right), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
+    if (maybe_self_is_right) {
+        return __pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord_maybe_call_slot(__Pyx_PyType_GetSlot(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, tp_base, PyTypeObject*), left, right );
+    }
+    return __Pyx_NewRef(Py_NotImplemented);
+}
+
+
+
+static CYTHON_INLINE PyObject *__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord_maybe_call_slot(PyTypeObject* type, PyObject *left, PyObject *right ) {
+    binaryfunc slot;
+#if CYTHON_USE_TYPE_SLOTS
+    slot = type->tp_as_number ? type->tp_as_number->nb_subtract : NULL;
+#else
+    slot = (binaryfunc) PyType_GetSlot(type, Py_nb_subtract);
+#endif
+    return slot ? slot(left, right ) : __Pyx_NewRef(Py_NotImplemented);
+}
+static PyObject *__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord(PyObject *left, PyObject *right ) {
+    int maybe_self_is_left, maybe_self_is_right = 0;
+    maybe_self_is_left = Py_TYPE(left) == Py_TYPE(right)
+#if CYTHON_USE_TYPE_SLOTS
+            || (Py_TYPE(left)->tp_as_number && Py_TYPE(left)->tp_as_number->nb_subtract == &__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord)
+#endif
+            || __Pyx_TypeCheck(left, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
+    if (maybe_self_is_left) {
+        PyObject *res;
+        res = __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_30__sub__(left, right);
+        if (res != Py_NotImplemented) return res;
+        Py_DECREF(res);
+    }
+    maybe_self_is_right = Py_TYPE(left) == Py_TYPE(right)
+#if CYTHON_USE_TYPE_SLOTS
+            || (Py_TYPE(right)->tp_as_number && Py_TYPE(right)->tp_as_number->nb_subtract == &__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord)
+#endif
+            || PyType_IsSubtype(Py_TYPE(right), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
+    if (maybe_self_is_right) {
+        return __pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord_maybe_call_slot(__Pyx_PyType_GetSlot(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, tp_base, PyTypeObject*), left, right );
+    }
+    return __Pyx_NewRef(Py_NotImplemented);
+}
+
+
+
+static PyObject *__pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_row(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_3row_1__get__(o);
+}
+
+static PyObject *__pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_col(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_3col_1__get__(o);
+}
+
+static PyObject *__pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_x(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1x_1__get__(o);
+}
+
+static int __pyx_setprop_9ratroyale_7backend_7hexagon_9OddRCoord_x(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1x_3__set__(o, v);
+  }
+  else {
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
+  }
+}
+
+static PyObject *__pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_y(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1y_1__get__(o);
+}
+
+static int __pyx_setprop_9ratroyale_7backend_7hexagon_9OddRCoord_y(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1y_3__set__(o, v);
+  }
+  else {
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
+  }
+}
+
+static PyMethodDef __pyx_methods_9ratroyale_7backend_7hexagon_OddRCoord[] = {
+  {"line_draw", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_13line_draw, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"all_in_range", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_15all_in_range, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"get_neighbors", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_21get_neighbors, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"from_pixel", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"__add__", (PyCFunction)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_28__add__, METH_O|METH_COEXIST, 0},
+  {"__sub__", (PyCFunction)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_30__sub__, METH_O|METH_COEXIST, 0},
+  {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_36__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_38__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {0, 0, 0, 0}
+};
+
+static struct PyGetSetDef __pyx_getsets_9ratroyale_7backend_7hexagon_OddRCoord[] = {
+  {"row", __pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_row, 0, 0, 0},
+  {"col", __pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_col, 0, 0, 0},
+  {"x", __pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_x, __pyx_setprop_9ratroyale_7backend_7hexagon_9OddRCoord_x, 0, 0},
+  {"y", __pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_y, __pyx_setprop_9ratroyale_7backend_7hexagon_9OddRCoord_y, 0, 0},
+  {0, 0, 0, 0, 0}
+};
+#if CYTHON_USE_TYPE_SPECS
+static PyType_Slot __pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_9ratroyale_7backend_7hexagon_OddRCoord},
+  {Py_nb_add, (void *)__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord},
+  {Py_nb_subtract, (void *)__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord},
+  {Py_tp_hash, (void *)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_3__hash__},
+  {Py_tp_str, (void *)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_34__str__},
+  {Py_tp_richcompare, (void *)__pyx_tp_richcompare_9ratroyale_7backend_7hexagon_OddRCoord},
+  {Py_tp_methods, (void *)__pyx_methods_9ratroyale_7backend_7hexagon_OddRCoord},
+  {Py_tp_getset, (void *)__pyx_getsets_9ratroyale_7backend_7hexagon_OddRCoord},
+  {Py_tp_init, (void *)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1__init__},
+  {Py_tp_new, (void *)__pyx_tp_new_9ratroyale_7backend_7hexagon_OddRCoord},
+  {0, 0},
+};
+static PyType_Spec __pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_spec = {
+  "ratroyale.backend.hexagon.OddRCoord",
+  sizeof(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord),
+  0,
+  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE,
+  __pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_slots,
+};
+#else
+
+static PyNumberMethods __pyx_tp_as_number_OddRCoord = {
+  __pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord, /*nb_add*/
+  __pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord, /*nb_subtract*/
+  0, /*nb_multiply*/
+  0, /*nb_remainder*/
+  0, /*nb_divmod*/
+  0, /*nb_power*/
+  0, /*nb_negative*/
+  0, /*nb_positive*/
+  0, /*nb_absolute*/
+  0, /*nb_bool*/
+  0, /*nb_invert*/
+  0, /*nb_lshift*/
+  0, /*nb_rshift*/
+  0, /*nb_and*/
+  0, /*nb_xor*/
+  0, /*nb_or*/
+  0, /*nb_int*/
+  0, /*nb_long (reserved)*/
+  0, /*nb_float*/
+  0, /*nb_inplace_add*/
+  0, /*nb_inplace_subtract*/
+  0, /*nb_inplace_multiply*/
+  0, /*nb_inplace_remainder*/
+  0, /*nb_inplace_power*/
+  0, /*nb_inplace_lshift*/
+  0, /*nb_inplace_rshift*/
+  0, /*nb_inplace_and*/
+  0, /*nb_inplace_xor*/
+  0, /*nb_inplace_or*/
+  0, /*nb_floor_divide*/
+  0, /*nb_true_divide*/
+  0, /*nb_inplace_floor_divide*/
+  0, /*nb_inplace_true_divide*/
+  0, /*nb_index*/
+  0, /*nb_matrix_multiply*/
+  0, /*nb_inplace_matrix_multiply*/
+};
+
+static PyTypeObject __pyx_type_9ratroyale_7backend_7hexagon_OddRCoord = {
+  PyVarObject_HEAD_INIT(0, 0)
+  "ratroyale.backend.hexagon.""OddRCoord", /*tp_name*/
+  sizeof(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord), /*tp_basicsize*/
+  0, /*tp_itemsize*/
+  __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_dealloc*/
+  #if PY_VERSION_HEX < 0x030800b4
+  0, /*tp_print*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030800b4
+  0, /*tp_vectorcall_offset*/
+  #endif
+  0, /*tp_getattr*/
+  0, /*tp_setattr*/
+  0, /*tp_as_async*/
+  0, /*tp_repr*/
+  &__pyx_tp_as_number_OddRCoord, /*tp_as_number*/
+  0, /*tp_as_sequence*/
+  0, /*tp_as_mapping*/
+  __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_3__hash__, /*tp_hash*/
+  0, /*tp_call*/
+  __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_34__str__, /*tp_str*/
+  0, /*tp_getattro*/
+  0, /*tp_setattro*/
+  0, /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+  0, /*tp_doc*/
+  0, /*tp_traverse*/
+  0, /*tp_clear*/
+  __pyx_tp_richcompare_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_richcompare*/
+  0, /*tp_weaklistoffset*/
+  0, /*tp_iter*/
+  0, /*tp_iternext*/
+  __pyx_methods_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_methods*/
+  0, /*tp_members*/
+  __pyx_getsets_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_getset*/
+  0, /*tp_base*/
+  0, /*tp_dict*/
+  0, /*tp_descr_get*/
+  0, /*tp_descr_set*/
+  #if !CYTHON_USE_TYPE_SPECS
+  0, /*tp_dictoffset*/
+  #endif
+  __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1__init__, /*tp_init*/
+  0, /*tp_alloc*/
+  __pyx_tp_new_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -21912,331 +21923,6 @@ static PyTypeObject __pyx_type_9ratroyale_7backend_7hexagon__CubeCoord = {
   #endif
 };
 #endif
-static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon_OddRCoord __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord;
-
-static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon_OddRCoord(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *p;
-  PyObject *o;
-  #if CYTHON_COMPILING_IN_LIMITED_API
-  allocfunc alloc_func = (allocfunc)PyType_GetSlot(t, Py_tp_alloc);
-  o = alloc_func(t, 0);
-  #else
-  if (likely(!__Pyx_PyType_HasFeature(t, Py_TPFLAGS_IS_ABSTRACT))) {
-    o = (*t->tp_alloc)(t, 0);
-  } else {
-    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_mstate_global->__pyx_empty_tuple, 0);
-  }
-  if (unlikely(!o)) return 0;
-  #endif
-  p = ((struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *)o);
-  p->__pyx_vtab = __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord;
-  return o;
-}
-
-static void __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_OddRCoord(PyObject *o) {
-  #if CYTHON_USE_TP_FINALIZE
-  if (unlikely((PY_VERSION_HEX >= 0x03080000 || __Pyx_PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE)) && __Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && (!PyType_IS_GC(Py_TYPE(o)) || !__Pyx_PyObject_GC_IsFinalized(o))) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_OddRCoord) {
-      if (PyObject_CallFinalizerFromDealloc(o)) return;
-    }
-  }
-  #endif
-  #if CYTHON_USE_TYPE_SLOTS
-  (*Py_TYPE(o)->tp_free)(o);
-  #else
-  {
-    freefunc tp_free = (freefunc)PyType_GetSlot(Py_TYPE(o), Py_tp_free);
-    if (tp_free) tp_free(o);
-  }
-  #endif
-}
-
-static PyObject *__pyx_tp_richcompare_9ratroyale_7backend_7hexagon_OddRCoord(PyObject *o1, PyObject *o2, int op) {
-  switch (op) {
-    case Py_EQ: {
-      return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_5__eq__(o1, o2);
-    }
-    case Py_NE: {
-      PyObject *ret;
-      ret = __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_5__eq__(o1, o2);
-      if (likely(ret && ret != Py_NotImplemented)) {
-        int b = __Pyx_PyObject_IsTrue(ret);
-        Py_DECREF(ret);
-        if (unlikely(b < 0)) return NULL;
-        ret = (b) ? Py_False : Py_True;
-        Py_INCREF(ret);
-      }
-      return ret;
-    }
-    default: {
-      return __Pyx_NewRef(Py_NotImplemented);
-    }
-  }
-}
-
-static CYTHON_INLINE PyObject *__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord_maybe_call_slot(PyTypeObject* type, PyObject *left, PyObject *right ) {
-    binaryfunc slot;
-#if CYTHON_USE_TYPE_SLOTS
-    slot = type->tp_as_number ? type->tp_as_number->nb_add : NULL;
-#else
-    slot = (binaryfunc) PyType_GetSlot(type, Py_nb_add);
-#endif
-    return slot ? slot(left, right ) : __Pyx_NewRef(Py_NotImplemented);
-}
-static PyObject *__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord(PyObject *left, PyObject *right ) {
-    int maybe_self_is_left, maybe_self_is_right = 0;
-    maybe_self_is_left = Py_TYPE(left) == Py_TYPE(right)
-#if CYTHON_USE_TYPE_SLOTS
-            || (Py_TYPE(left)->tp_as_number && Py_TYPE(left)->tp_as_number->nb_add == &__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord)
-#endif
-            || __Pyx_TypeCheck(left, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
-    if (maybe_self_is_left) {
-        PyObject *res;
-        res = __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_28__add__(left, right);
-        if (res != Py_NotImplemented) return res;
-        Py_DECREF(res);
-    }
-    maybe_self_is_right = Py_TYPE(left) == Py_TYPE(right)
-#if CYTHON_USE_TYPE_SLOTS
-            || (Py_TYPE(right)->tp_as_number && Py_TYPE(right)->tp_as_number->nb_add == &__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord)
-#endif
-            || PyType_IsSubtype(Py_TYPE(right), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
-    if (maybe_self_is_right) {
-        return __pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord_maybe_call_slot(__Pyx_PyType_GetSlot(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, tp_base, PyTypeObject*), left, right );
-    }
-    return __Pyx_NewRef(Py_NotImplemented);
-}
-
-
-
-static CYTHON_INLINE PyObject *__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord_maybe_call_slot(PyTypeObject* type, PyObject *left, PyObject *right ) {
-    binaryfunc slot;
-#if CYTHON_USE_TYPE_SLOTS
-    slot = type->tp_as_number ? type->tp_as_number->nb_subtract : NULL;
-#else
-    slot = (binaryfunc) PyType_GetSlot(type, Py_nb_subtract);
-#endif
-    return slot ? slot(left, right ) : __Pyx_NewRef(Py_NotImplemented);
-}
-static PyObject *__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord(PyObject *left, PyObject *right ) {
-    int maybe_self_is_left, maybe_self_is_right = 0;
-    maybe_self_is_left = Py_TYPE(left) == Py_TYPE(right)
-#if CYTHON_USE_TYPE_SLOTS
-            || (Py_TYPE(left)->tp_as_number && Py_TYPE(left)->tp_as_number->nb_subtract == &__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord)
-#endif
-            || __Pyx_TypeCheck(left, __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
-    if (maybe_self_is_left) {
-        PyObject *res;
-        res = __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_30__sub__(left, right);
-        if (res != Py_NotImplemented) return res;
-        Py_DECREF(res);
-    }
-    maybe_self_is_right = Py_TYPE(left) == Py_TYPE(right)
-#if CYTHON_USE_TYPE_SLOTS
-            || (Py_TYPE(right)->tp_as_number && Py_TYPE(right)->tp_as_number->nb_subtract == &__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord)
-#endif
-            || PyType_IsSubtype(Py_TYPE(right), __pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord);
-    if (maybe_self_is_right) {
-        return __pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord_maybe_call_slot(__Pyx_PyType_GetSlot(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, tp_base, PyTypeObject*), left, right );
-    }
-    return __Pyx_NewRef(Py_NotImplemented);
-}
-
-
-
-static PyObject *__pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_row(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_3row_1__get__(o);
-}
-
-static PyObject *__pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_col(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_3col_1__get__(o);
-}
-
-static PyObject *__pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_x(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1x_1__get__(o);
-}
-
-static int __pyx_setprop_9ratroyale_7backend_7hexagon_9OddRCoord_x(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
-  if (v) {
-    return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1x_3__set__(o, v);
-  }
-  else {
-    PyErr_SetString(PyExc_NotImplementedError, "__del__");
-    return -1;
-  }
-}
-
-static PyObject *__pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_y(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1y_1__get__(o);
-}
-
-static int __pyx_setprop_9ratroyale_7backend_7hexagon_9OddRCoord_y(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
-  if (v) {
-    return __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1y_3__set__(o, v);
-  }
-  else {
-    PyErr_SetString(PyExc_NotImplementedError, "__del__");
-    return -1;
-  }
-}
-
-static PyMethodDef __pyx_methods_9ratroyale_7backend_7hexagon_OddRCoord[] = {
-  {"line_draw", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_13line_draw, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"all_in_range", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_15all_in_range, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"get_neighbors", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_21get_neighbors, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"__add__", (PyCFunction)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_28__add__, METH_O|METH_COEXIST, 0},
-  {"__sub__", (PyCFunction)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_30__sub__, METH_O|METH_COEXIST, 0},
-  {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_36__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_38__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {0, 0, 0, 0}
-};
-
-static struct PyGetSetDef __pyx_getsets_9ratroyale_7backend_7hexagon_OddRCoord[] = {
-  {"row", __pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_row, 0, 0, 0},
-  {"col", __pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_col, 0, 0, 0},
-  {"x", __pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_x, __pyx_setprop_9ratroyale_7backend_7hexagon_9OddRCoord_x, 0, 0},
-  {"y", __pyx_getprop_9ratroyale_7backend_7hexagon_9OddRCoord_y, __pyx_setprop_9ratroyale_7backend_7hexagon_9OddRCoord_y, 0, 0},
-  {0, 0, 0, 0, 0}
-};
-#if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_9ratroyale_7backend_7hexagon_OddRCoord},
-  {Py_nb_add, (void *)__pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord},
-  {Py_nb_subtract, (void *)__pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord},
-  {Py_tp_hash, (void *)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_3__hash__},
-  {Py_tp_str, (void *)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_34__str__},
-  {Py_tp_richcompare, (void *)__pyx_tp_richcompare_9ratroyale_7backend_7hexagon_OddRCoord},
-  {Py_tp_methods, (void *)__pyx_methods_9ratroyale_7backend_7hexagon_OddRCoord},
-  {Py_tp_getset, (void *)__pyx_getsets_9ratroyale_7backend_7hexagon_OddRCoord},
-  {Py_tp_init, (void *)__pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1__init__},
-  {Py_tp_new, (void *)__pyx_tp_new_9ratroyale_7backend_7hexagon_OddRCoord},
-  {0, 0},
-};
-static PyType_Spec __pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_spec = {
-  "ratroyale.backend.hexagon.OddRCoord",
-  sizeof(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord),
-  0,
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE,
-  __pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_slots,
-};
-#else
-
-static PyNumberMethods __pyx_tp_as_number_OddRCoord = {
-  __pyx_nb_add_9ratroyale_7backend_7hexagon_OddRCoord, /*nb_add*/
-  __pyx_nb_subtract_9ratroyale_7backend_7hexagon_OddRCoord, /*nb_subtract*/
-  0, /*nb_multiply*/
-  0, /*nb_remainder*/
-  0, /*nb_divmod*/
-  0, /*nb_power*/
-  0, /*nb_negative*/
-  0, /*nb_positive*/
-  0, /*nb_absolute*/
-  0, /*nb_bool*/
-  0, /*nb_invert*/
-  0, /*nb_lshift*/
-  0, /*nb_rshift*/
-  0, /*nb_and*/
-  0, /*nb_xor*/
-  0, /*nb_or*/
-  0, /*nb_int*/
-  0, /*nb_long (reserved)*/
-  0, /*nb_float*/
-  0, /*nb_inplace_add*/
-  0, /*nb_inplace_subtract*/
-  0, /*nb_inplace_multiply*/
-  0, /*nb_inplace_remainder*/
-  0, /*nb_inplace_power*/
-  0, /*nb_inplace_lshift*/
-  0, /*nb_inplace_rshift*/
-  0, /*nb_inplace_and*/
-  0, /*nb_inplace_xor*/
-  0, /*nb_inplace_or*/
-  0, /*nb_floor_divide*/
-  0, /*nb_true_divide*/
-  0, /*nb_inplace_floor_divide*/
-  0, /*nb_inplace_true_divide*/
-  0, /*nb_index*/
-  0, /*nb_matrix_multiply*/
-  0, /*nb_inplace_matrix_multiply*/
-};
-
-static PyTypeObject __pyx_type_9ratroyale_7backend_7hexagon_OddRCoord = {
-  PyVarObject_HEAD_INIT(0, 0)
-  "ratroyale.backend.hexagon.""OddRCoord", /*tp_name*/
-  sizeof(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord), /*tp_basicsize*/
-  0, /*tp_itemsize*/
-  __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_dealloc*/
-  #if PY_VERSION_HEX < 0x030800b4
-  0, /*tp_print*/
-  #endif
-  #if PY_VERSION_HEX >= 0x030800b4
-  0, /*tp_vectorcall_offset*/
-  #endif
-  0, /*tp_getattr*/
-  0, /*tp_setattr*/
-  0, /*tp_as_async*/
-  0, /*tp_repr*/
-  &__pyx_tp_as_number_OddRCoord, /*tp_as_number*/
-  0, /*tp_as_sequence*/
-  0, /*tp_as_mapping*/
-  __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_3__hash__, /*tp_hash*/
-  0, /*tp_call*/
-  __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_34__str__, /*tp_str*/
-  0, /*tp_getattro*/
-  0, /*tp_setattro*/
-  0, /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  0, /*tp_doc*/
-  0, /*tp_traverse*/
-  0, /*tp_clear*/
-  __pyx_tp_richcompare_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_richcompare*/
-  0, /*tp_weaklistoffset*/
-  0, /*tp_iter*/
-  0, /*tp_iternext*/
-  __pyx_methods_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_methods*/
-  0, /*tp_members*/
-  __pyx_getsets_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_getset*/
-  0, /*tp_base*/
-  0, /*tp_dict*/
-  0, /*tp_descr_get*/
-  0, /*tp_descr_set*/
-  #if !CYTHON_USE_TYPE_SPECS
-  0, /*tp_dictoffset*/
-  #endif
-  __pyx_pw_9ratroyale_7backend_7hexagon_9OddRCoord_1__init__, /*tp_init*/
-  0, /*tp_alloc*/
-  __pyx_tp_new_9ratroyale_7backend_7hexagon_OddRCoord, /*tp_new*/
-  0, /*tp_free*/
-  0, /*tp_is_gc*/
-  0, /*tp_bases*/
-  0, /*tp_mro*/
-  0, /*tp_cache*/
-  0, /*tp_subclasses*/
-  0, /*tp_weaklist*/
-  0, /*tp_del*/
-  0, /*tp_version_tag*/
-  #if CYTHON_USE_TP_FINALIZE
-  0, /*tp_finalize*/
-  #else
-  NULL, /*tp_finalize*/
-  #endif
-  #if PY_VERSION_HEX >= 0x030800b1 && (!CYTHON_COMPILING_IN_PYPY || PYPY_VERSION_NUM >= 0x07030800)
-  0, /*tp_vectorcall*/
-  #endif
-  #if __PYX_NEED_TP_PRINT_SLOT == 1
-  0, /*tp_print*/
-  #endif
-  #if PY_VERSION_HEX >= 0x030C0000
-  0, /*tp_watched*/
-  #endif
-  #if PY_VERSION_HEX >= 0x030d00A4
-  0, /*tp_versions_used*/
-  #endif
-  #if CYTHON_COMPILING_IN_PYPY && PY_VERSION_HEX >= 0x03090000 && PY_VERSION_HEX < 0x030a0000
-  0, /*tp_pypy_flags*/
-  #endif
-};
-#endif
 static struct __pyx_vtabstruct_9ratroyale_7backend_7hexagon__CubeCoordFloat __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoordFloat;
 
 static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon__CubeCoordFloat(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
@@ -22394,6 +22080,139 @@ static PyTypeObject __pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat = {
   __pyx_pw_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_1__init__, /*tp_init*/
   0, /*tp_alloc*/
   __pyx_tp_new_9ratroyale_7backend_7hexagon__CubeCoordFloat, /*tp_new*/
+  0, /*tp_free*/
+  0, /*tp_is_gc*/
+  0, /*tp_bases*/
+  0, /*tp_mro*/
+  0, /*tp_cache*/
+  0, /*tp_subclasses*/
+  0, /*tp_weaklist*/
+  0, /*tp_del*/
+  0, /*tp_version_tag*/
+  #if CYTHON_USE_TP_FINALIZE
+  0, /*tp_finalize*/
+  #else
+  NULL, /*tp_finalize*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030800b1 && (!CYTHON_COMPILING_IN_PYPY || PYPY_VERSION_NUM >= 0x07030800)
+  0, /*tp_vectorcall*/
+  #endif
+  #if __PYX_NEED_TP_PRINT_SLOT == 1
+  0, /*tp_print*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030C0000
+  0, /*tp_watched*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030d00A4
+  0, /*tp_versions_used*/
+  #endif
+  #if CYTHON_COMPILING_IN_PYPY && PY_VERSION_HEX >= 0x03090000 && PY_VERSION_HEX < 0x030a0000
+  0, /*tp_pypy_flags*/
+  #endif
+};
+#endif
+
+static PyObject *__pyx_tp_new_9ratroyale_7backend_7hexagon_IsCoordBlocked(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  PyObject *o;
+  #if CYTHON_COMPILING_IN_LIMITED_API
+  allocfunc alloc_func = (allocfunc)PyType_GetSlot(t, Py_tp_alloc);
+  o = alloc_func(t, 0);
+  #else
+  if (likely(!__Pyx_PyType_HasFeature(t, Py_TPFLAGS_IS_ABSTRACT))) {
+    o = (*t->tp_alloc)(t, 0);
+  } else {
+    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_mstate_global->__pyx_empty_tuple, 0);
+  }
+  if (unlikely(!o)) return 0;
+  #endif
+  return o;
+}
+
+static void __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_IsCoordBlocked(PyObject *o) {
+  #if CYTHON_USE_TP_FINALIZE
+  if (unlikely((PY_VERSION_HEX >= 0x03080000 || __Pyx_PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE)) && __Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && (!PyType_IS_GC(Py_TYPE(o)) || !__Pyx_PyObject_GC_IsFinalized(o))) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_IsCoordBlocked) {
+      if (PyObject_CallFinalizerFromDealloc(o)) return;
+    }
+  }
+  #endif
+  #if CYTHON_USE_TYPE_SLOTS
+  (*Py_TYPE(o)->tp_free)(o);
+  #else
+  {
+    freefunc tp_free = (freefunc)PyType_GetSlot(Py_TYPE(o), Py_tp_free);
+    if (tp_free) tp_free(o);
+  }
+  #endif
+}
+
+static PyMethodDef __pyx_methods_9ratroyale_7backend_7hexagon_IsCoordBlocked[] = {
+  {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_14IsCoordBlocked_1__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9ratroyale_7backend_7hexagon_14IsCoordBlocked_3__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {0, 0, 0, 0}
+};
+#if CYTHON_USE_TYPE_SPECS
+static PyType_Slot __pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_9ratroyale_7backend_7hexagon_IsCoordBlocked},
+  {Py_tp_methods, (void *)__pyx_methods_9ratroyale_7backend_7hexagon_IsCoordBlocked},
+  {Py_tp_new, (void *)__pyx_tp_new_9ratroyale_7backend_7hexagon_IsCoordBlocked},
+  {0, 0},
+};
+static PyType_Spec __pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked_spec = {
+  "ratroyale.backend.hexagon.IsCoordBlocked",
+  sizeof(struct __pyx_obj_9ratroyale_7backend_7hexagon_IsCoordBlocked),
+  0,
+  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE,
+  __pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked_slots,
+};
+#else
+
+static PyTypeObject __pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked = {
+  PyVarObject_HEAD_INIT(0, 0)
+  "ratroyale.backend.hexagon.""IsCoordBlocked", /*tp_name*/
+  sizeof(struct __pyx_obj_9ratroyale_7backend_7hexagon_IsCoordBlocked), /*tp_basicsize*/
+  0, /*tp_itemsize*/
+  __pyx_tp_dealloc_9ratroyale_7backend_7hexagon_IsCoordBlocked, /*tp_dealloc*/
+  #if PY_VERSION_HEX < 0x030800b4
+  0, /*tp_print*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030800b4
+  0, /*tp_vectorcall_offset*/
+  #endif
+  0, /*tp_getattr*/
+  0, /*tp_setattr*/
+  0, /*tp_as_async*/
+  0, /*tp_repr*/
+  0, /*tp_as_number*/
+  0, /*tp_as_sequence*/
+  0, /*tp_as_mapping*/
+  0, /*tp_hash*/
+  0, /*tp_call*/
+  0, /*tp_str*/
+  0, /*tp_getattro*/
+  0, /*tp_setattro*/
+  0, /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+  0, /*tp_doc*/
+  0, /*tp_traverse*/
+  0, /*tp_clear*/
+  0, /*tp_richcompare*/
+  0, /*tp_weaklistoffset*/
+  0, /*tp_iter*/
+  0, /*tp_iternext*/
+  __pyx_methods_9ratroyale_7backend_7hexagon_IsCoordBlocked, /*tp_methods*/
+  0, /*tp_members*/
+  0, /*tp_getset*/
+  0, /*tp_base*/
+  0, /*tp_dict*/
+  0, /*tp_descr_get*/
+  0, /*tp_descr_set*/
+  #if !CYTHON_USE_TYPE_SPECS
+  0, /*tp_dictoffset*/
+  #endif
+  0, /*tp_init*/
+  0, /*tp_alloc*/
+  __pyx_tp_new_9ratroyale_7backend_7hexagon_IsCoordBlocked, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -23801,6 +23620,105 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
+  __pyx_vtabptr_9ratroyale_7backend_7hexagon__AxialCoord = &__pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoord;
+  __pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoord.to_cube = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_cube;
+  __pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoord.to_odd_r = (struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_odd_r;
+  #if CYTHON_USE_TYPE_SPECS
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord)) __PYX_ERR(0, 97, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 97, __pyx_L1_error)
+  #else
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord = &__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord;
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  #endif
+  #if !CYTHON_USE_TYPE_SPECS
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 97, __pyx_L1_error)
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord->tp_getattro = PyObject_GenericGetAttr;
+  }
+  #endif
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_vtabptr_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 97, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 97, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_AxialCoord, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 97, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 97, __pyx_L1_error)
+  __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord = &__pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord;
+  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.path_find = (PyObject *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find *__pyx_optional_args))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find;
+  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.get_reachable_coords = (PyObject *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords *__pyx_optional_args))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords;
+  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.get_neighbor = (struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_neighbor;
+  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.to_pixel = (__pyx_ctuple_double__and_double (*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, double, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel *__pyx_optional_args))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel;
+  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.get_distance = (int (*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance;
+  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.to_cube = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_cube;
+  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.to_axial = (struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_axial;
+  #if CYTHON_USE_TYPE_SPECS
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord)) __PYX_ERR(0, 205, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 205, __pyx_L1_error)
+  #else
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord = &__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord;
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  #endif
+  #if !CYTHON_USE_TYPE_SPECS
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 205, __pyx_L1_error)
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord->tp_getattro = PyObject_GenericGetAttr;
+  }
+  #endif
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 205, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 205, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_OddRCoord, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 205, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 205, __pyx_L1_error)
+  __pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoord = &__pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord;
+  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord.to_axial = (struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_axial;
+  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord.to_odd_r = (struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_odd_r;
+  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord.get_distance = (int (*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance;
+  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord.to_cube_float = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float *__pyx_optional_args))__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float;
+  #if CYTHON_USE_TYPE_SPECS
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord)) __PYX_ERR(0, 39, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 39, __pyx_L1_error)
+  #else
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord = &__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord;
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  #endif
+  #if !CYTHON_USE_TYPE_SPECS
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 39, __pyx_L1_error)
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord->tp_getattro = PyObject_GenericGetAttr;
+  }
+  #endif
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 39, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 39, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_CubeCoord, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 39, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoordFloat = &__pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoordFloat;
+  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoordFloat.round = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_round;
+  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoordFloat.lerp = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *, struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *, double, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_lerp;
+  #if CYTHON_USE_TYPE_SPECS
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat)) __PYX_ERR(0, 151, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 151, __pyx_L1_error)
+  #else
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat = &__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat;
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  #endif
+  #if !CYTHON_USE_TYPE_SPECS
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 151, __pyx_L1_error)
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat->tp_getattro = PyObject_GenericGetAttr;
+  }
+  #endif
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, __pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 151, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 151, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_CubeCoordFloat, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 151, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 151, __pyx_L1_error)
   #if CYTHON_USE_TYPE_SPECS
   __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked)) __PYX_ERR(0, 15, __pyx_L1_error)
   if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon_IsCoordBlocked_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked) < (0)) __PYX_ERR(0, 15, __pyx_L1_error)
@@ -23819,158 +23737,57 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   #endif
   if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_IsCoordBlocked, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked) < (0)) __PYX_ERR(0, 15, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_IsCoordBlocked) < (0)) __PYX_ERR(0, 15, __pyx_L1_error)
-  __pyx_vtabptr_9ratroyale_7backend_7hexagon__AxialCoord = &__pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoord;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoord.to_cube = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_cube;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoord.to_odd_r = (struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_to_odd_r;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoord.from_pixel = (struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *, double, double, double, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_11_AxialCoord_from_pixel;
-  #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord)) __PYX_ERR(0, 99, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 99, __pyx_L1_error)
-  #else
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord = &__pyx_type_9ratroyale_7backend_7hexagon__AxialCoord;
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  #endif
-  #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 99, __pyx_L1_error)
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord->tp_getattro = PyObject_GenericGetAttr;
-  }
-  #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_vtabptr_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 99, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 99, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_AxialCoord, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 99, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord) < (0)) __PYX_ERR(0, 99, __pyx_L1_error)
-  __pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoord = &__pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord.to_axial = (struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_axial;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord.to_odd_r = (struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_odd_r;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord.get_distance = (int (*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_get_distance;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoord.to_cube_float = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float *__pyx_optional_args))__pyx_f_9ratroyale_7backend_7hexagon_10_CubeCoord_to_cube_float;
-  #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord)) __PYX_ERR(0, 40, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 40, __pyx_L1_error)
-  #else
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord = &__pyx_type_9ratroyale_7backend_7hexagon__CubeCoord;
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  #endif
-  #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 40, __pyx_L1_error)
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord->tp_getattro = PyObject_GenericGetAttr;
-  }
-  #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 40, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 40, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_CubeCoord, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 40, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord) < (0)) __PYX_ERR(0, 40, __pyx_L1_error)
-  __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord = &__pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord;
-  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.to_axial = (struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_axial;
-  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.to_cube = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_cube;
-  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.get_distance = (int (*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_distance;
-  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.to_pixel = (__pyx_ctuple_double__and_double (*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, double, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel *__pyx_optional_args))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_to_pixel;
-  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.get_neighbor = (struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_neighbor;
-  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.get_reachable_coords = (PyObject *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, int, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords *__pyx_optional_args))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_get_reachable_coords;
-  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.from_pixel = (struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, double, double, double, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_from_pixel;
-  __pyx_vtable_9ratroyale_7backend_7hexagon_OddRCoord.path_find = (PyObject *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, struct __pyx_obj_9ratroyale_7backend_7hexagon_OddRCoord *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_9ratroyale_7backend_7hexagon_9OddRCoord_path_find *__pyx_optional_args))__pyx_f_9ratroyale_7backend_7hexagon_9OddRCoord_path_find;
-  #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord)) __PYX_ERR(0, 209, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 209, __pyx_L1_error)
-  #else
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord = &__pyx_type_9ratroyale_7backend_7hexagon_OddRCoord;
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  #endif
-  #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 209, __pyx_L1_error)
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord->tp_getattro = PyObject_GenericGetAttr;
-  }
-  #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_vtabptr_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 209, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 209, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_OddRCoord, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 209, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord) < (0)) __PYX_ERR(0, 209, __pyx_L1_error)
-  __pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoordFloat = &__pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoordFloat;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoordFloat.round = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_round;
-  __pyx_vtable_9ratroyale_7backend_7hexagon__CubeCoordFloat.lerp = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *, struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *, double, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_lerp;
-  #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat)) __PYX_ERR(0, 154, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 154, __pyx_L1_error)
-  #else
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat = &__pyx_type_9ratroyale_7backend_7hexagon__CubeCoordFloat;
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  #endif
-  #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 154, __pyx_L1_error)
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat->tp_getattro = PyObject_GenericGetAttr;
-  }
-  #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, __pyx_vtabptr_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 154, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 154, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_CubeCoordFloat, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 154, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat) < (0)) __PYX_ERR(0, 154, __pyx_L1_error)
   __pyx_vtabptr_9ratroyale_7backend_7hexagon__AxialCoordFloat = &__pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoordFloat;
   __pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoordFloat.to_cube_float = (struct __pyx_obj_9ratroyale_7backend_7hexagon__CubeCoordFloat *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_to_cube_float;
   __pyx_vtable_9ratroyale_7backend_7hexagon__AxialCoordFloat.round = (struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoord *(*)(struct __pyx_obj_9ratroyale_7backend_7hexagon__AxialCoordFloat *, int __pyx_skip_dispatch))__pyx_f_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_round;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__AxialCoordFloat_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat)) __PYX_ERR(0, 190, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__AxialCoordFloat_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__AxialCoordFloat_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat)) __PYX_ERR(0, 186, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__AxialCoordFloat_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 186, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat = &__pyx_type_9ratroyale_7backend_7hexagon__AxialCoordFloat;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 190, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 186, __pyx_L1_error)
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat->tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat, __pyx_vtabptr_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 190, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 190, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_AxialCoordFloat, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 190, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 190, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat, __pyx_vtabptr_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 186, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 186, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_AxialCoordFloat, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 186, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat) < (0)) __PYX_ERR(0, 186, __pyx_L1_error)
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__AStarCoord_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord)) __PYX_ERR(0, 24, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__AStarCoord_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon__AStarCoord_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon__AStarCoord_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord = &__pyx_type_9ratroyale_7backend_7hexagon__AStarCoord;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord->tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_AStarCoord, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_AStarCoord, (PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw)) __PYX_ERR(0, 68, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw) < (0)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw)) __PYX_ERR(0, 66, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw = &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw) < (0)) __PYX_ERR(0, 68, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct__line_draw->tp_getattro == PyObject_GenericGetAttr)) {
@@ -23978,15 +23795,15 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range)) __PYX_ERR(0, 131, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range) < (0)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range)) __PYX_ERR(0, 128, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range) < (0)) __PYX_ERR(0, 128, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range = &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range) < (0)) __PYX_ERR(0, 131, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range) < (0)) __PYX_ERR(0, 128, __pyx_L1_error)
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_1_all_in_range->tp_getattro == PyObject_GenericGetAttr)) {
@@ -23994,15 +23811,15 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr)) __PYX_ERR(0, 248, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr) < (0)) __PYX_ERR(0, 248, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr)) __PYX_ERR(0, 241, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr) < (0)) __PYX_ERR(0, 241, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr = &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr) < (0)) __PYX_ERR(0, 248, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr) < (0)) __PYX_ERR(0, 241, __pyx_L1_error)
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_2_genexpr->tp_getattro == PyObject_GenericGetAttr)) {
@@ -24010,15 +23827,15 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors)) __PYX_ERR(0, 296, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors) < (0)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors)) __PYX_ERR(0, 289, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors_spec, __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors) < (0)) __PYX_ERR(0, 289, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors = &__pyx_type_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors) < (0)) __PYX_ERR(0, 296, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors) < (0)) __PYX_ERR(0, 289, __pyx_L1_error)
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors->tp_dictoffset && __pyx_mstate->__pyx_ptype_9ratroyale_7backend_7hexagon___pyx_scope_struct_3_get_neighbors->tp_getattro == PyObject_GenericGetAttr)) {
@@ -24268,22 +24085,24 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_hexagon(PyObject *__pyx_pyinit_mod
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
-  static int __pyx_t_4[2];
-  static int __pyx_t_5[2];
-  static int __pyx_t_6[2];
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  size_t __pyx_t_6;
   static int __pyx_t_7[2];
   static int __pyx_t_8[2];
   static int __pyx_t_9[2];
-  static int __pyx_t_10[6][2];
+  static int __pyx_t_10[2];
   static int __pyx_t_11[2];
   static int __pyx_t_12[2];
-  static int __pyx_t_13[2];
+  static int __pyx_t_13[6][2];
   static int __pyx_t_14[2];
   static int __pyx_t_15[2];
   static int __pyx_t_16[2];
-  static int __pyx_t_17[6][2];
-  static int __pyx_t_18[2][6][2];
-  PyObject *__pyx_t_19 = NULL;
+  static int __pyx_t_17[2];
+  static int __pyx_t_18[2];
+  static int __pyx_t_19[2];
+  static int __pyx_t_20[6][2];
+  static int __pyx_t_21[2][6][2];
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -24475,65 +24294,65 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AStarCoord, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_2) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":56
+  /* "ratroyale/backend/hexagon.pyx":54
  * 
  * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
  *         return _AxialCoord(self.q, self.r)
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_7to_axial, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_to_axial, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[10])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_7to_axial, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_to_axial, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[10])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_to_axial, __pyx_t_2) < (0)) __PYX_ERR(0, 56, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_to_axial, __pyx_t_2) < (0)) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":60
+  /* "ratroyale/backend/hexagon.pyx":58
  * 
  * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
  *         return self.to_axial().to_odd_r()
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_9to_odd_r, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_to_odd_r, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[11])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_9to_odd_r, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_to_odd_r, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[11])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_to_odd_r, __pyx_t_2) < (0)) __PYX_ERR(0, 60, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_to_odd_r, __pyx_t_2) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":63
+  /* "ratroyale/backend/hexagon.pyx":61
  *         return self.to_axial().to_odd_r()
  * 
  *     cpdef int get_distance(self, _CubeCoord other) except *:             # <<<<<<<<<<<<<<
  *         cdef _CubeCoord vec = self - other
  *         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_11get_distance, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_get_distance, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[12])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_11get_distance, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_get_distance, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[12])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_get_distance, __pyx_t_2) < (0)) __PYX_ERR(0, 63, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_get_distance, __pyx_t_2) < (0)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":68
+  /* "ratroyale/backend/hexagon.pyx":66
  * 
  * 
  *     def line_draw(self, _CubeCoord other):             # <<<<<<<<<<<<<<
  *         cdef int N = self.get_distance(other)
  *         cdef int i
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_13line_draw, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_line_draw, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_13line_draw, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_line_draw, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_line_draw, __pyx_t_2) < (0)) __PYX_ERR(0, 68, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_line_draw, __pyx_t_2) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":86
+  /* "ratroyale/backend/hexagon.pyx":84
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_20to_cube_float, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_to_cube_float, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[13])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_10_CubeCoord_20to_cube_float, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoord_to_cube_float, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[13])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_mstate_global->__pyx_tuple[6]);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_to_cube_float, __pyx_t_2) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_to_cube_float, __pyx_t_2) < (0)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1
@@ -24557,52 +24376,69 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoord, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_2) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":114
+  /* "ratroyale/backend/hexagon.pyx":111
  * 
  * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
  *         return _CubeCoord(self.q, self.r, -self.q - self.r)
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_7to_cube, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoord_to_cube, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[16])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_7to_cube, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoord_to_cube, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[16])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_to_cube, __pyx_t_2) < (0)) __PYX_ERR(0, 114, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_to_cube, __pyx_t_2) < (0)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":118
+  /* "ratroyale/backend/hexagon.pyx":115
  * 
  * 
  *     cpdef OddRCoord to_odd_r(self):             # <<<<<<<<<<<<<<
  *         cdef int parity = self.r & 1
  *         cdef int col = self.q + (self.r - parity) // 2
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_9to_odd_r, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoord_to_odd_r, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[17])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_9to_odd_r, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoord_to_odd_r, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[17])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_to_odd_r, __pyx_t_2) < (0)) __PYX_ERR(0, 118, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_to_odd_r, __pyx_t_2) < (0)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":131
+  /* "ratroyale/backend/hexagon.pyx":128
  * 
  * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         cdef int q, r
  *         cdef _AxialCoord offset_coord
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_15all_in_range, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoord_all_in_range, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_15all_in_range, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoord_all_in_range, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_all_in_range, __pyx_t_2) < (0)) __PYX_ERR(0, 131, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_all_in_range, __pyx_t_2) < (0)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":141
+  /* "ratroyale/backend/hexagon.pyx":137
+ *                 yield offset_coord.to_odd_r()
  * 
- * 
- *     cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
+ *     @staticmethod             # <<<<<<<<<<<<<<
+ *     def from_pixel(double x, double y, double hex_size):
  *         cdef double _x = x / hex_size
- *         cdef double _y = y / hex_size
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoord_from_pixel, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[18])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11_AxialCoord_18from_pixel, __Pyx_CYFUNCTION_STATICMETHOD | __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoord_from_pixel, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[18])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_from_pixel, __pyx_t_2) < (0)) __PYX_ERR(0, 141, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_from_pixel, __pyx_t_2) < (0)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_3 = NULL;
+  __Pyx_INCREF(__pyx_builtin_staticmethod);
+  __pyx_t_4 = __pyx_builtin_staticmethod; 
+  __Pyx_GetNameInClass(__pyx_t_5, (PyObject*)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_from_pixel); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = 1;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_t_5};
+    __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+  }
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_from_pixel, __pyx_t_2) < (0)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1
@@ -24626,28 +24462,28 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoord, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_2) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":163
+  /* "ratroyale/backend/hexagon.pyx":159
  * 
  * 
  *     cpdef _CubeCoord round(self):             # <<<<<<<<<<<<<<
  *         cdef int round_q = <int>round(self.q)
  *         cdef int round_r = <int>round(self.r)
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_3round, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoordFloat_round, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[21])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_3round, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoordFloat_round, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[21])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, __pyx_mstate_global->__pyx_n_u_round, __pyx_t_2) < (0)) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, __pyx_mstate_global->__pyx_n_u_round, __pyx_t_2) < (0)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":183
+  /* "ratroyale/backend/hexagon.pyx":179
  * 
  * 
  *     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):             # <<<<<<<<<<<<<<
  *         return _CubeCoordFloat(
  *             lerp(self.q, other.q, t),
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_5lerp, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoordFloat_lerp, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[22])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_15_CubeCoordFloat_5lerp, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CubeCoordFloat_lerp, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[22])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 179, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, __pyx_mstate_global->__pyx_n_u_lerp, __pyx_t_2) < (0)) __PYX_ERR(0, 183, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, __pyx_mstate_global->__pyx_n_u_lerp, __pyx_t_2) < (0)) __PYX_ERR(0, 179, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1
@@ -24671,28 +24507,28 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__CubeCoordFloat, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_2) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":198
+  /* "ratroyale/backend/hexagon.pyx":194
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(self):             # <<<<<<<<<<<<<<
  *         return _CubeCoordFloat(self.q, self.r, -self.q - self.r)
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_3to_cube_float, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoordFloat_to_cube_float, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[25])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_3to_cube_float, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoordFloat_to_cube_float, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[25])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat, __pyx_mstate_global->__pyx_n_u_to_cube_float, __pyx_t_2) < (0)) __PYX_ERR(0, 198, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat, __pyx_mstate_global->__pyx_n_u_to_cube_float, __pyx_t_2) < (0)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":202
+  /* "ratroyale/backend/hexagon.pyx":198
  * 
  * 
  *     cpdef _AxialCoord round(self):             # <<<<<<<<<<<<<<
  *         return self.to_cube_float().round().to_axial()
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_5round, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoordFloat_round, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[26])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_16_AxialCoordFloat_5round, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_AxialCoordFloat_round, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[26])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat, __pyx_mstate_global->__pyx_n_u_round, __pyx_t_2) < (0)) __PYX_ERR(0, 202, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat, __pyx_mstate_global->__pyx_n_u_round, __pyx_t_2) < (0)) __PYX_ERR(0, 198, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1
@@ -24716,130 +24552,130 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon__AxialCoordFloat, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_2) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":206
+  /* "ratroyale/backend/hexagon.pyx":202
  * 
  * cdef int[2][6][2] DIRECTION_DIFFERENCES = [
  *     [[1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]],             # <<<<<<<<<<<<<<
  *     [[1, 0], [1, -1], [0, -1], [-1, 0], [0, 1], [1, 1]],
  * ]
 */
-  __pyx_t_4[0] = 1;
-  __pyx_t_4[1] = 0;
-  __pyx_t_5[0] = 0;
-  __pyx_t_5[1] = -1;
-  __pyx_t_6[0] = -1;
-  __pyx_t_6[1] = -1;
-  __pyx_t_7[0] = -1;
+  __pyx_t_7[0] = 1;
   __pyx_t_7[1] = 0;
-  __pyx_t_8[0] = -1;
-  __pyx_t_8[1] = 1;
-  __pyx_t_9[0] = 0;
-  __pyx_t_9[1] = 1;
-  memcpy(&(__pyx_t_10[0]), __pyx_t_4, sizeof(__pyx_t_10[0]));
-  memcpy(&(__pyx_t_10[1]), __pyx_t_5, sizeof(__pyx_t_10[0]));
-  memcpy(&(__pyx_t_10[2]), __pyx_t_6, sizeof(__pyx_t_10[0]));
-  memcpy(&(__pyx_t_10[3]), __pyx_t_7, sizeof(__pyx_t_10[0]));
-  memcpy(&(__pyx_t_10[4]), __pyx_t_8, sizeof(__pyx_t_10[0]));
-  memcpy(&(__pyx_t_10[5]), __pyx_t_9, sizeof(__pyx_t_10[0]));
+  __pyx_t_8[0] = 0;
+  __pyx_t_8[1] = -1;
+  __pyx_t_9[0] = -1;
+  __pyx_t_9[1] = -1;
+  __pyx_t_10[0] = -1;
+  __pyx_t_10[1] = 0;
+  __pyx_t_11[0] = -1;
+  __pyx_t_11[1] = 1;
+  __pyx_t_12[0] = 0;
+  __pyx_t_12[1] = 1;
+  memcpy(&(__pyx_t_13[0]), __pyx_t_7, sizeof(__pyx_t_13[0]));
+  memcpy(&(__pyx_t_13[1]), __pyx_t_8, sizeof(__pyx_t_13[0]));
+  memcpy(&(__pyx_t_13[2]), __pyx_t_9, sizeof(__pyx_t_13[0]));
+  memcpy(&(__pyx_t_13[3]), __pyx_t_10, sizeof(__pyx_t_13[0]));
+  memcpy(&(__pyx_t_13[4]), __pyx_t_11, sizeof(__pyx_t_13[0]));
+  memcpy(&(__pyx_t_13[5]), __pyx_t_12, sizeof(__pyx_t_13[0]));
 
-  /* "ratroyale/backend/hexagon.pyx":207
+  /* "ratroyale/backend/hexagon.pyx":203
  * cdef int[2][6][2] DIRECTION_DIFFERENCES = [
  *     [[1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]],
  *     [[1, 0], [1, -1], [0, -1], [-1, 0], [0, 1], [1, 1]],             # <<<<<<<<<<<<<<
  * ]
  * cdef class OddRCoord:
 */
-  __pyx_t_11[0] = 1;
-  __pyx_t_11[1] = 0;
-  __pyx_t_12[0] = 1;
-  __pyx_t_12[1] = -1;
-  __pyx_t_13[0] = 0;
-  __pyx_t_13[1] = -1;
-  __pyx_t_14[0] = -1;
+  __pyx_t_14[0] = 1;
   __pyx_t_14[1] = 0;
-  __pyx_t_15[0] = 0;
-  __pyx_t_15[1] = 1;
-  __pyx_t_16[0] = 1;
-  __pyx_t_16[1] = 1;
-  memcpy(&(__pyx_t_17[0]), __pyx_t_11, sizeof(__pyx_t_17[0]));
-  memcpy(&(__pyx_t_17[1]), __pyx_t_12, sizeof(__pyx_t_17[0]));
-  memcpy(&(__pyx_t_17[2]), __pyx_t_13, sizeof(__pyx_t_17[0]));
-  memcpy(&(__pyx_t_17[3]), __pyx_t_14, sizeof(__pyx_t_17[0]));
-  memcpy(&(__pyx_t_17[4]), __pyx_t_15, sizeof(__pyx_t_17[0]));
-  memcpy(&(__pyx_t_17[5]), __pyx_t_16, sizeof(__pyx_t_17[0]));
+  __pyx_t_15[0] = 1;
+  __pyx_t_15[1] = -1;
+  __pyx_t_16[0] = 0;
+  __pyx_t_16[1] = -1;
+  __pyx_t_17[0] = -1;
+  __pyx_t_17[1] = 0;
+  __pyx_t_18[0] = 0;
+  __pyx_t_18[1] = 1;
+  __pyx_t_19[0] = 1;
+  __pyx_t_19[1] = 1;
+  memcpy(&(__pyx_t_20[0]), __pyx_t_14, sizeof(__pyx_t_20[0]));
+  memcpy(&(__pyx_t_20[1]), __pyx_t_15, sizeof(__pyx_t_20[0]));
+  memcpy(&(__pyx_t_20[2]), __pyx_t_16, sizeof(__pyx_t_20[0]));
+  memcpy(&(__pyx_t_20[3]), __pyx_t_17, sizeof(__pyx_t_20[0]));
+  memcpy(&(__pyx_t_20[4]), __pyx_t_18, sizeof(__pyx_t_20[0]));
+  memcpy(&(__pyx_t_20[5]), __pyx_t_19, sizeof(__pyx_t_20[0]));
 
-  /* "ratroyale/backend/hexagon.pyx":205
+  /* "ratroyale/backend/hexagon.pyx":201
  *         return self.to_cube_float().round().to_axial()
  * 
  * cdef int[2][6][2] DIRECTION_DIFFERENCES = [             # <<<<<<<<<<<<<<
  *     [[1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]],
  *     [[1, 0], [1, -1], [0, -1], [-1, 0], [0, 1], [1, 1]],
 */
-  memcpy(&(__pyx_t_18[0]), __pyx_t_10, sizeof(__pyx_t_18[0]));
-  memcpy(&(__pyx_t_18[1]), __pyx_t_17, sizeof(__pyx_t_18[0]));
-  memcpy(&(__pyx_v_9ratroyale_7backend_7hexagon_DIRECTION_DIFFERENCES[0]), __pyx_t_18, sizeof(__pyx_v_9ratroyale_7backend_7hexagon_DIRECTION_DIFFERENCES[0]) * (2));
+  memcpy(&(__pyx_t_21[0]), __pyx_t_13, sizeof(__pyx_t_21[0]));
+  memcpy(&(__pyx_t_21[1]), __pyx_t_20, sizeof(__pyx_t_21[0]));
+  memcpy(&(__pyx_v_9ratroyale_7backend_7hexagon_DIRECTION_DIFFERENCES[0]), __pyx_t_21, sizeof(__pyx_v_9ratroyale_7backend_7hexagon_DIRECTION_DIFFERENCES[0]) * (2));
 
-  /* "ratroyale/backend/hexagon.pyx":233
+  /* "ratroyale/backend/hexagon.pyx":226
  * 
  * 
  *     cpdef _AxialCoord to_axial(self):             # <<<<<<<<<<<<<<
  *         cdef int parity = self.y & 1
  *         cdef int q = self.x - (self.y - parity) // 2
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_7to_axial, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_to_axial, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[29])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_7to_axial, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_to_axial, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[29])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_to_axial, __pyx_t_2) < (0)) __PYX_ERR(0, 233, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_to_axial, __pyx_t_2) < (0)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":240
+  /* "ratroyale/backend/hexagon.pyx":233
  * 
  * 
  *     cpdef _CubeCoord to_cube(self):             # <<<<<<<<<<<<<<
  *         return self.to_axial().to_cube()
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_9to_cube, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_to_cube, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[30])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_9to_cube, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_to_cube, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[30])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_to_cube, __pyx_t_2) < (0)) __PYX_ERR(0, 240, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_to_cube, __pyx_t_2) < (0)) __PYX_ERR(0, 233, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":243
+  /* "ratroyale/backend/hexagon.pyx":236
  *         return self.to_axial().to_cube()
  * 
  *     cpdef int get_distance(self, OddRCoord other) except *:             # <<<<<<<<<<<<<<
  *         return self.to_cube().get_distance(other.to_cube())
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_11get_distance, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_distance, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[31])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_11get_distance, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_distance, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[31])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 236, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_get_distance, __pyx_t_2) < (0)) __PYX_ERR(0, 243, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_get_distance, __pyx_t_2) < (0)) __PYX_ERR(0, 236, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":247
+  /* "ratroyale/backend/hexagon.pyx":240
  * 
  * 
  *     def line_draw(self, OddRCoord other):             # <<<<<<<<<<<<<<
  *         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_13line_draw, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_line_draw, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[32])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 247, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_13line_draw, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_line_draw, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[32])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_line_draw, __pyx_t_2) < (0)) __PYX_ERR(0, 247, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_line_draw, __pyx_t_2) < (0)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":251
+  /* "ratroyale/backend/hexagon.pyx":244
  * 
  * 
  *     def all_in_range(self, int N):             # <<<<<<<<<<<<<<
  *         return self.to_axial().all_in_range(N)
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_15all_in_range, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_all_in_range, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[33])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 251, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_15all_in_range, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_all_in_range, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[33])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_all_in_range, __pyx_t_2) < (0)) __PYX_ERR(0, 251, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_all_in_range, __pyx_t_2) < (0)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":258
+  /* "ratroyale/backend/hexagon.pyx":251
  *         self,
  *         double hex_width,
  *         double hex_height = -1.0,             # <<<<<<<<<<<<<<
@@ -24848,139 +24684,156 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
 */
   __pyx_mstate_global->__pyx_k_ = (-1.0);
 
-  /* "ratroyale/backend/hexagon.pyx":255
+  /* "ratroyale/backend/hexagon.pyx":248
  * 
  * 
  *     cpdef tuple[double, double] to_pixel(             # <<<<<<<<<<<<<<
  *         self,
  *         double hex_width,
 */
-  __pyx_t_2 = PyFloat_FromDouble((-1.0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 258, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble((-1.0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 251, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_Pack(2, __pyx_t_2, __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = PyTuple_Pack(2, __pyx_t_2, __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 248, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_17to_pixel, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_to_pixel, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[34])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_17to_pixel, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_to_pixel, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[34])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_t_3);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_to_pixel, __pyx_t_2) < (0)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_t_4);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_to_pixel, __pyx_t_2) < (0)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":282
+  /* "ratroyale/backend/hexagon.pyx":275
  * 
  * 
  *     cpdef OddRCoord get_neighbor(self, int direction):             # <<<<<<<<<<<<<<
  *         cdef int parity
  *         cdef tuple diff
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_19get_neighbor, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_neighbor, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[35])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_19get_neighbor, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_neighbor, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[35])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_get_neighbor, __pyx_t_2) < (0)) __PYX_ERR(0, 282, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_get_neighbor, __pyx_t_2) < (0)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":296
+  /* "ratroyale/backend/hexagon.pyx":289
  * 
  * 
  *     def get_neighbors(self):             # <<<<<<<<<<<<<<
  *         cdef int i
  *         for i in range(6):
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_21get_neighbors, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_neighbors, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_21get_neighbors, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_neighbors, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_get_neighbors, __pyx_t_2) < (0)) __PYX_ERR(0, 296, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_get_neighbors, __pyx_t_2) < (0)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":304
+  /* "ratroyale/backend/hexagon.pyx":297
  *         self,
  *         int reach,
  *         object is_coord_blocked = _coord_never_blocked,             # <<<<<<<<<<<<<<
  *         bint is_include_self = 0,
  *     ):
 */
-  __pyx_t_2 = __Pyx_CFunc_bf987c__9ratroyale_7backend_7hexagon_bint__lParenOddRC__etc_to_py_12target_coord_12source_coord(__pyx_f_9ratroyale_7backend_7hexagon__coord_never_blocked); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CFunc_bf987c__9ratroyale_7backend_7hexagon_bint__lParenOddRC__etc_to_py_12target_coord_12source_coord(__pyx_f_9ratroyale_7backend_7hexagon__coord_never_blocked); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_mstate_global->__pyx_k__2 = __pyx_t_2;
   __Pyx_GIVEREF(__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":301
+  /* "ratroyale/backend/hexagon.pyx":294
  *             yield self.get_neighbor(i)
  * 
  *     cpdef set[OddRCoord] get_reachable_coords(             # <<<<<<<<<<<<<<
  *         self,
  *         int reach,
 */
-  __pyx_t_2 = __Pyx_CFunc_bf987c__9ratroyale_7backend_7hexagon_bint__lParenOddRC__etc_to_py_12target_coord_12source_coord(__pyx_f_9ratroyale_7backend_7hexagon__coord_never_blocked); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CFunc_bf987c__9ratroyale_7backend_7hexagon_bint__lParenOddRC__etc_to_py_12target_coord_12source_coord(__pyx_f_9ratroyale_7backend_7hexagon__coord_never_blocked); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_Pack(2, __pyx_t_2, __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 301, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = PyTuple_Pack(2, __pyx_t_2, __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 294, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_24get_reachable_coords, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_reachable_coords, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[36])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_24get_reachable_coords, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_get_reachable_coords, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[36])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_t_3);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_get_reachable_coords, __pyx_t_2) < (0)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_t_4);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_get_reachable_coords, __pyx_t_2) < (0)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":328
+  /* "ratroyale/backend/hexagon.pyx":321
  *         return visited
  * 
- *     cpdef OddRCoord from_pixel(cls, double x, double y, double hex_size):             # <<<<<<<<<<<<<<
- *         return _AxialCoord.from_pixel(cls, x, y, hex_size).to_odd_r()
- * 
+ *     @staticmethod             # <<<<<<<<<<<<<<
+ *     def from_pixel(double x, double y, double hex_size):
+ *         return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_from_pixel, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[37])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 328, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_26from_pixel, __Pyx_CYFUNCTION_STATICMETHOD | __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_from_pixel, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[37])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 321, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_from_pixel, __pyx_t_2) < (0)) __PYX_ERR(0, 328, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_from_pixel, __pyx_t_2) < (0)) __PYX_ERR(0, 321, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_4 = NULL;
+  __Pyx_INCREF(__pyx_builtin_staticmethod);
+  __pyx_t_5 = __pyx_builtin_staticmethod; 
+  __Pyx_GetNameInClass(__pyx_t_3, (PyObject*)__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_from_pixel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 321, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_6 = 1;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_3};
+    __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_5, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 321, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+  }
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_from_pixel, __pyx_t_2) < (0)) __PYX_ERR(0, 321, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":341
+  /* "ratroyale/backend/hexagon.pyx":335
  *         OddRCoord goal,
  *         object is_coord_blocked,
  *         get_cost: Callable[[OddRCoord, OddRCoord], float] = _get_default_cost,             # <<<<<<<<<<<<<<
  *     ):
  *         cdef object frontier = PriorityQueue()
 */
-  __pyx_t_2 = __Pyx_CFunc_f05d64__9ratroyale_7backend_7hexagon_float__lParenOddR__etc_to_py_1a_1b(__pyx_f_9ratroyale_7backend_7hexagon__get_default_cost); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 341, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CFunc_f05d64__9ratroyale_7backend_7hexagon_float__lParenOddR__etc_to_py_1a_1b(__pyx_f_9ratroyale_7backend_7hexagon__get_default_cost); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_mstate_global->__pyx_k__3 = __pyx_t_2;
   __Pyx_GIVEREF(__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "ratroyale/backend/hexagon.pyx":337
+  /* "ratroyale/backend/hexagon.pyx":331
  *         return OddRCoord(self.x - other.x, self.y - other.y)
  * 
  *     cpdef list[OddRCoord] path_find(             # <<<<<<<<<<<<<<
  *         self,
  *         OddRCoord goal,
 */
-  __pyx_t_2 = __Pyx_CFunc_f05d64__9ratroyale_7backend_7hexagon_float__lParenOddR__etc_to_py_1a_1b(__pyx_f_9ratroyale_7backend_7hexagon__get_default_cost); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 341, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CFunc_f05d64__9ratroyale_7backend_7hexagon_float__lParenOddR__etc_to_py_1a_1b(__pyx_f_9ratroyale_7backend_7hexagon__get_default_cost); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_Pack(1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 337, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_Pack(1, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 331, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 331, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_get_cost, __pyx_mstate_global->__pyx_kp_u_Callable_OddRCoord_OddRCoord_flo) < (0)) __PYX_ERR(0, 331, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_32path_find, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_path_find, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[38])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 331, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_3, __pyx_t_5);
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_3, __pyx_t_2);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 337, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_get_cost, __pyx_mstate_global->__pyx_kp_u_Callable_OddRCoord_OddRCoord_flo) < (0)) __PYX_ERR(0, 337, __pyx_L1_error)
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_32path_find, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord_path_find, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[38])); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 337, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_19, __pyx_t_3);
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_19, __pyx_t_2);
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_path_find, __pyx_t_3) < (0)) __PYX_ERR(0, 331, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_path_find, __pyx_t_19) < (0)) __PYX_ERR(0, 337, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     cdef tuple state
  *     cdef object _dict
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_36__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord___reduce_cython, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[39])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_reduce_cython, __pyx_t_19) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_36__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord___reduce_cython, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[39])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_reduce_cython, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":16
  *     else:
@@ -24988,20 +24841,20 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_OddRCoord__set_state(self, __pyx_state)
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_38__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord___setstate_cython, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[40])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 16, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_19) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9OddRCoord_38__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OddRCoord___setstate_cython, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[40])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 16, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_9ratroyale_7backend_7hexagon_OddRCoord, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_3) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_IsCoordBlocked(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_1__pyx_unpickle_IsCoordBlocked, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_IsCoordBlocked, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[41])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_IsCoordBlocked, __pyx_t_19) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_1__pyx_unpickle_IsCoordBlocked, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_IsCoordBlocked, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[41])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_IsCoordBlocked, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":11
  *         __pyx_unpickle_IsCoordBlocked__set_state(<IsCoordBlocked> __pyx_result, __pyx_state)
@@ -25010,20 +24863,20 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
  *     if len(__pyx_state) > 0 and hasattr(__pyx_result, '__dict__'):
  *         __pyx_result.__dict__.update(__pyx_state[0])
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_3__pyx_unpickle__AStarCoord, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AStarCoord, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[42])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AStarCoord, __pyx_t_19) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_3__pyx_unpickle__AStarCoord, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AStarCoord, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[42])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AStarCoord, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":1
  * def __pyx_unpickle__CubeCoord(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_5__pyx_unpickle__CubeCoord, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__CubeCoord, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[43])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__CubeCoord, __pyx_t_19) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_5__pyx_unpickle__CubeCoord, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__CubeCoord, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[43])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__CubeCoord, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":11
  *         __pyx_unpickle__CubeCoord__set_state(<_CubeCoord> __pyx_result, __pyx_state)
@@ -25032,20 +24885,20 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
  *     __pyx_result.q = __pyx_state[0]; __pyx_result.r = __pyx_state[1]; __pyx_result.s = __pyx_state[2]
  *     if len(__pyx_state) > 3 and hasattr(__pyx_result, '__dict__'):
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_7__pyx_unpickle__AxialCoord, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AxialCoord, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[44])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AxialCoord, __pyx_t_19) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_7__pyx_unpickle__AxialCoord, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AxialCoord, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[44])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AxialCoord, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":1
  * def __pyx_unpickle__CubeCoordFloat(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9__pyx_unpickle__CubeCoordFloat, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__CubeCoordFloat, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[45])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__CubeCoordFloat, __pyx_t_19) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_9__pyx_unpickle__CubeCoordFloat, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__CubeCoordFloat, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[45])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__CubeCoordFloat, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":11
  *         __pyx_unpickle__CubeCoordFloat__set_state(<_CubeCoordFloat> __pyx_result, __pyx_state)
@@ -25054,30 +24907,30 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
  *     __pyx_result.q = __pyx_state[0]; __pyx_result.r = __pyx_state[1]; __pyx_result.s = __pyx_state[2]
  *     if len(__pyx_state) > 3 and hasattr(__pyx_result, '__dict__'):
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11__pyx_unpickle__AxialCoordFloat, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AxialCoordFloat, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[46])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AxialCoordFloat, __pyx_t_19) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_11__pyx_unpickle__AxialCoordFloat, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AxialCoordFloat, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[46])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle__AxialCoordFloat, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_OddRCoord(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
 */
-  __pyx_t_19 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_13__pyx_unpickle_OddRCoord, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_OddRCoord, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[47])); if (unlikely(!__pyx_t_19)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_OddRCoord, __pyx_t_19) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_9ratroyale_7backend_7hexagon_13__pyx_unpickle_OddRCoord, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_OddRCoord, NULL, __pyx_mstate_global->__pyx_n_u_ratroyale_backend_hexagon, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[47])); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_OddRCoord, __pyx_t_3) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "ratroyale/backend/hexagon.pyx":1
  * from libc.math cimport sqrt, fabs as c_abs             # <<<<<<<<<<<<<<
  * from queue import PriorityQueue
  * from typing import Callable, Iterator, Self
 */
-  __pyx_t_19 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_19);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_19) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_3) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /*--- Wrapped vars code ---*/
 
@@ -25085,7 +24938,8 @@ __Pyx_RefNannySetupContext("PyInit_hexagon", 0);
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_19);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init ratroyale.backend.hexagon", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -25215,7 +25069,6 @@ static const __Pyx_StringTabEntry __pyx_string_tab[] = {
   {__pyx_k_cfunc_to_py, sizeof(__pyx_k_cfunc_to_py), 0, 1, 1}, /* PyObject cname: __pyx_n_u_cfunc_to_py */
   {__pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 1, 1}, /* PyObject cname: __pyx_n_u_cline_in_traceback */
   {__pyx_k_close, sizeof(__pyx_k_close), 0, 1, 1}, /* PyObject cname: __pyx_n_u_close */
-  {__pyx_k_cls, sizeof(__pyx_k_cls), 0, 1, 1}, /* PyObject cname: __pyx_n_u_cls */
   {__pyx_k_coord, sizeof(__pyx_k_coord), 0, 1, 1}, /* PyObject cname: __pyx_n_u_coord */
   {__pyx_k_cube, sizeof(__pyx_k_cube), 0, 1, 1}, /* PyObject cname: __pyx_n_u_cube */
   {__pyx_k_dict, sizeof(__pyx_k_dict), 0, 1, 1}, /* PyObject cname: __pyx_n_u_dict */
@@ -25296,6 +25149,7 @@ static const __Pyx_StringTabEntry __pyx_string_tab[] = {
   {__pyx_k_source_coord, sizeof(__pyx_k_source_coord), 0, 1, 1}, /* PyObject cname: __pyx_n_u_source_coord */
   {__pyx_k_src_ratroyale_backend_hexagon_py, sizeof(__pyx_k_src_ratroyale_backend_hexagon_py), 0, 1, 0}, /* PyObject cname: __pyx_kp_u_src_ratroyale_backend_hexagon_py */
   {__pyx_k_state, sizeof(__pyx_k_state), 0, 1, 1}, /* PyObject cname: __pyx_n_u_state */
+  {__pyx_k_staticmethod, sizeof(__pyx_k_staticmethod), 0, 1, 1}, /* PyObject cname: __pyx_n_u_staticmethod */
   {__pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 1, 0}, /* PyObject cname: __pyx_kp_u_stringsource */
   {__pyx_k_t, sizeof(__pyx_k_t), 0, 1, 1}, /* PyObject cname: __pyx_n_u_t */
   {__pyx_k_target_coord, sizeof(__pyx_k_target_coord), 0, 1, 1}, /* PyObject cname: __pyx_n_u_target_coord */
@@ -25312,7 +25166,9 @@ static const __Pyx_StringTabEntry __pyx_string_tab[] = {
   {__pyx_k_value, sizeof(__pyx_k_value), 0, 1, 1}, /* PyObject cname: __pyx_n_u_value */
   {__pyx_k_wrap, sizeof(__pyx_k_wrap), 0, 1, 1}, /* PyObject cname: __pyx_n_u_wrap */
   {__pyx_k_x, sizeof(__pyx_k_x), 0, 1, 1}, /* PyObject cname: __pyx_n_u_x */
+  {__pyx_k_x_2, sizeof(__pyx_k_x_2), 0, 1, 1}, /* PyObject cname: __pyx_n_u_x_2 */
   {__pyx_k_y, sizeof(__pyx_k_y), 0, 1, 1}, /* PyObject cname: __pyx_n_u_y */
+  {__pyx_k_y_2, sizeof(__pyx_k_y_2), 0, 1, 1}, /* PyObject cname: __pyx_n_u_y_2 */
   {0, 0, 0, 0, 0}
 };
 /* InitStrings.proto */
@@ -25322,9 +25178,10 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry const *t, PyObject **target, c
 
 static int __Pyx_InitCachedBuiltins(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_range); if (!__pyx_builtin_range) __PYX_ERR(0, 74, __pyx_L1_error)
-  __pyx_builtin_round = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_round); if (!__pyx_builtin_round) __PYX_ERR(0, 164, __pyx_L1_error)
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 288, __pyx_L1_error)
+  __pyx_builtin_staticmethod = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_staticmethod); if (!__pyx_builtin_staticmethod) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_range); if (!__pyx_builtin_range) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_builtin_round = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_round); if (!__pyx_builtin_round) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 281, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -25336,14 +25193,14 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "ratroyale/backend/hexagon.pyx":71
+  /* "ratroyale/backend/hexagon.pyx":69
  *         cdef int N = self.get_distance(other)
  *         cdef int i
  *         cdef _CubeCoordFloat self_float = self.to_cube_float(add_epsilon=(1e-6, 2e-6, -3e-6))             # <<<<<<<<<<<<<<
  *         cdef _CubeCoordFloat other_float = other.to_cube_float()
  * 
 */
-  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(3, __pyx_mstate_global->__pyx_float_1eneg_6, __pyx_mstate_global->__pyx_float_2eneg_6, __pyx_mstate_global->__pyx_float_neg_3eneg_6); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(3, __pyx_mstate_global->__pyx_float_1eneg_6, __pyx_mstate_global->__pyx_float_2eneg_6, __pyx_mstate_global->__pyx_float_neg_3eneg_6); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
 
@@ -25370,14 +25227,14 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[5]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[5]);
 
-  /* "ratroyale/backend/hexagon.pyx":86
+  /* "ratroyale/backend/hexagon.pyx":84
  * 
  * 
  *     cpdef _CubeCoordFloat to_cube_float(             # <<<<<<<<<<<<<<
  *         self, tuple add_epsilon = None
  *     ):
 */
-  __pyx_mstate_global->__pyx_tuple[6] = PyTuple_Pack(1, Py_None); if (unlikely(!__pyx_mstate_global->__pyx_tuple[6])) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_tuple[6] = PyTuple_Pack(1, Py_None); if (unlikely(!__pyx_mstate_global->__pyx_tuple[6])) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[6]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[6]);
   __Pyx_RefNannyFinishContext();
@@ -25455,22 +25312,22 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_wrap, __pyx_k_A_q_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 6, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 68, 2};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 6, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 66, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_other, __pyx_mstate->__pyx_n_u_N, __pyx_mstate->__pyx_n_u_i, __pyx_mstate->__pyx_n_u_self_float, __pyx_mstate->__pyx_n_u_other_float};
     __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_line_draw, __pyx_k_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 131, 2};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 128, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_N, __pyx_mstate->__pyx_n_u_q, __pyx_mstate->__pyx_n_u_r, __pyx_mstate->__pyx_n_u_offset_coord};
     __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_all_in_range, __pyx_k_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 248, 2};
+    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 241, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_cube};
     __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_genexpr, __pyx_k_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 296, 2};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 289, 2};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_i};
     __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_get_neighbors, __pyx_k_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
   }
@@ -25495,22 +25352,22 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_setstate_cython, __pyx_k__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 56, 17};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 54, 17};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[10] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_axial, __pyx_k_A_4t4q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[10])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 60, 15};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 58, 15};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[11] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_odd_r, __pyx_k_A_t9Biq, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[11])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 63, 48};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 61, 48};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_other};
     __pyx_mstate_global->__pyx_codeobj_tab[12] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_get_distance, __pyx_k_A_e2Q_we1Ct2U_3d_E_U_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[12])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 86, 79};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 84, 79};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_add_epsilon};
     __pyx_mstate_global->__pyx_codeobj_tab[13] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_cube_float, __pyx_k_A_s_4t4t4q_Cr_AQ_Cr_AQ_Cr_AQ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[13])) goto bad;
   }
@@ -25525,18 +25382,18 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[15] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_setstate_cython, __pyx_k_q_2, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[15])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 114, 29};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 111, 29};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[16] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_cube, __pyx_k_A_z_d_d_4s_D, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[16])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 118, 52};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 115, 52};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[17] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_odd_r, __pyx_k_A_c_1_t3c_S_Q_t1_y_a, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[17])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 141, 98};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_cls, __pyx_mstate->__pyx_n_u_x, __pyx_mstate->__pyx_n_u_y, __pyx_mstate->__pyx_n_u_hex_size};
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 7, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 137, 98};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_x, __pyx_mstate->__pyx_n_u_y, __pyx_mstate->__pyx_n_u_hex_size, __pyx_mstate->__pyx_n_u_x_2, __pyx_mstate->__pyx_n_u_y_2, __pyx_mstate->__pyx_n_u_q, __pyx_mstate->__pyx_n_u_r};
     __pyx_mstate_global->__pyx_codeobj_tab[18] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_from_pixel, __pyx_k_A_2Q_2Q_a_d_5_D_b_Bc_4r_Rq_D_b_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[18])) goto bad;
   }
   {
@@ -25550,12 +25407,12 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[20] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_setstate_cython, __pyx_k__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[20])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 163, 158};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 159, 158};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[21] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_round, __pyx_k_A_5_Qd_5_Qd_5_Qd_axr_Q_axr_Q_axr, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[21])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 183, 54};
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 179, 54};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_other, __pyx_mstate->__pyx_n_u_t};
     __pyx_mstate_global->__pyx_codeobj_tab[22] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_lerp, __pyx_k_A_a_T_d_T_d_T_d, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[22])) goto bad;
   }
@@ -25570,12 +25427,12 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[24] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_setstate_cython, __pyx_k_QfA, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[24])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 198, 29};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 194, 29};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[25] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_cube_float, __pyx_k_A_at4t4q_Cr_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[25])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 202, 19};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 198, 19};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[26] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_round, __pyx_k_A_t_6_9A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[26])) goto bad;
   }
@@ -25590,52 +25447,52 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[28] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_setstate_cython, __pyx_k_avQ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[28])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 233, 52};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 226, 52};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[29] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_axial, __pyx_k_A_c_1_T_Ct3b_1_T_3a, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[29])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 240, 15};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 233, 15};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[30] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_cube, __pyx_k_A_t9Bha, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[30])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 243, 21};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 236, 21};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_other};
     __pyx_mstate_global->__pyx_codeobj_tab[31] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_get_distance, __pyx_k_A_t82_5, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[31])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 247, 7};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 240, 7};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_other, __pyx_mstate->__pyx_n_u_genexpr, __pyx_mstate->__pyx_n_u_genexpr};
     __pyx_mstate_global->__pyx_codeobj_tab[32] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_line_draw, __pyx_k_A_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[32])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 251, 17};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 244, 17};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_N};
     __pyx_mstate_global->__pyx_codeobj_tab[33] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_all_in_range, __pyx_k_A_t9Bm1A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[33])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 255, 130};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 248, 130};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_hex_width, __pyx_mstate->__pyx_n_u_hex_height, __pyx_mstate->__pyx_n_u_is_bounding_box};
     __pyx_mstate_global->__pyx_codeobj_tab[34] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_to_pixel, __pyx_k_A_Q_c_1_aq_1_D_c_S_c_S_D_a_Q_T_r, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[34])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 282, 85};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 275, 85};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_direction};
     __pyx_mstate_global->__pyx_codeobj_tab[35] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_get_neighbor, __pyx_k_A_Rr_Jb_AQ_S_AWAQ_E_y_S_d_Rq, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[35])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 301, 154};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 294, 154};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_reach, __pyx_mstate->__pyx_n_u_is_coord_blocked, __pyx_mstate->__pyx_n_u_is_include_self};
     __pyx_mstate_global->__pyx_codeobj_tab[36] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_get_reachable_coords, __pyx_k_A_a_A_t1A_waq_E_aq_7_1_L_1_y_xt4, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[36])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 328, 21};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_cls, __pyx_mstate->__pyx_n_u_x, __pyx_mstate->__pyx_n_u_y, __pyx_mstate->__pyx_n_u_hex_size};
-    __pyx_mstate_global->__pyx_codeobj_tab[37] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_from_pixel, __pyx_k_A_Qe3c_1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[37])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 321, 21};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_x, __pyx_mstate->__pyx_n_u_y, __pyx_mstate->__pyx_n_u_hex_size};
+    __pyx_mstate_global->__pyx_codeobj_tab[37] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_from_pixel, __pyx_k_A_Qc_IYa, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[37])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 337, 270};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 331, 270};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_goal, __pyx_mstate->__pyx_n_u_is_coord_blocked, __pyx_mstate->__pyx_n_u_get_cost};
     __pyx_mstate_global->__pyx_codeobj_tab[38] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_src_ratroyale_backend_hexagon_py, __pyx_mstate->__pyx_n_u_path_find, __pyx_k_A_A_A_vQ_q_A_a_d_HD_m1_xs_g_1_1L, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[38])) goto bad;
   }
@@ -29893,130 +29750,6 @@ static int __Pyx_PyType_Ready(PyTypeObject *t) {
 #endif
 }
 
-/* DelItemOnTypeDict */
-static int __Pyx__DelItemOnTypeDict(PyTypeObject *tp, PyObject *k) {
-    int result;
-    PyObject *tp_dict;
-#if CYTHON_COMPILING_IN_LIMITED_API
-    tp_dict = __Pyx_GetTypeDict(tp);
-    if (unlikely(!tp_dict)) return -1;
-#else
-    tp_dict = tp->tp_dict;
-#endif
-    result = PyDict_DelItem(tp_dict, k);
-    if (likely(!result)) PyType_Modified(tp);
-    return result;
-}
-
-/* SetupReduce */
-static int __Pyx_setup_reduce_is_named(PyObject* meth, PyObject* name) {
-  int ret;
-  PyObject *name_attr;
-  name_attr = __Pyx_PyObject_GetAttrStrNoError(meth, __pyx_mstate_global->__pyx_n_u_name);
-  if (likely(name_attr)) {
-      ret = PyObject_RichCompareBool(name_attr, name, Py_EQ);
-  } else {
-      ret = -1;
-  }
-  if (unlikely(ret < 0)) {
-      PyErr_Clear();
-      ret = 0;
-  }
-  Py_XDECREF(name_attr);
-  return ret;
-}
-static int __Pyx_setup_reduce(PyObject* type_obj) {
-    int ret = 0;
-    PyObject *object_reduce = NULL;
-    PyObject *object_getstate = NULL;
-    PyObject *object_reduce_ex = NULL;
-    PyObject *reduce = NULL;
-    PyObject *reduce_ex = NULL;
-    PyObject *reduce_cython = NULL;
-    PyObject *setstate = NULL;
-    PyObject *setstate_cython = NULL;
-    PyObject *getstate = NULL;
-#if CYTHON_USE_PYTYPE_LOOKUP
-    getstate = _PyType_Lookup((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_getstate);
-#else
-    getstate = __Pyx_PyObject_GetAttrStrNoError(type_obj, __pyx_mstate_global->__pyx_n_u_getstate);
-    if (!getstate && PyErr_Occurred()) {
-        goto __PYX_BAD;
-    }
-#endif
-    if (getstate) {
-#if CYTHON_USE_PYTYPE_LOOKUP
-        object_getstate = _PyType_Lookup(&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_getstate);
-#else
-        object_getstate = __Pyx_PyObject_GetAttrStrNoError((PyObject*)&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_getstate);
-        if (!object_getstate && PyErr_Occurred()) {
-            goto __PYX_BAD;
-        }
-#endif
-        if (object_getstate != getstate) {
-            goto __PYX_GOOD;
-        }
-    }
-#if CYTHON_USE_PYTYPE_LOOKUP
-    object_reduce_ex = _PyType_Lookup(&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_reduce_ex); if (!object_reduce_ex) goto __PYX_BAD;
-#else
-    object_reduce_ex = __Pyx_PyObject_GetAttrStr((PyObject*)&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_reduce_ex); if (!object_reduce_ex) goto __PYX_BAD;
-#endif
-    reduce_ex = __Pyx_PyObject_GetAttrStr(type_obj, __pyx_mstate_global->__pyx_n_u_reduce_ex); if (unlikely(!reduce_ex)) goto __PYX_BAD;
-    if (reduce_ex == object_reduce_ex) {
-#if CYTHON_USE_PYTYPE_LOOKUP
-        object_reduce = _PyType_Lookup(&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_reduce); if (!object_reduce) goto __PYX_BAD;
-#else
-        object_reduce = __Pyx_PyObject_GetAttrStr((PyObject*)&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_reduce); if (!object_reduce) goto __PYX_BAD;
-#endif
-        reduce = __Pyx_PyObject_GetAttrStr(type_obj, __pyx_mstate_global->__pyx_n_u_reduce); if (unlikely(!reduce)) goto __PYX_BAD;
-        if (reduce == object_reduce || __Pyx_setup_reduce_is_named(reduce, __pyx_mstate_global->__pyx_n_u_reduce_cython)) {
-            reduce_cython = __Pyx_PyObject_GetAttrStrNoError(type_obj, __pyx_mstate_global->__pyx_n_u_reduce_cython);
-            if (likely(reduce_cython)) {
-                ret = __Pyx_SetItemOnTypeDict((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_reduce, reduce_cython); if (unlikely(ret < 0)) goto __PYX_BAD;
-                ret = __Pyx_DelItemOnTypeDict((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_reduce_cython); if (unlikely(ret < 0)) goto __PYX_BAD;
-            } else if (reduce == object_reduce || PyErr_Occurred()) {
-                goto __PYX_BAD;
-            }
-            setstate = __Pyx_PyObject_GetAttrStrNoError(type_obj, __pyx_mstate_global->__pyx_n_u_setstate);
-            if (!setstate) PyErr_Clear();
-            if (!setstate || __Pyx_setup_reduce_is_named(setstate, __pyx_mstate_global->__pyx_n_u_setstate_cython)) {
-                setstate_cython = __Pyx_PyObject_GetAttrStrNoError(type_obj, __pyx_mstate_global->__pyx_n_u_setstate_cython);
-                if (likely(setstate_cython)) {
-                    ret = __Pyx_SetItemOnTypeDict((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_setstate, setstate_cython); if (unlikely(ret < 0)) goto __PYX_BAD;
-                    ret = __Pyx_DelItemOnTypeDict((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_setstate_cython); if (unlikely(ret < 0)) goto __PYX_BAD;
-                } else if (!setstate || PyErr_Occurred()) {
-                    goto __PYX_BAD;
-                }
-            }
-            PyType_Modified((PyTypeObject*)type_obj);
-        }
-    }
-    goto __PYX_GOOD;
-__PYX_BAD:
-    if (!PyErr_Occurred()) {
-        __Pyx_TypeName type_obj_name =
-            __Pyx_PyType_GetFullyQualifiedName((PyTypeObject*)type_obj);
-        PyErr_Format(PyExc_RuntimeError,
-            "Unable to initialize pickling for " __Pyx_FMT_TYPENAME, type_obj_name);
-        __Pyx_DECREF_TypeName(type_obj_name);
-    }
-    ret = -1;
-__PYX_GOOD:
-#if !CYTHON_USE_PYTYPE_LOOKUP
-    Py_XDECREF(object_reduce);
-    Py_XDECREF(object_reduce_ex);
-    Py_XDECREF(object_getstate);
-    Py_XDECREF(getstate);
-#endif
-    Py_XDECREF(reduce);
-    Py_XDECREF(reduce_ex);
-    Py_XDECREF(reduce_cython);
-    Py_XDECREF(setstate);
-    Py_XDECREF(setstate_cython);
-    return ret;
-}
-
 /* SetVTable */
 static int __Pyx_SetVtable(PyTypeObject *type, void *vtable) {
     PyObject *ob = PyCapsule_New(vtable, 0, 0);
@@ -30149,6 +29882,130 @@ other_failure:
     return -1;
 }
 
+/* DelItemOnTypeDict */
+static int __Pyx__DelItemOnTypeDict(PyTypeObject *tp, PyObject *k) {
+    int result;
+    PyObject *tp_dict;
+#if CYTHON_COMPILING_IN_LIMITED_API
+    tp_dict = __Pyx_GetTypeDict(tp);
+    if (unlikely(!tp_dict)) return -1;
+#else
+    tp_dict = tp->tp_dict;
+#endif
+    result = PyDict_DelItem(tp_dict, k);
+    if (likely(!result)) PyType_Modified(tp);
+    return result;
+}
+
+/* SetupReduce */
+static int __Pyx_setup_reduce_is_named(PyObject* meth, PyObject* name) {
+  int ret;
+  PyObject *name_attr;
+  name_attr = __Pyx_PyObject_GetAttrStrNoError(meth, __pyx_mstate_global->__pyx_n_u_name);
+  if (likely(name_attr)) {
+      ret = PyObject_RichCompareBool(name_attr, name, Py_EQ);
+  } else {
+      ret = -1;
+  }
+  if (unlikely(ret < 0)) {
+      PyErr_Clear();
+      ret = 0;
+  }
+  Py_XDECREF(name_attr);
+  return ret;
+}
+static int __Pyx_setup_reduce(PyObject* type_obj) {
+    int ret = 0;
+    PyObject *object_reduce = NULL;
+    PyObject *object_getstate = NULL;
+    PyObject *object_reduce_ex = NULL;
+    PyObject *reduce = NULL;
+    PyObject *reduce_ex = NULL;
+    PyObject *reduce_cython = NULL;
+    PyObject *setstate = NULL;
+    PyObject *setstate_cython = NULL;
+    PyObject *getstate = NULL;
+#if CYTHON_USE_PYTYPE_LOOKUP
+    getstate = _PyType_Lookup((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_getstate);
+#else
+    getstate = __Pyx_PyObject_GetAttrStrNoError(type_obj, __pyx_mstate_global->__pyx_n_u_getstate);
+    if (!getstate && PyErr_Occurred()) {
+        goto __PYX_BAD;
+    }
+#endif
+    if (getstate) {
+#if CYTHON_USE_PYTYPE_LOOKUP
+        object_getstate = _PyType_Lookup(&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_getstate);
+#else
+        object_getstate = __Pyx_PyObject_GetAttrStrNoError((PyObject*)&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_getstate);
+        if (!object_getstate && PyErr_Occurred()) {
+            goto __PYX_BAD;
+        }
+#endif
+        if (object_getstate != getstate) {
+            goto __PYX_GOOD;
+        }
+    }
+#if CYTHON_USE_PYTYPE_LOOKUP
+    object_reduce_ex = _PyType_Lookup(&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_reduce_ex); if (!object_reduce_ex) goto __PYX_BAD;
+#else
+    object_reduce_ex = __Pyx_PyObject_GetAttrStr((PyObject*)&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_reduce_ex); if (!object_reduce_ex) goto __PYX_BAD;
+#endif
+    reduce_ex = __Pyx_PyObject_GetAttrStr(type_obj, __pyx_mstate_global->__pyx_n_u_reduce_ex); if (unlikely(!reduce_ex)) goto __PYX_BAD;
+    if (reduce_ex == object_reduce_ex) {
+#if CYTHON_USE_PYTYPE_LOOKUP
+        object_reduce = _PyType_Lookup(&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_reduce); if (!object_reduce) goto __PYX_BAD;
+#else
+        object_reduce = __Pyx_PyObject_GetAttrStr((PyObject*)&PyBaseObject_Type, __pyx_mstate_global->__pyx_n_u_reduce); if (!object_reduce) goto __PYX_BAD;
+#endif
+        reduce = __Pyx_PyObject_GetAttrStr(type_obj, __pyx_mstate_global->__pyx_n_u_reduce); if (unlikely(!reduce)) goto __PYX_BAD;
+        if (reduce == object_reduce || __Pyx_setup_reduce_is_named(reduce, __pyx_mstate_global->__pyx_n_u_reduce_cython)) {
+            reduce_cython = __Pyx_PyObject_GetAttrStrNoError(type_obj, __pyx_mstate_global->__pyx_n_u_reduce_cython);
+            if (likely(reduce_cython)) {
+                ret = __Pyx_SetItemOnTypeDict((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_reduce, reduce_cython); if (unlikely(ret < 0)) goto __PYX_BAD;
+                ret = __Pyx_DelItemOnTypeDict((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_reduce_cython); if (unlikely(ret < 0)) goto __PYX_BAD;
+            } else if (reduce == object_reduce || PyErr_Occurred()) {
+                goto __PYX_BAD;
+            }
+            setstate = __Pyx_PyObject_GetAttrStrNoError(type_obj, __pyx_mstate_global->__pyx_n_u_setstate);
+            if (!setstate) PyErr_Clear();
+            if (!setstate || __Pyx_setup_reduce_is_named(setstate, __pyx_mstate_global->__pyx_n_u_setstate_cython)) {
+                setstate_cython = __Pyx_PyObject_GetAttrStrNoError(type_obj, __pyx_mstate_global->__pyx_n_u_setstate_cython);
+                if (likely(setstate_cython)) {
+                    ret = __Pyx_SetItemOnTypeDict((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_setstate, setstate_cython); if (unlikely(ret < 0)) goto __PYX_BAD;
+                    ret = __Pyx_DelItemOnTypeDict((PyTypeObject*)type_obj, __pyx_mstate_global->__pyx_n_u_setstate_cython); if (unlikely(ret < 0)) goto __PYX_BAD;
+                } else if (!setstate || PyErr_Occurred()) {
+                    goto __PYX_BAD;
+                }
+            }
+            PyType_Modified((PyTypeObject*)type_obj);
+        }
+    }
+    goto __PYX_GOOD;
+__PYX_BAD:
+    if (!PyErr_Occurred()) {
+        __Pyx_TypeName type_obj_name =
+            __Pyx_PyType_GetFullyQualifiedName((PyTypeObject*)type_obj);
+        PyErr_Format(PyExc_RuntimeError,
+            "Unable to initialize pickling for " __Pyx_FMT_TYPENAME, type_obj_name);
+        __Pyx_DECREF_TypeName(type_obj_name);
+    }
+    ret = -1;
+__PYX_GOOD:
+#if !CYTHON_USE_PYTYPE_LOOKUP
+    Py_XDECREF(object_reduce);
+    Py_XDECREF(object_reduce_ex);
+    Py_XDECREF(object_getstate);
+    Py_XDECREF(getstate);
+#endif
+    Py_XDECREF(reduce);
+    Py_XDECREF(reduce_ex);
+    Py_XDECREF(reduce_cython);
+    Py_XDECREF(setstate);
+    Py_XDECREF(setstate_cython);
+    return ret;
+}
+
 /* ListPack */
 static PyObject *__Pyx_PyList_Pack(Py_ssize_t n, ...) {
     va_list va;
@@ -30166,6 +30023,29 @@ static PyObject *__Pyx_PyList_Pack(Py_ssize_t n, ...) {
     end:
     va_end(va);
     return l;
+}
+
+/* GetNameInClass */
+static PyObject *__Pyx__GetNameInClass(PyObject *nmspace, PyObject *name) {
+    PyObject *result;
+    PyObject *dict;
+    assert(PyType_Check(nmspace));
+#if CYTHON_USE_TYPE_SLOTS
+    dict = ((PyTypeObject*)nmspace)->tp_dict;
+    Py_XINCREF(dict);
+#else
+    dict = PyObject_GetAttr(nmspace, __pyx_mstate_global->__pyx_n_u_dict);
+#endif
+    if (likely(dict)) {
+        result = PyObject_GetItem(dict, name);
+        Py_DECREF(dict);
+        if (result) {
+            return result;
+        }
+    }
+    PyErr_Clear();
+    __Pyx_GetModuleGlobalNameUncached(result, name);
+    return result;
 }
 
 /* CLineInTraceback */
