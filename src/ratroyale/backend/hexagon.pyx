@@ -4,26 +4,34 @@ from libc.math cimport sqrt, fabs as c_abs
 from queue import PriorityQueue
 from typing import Callable, Iterator, Self
 
-# Re-import Python's round (or just use it directly, as it's a built-in)
-# The Cython compiler handles the built-in round function.
+# --- C Functions
+cdef double lerp(double a, double b, double t) noexcept:
+    return a + t * (b - a)
 
-cdef double lerp(double a, double b, double t) except *
+cdef float _get_default_cost(OddRCoord a, OddRCoord b) noexcept:
+    return 1.0
 
+cdef bint _coord_never_blocked(OddRCoord target_coord, OddRCoord source_coord) noexcept:
+    return 0
+
+# Forward declarations
 cdef class _AxialCoord
 cdef class _CubeCoord
 cdef class OddRCoord
+cdef class _CubeCoordFloat
+cdef class _AxialCoordFloat
+
+
+# --- Special Classes
 
 cdef class IsCoordBlocked:
-    cpdef bint __call__(self, OddRCoord target_coord, OddRCoord source_coord):
+    # Special method must be 'def'
+    def __call__(self, OddRCoord target_coord, OddRCoord source_coord):
         pass
 
-cdef bint _coord_never_blocked(OddRCoord target_coord, OddRCoord source_coord):
-    return 0
-
-
 cdef class _AStarCoord:
-    cdef double priority
-    cdef OddRCoord coord
+    cdef public double priority
+    cdef public OddRCoord coord
 
     def __init__(self, priority: float, coord: OddRCoord):
         self.priority = priority
@@ -35,9 +43,10 @@ cdef class _AStarCoord:
     def __eq__(self, other):
         return self.priority == other.priority
 
+# --- Coordinate Classes
 
 cdef class _CubeCoord:
-    cdef int q, r, s
+    cdef public int q, r, s
 
     def __init__(self, int q, int r, int s):
         self.q = q
@@ -51,36 +60,40 @@ cdef class _CubeCoord:
         if not isinstance(other, _CubeCoord): return False
         return self.q == other.q and self.r == other.r and self.s == other.s
 
-    cpdef _AxialCoord to_axial(self) except *:
+    # Removed 'except *' (line 60 warning)
+    cpdef _AxialCoord to_axial(self):
         return _AxialCoord(self.q, self.r)
 
-    cpdef OddRCoord to_odd_r(self) except *:
+    # Removed 'except *' (line 63 warning)
+    cpdef OddRCoord to_odd_r(self):
         return self.to_axial().to_odd_r()
 
-    cpdef int get_distance(self, _CubeCoord other) except *:
+    cpdef int get_distance(self, _CubeCoord other) except *: # Returns C int, keeps except *
         cdef _CubeCoord vec = self - other
-        return (c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) // 2
+        return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
 
-    def line_draw(self, other: Self) -> Iterator[OddRCoord]:
+    # Generator function must be 'def'
+    def line_draw(self, _CubeCoord other):
         cdef int N = self.get_distance(other)
         cdef int i
         cdef _CubeCoordFloat self_float = self.to_cube_float(add_epsilon=(1e-6, 2e-6, -3e-6))
         cdef _CubeCoordFloat other_float = other.to_cube_float()
 
-        for i in range(N + 1):
+        for i in range(N):
             yield self_float.lerp(
                 other_float, <double>i / <double>N
             ).round()
 
-    cpdef _CubeCoord __add__(self, _CubeCoord other) except *:
+    def __add__(self, _CubeCoord other):
         return _CubeCoord(self.q + other.q, self.r + other.r, self.s + other.s)
 
-    cpdef _CubeCoord __sub__(self, _CubeCoord other) except *:
+    def __sub__(self, _CubeCoord other):
         return _CubeCoord(self.q - other.q, self.r - other.r, self.s - other.s)
 
+    # Removed 'except *' (line 88 warning)
     cpdef _CubeCoordFloat to_cube_float(
-        self, tuple[float, float, float] add_epsilon = None
-    ) except *:
+        self, tuple add_epsilon = None
+    ):
         if add_epsilon is None:
             return _CubeCoordFloat(self.q, self.r, self.s)
         else:
@@ -92,7 +105,7 @@ cdef class _CubeCoord:
 
 
 cdef class _AxialCoord:
-    cdef int q, r
+    cdef public int q, r
 
     def __init__(self, int q, int r):
         self.q = q
@@ -105,22 +118,25 @@ cdef class _AxialCoord:
         if not isinstance(other, _AxialCoord): return False
         return self.q == other.q and self.r == other.r
 
-    cpdef _CubeCoord to_cube(self) except *:
+    # Removed 'except *' (line 115 warning)
+    cpdef _CubeCoord to_cube(self):
         return _CubeCoord(self.q, self.r, -self.q - self.r)
 
-    cpdef OddRCoord to_odd_r(self) except *:
+    # Removed 'except *' (line 118 warning)
+    cpdef OddRCoord to_odd_r(self):
         cdef int parity = self.r & 1
         cdef int col = self.q + (self.r - parity) // 2
         cdef int row = self.r
         return OddRCoord(col, row)
 
-    cpdef _AxialCoord __add__(self, _AxialCoord other) except *:
+    def __add__(self, _AxialCoord other):
         return _AxialCoord(self.q + other.q, self.r + other.r)
 
-    cpdef _AxialCoord __sub__(self, _AxialCoord other) except *:
+    def __sub__(self, _AxialCoord other):
         return _AxialCoord(self.q - other.q, self.r - other.r)
 
-    def all_in_range(self, N: int) -> Iterator[OddRCoord]:
+    # Generator function must be 'def'
+    def all_in_range(self, int N):
         cdef int q, r
         cdef _AxialCoord offset_coord
         
@@ -129,8 +145,8 @@ cdef class _AxialCoord:
                 offset_coord = self + _AxialCoord(q, r)
                 yield offset_coord.to_odd_r()
 
-    @classmethod
-    cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size) except *:
+    # Removed 'except *' (line 140 warning)
+    cpdef _AxialCoord from_pixel(cls, double x, double y, double hex_size):
         cdef double _x = x / hex_size
         cdef double _y = y / hex_size
         cdef double q, r
@@ -144,15 +160,15 @@ cdef class _AxialCoord:
 
 
 cdef class _CubeCoordFloat:
-    cdef double q, r, s
+    cdef public double q, r, s
 
     def __init__(self, double q, double r, double s):
         self.q = q
         self.r = r
         self.s = s
 
-    cpdef _CubeCoord round(self) except *:
-        # Using Python's built-in round()
+    # Removed 'except *' (line 161 warning)
+    cpdef _CubeCoord round(self):
         cdef int round_q = <int>round(self.q)
         cdef int round_r = <int>round(self.r)
         cdef int round_s = <int>round(self.s)
@@ -171,7 +187,8 @@ cdef class _CubeCoordFloat:
 
         return _CubeCoord(round_q, round_r, round_s)
 
-    cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t) except *:
+    # Removed 'except *' (line 180 warning)
+    cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t):
         return _CubeCoordFloat(
             lerp(self.q, other.q, t),
             lerp(self.r, other.r, t),
@@ -179,16 +196,18 @@ cdef class _CubeCoordFloat:
         )
 
 cdef class _AxialCoordFloat:
-    cdef double q, r
+    cdef public double q, r
 
     def __init__(self, double q, double r):
         self.q = q
         self.r = r
 
-    cpdef _CubeCoordFloat to_cube_float(self) except *:
+    # Removed 'except *' (line 194 warning)
+    cpdef _CubeCoordFloat to_cube_float(self):
         return _CubeCoordFloat(self.q, self.r, -self.q - self.r)
 
-    cpdef _AxialCoord round(self) except *:
+    # Removed 'except *' (line 197 warning)
+    cpdef _AxialCoord round(self):
         return self.to_cube_float().round().to_axial()
 
 
@@ -219,30 +238,35 @@ cdef class OddRCoord:
     def col(self) -> int:
         return self.x
 
-    cpdef _AxialCoord to_axial(self) except *:
+    # Removed 'except *' (line 228 warning)
+    cpdef _AxialCoord to_axial(self):
         cdef int parity = self.y & 1
         cdef int q = self.x - (self.y - parity) // 2
         cdef int r = self.y
         return _AxialCoord(q, r)
 
-    cpdef _CubeCoord to_cube(self) except *:
+    # Removed 'except *' (line 234 warning)
+    cpdef _CubeCoord to_cube(self):
         return self.to_axial().to_cube()
 
-    cpdef int get_distance(self, OddRCoord other) except *:
+    cpdef int get_distance(self, OddRCoord other) except *: # Returns C int, keeps except *
         return self.to_cube().get_distance(other.to_cube())
 
-    def line_draw(self, other: Self) -> Iterator[OddRCoord]:
+    # Generator expression is a closure, must be 'def'
+    def line_draw(self, OddRCoord other):
         return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
 
-    def all_in_range(self, N: int) -> Iterator[OddRCoord]:
+    # Generator expression is a closure, must be 'def'
+    def all_in_range(self, int N):
         return self.to_axial().all_in_range(N)
 
+    # Removed 'except *' (line 275 warning)
     cpdef tuple[double, double] to_pixel(
         self,
         double hex_width,
         double hex_height = -1.0,
         bint is_bounding_box = 0,
-    ) except *:
+    ):
         cdef double _hex_width = hex_width
         cdef double _hex_height
         cdef double x, y
@@ -263,7 +287,8 @@ cdef class OddRCoord:
         
         return x * _hex_width, y * _hex_height
 
-    cpdef OddRCoord get_neighbor(self, int direction) except *:
+    # Removed 'except *' (line 322 warning)
+    cpdef OddRCoord get_neighbor(self, int direction):
         cdef int parity
         cdef tuple diff
         cdef int dx, dy
@@ -276,18 +301,18 @@ cdef class OddRCoord:
         dx, dy = diff
         return OddRCoord(self.x + dx, self.y + dy)
 
-    def get_neighbors(self) -> Iterator[OddRCoord]:
+    # Generator function must be 'def'
+    def get_neighbors(self):
         cdef int i
         for i in range(6):
             yield self.get_neighbor(i)
 
-    def get_reachable_coords(
+    cpdef set[OddRCoord] get_reachable_coords(
         self,
         int reach,
-        IsCoordBlocked is_coord_blocked = _coord_never_blocked,
-        *,
+        object is_coord_blocked = _coord_never_blocked,
         bint is_include_self = 0,
-    ) -> set[OddRCoord]:
+    ):
         cdef set visited = set()
         cdef list fringes = []
         cdef int k
@@ -309,23 +334,22 @@ cdef class OddRCoord:
 
         return visited
 
-    @classmethod
-    cpdef OddRCoord from_pixel(cls, double x, double y, double hex_size) except *:
-        return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
+    cpdef OddRCoord from_pixel(cls, double x, double y, double hex_size):
+        return _AxialCoord.from_pixel(cls, x, y, hex_size).to_odd_r()
 
-    cpdef OddRCoord __add__(self, OddRCoord other) except *:
+    def __add__(self, OddRCoord other):
         return OddRCoord(self.x + other.x, self.y + other.y)
 
-    cpdef OddRCoord __sub__(self, OddRCoord other) except *:
+    def __sub__(self, OddRCoord other):
         return OddRCoord(self.x - other.x, self.y - other.y)
 
-    def path_find(
+    cpdef list[OddRCoord] path_find(
         self,
         OddRCoord goal,
-        IsCoordBlocked is_coord_blocked,
-        get_cost: Callable[[OddRCoord, OddRCoord], float] = lambda a, b: 1.0,
-    ) -> list[OddRCoord] | None:
-        cdef PriorityQueue frontier = PriorityQueue()
+        object is_coord_blocked,
+        get_cost: Callable[[OddRCoord, OddRCoord], float] = _get_default_cost,
+    ):
+        cdef object frontier = PriorityQueue()
         cdef dict came_from = {self: None}
         cdef dict cost_so_far = {self: 0.0}
         cdef OddRCoord current
