@@ -53,7 +53,7 @@ class Mayo(Rodent):
     def teleport(
         self, game_manager: "GameManager", coords: list[OddRCoord]
     ) -> SkillResult:
-        assert len(coords) == 0
+        assert len(coords) == 1
         game_manager.move_entity_uncheck(
             self, coords[0], custom_jump_height=self.ROCKET_BOOST_HEIGHT_LIMIT
         )
