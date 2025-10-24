@@ -15,14 +15,9 @@ cdef bint _coord_never_blocked(OddRCoord target_coord, OddRCoord source_coord) n
 cdef class IsCoordBlocked:
     pass
 
-cdef class _AxialCoord
-cdef class _CubeCoord
-cdef class _CubeCoordFloat
-cdef class _AxialCoordFloat
-
 cdef class _AStarCoord:
-    cdef public float priority
-    cdef public OddRCoord coord
+    cdef readonly float priority
+    cdef readonly OddRCoord coord
 
     def __init__(self, priority: float, coord: OddRCoord):
         self.priority = <float>priority
@@ -63,16 +58,17 @@ cdef class _CubeCoord:
         return <int>((c_abs(vec.q) + c_abs(vec.r) + c_abs(vec.s)) / 2.0)
 
     
-    def line_draw(self, _CubeCoord other):
+    cpdef list line_draw(self, _CubeCoord other):
         cdef int N = self.get_distance(other)
         cdef int i
         cdef _CubeCoordFloat self_float = self.to_cube_float(add_epsilon=(1e-6, 2e-6, -3e-6))
         cdef _CubeCoordFloat other_float = other.to_cube_float()
-
+        cdef list result = []
         for i in range(N):
-            yield self_float.lerp(
+            result.append(self_float.lerp(
                 other_float, <double>i / <double>N
-            ).round()
+            ).round())
+        return result
 
     def __add__(self, _CubeCoord other):
         return _CubeCoord(self.q + other.q, self.r + other.r, self.s + other.s)
@@ -125,14 +121,17 @@ cdef class _AxialCoord:
         return _AxialCoord(self.q - other.q, self.r - other.r)
 
     
-    def all_in_range(self, int N):
+    cpdef list all_in_range(self, int N):
         cdef int q, r
         cdef _AxialCoord offset_coord
+        cdef list result = []
         
         for q in range(-N, N + 1):
             for r in range(max(-N, -q - N), min(N, -q + N) + 1):
                 offset_coord = self + _AxialCoord(q, r)
-                yield offset_coord.to_odd_r()
+                result.append(offset_coord.to_odd_r())
+        
+        return result
 
     @staticmethod
     def from_pixel(double x, double y, double hex_width, double hex_height = -1.0, bint is_bounding_box = 0):
@@ -188,7 +187,7 @@ cdef class _CubeCoordFloat:
         )
 
 cdef class _AxialCoordFloat:
-    cdef public double q, r
+    cdef readonly double q, r
 
     def __init__(self, double q, double r):
         self.q = q
@@ -241,11 +240,11 @@ cdef class OddRCoord:
         return self.to_cube().get_distance(other.to_cube())
 
     
-    def line_draw(self, OddRCoord other):
-        return (cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube()))
+    cpdef list line_draw(self, OddRCoord other):
+        return [cube.to_odd_r() for cube in self.to_cube().line_draw(other.to_cube())]
 
     
-    def all_in_range(self, int N):
+    cpdef list all_in_range(self, int N):
         return self.to_axial().all_in_range(N)
 
     
@@ -286,10 +285,12 @@ cdef class OddRCoord:
         return OddRCoord(self.x + dx, self.y + dy)
 
     
-    def get_neighbors(self):
+    cpdef list get_neighbors(self):
         cdef int i
+        cdef list neighbors = []
         for i in range(6):
-            yield self.get_neighbor(i)
+            neighbors.append(self.get_neighbor(i))
+        return neighbors
 
     cpdef set[OddRCoord] get_reachable_coords(
         self,

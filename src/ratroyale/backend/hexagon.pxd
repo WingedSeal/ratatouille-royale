@@ -4,26 +4,28 @@ cdef class _CubeCoord
 cdef class _CubeCoordFloat
 
 cdef class _CubeCoordFloat:
-    cdef public double q, r, s
+    cdef readonly double q, r, s
     cpdef _CubeCoord round(self)
     cpdef _CubeCoordFloat lerp(self, _CubeCoordFloat other, double t)
 
 cdef class _CubeCoord:
-    cdef public double q, r, s
+    cdef readonly double q, r, s
     cpdef _AxialCoord to_axial(self)
     cpdef OddRCoord to_odd_r(self)
     cpdef int get_distance(self, _CubeCoord other)
     cpdef _CubeCoordFloat to_cube_float(
         self, tuple add_epsilon = *
     )
+    cpdef list line_draw(self, _CubeCoord other)
 
 cdef class _AxialCoord:
-    cdef public int q, r
+    cdef readonly int q, r
     cpdef _CubeCoord to_cube(self)
     cpdef OddRCoord to_odd_r(self)
+    cpdef list all_in_range(self, int N)
 
 cdef class OddRCoord:
-    cdef public int x, y
+    cdef readonly int x, y
     cpdef list[OddRCoord] path_find(
         self,
         OddRCoord goal,
@@ -36,6 +38,9 @@ cdef class OddRCoord:
         object is_coord_blocked = *,
         bint is_include_self = *,
     )
+    cpdef list get_neighbors(self)
+    cpdef list line_draw(self, OddRCoord other)
+    cpdef list all_in_range(self, int N)
     cpdef OddRCoord get_neighbor(self, int direction)
     cpdef tuple[double, double] to_pixel(
         self,
