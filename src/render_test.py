@@ -80,13 +80,13 @@ def main():
         ),
         entities=[],
         features=[
-            Lair([OddRCoord(0, 0)], 200, side=Side.MOUSE),
-            Lair([OddRCoord(5, 5)], 200, side=Side.RAT),
+            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
+            Lair([OddRCoord(5, 5)], 10, side=Side.RAT),
             mouse_zone,
             rat_zone,
         ],
     )
-    size = 20
+    size = 10
     map = Map(
         "Example Map",
         size,
@@ -94,8 +94,8 @@ def main():
         heights_to_tiles([[1 for i in range(size)] for i in range(size)]),
         entities=[],
         features=[
-            Lair([OddRCoord(0, 0)], 200, side=Side.MOUSE),
-            Lair([OddRCoord(size - 1, size - 1)], 200, side=Side.RAT),
+            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
+            Lair([OddRCoord(size - 1, size - 1)], 10, side=Side.RAT),
             DeploymentZone(shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE),
             DeploymentZone(
                 shape=[OddRCoord(size - 2, size - 1), OddRCoord(size - 1, size - 2)],

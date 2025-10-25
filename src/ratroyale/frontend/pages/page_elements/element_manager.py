@@ -245,11 +245,11 @@ class ElementManager:
         Elements then produces the corresponding event, which is
         handled by the page.
         """
-        remaining_gestures: list[GestureData] = []
+        remaining_gestures: list[GestureData] = gestures
 
         for element_group in self.get_all_groups():
             remaining_gestures = element_group.handle_gestures(
-                gestures, self._is_processing_input
+                remaining_gestures, self._is_processing_input
             )
 
         return remaining_gestures

@@ -131,6 +131,27 @@ class SpatialComponent:
         self._cached_screen_rect = rect
         return rect
 
+    def get_relative_rect(self, camera: "Camera") -> pygame.Rect | pygame.FRect:
+        """
+        Returns the rect scaled relative to its top-left corner.
+        - For SCREEN space: applies only self.scale.
+        - For WORLD space: applies both self.scale and camera.scale.
+        Does not apply any positional transformation.
+        """
+        rect = self.local_rect.copy()
+
+        # Determine total scale based on space mode
+        total_scale = (
+            self.scale * camera.scale if self.space_mode == "WORLD" else self.scale
+        )
+
+        if total_scale != 1.0:
+            rect.width *= total_scale
+            rect.height *= total_scale
+            # Top-left remains the same; no need to adjust rect.topleft
+
+        return rect
+
     def invalidate_cache(self) -> None:
         """Call if element moves or scale changes to force recalculation."""
         self._cached_screen_rect = None

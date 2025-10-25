@@ -26,6 +26,9 @@ class AnimEvent(ABC):
         self._direction: AnimDirection = AnimDirection.FORWARD
         self._is_finished = False
 
+    @abstractmethod
+    def update(self, time: float) -> None: ...
+
     def make_callback(self) -> None:
         """
         Called when an animation loop completes.
@@ -87,9 +90,6 @@ class AnimEvent(ABC):
         self._direction = AnimDirection.REVERSE if reverse else AnimDirection.FORWARD
 
         return self.easing_func(t)
-
-    @abstractmethod
-    def update(self, time: float) -> None: ...
 
 
 @dataclass

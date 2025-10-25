@@ -78,11 +78,7 @@ class EntityElement(ElementWrapper):
         pixel_x, pixel_y = EntityElement._define_position(entity.pos)
         width, height = cls._ENTITY_WIDTH_HEIGHT
 
-        # Shift from center to top-left
-        top_left_x = pixel_x - width / 2
-        top_left_y = pixel_y - height / 2
-
-        return pygame.Rect(top_left_x, top_left_y, width, height)
+        return pygame.Rect(pixel_x, pixel_y, width, height)
 
     @classmethod
     def _define_position(cls, pos: OddRCoord) -> tuple[float, float]:
@@ -99,7 +95,7 @@ class EntityElement(ElementWrapper):
         pixel_x += (tile_w - ent_w) / 2 - tile_w / 2
         pixel_y += (tile_h - ent_h) / 2 - tile_h / 2
 
-        return pixel_x + ent_w / 2, pixel_y + ent_h / 2
+        return pixel_x, pixel_y
 
     def _temp_stat_generators(self) -> list[ElementWrapper]:
         elements = []

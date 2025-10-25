@@ -198,6 +198,8 @@ class ElementGroup:
 
                 if not consumed:
                     remaining_gestures.append(gesture)
+
+            return remaining_gestures
         elif self.hittest_policy == HitTestPolicy.NO_HITTEST:
             return gestures
         elif self.hittest_policy == HitTestPolicy.HEXGRID:
@@ -205,7 +207,6 @@ class ElementGroup:
                 consumed = False
 
                 world_pos = self.camera.screen_to_world(*gesture.mouse_pos)
-
                 odd_r_coord = OddRCoord.from_pixel(
                     *world_pos, TYPICAL_TILE_SIZE[0], is_bounding_box=True
                 )
@@ -222,4 +223,7 @@ class ElementGroup:
 
                 if not consumed:
                     remaining_gestures.append(gesture)
-        return remaining_gestures
+
+            return remaining_gestures
+        else:
+            raise ValueError("Hittest policy unrecognised.")

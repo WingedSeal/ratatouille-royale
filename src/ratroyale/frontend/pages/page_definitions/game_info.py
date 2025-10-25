@@ -210,7 +210,8 @@ class GameInfoPage(Page):
     @callback_event_bind("no_hovered")
     def no_hovered(self, msg: PageCallbackEvent) -> None:
         self.temp_hovered_tile = None
-        self.kill_old_tile_data()
+        if not self.temp_selected_tile:
+            self.kill_old_tile_data()
 
     @callback_event_bind("move_history")
     def _move_history(self, msg: PageCallbackEvent) -> None:

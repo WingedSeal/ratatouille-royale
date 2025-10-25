@@ -137,29 +137,46 @@ class ElementWrapper:
         child.parent = None
 
     # TODO: somethings wrong here
-    def _set_absolute_rect(self) -> pygame.Rect | pygame.FRect:
-        # Invalidate cache if local_rect changed (optional, in case it can mutate elsewhere)
+    def get_absolute_rect(self) -> pygame.Rect | pygame.FRect:
         self.spatial_component.invalidate_cache()
 
-        my_rect = self.spatial_component.get_screen_rect(self.camera).copy()
+        if not self.parent:
+            # No parent: just project to screen
+            return self.spatial_component.get_screen_rect(self.camera).copy()
 
-        if self.parent:
-            parent_rect = self.parent.spatial_component.get_rect()
-            my_rect.x += parent_rect.x
-            my_rect.y += parent_rect.y
+        # Get scaled child rect (top-left scaled, no position change)
+        child_rect = self.spatial_component.get_relative_rect(self.camera).copy()
 
-        return my_rect
+        # Get parent screen rect
+        parent_rect = self.parent.spatial_component.get_screen_rect(self.camera)
+
+        # Determine parent scale factor (combined element + camera scale)
+        parent_scale = (
+            self.parent.spatial_component.scale * self.camera.scale
+            if self.parent.spatial_component.space_mode == "WORLD"
+            else self.parent.spatial_component.scale
+        )
+
+        # Add scaled offset from parent
+        child_rect.x += parent_rect.x
+        child_rect.y += parent_rect.y
+
+        # Offset respect scale of parent
+        child_rect.x += self.spatial_component.local_rect.x * (parent_scale - 1)
+        child_rect.y += self.spatial_component.local_rect.y * (parent_scale - 1)
+
+        return child_rect
 
     def render(self, surface: pygame.Surface) -> None:
         # Only recompute visibility if camera moved
-        if self.camera._dirty:
-            self.update_visibility()
+        # if self.camera._dirty:
+        #     self.update_visibility()
 
         # Skip entirely if not visible
         if not self._is_visible:
             return
 
-        abs_rect = self._set_absolute_rect()
+        abs_rect = self.get_absolute_rect()
         if self.visual_component:
             self.visual_component.render(
                 self.interactable_component,

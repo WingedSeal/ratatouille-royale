@@ -225,12 +225,12 @@ class BackendAdapter:
     def handle_target_selected(self, event: GameManagerEvent) -> None:
         payload = event.payload
         assert isinstance(payload, AbilityTargetPayload)
-        # selected_coords = payload.selected_targets
-        # result = self.game_manager.apply_skill_callback(selected_coords)
-        self.coordination_manager.put_message(
+        selected_coords = payload.selected_targets
+        skill_result = self.game_manager.apply_skill_callback(selected_coords)
+        CoordinationManager.put_message(
             PageCallbackEvent(
-                "crumb_update",
-                payload=CrumbUpdatePayload(self.game_manager.crumbs),
+                "skill_targeting",
+                payload=SkillTargetingPayload(skill_result),
             )
         )
 

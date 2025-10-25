@@ -14,6 +14,7 @@ from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
 )
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
 
 import pygame_gui
 import pygame
@@ -30,30 +31,25 @@ class SelectTargetPromptPage(Page):
         """Return all GUI elements for the TestPage."""
         gui_elements: list[ElementWrapper] = []
 
-        # region Panel + nested button
-        select_target_panel_id = "select_target_panel"
-        select_target_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(200, 100, 400, 100),
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="SelectTargetPanel", object_id="select_target_panel"
-            ),
-        )
-        select_target_panel_element = ui_element_wrapper(
-            select_target_panel, select_target_panel_id, self.camera
-        )
-        gui_elements.append(select_target_panel_element)
+        btn_width = 80
+        btn_height = 40
+        btn_x = SCREEN_SIZE_HALVED[0] - btn_width / 2
+        btn_y = 100
 
         # Nested button inside the panel
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(300, 10, 90, 70),
-            text="Cancel Skill",
-            manager=self.gui_manager,
-            container=select_target_panel,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="CancelSkillButton", object_id="cancel_skill_button"
+        cancel_skill_button = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(btn_x, btn_y, btn_width, btn_height),
+                text="Cancel",
+                manager=self.gui_manager,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="CancelSkillButton", object_id="cancel_skill_button"
+                ),
             ),
+            registered_name="cancel_skill_button",
+            camera=self.camera,
         )
+        gui_elements.append(cancel_skill_button)
         # endregion
 
         return gui_elements

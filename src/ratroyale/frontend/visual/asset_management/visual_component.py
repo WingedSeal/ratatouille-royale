@@ -68,14 +68,11 @@ class VisualComponent:
         if animation_sequence:
             animation_sequence.update(time)
 
-            # If the sequence does NOT want to run together with default,
-            # skip running the default animation this frame
-            if not animation_sequence.run_together_with_default():
-                return
-
         # Optionally run default animation if allowed
-        if self._default_animation and (
-            animation_sequence is None or animation_sequence.run_together_with_default()
+        if (
+            self._default_animation
+            and animation_sequence is not None
+            and animation_sequence.run_together_with_default()
         ):
             self._default_animation.update(time)
 
