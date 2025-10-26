@@ -10,7 +10,6 @@ from ratroyale.event_tokens.page_token import (
     PageNavigation,
     PageNavigationEvent,
 )
-from ratroyale.event_tokens.visual_token import VisualManagerEvent
 from ratroyale.frontend.gesture.gesture_reader import (
     GESTURE_READER_CARES,
     GestureReader,
@@ -224,23 +223,9 @@ class PageManager:
             page.execute_game_event_callback(game_event)
 
     def execute_visual_callback(self) -> None:
-        msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
+        # msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
 
-        for page in self.page_stack:
-            if msg_queue:
-                for msg in msg_queue:
-                    page.execute_visual_callback(msg)
-
-            if page._animation_queue and not page._animation_lock:
-                # Check if there's another animation queued
-                next_element, next_anim = page._animation_queue.popleft()
-                # Issue the next animation
-                vis = next_element.visual_component
-                assert vis
-                vis.queue_override_animation(next_anim)
-            else:
-                # No more animations left — unlock input
-                page._animation_lock = False
+        pass
 
     # endregion
 

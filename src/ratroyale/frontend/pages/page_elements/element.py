@@ -7,7 +7,7 @@ from typing import TypeVar
 from pygame_gui.core import UIElement
 from ratroyale.event_tokens.payloads import Payload
 from .spatial_component import SpatialComponent, Camera
-from .hitbox import Hitbox
+from .hitbox import Hitbox, RectangleHitbox
 from ratroyale.frontend.visual.anim.core.anim_structure import (
     AnimEvent,
     SequentialAnim,
@@ -56,6 +56,7 @@ class ElementWrapper:
         self.payload: Payload | None = payload
         self.is_blocking: bool = is_blocking
         self.is_interactable: bool = True
+        self._supporting_hitbox_for_ui_elements: RectangleHitbox
 
         # Visual info
         self.visual_component: VisualComponent | None = visual_component
@@ -93,25 +94,32 @@ class ElementWrapper:
             return self.payload
 
     def handle_gesture(self, gesture: GestureData, is_processing_input: bool) -> bool:
-        if not isinstance(self.interactable_component, Hitbox):
-            return False
-
+        # Filter out input non-processing scenarios.
         if not is_processing_input:
             return False
 
         if not self.is_interactable:
             return False
 
+        # Detects input based on interactable component's type:
         pos = gesture.mouse_pos
-        if self.interactable_component.contains_point(pos):
-            post_gesture_event(
-                InputManagerEvent(
-                    element_id=self.registered_name,
-                    gesture_data=gesture,
-                    payload=self.payload,
+        if isinstance(self.interactable_component, Hitbox):
+            if self.interactable_component.contains_point(pos):
+                post_gesture_event(
+                    InputManagerEvent(
+                        element_id=self.registered_name,
+                        gesture_data=gesture,
+                        payload=self.payload,
+                    )
                 )
-            )
-            return self.is_blocking
+                return self.is_blocking
+            else:
+                return False
+        elif isinstance(self.interactable_component, UIElement):
+            if self.get_absolute_rect().collidepoint(pos):
+                return self.is_blocking
+            else:
+                return False
         else:
             return False
 
@@ -169,8 +177,8 @@ class ElementWrapper:
 
     def render(self, surface: pygame.Surface) -> None:
         # Only recompute visibility if camera moved
-        # if self.camera._dirty:
-        #     self.update_visibility()
+        if self.camera._dirty:
+            self.update_visibility()
 
         # Skip entirely if not visible
         if not self._is_visible:
@@ -189,7 +197,7 @@ class ElementWrapper:
 
     def update_visibility(self) -> None:
         """Recompute visibility only if camera is dirty or element moved."""
-        spatial = self.spatial_component.get_screen_rect(self.camera)
+        spatial = self.get_absolute_rect()
         if spatial:
             self._is_visible = spatial.colliderect(screen_rect)
         else:

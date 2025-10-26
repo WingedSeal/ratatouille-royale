@@ -135,7 +135,7 @@ def main():
         game_manager=game_manager,
         page_manager=page_manager,
         coordination_manager=coordination_manager,
-        ai_type=RushBAI,
+        ai_type=RandomAI,
     )
 
     coordination_manager.put_message(

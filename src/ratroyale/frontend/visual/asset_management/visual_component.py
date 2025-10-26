@@ -76,16 +76,6 @@ class VisualComponent:
         ):
             self._default_animation.update(time)
 
-    def _get_animation(self) -> GroupedAnim | None:
-        if self._override_animation_queue:
-            animation = self._override_animation_queue[0]
-        elif self._default_animation:
-            animation = self._default_animation
-        else:
-            return None
-
-        return animation.get_animation_group()
-
     def render(
         self,
         interactable_comp: UIElement | Hitbox | None,

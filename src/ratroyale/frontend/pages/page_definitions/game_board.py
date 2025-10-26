@@ -140,7 +140,8 @@ class GameBoard(Page):
 
         entity_id = self.entity_to_element_id_mapping[entity]
         entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
-        entity_element.move_entity(path)
+        anim_set = entity_element.move_entity(path)
+        self.queue_animation(anim_set)
 
     @game_event_bind(CrumbChangeEvent)
     def crumb_change_event(self, event: CrumbChangeEvent) -> None:
@@ -178,7 +179,8 @@ class GameBoard(Page):
         entity_id = self.entity_to_element_id_mapping[entity]
         entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
 
-        entity_element.on_hurt()
+        anim_set = entity_element.on_hurt()
+        self.queue_animation([anim_set])
 
     @game_event_bind(EntityDieEvent)
     def entity_die_event(self, event: EntityDieEvent) -> None:

@@ -25,10 +25,11 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
 from ratroyale.frontend.pages.page_managers.theme_path_helper import resolve_theme_path
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ...visual.anim.core.anim_structure import SequentialAnim
-from collections import deque
 
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 from ratroyale.backend.game_event import GameEvent
+
+from ratroyale.frontend.visual.anim.core.anim_coordinator import AnimationCoordinator
 
 from typing import TypeVar
 
@@ -85,24 +86,12 @@ class Page(ABC):
         self._game_event_bindings: dict[type[GameEvent], GameEventHandler] = {}
         """ Maps (game_action) to handler functions """
 
-        self._animation_lock: bool = False
-        self._pending_animation: int = 0
-        self._animation_queue: deque[tuple[ElementWrapper, SequentialAnim]] = deque()
+        self._animation_coordinator: AnimationCoordinator = AnimationCoordinator()
 
         self.setup_event_bindings()
 
         gui_elements = self.define_initial_gui()
         self.setup_elements(gui_elements)
-
-    def issue_anim(self, anim: tuple[ElementWrapper, SequentialAnim]) -> None:
-        self._animation_lock = True
-        self._pending_animation += 1
-        self._animation_queue.append(anim)
-
-    def anim_finish_callback(self) -> None:
-        self._pending_animation -= 1
-        if not self._pending_animation:
-            self._animation_lock = False
 
     @abstractmethod
     def define_initial_gui(self) -> list["ElementWrapper"]:
@@ -116,6 +105,11 @@ class Page(ABC):
     @input_event_bind(SpecialInputScope.GLOBAL, pygame.QUIT)
     def quit_game(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.stop_game()
+
+    def queue_animation(
+        self, anim_set: list[tuple[ElementWrapper, SequentialAnim]]
+    ) -> None:
+        self._animation_coordinator.queue_animation_set(anim_set)
 
     def setup_elements(self, configs: list[ElementWrapper]) -> None:
         for config in configs:
@@ -188,7 +182,7 @@ class Page(ABC):
         - If the page is hidden or not receiving input, no InputManagerEvent is produced.
         - Returns gestures that are unconsumed (for other pages).
         """
-        if not self.is_visible or self._animation_lock:
+        if not self.is_visible:
             return gestures
 
         return self._element_manager.handle_gestures(gestures)
@@ -260,11 +254,7 @@ class Page(ABC):
         return object_id.split(".")[-1] if object_id else None
 
     def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
-        callback = msg.callback
-
-        if callback == "FINISHED":
-            # Mark current animation as finished
-            self.anim_finish_callback()
+        pass
 
     def hide(self) -> None:
         self.is_visible = False
@@ -284,6 +274,8 @@ class Page(ABC):
         if self.is_visible:
             self.gui_manager.update(time_delta)
             self._element_manager.update_all(time_delta)
+            self._animation_coordinator.queue_to_elements()
+
             self.canvas.fill(self.base_color)  # Clear with transparent
             self._element_manager.render_all(self.canvas)
             self.gui_manager.draw_ui(self.canvas)

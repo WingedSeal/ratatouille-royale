@@ -6,6 +6,7 @@ from ....visual.asset_management.game_obj_to_sprite_registry import (
     TYPICAL_TILE_SIZE,
 )
 
+from ....visual.anim.core.anim_structure import SequentialAnim
 from ....visual.asset_management.spritesheet_manager import SpritesheetManager
 from ..spatial_component import SpatialComponent
 from ..hitbox import RectangleHitbox
@@ -159,12 +160,15 @@ class EntityElement(ElementWrapper):
 
         return elements
 
-    def move_entity(self, pos_sequence: list[OddRCoord]) -> bool:
+    def move_entity(
+        self, pos_sequence: list[OddRCoord]
+    ) -> list[tuple[ElementWrapper, SequentialAnim]]:
         """
         Queue movement animations for an entity along a sequence of positions,
         moving from each position to the next.
         """
         visual_component = self.visual_component
+        anim_list: list[tuple[ElementWrapper, SequentialAnim]] = []
         if visual_component and visual_component.spritesheet_component:
 
             for pos in pos_sequence:
@@ -173,21 +177,20 @@ class EntityElement(ElementWrapper):
                     spatial=self.spatial_component,
                     camera=self.camera,
                 )
-                visual_component.queue_override_animation(anim)
+                anim_list.append((self, anim))
 
-        return True
+        return anim_list
 
-    def on_hurt(self) -> bool:
+    def on_hurt(self) -> tuple[ElementWrapper, SequentialAnim]:
         visual_component = self.visual_component
         if visual_component and visual_component.spritesheet_component:
             anim = entity_hurt(
                 visual_component.spritesheet_component, pygame.Color(255, 0, 0)
             )
-            visual_component.queue_override_animation(anim)
 
         self.update_health()
 
-        return True
+        return (self, anim)
 
     def on_select(self) -> bool:
         visual_component = self.visual_component
