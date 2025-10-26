@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final
 from math import exp, floor, sqrt
 
-from ratroyale.backend.error import NotEnoughCrumbError
+from ratroyale.backend.error import NotEnoughCheeseError
 from ratroyale.utils import DataPointer
 
 from .squeak import Squeak
@@ -133,7 +133,7 @@ class PlayerInfo:
 
     def gacha_squeak(self, count: int = 1) -> list[Squeak]:
         if self.cheese < count * CHEESE_PER_ROLL:
-            raise NotEnoughCrumbError("Not enough cheese to roll")
+            raise NotEnoughCheeseError("Not enough cheese to roll")
         self.cheese -= count * CHEESE_PER_ROLL
         squeaks = gacha_squeak(count)
         self._apply_gacha_squeak(squeaks)

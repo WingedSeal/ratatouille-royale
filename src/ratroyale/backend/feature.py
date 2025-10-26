@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pprint import pformat
 from typing import TYPE_CHECKING, ClassVar
+
+from ratroyale.backend.instant_kill import InstantKill
 
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .hexagon import OddRCoord
@@ -20,6 +22,7 @@ class Feature(ABC):
     health: int | None = None
     defense: int = 0
     side: Side | None = None
+    is_dead: bool = field(default=False, init=False)
     ALL_FEATURES: ClassVar[dict[int, type["Feature"]]] = {}
     """Map of all features' IDs to the feature class"""
 
@@ -45,7 +48,10 @@ class Feature(ABC):
         Feature.ALL_FEATURES[cls.FEATURE_ID()] = cls
 
     def on_damage_taken(
-        self, game_manager: "GameManager", damage: int, source: SourceOfDamageOrHeal
+        self,
+        game_manager: "GameManager",
+        damage: int | InstantKill,
+        source: SourceOfDamageOrHeal,
     ) -> int | None:
         pass
 
@@ -100,13 +106,20 @@ class Feature(ABC):
         )
 
     def _take_damage(
-        self, game_manager: "GameManager", damage: int, source: SourceOfDamageOrHeal
+        self,
+        game_manager: "GameManager",
+        damage: int | InstantKill,
+        source: SourceOfDamageOrHeal,
     ) -> tuple[bool, int]:
         """
         Take damage and reduce health accordingly if entity has health
         :param damage: How much damage taken
         :returns: Whether the entity die and hp loss
         """
+        if isinstance(damage, InstantKill):
+            self.on_damage_taken(game_manager, damage, source)
+            self.on_hp_loss(game_manager, self.health or 0, source)
+            return True, self.health or 0
         new_damage = self.on_damage_taken(game_manager, damage, source)
         if new_damage is not None:
             damage = new_damage
@@ -117,6 +130,7 @@ class Feature(ABC):
         if self.health <= 0:
             damage_taken += self.health
             self.health = 0
+            self.is_dead = True
             self.on_hp_loss(game_manager, damage_taken, source)
             return True, damage_taken
         self.on_hp_loss(game_manager, damage_taken, source)

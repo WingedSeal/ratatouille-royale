@@ -141,7 +141,7 @@ def main():
     coordination_manager.put_message(
         PageNavigationEvent(
             action_list=[
-                (PageNavigation.OPEN, "MainMenu"),
+                (PageNavigation.OPEN, "InspectFeature"),
             ]
         )  # change this to test your page
     )
