@@ -26,6 +26,7 @@ GACHA_POOL_WEIGHTS: dict[Squeak, float] = {
 
 
 def gacha_squeak(seed: int, count: int = 1) -> tuple[list[Squeak], int]:
+    random.seed(seed)
     result = random.choices(
         list(GACHA_POOL_WEIGHTS.keys()), list(GACHA_POOL_WEIGHTS.values()), k=count
     )
