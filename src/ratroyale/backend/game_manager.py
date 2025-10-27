@@ -3,11 +3,7 @@ from typing import Iterator
 from dataclasses import dataclass, field
 from collections import defaultdict
 
-from .crumbs_per_turn_modifier import (
-    BaseCrumbsPerTurn,
-    CrumbsPerTurnModifier,
-    default_base_crumbs_per_turn,
-)
+from .crumbs_per_turn_modifier import CrumbsPerTurnModifier
 from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
@@ -89,13 +85,11 @@ class GameManager:
         map: Map,
         players_info: tuple[PlayerInfo, PlayerInfo],
         first_turn: Side,
-        *,
-        base_crumbs_per_turn: BaseCrumbsPerTurn = default_base_crumbs_per_turn,
     ) -> None:
         self.turn = first_turn
         self.first_turn = first_turn
         self.turn_count = 1
-        self.crumbs_per_turn_modifier = CrumbsPerTurnModifier(base_crumbs_per_turn)
+        self.crumbs_per_turn_modifier = CrumbsPerTurnModifier(map.base_crumbs_per_turn)
         self.set_crumbs()
         self.board = Board(map)
         self.players_info = {
