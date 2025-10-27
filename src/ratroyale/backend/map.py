@@ -83,7 +83,7 @@ class Map:
                 }
             }
         }
-        1 byte for base_crumbs_per_turn_id
+        1 byte for base_crumbs_per_turn
         """
     """Binary format specification"""
 
