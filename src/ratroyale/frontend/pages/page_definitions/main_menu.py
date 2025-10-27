@@ -29,68 +29,37 @@ class MainMenu(Page):
         super().__init__(coordination_manager, theme_name="main_menu", camera=camera)
 
     def define_initial_gui(self) -> list[ElementWrapper]:
-        """Return all GUI elements for the main menu page."""
-
+        """Return all GUI elements for the main menu page, auto-stacked vertically."""
         elements: list[ElementWrapper] = []
 
-        start_button_id = "start_button"
-        start_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(100, 100, 200, 50),
-            text="Start",
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="MainMenuButton", object_id=start_button_id
-            ),
-        )
-        start_button_element = ui_element_wrapper(
-            start_button, start_button_id, self.camera
-        )
-        elements.append(start_button_element)
+        button_specs = [
+            ("start_button", "Start"),
+            ("select_player_button", "Select Player"),
+            ("quit_button", "Quit"),
+        ]
 
-        # Quit button
-        quit_button_id = "quit_button"
-        quit_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(100, 200, 200, 50),
-            text="Quit",
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="MainMenuButton", object_id=quit_button_id
-            ),
-        )
-        quit_button_element = ui_element_wrapper(
-            quit_button, quit_button_id, self.camera
-        )
-        elements.append(quit_button_element)
+        start_x = 100
+        start_y = 100
+        button_width = 200
+        button_height = 50
+        padding = 10  # space between buttons
 
-        # GUI Demo button
-        gui_demo_button_id = "gui_demo_button"
-        gui_demo_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(100, 300, 200, 50),
-            text="Go to GUI demo",
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="MainMenuButton", object_id=gui_demo_button_id
-            ),
-        )
-        gui_demo_element = ui_element_wrapper(
-            gui_demo_button, gui_demo_button_id, self.camera
-        )
-        elements.append(gui_demo_element)
-
-        # Element Demo button
-        element_demo_button_id = "element_demo_button"
-        element_demo_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(400, 300, 200, 50),
-            text="Go to Element demo",
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="MainMenuButton", object_id=element_demo_button_id
-            ),
-        )
-        element_demo_element = ui_element_wrapper(
-            element_demo_button, element_demo_button_id, self.camera
-        )
-        elements.append(element_demo_element)
+        for i, (button_id, text) in enumerate(button_specs):
+            button_rect = pygame.Rect(
+                start_x,
+                start_y + i * (button_height + padding),
+                button_width,
+                button_height,
+            )
+            button = pygame_gui.elements.UIButton(
+                relative_rect=button_rect,
+                text=text,
+                manager=self.gui_manager,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="MainMenuButton", object_id=button_id
+                ),
+            )
+            elements.append(ui_element_wrapper(button, button_id, self.camera))
 
         return elements
 
@@ -98,14 +67,13 @@ class MainMenu(Page):
 
     @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_start_click(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
+        self.post(
             PageNavigationEvent(
                 action_list=[
                     (PageNavigation.CLOSE_ALL, None),
                     (PageNavigation.OPEN, "GameBoard"),
+                    (PageNavigation.OPEN, "GameInfoPage"),
                     (PageNavigation.OPEN, "PauseButton"),
-                    (PageNavigation.OPEN, "InspectHistory"),
-                    # (PageNavigation.OPEN, "InspectEntity"),
                 ]
             )
         )
@@ -114,13 +82,13 @@ class MainMenu(Page):
     def _on_quit_click(self, msg: pygame.event.Event) -> None:
         self.coordination_manager.stop_game()
 
-    @input_event_bind("gui_demo_button", pygame_gui.UI_BUTTON_PRESSED)
-    def _on_gui_demo_click(self, msg: pygame.event.Event) -> None:
+    @input_event_bind("select_player_button", pygame_gui.UI_BUTTON_PRESSED)
+    def _on_select_player_click(self, msg: pygame.event.Event) -> None:
+        self.close_self()
         self.post(
             PageNavigationEvent(
                 action_list=[
-                    (PageNavigation.CLOSE_ALL, None),
-                    (PageNavigation.OPEN, "GUIDemo"),
+                    (PageNavigation.OPEN, "SelectPlayerPage"),
                 ]
             )
         )

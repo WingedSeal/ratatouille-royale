@@ -9,6 +9,8 @@ from ratroyale.backend.entity import Entity
 
 ASSET_DIR = Path(__file__).resolve().parent.parent / "asset"
 
+TYPICAL_TILE_SIZE = (64, 64)
+
 
 @dataclass
 class SpritesheetMetadata:

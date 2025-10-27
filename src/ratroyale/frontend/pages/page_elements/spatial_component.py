@@ -19,6 +19,9 @@ class Camera:
     scale_constraints: tuple[float, float] = (1.5, 0.5)
     """Upper and lower bound for zooming scale"""
 
+    _dirty: bool = True
+    """Marks if the camera has moved or zoomed"""
+
     # Temporary drag state
     _prev_drag_mouse: tuple[float, float] | None = None
 
@@ -61,14 +64,20 @@ class Camera:
         self.world_x = wx - (screen_px - self.screen_offset_x) / self.scale
         self.world_y = wy - (screen_py - self.screen_offset_y) / self.scale
 
+        self._dirty = True
+
     def move_by(self, dx: float, dy: float) -> None:
         """Pan camera by screen-space delta."""
         self.world_x += dx / self.scale
         self.world_y += dy / self.scale
 
+        self._dirty = True
+
     def move_to(self, x: float, y: float) -> None:
         self.world_x = x
         self.world_y = y
+
+        self._dirty = True
 
     def start_drag(self, screen_pos: tuple[float, float]) -> None:
         """Call when drag starts with no entity."""
@@ -92,6 +101,9 @@ class Camera:
         """Call when drag ends."""
         self._prev_drag_mouse = None
 
+    def clear_dirty(self) -> None:
+        self._dirty = False
+
 
 @dataclass
 class SpatialComponent:
@@ -100,22 +112,61 @@ class SpatialComponent:
     local_rect: pygame.Rect | pygame.FRect
     scale: float = 1.0
     z_order: int = 0
-    space_mode: SpaceMode = "SCREEN"
+    space_mode: str = "SCREEN"
+    _cached_screen_rect: pygame.Rect | pygame.FRect | None = None
 
     def get_screen_rect(self, camera: "Camera") -> pygame.Rect | pygame.FRect:
+        if self._cached_screen_rect is not None and not camera._dirty:
+            return self._cached_screen_rect
+
+        # Recompute screen rect
         if self.space_mode == "WORLD":
-            x, y = self.local_rect.topleft
-            total_scale = camera.scale * self.scale
+            x, y = self.local_rect.center
             sx, sy = camera.world_to_screen(x, y)
+            total_scale = camera.scale * self.scale
             w = self.local_rect.width * total_scale
             h = self.local_rect.height * total_scale
-            rect: pygame.Rect | pygame.FRect = pygame.Rect(sx, sy, w, h)
+            rect: pygame.Rect | pygame.FRect = pygame.Rect(sx - w / 2, sy - h / 2, w, h)
         else:
             rect = self.local_rect.copy()
+
+        self._cached_screen_rect = rect
         return rect
+
+    def get_relative_rect(self, camera: "Camera") -> pygame.Rect | pygame.FRect:
+        """
+        Returns the rect scaled relative to its top-left corner.
+        - For SCREEN space: applies only self.scale.
+        - For WORLD space: applies both self.scale and camera.scale.
+        Does not apply any positional transformation.
+        """
+        rect = self.local_rect.copy()
+
+        # Determine total scale based on space mode
+        total_scale = (
+            self.scale * camera.scale if self.space_mode == "WORLD" else self.scale
+        )
+
+        if total_scale != 1.0:
+            rect.width *= total_scale
+            rect.height *= total_scale
+            # Top-left remains the same; no need to adjust rect.topleft
+
+        return rect
+
+    def invalidate_cache(self) -> None:
+        """Call if element moves or scale changes to force recalculation."""
+        self._cached_screen_rect = None
+        self._cached_camera_pos = None
 
     def get_rect(self) -> pygame.Rect | pygame.FRect:
         return self.local_rect
+
+    def get_center_of_local_rect(self) -> tuple[float, float]:
+        return (
+            self.local_rect.x + self.local_rect.width / 2,
+            self.local_rect.y + self.local_rect.height / 2,
+        )
 
     def set_position(self, topleft: tuple[float, float]) -> None:
         self.local_rect.topleft = topleft

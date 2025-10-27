@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from math import sqrt
 from queue import PriorityQueue
-from typing import Callable, Iterator, Protocol, Self, overload
+from typing import Callable, Iterator, Protocol, Self
 
 from ..utils import lerp
 
@@ -68,17 +68,7 @@ class OddRCoord:
     def all_in_range(self, N: int) -> Iterator["OddRCoord"]:
         return (axial.to_odd_r() for axial in self.to_axial().all_in_range(N))
 
-    @overload
     def to_pixel(
-        self, hex_size: float, is_bounding_box: bool = False
-    ) -> tuple[float, float]: ...
-
-    @overload
-    def to_pixel(
-        self, hex_width: float, hex_height: float, is_bounding_box: bool = False
-    ) -> tuple[float, float]: ...
-
-    def to_pixel(  # type: ignore
         self,
         hex_width: float,
         hex_height: float | None = None,
@@ -157,8 +147,17 @@ class OddRCoord:
         return visited
 
     @classmethod
-    def from_pixel(cls, x: float, y: float, hex_size: float) -> "OddRCoord":
-        return _AxialCoord.from_pixel(x, y, hex_size).to_odd_r()
+    def from_pixel(
+        cls,
+        x: float,
+        y: float,
+        hex_width: float,
+        hex_height: float | None = None,
+        is_bounding_box: bool = False,
+    ) -> "OddRCoord":
+        return _AxialCoord.from_pixel(
+            x, y, hex_width, hex_height, is_bounding_box=is_bounding_box
+        ).to_odd_r()
 
     def __add__(self, other: Self) -> Self:
         return self.__class__(self.x + other.x, self.y + other.y)
@@ -254,13 +253,25 @@ class _AxialCoord:
                 yield self + _AxialCoord(q, r)
 
     @classmethod
-    def from_pixel(cls, x: float, y: float, hex_size: float) -> "_AxialCoord":
+    def from_pixel(
+        cls,
+        x: float,
+        y: float,
+        hex_width: float,
+        hex_height: float | None = None,
+        is_bounding_box: bool = False,
+    ) -> "_AxialCoord":
         """
         https://www.redblobgames.com/grids/hexagons/#pixel-to-hex-axial
         https://www.redblobgames.com/grids/hexagons/#pixel-to-hex-mod-origin
         """
-        x /= hex_size
-        y /= hex_size
+        if hex_height is None:
+            hex_height = hex_width
+        if is_bounding_box:
+            hex_width /= sqrt(3)
+            hex_height *= 0.5
+        x /= hex_width
+        y /= hex_height
         # Origin is not on the center of odd-r (0,0)
         x -= 1
         y -= sqrt(3) / 2  # https://www.redblobgames.com/grids/hexagons/#basics

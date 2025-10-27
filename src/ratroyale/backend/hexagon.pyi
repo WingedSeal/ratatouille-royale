@@ -83,7 +83,7 @@ class OddRCoord:
         x: float,
         y: float,
         hex_width: float,
-        hex_height: float | None,
+        hex_height: float = -1.0,
         is_bounding_box: bool = False,
     ) -> OddRCoord: ...
     def __add__(self, other: Self) -> Self: ...

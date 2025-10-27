@@ -4,8 +4,6 @@ from abc import ABC, abstractmethod
 import math
 import pytweening  # type: ignore
 from .anim_settings import TimingMode, AnimDirection
-from .....event_tokens.visual_token import VisualManagerEvent
-from .....coordination_manager import CoordinationManager
 
 
 @dataclass(kw_only=True)
@@ -26,6 +24,9 @@ class AnimEvent(ABC):
         self._direction: AnimDirection = AnimDirection.FORWARD
         self._is_finished = False
 
+    @abstractmethod
+    def update(self, time: float) -> None: ...
+
     def make_callback(self) -> None:
         """
         Called when an animation loop completes.
@@ -33,9 +34,6 @@ class AnimEvent(ABC):
         """
         if self.callback is None:
             return
-
-        event = VisualManagerEvent(callback=self.callback)
-        CoordinationManager.put_message(event)
 
     def reset(self) -> None:
         self._current_loop = 0
@@ -87,9 +85,6 @@ class AnimEvent(ABC):
         self._direction = AnimDirection.REVERSE if reverse else AnimDirection.FORWARD
 
         return self.easing_func(t)
-
-    @abstractmethod
-    def update(self, time: float) -> None: ...
 
 
 @dataclass
@@ -154,9 +149,10 @@ class SequentialAnim:
 
     def is_finished(self) -> bool:
         if self._active_anim_index == len(self.sequential_list) - 1:
-            return self.sequential_list[self._active_anim_index].is_finished()
+            result = self.sequential_list[self._active_anim_index].is_finished()
         else:
-            return False
+            result = False
+        return result
 
     def make_callback(self) -> None:
         pass

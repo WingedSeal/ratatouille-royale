@@ -2,6 +2,8 @@
 
 import pygame
 
+pygame.init()
+
 from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAILBLAZER
 from ratroyale.backend.player_info.squeaks.rodents.duelist import (
@@ -36,12 +38,14 @@ from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.features.common import Lair, DeploymentZone
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.side import Side
+from ratroyale.backend.hexagon import OddRCoord
+import cProfile
+import pstats
 
 import random
 
 
 def main():
-    pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
     clock = pygame.time.Clock()
 
@@ -70,10 +74,27 @@ def main():
         ),
         entities=[],
         features=[
-            Lair([OddRCoord(0, 0)], 200, side=Side.MOUSE),
-            Lair([OddRCoord(5, 5)], 200, side=Side.RAT),
+            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
+            Lair([OddRCoord(5, 5)], 10, side=Side.RAT),
             mouse_zone,
             rat_zone,
+        ],
+    )
+    size = 10
+    map = Map(
+        "Example Map",
+        size,
+        size,
+        heights_to_tiles([[1 for i in range(size)] for i in range(size)]),
+        entities=[],
+        features=[
+            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
+            Lair([OddRCoord(size - 1, size - 1)], 10, side=Side.RAT),
+            DeploymentZone(shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE),
+            DeploymentZone(
+                shape=[OddRCoord(size - 2, size - 1), OddRCoord(size - 1, size - 2)],
+                side=Side.RAT,
+            ),
         ],
     )
 
@@ -106,17 +127,21 @@ def main():
 
     backend_adapter = BackendAdapter(
         game_manager=game_manager,
+        page_manager=page_manager,
         coordination_manager=coordination_manager,
-        ai_type=RushBAI,
+        ai_type=RandomAI,
     )
 
     coordination_manager.put_message(
         PageNavigationEvent(
             action_list=[
-                (PageNavigation.OPEN, "InspectFeature"),
+                (PageNavigation.OPEN, "MainMenu"),
             ]
         )  # change this to test your page
     )
+
+    avg_fps = 0
+    fps_alpha = 0.1  # smoothing factor for running average
 
     while coordination_manager.game_running:
         dt = clock.tick(60) / 1000.0  # delta time in seconds
@@ -130,12 +155,23 @@ def main():
             backend_adapter.execute_backend_callback()
 
         page_manager.render(dt)
-
         pygame.display.flip()
+
+        # Compute current FPS
+        current_fps = clock.get_fps()
+        if current_fps > 0:  # avoid initial division by zero
+            avg_fps = (1 - fps_alpha) * avg_fps + fps_alpha * current_fps
 
     # Cleanup process
     pygame.quit()
+    # print(f"Avg FPS: {avg_fps:.2f}")
 
 
 if __name__ == "__main__":
+    # profiler = cProfile.Profile()
+    # profiler.enable()
     main()
+    # profiler.disable()
+
+    # stats = pstats.Stats(profiler)
+    # stats.strip_dirs().sort_stats("tottime").print_stats(20)
