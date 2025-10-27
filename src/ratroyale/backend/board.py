@@ -94,12 +94,12 @@ class Board:
             self.cache.rodents.remove(entity)
         if not is_ellipsis_body(entity.on_turn_change):
             self.cache.entities_with_turn_change.remove(entity)
-        for timer in self.cache.timers:
-            if timer.entity is entity:
-                self.cache.timers.remove(timer)
-        for effect in self.cache.effects:
-            if effect.entity is entity:
-                self.cache.effects.remove(effect)
+        self.cache.timers = [
+            timer for timer in self.cache.timers if timer.entity is not entity
+        ]
+        self.cache.effects = [
+            effect for effect in self.cache.effects if effect.entity is not entity
+        ]
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
