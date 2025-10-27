@@ -1,5 +1,6 @@
 import hmac
 import hashlib
+import os
 from cryptography.fernet import Fernet
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
@@ -65,6 +66,7 @@ class PlayerInfo:
     1 byte for select_squeak_set_index
     4 bytes for exp
     4 bytes for cheese
+    8 bytes for rng_seed
     """
 
     def __init__(
@@ -77,6 +79,7 @@ class PlayerInfo:
         exp: int,
         cheese: int,
         is_progression_frozen: bool,
+        rng_seed: int | None = None,
     ) -> None:
         self.all_squeaks = all_squeaks
         for i, (squeak_set, hand) in enumerate(zip(squeak_sets, hands)):
@@ -93,6 +96,9 @@ class PlayerInfo:
         self.exp = exp
         self.cheese = cheese
         self.is_progression_frozen = is_progression_frozen
+        if rng_seed is None:
+            rng_seed = int.from_bytes(os.urandom(1))
+        self.rng_seed = rng_seed
 
     def get_squeak_set(self) -> SqueakSet:
         return self.squeak_sets[self.selected_squeak_set_index]
@@ -135,7 +141,7 @@ class PlayerInfo:
         if self.cheese < count * CHEESE_PER_ROLL:
             raise NotEnoughCheeseError("Not enough cheese to roll")
         self.cheese -= count * CHEESE_PER_ROLL
-        squeaks = gacha_squeak(count)
+        squeaks, self.rng_seed = gacha_squeak(self.rng_seed, count)
         self._apply_gacha_squeak(squeaks)
         return squeaks
 
@@ -210,6 +216,7 @@ class PlayerInfo:
 
         exp = data_pointer.get_byte(4)
         cheese = data_pointer.get_byte(4)
+        rng_seed = data_pointer.get_byte(8)
 
         return PlayerInfo(
             all_squeaks,
@@ -219,6 +226,7 @@ class PlayerInfo:
             exp=exp,
             cheese=cheese,
             is_progression_frozen=is_progression_frozen,
+            rng_seed=rng_seed,
         )
 
     def save(self) -> bytes:
@@ -258,7 +266,7 @@ class PlayerInfo:
         data.append(self.selected_squeak_set_index)
         data.extend(self.exp.to_bytes(4, ENDIAN))
         data.extend(self.cheese.to_bytes(4, ENDIAN))
-
+        data.extend(self.rng_seed.to_bytes(8, ENDIAN))
         return bytes(data)
 
     @classmethod
