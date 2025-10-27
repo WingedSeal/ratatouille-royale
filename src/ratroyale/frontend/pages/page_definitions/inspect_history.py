@@ -6,10 +6,12 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 
-from ratroyale.frontend.gesture.gesture_data import GestureType
 
 from ..page_managers.base_page import Page
-from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_managers.event_binder import (
+    input_event_bind,
+    SpecialInputScope,
+)
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.frontend.pages.page_elements.element import (
@@ -17,6 +19,7 @@ from ratroyale.frontend.pages.page_elements.element import (
     ui_element_wrapper,
 )
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+from ratroyale.frontend.gesture.gesture_data import GestureType
 
 
 @register_page
@@ -132,7 +135,7 @@ class InspectHistory(Page):
     def on_exit_click(self, msg: pygame.event.Event) -> None:
         self.post(PageNavigationEvent(action_list=[(PageNavigation.CLOSE_TOP, None)]))
 
-    @input_event_bind(None, GestureType.CLICK.to_pygame_event())
+    @input_event_bind(SpecialInputScope.GLOBAL, GestureType.CLICK.to_pygame_event())
     def on_click_outside(self, msg: pygame.event.Event) -> None:
         if hasattr(msg, "ui_element"):
             return

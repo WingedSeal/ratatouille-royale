@@ -2,6 +2,13 @@ from .element import ElementWrapper
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from collections import deque
+from ratroyale.frontend.gesture.gesture_data import GestureData
+from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.frontend.visual.asset_management.game_obj_to_sprite_registry import (
+    TYPICAL_TILE_SIZE,
+)
+from ..page_elements.spatial_component import Camera
+from ratroyale.event_tokens.payloads import TilePayload
 
 
 class OverselectionPolicy(Enum):
@@ -9,9 +16,16 @@ class OverselectionPolicy(Enum):
     PREVENT_NEW = auto()
 
 
+class HitTestPolicy(Enum):
+    REGULAR = auto()
+    NO_HITTEST = auto()
+    HEXGRID = auto()
+
+
 @dataclass
 class ElementGroup:
     group_name: str
+    camera: Camera
     elements: dict[str, ElementWrapper] = field(default_factory=dict)
     flattened_elements_list: list[ElementWrapper] = field(default_factory=list)
     selected_ids: deque[str] = field(default_factory=deque)
@@ -23,6 +37,13 @@ class ElementGroup:
     overselection_policy: OverselectionPolicy = OverselectionPolicy.REMOVE_OLDEST
     active: bool = True
 
+    hittest_priority: int = 0
+    hittest_policy: HitTestPolicy = HitTestPolicy.REGULAR
+    hexgrid_pos_for_element: dict[OddRCoord, ElementWrapper] = field(
+        default_factory=dict
+    )
+    _needs_resort = True
+
     def add_element(self, element: ElementWrapper) -> None:
         if element.registered_name in self.elements:
             raise KeyError(
@@ -30,26 +51,33 @@ class ElementGroup:
             )
         self.elements[element.registered_name] = element
         self.flattened_elements_list.append(element)
-        self._sort_flattened_by_z_order()
+
+        if self.hittest_policy == HitTestPolicy.HEXGRID:
+            # Very quick and dirty.
+            if type(element.payload) is TilePayload:
+                self.hexgrid_pos_for_element[element.payload.tile.coord] = element
+        self._needs_resort = True
 
     def get_element(self, registered_name: str) -> ElementWrapper:
-        result = self.elements[registered_name]
-        if result:
+        try:
+            result = self.elements[registered_name]
             return result
-        raise KeyError(
-            f"At get: the element with registered name: {registered_name} is not found in group {self.group_name}"
-        )
+        except KeyError:
+            raise KeyError(
+                f"At get: the element with registered name: {registered_name} is not found in group {self.group_name}"
+            )
 
-    def get_selected_elements(self) -> tuple[list[str], list[ElementWrapper]]:
+    def get_selected_elements(self) -> list[ElementWrapper]:
         elements = []
         for name in self.selected_ids:
             elements.append(self.elements[name])
 
-        return list(self.selected_ids), elements
+        return elements
 
     def remove_element(self, registered_name: str) -> ElementWrapper:
-        result = self.elements.pop(registered_name)
-        if not result:
+        try:
+            result = self.elements.pop(registered_name)
+        except KeyError:
             raise KeyError(
                 f"At removal: the element with registered name: {registered_name} is not found in group {self.group_name}"
             )
@@ -57,7 +85,7 @@ class ElementGroup:
             self.selected_ids.remove(registered_name)
         self.flattened_elements_list.remove(result)
         result.destroy()
-        self._sort_flattened_by_z_order()
+        self._needs_resort = True
         return result
 
     def clear(self) -> list[str]:
@@ -76,22 +104,24 @@ class ElementGroup:
 
     def toggle_element(
         self, registered_name: str, override_policy: bool = False
-    ) -> None:
+    ) -> ElementWrapper | None:
         """Toggles selection state of an element."""
         if registered_name in self.selected_ids:
             # Already selected -> deselect it
-            self.deselect(registered_name)
+            return self.deselect(registered_name)
         else:
             # Not selected -> try selecting it
-            self.select(registered_name, override_policy=override_policy)
+            return self.select(registered_name, override_policy=override_policy)
 
-    def select(self, registered_name: str, override_policy: bool = False) -> bool:
+    def select(
+        self, registered_name: str, override_policy: bool = False
+    ) -> ElementWrapper | None:
         """Attempts to select an element, respecting selection limits and policy."""
         element = self.get_element(registered_name)
 
         # Already selected -> do nothing
         if registered_name in self.selected_ids:
-            return False
+            return element
 
         # Handle selection limit
         if self.max_selectable is not None and not override_policy:
@@ -104,64 +134,96 @@ class ElementGroup:
                     except KeyError:
                         pass
                 elif self.overselection_policy == OverselectionPolicy.PREVENT_NEW:
-                    return False
+                    return None
 
         # Activate the selection
         success = element.on_select()
         if success:
             self.selected_ids.append(registered_name)
-        return success
+        return element
 
-    def deselect(self, registered_name: str) -> bool:
+    def deselect(self, registered_name: str) -> ElementWrapper | None:
         """Deselects an element if it's currently selected."""
         if registered_name not in self.selected_ids:
-            return False
+            return None
 
         try:
             element = self.get_element(registered_name)
         except KeyError:
             # Element was already removed
             self.selected_ids.remove(registered_name)
-            return False
+            return None
 
         self.selected_ids.remove(registered_name)
-        return element.on_deselect()
+        element.on_deselect()
+        return element
 
-    def highlight(self, registered_name: str) -> bool:
-        if self.max_highlightable is not None:
-            if len(self.highlighted_ids) == self.max_highlightable:
-                if self.overselection_policy == OverselectionPolicy.REMOVE_OLDEST:
-                    oldest_name = self.highlighted_ids.popleft()
-                    self.get_element(oldest_name).on_unhighlight()
-                elif self.overselection_policy == OverselectionPolicy.PREVENT_NEW:
-                    return False
-
-        if registered_name not in self.highlighted_ids:
-            self.highlighted_ids.append(registered_name)
-            return self.get_element(registered_name).on_highlight()
-        return False
-
-    def unhighlight(self, registered_name: str) -> bool:
-        if registered_name in self.highlighted_ids:
-            self.highlighted_ids.remove(registered_name)
-            return self.get_element(registered_name).on_unhighlight()
-        return False
-
-    def unhighlight_all(self) -> None:
+    def deselect_all(self) -> list[ElementWrapper]:
         # Copy to avoid modifying the deque/set while iterating
-        for registered_name in list(self.highlighted_ids):
-            element = self.get_element(registered_name)
-            element.on_unhighlight()
-        self.highlighted_ids.clear()
-
-    def deselect_all(self) -> None:
-        # Copy to avoid modifying the deque/set while iterating
+        element_list = []
         for registered_name in list(self.selected_ids):
             element = self.get_element(registered_name)
             element.on_deselect()
+            element_list.append(element)
         self.selected_ids.clear()
+        return element_list
 
     def _sort_flattened_by_z_order(self) -> None:
         self.flattened_elements_list.sort(
             key=lambda x: x.spatial_component.z_order, reverse=True
         )
+
+    def handle_gestures(
+        self, gestures: list[GestureData], is_processing_input: bool
+    ) -> list[GestureData]:
+        """
+        Dispatch a GestureData object to all non-gui elements.
+        Elements then produces the corresponding event, which is
+        handled by the page.
+        """
+        if self._needs_resort:
+            self._sort_flattened_by_z_order()
+            self._needs_resort = False
+
+        remaining_gestures: list[GestureData] = []
+
+        if self.hittest_policy == HitTestPolicy.REGULAR:
+            for gesture in gestures:
+                consumed = False
+
+                for element in self.flattened_elements_list:
+                    consumed = element.handle_gesture(gesture, is_processing_input)
+                    if consumed:
+                        break
+
+                if not consumed:
+                    remaining_gestures.append(gesture)
+
+            return remaining_gestures
+        elif self.hittest_policy == HitTestPolicy.NO_HITTEST:
+            return gestures
+        elif self.hittest_policy == HitTestPolicy.HEXGRID:
+            for gesture in gestures:
+                consumed = False
+
+                world_pos = self.camera.screen_to_world(*gesture.mouse_pos)
+                odd_r_coord = OddRCoord.from_pixel(
+                    *world_pos, TYPICAL_TILE_SIZE[0], is_bounding_box=True
+                )
+                if odd_r_coord in self.hexgrid_pos_for_element:
+                    element = self.hexgrid_pos_for_element[odd_r_coord]
+                else:
+                    element = None
+
+                consumed = (
+                    element.handle_gesture(gesture, is_processing_input)
+                    if element
+                    else False
+                )
+
+                if not consumed:
+                    remaining_gestures.append(gesture)
+
+            return remaining_gestures
+        else:
+            raise ValueError("Hittest policy unrecognised.")

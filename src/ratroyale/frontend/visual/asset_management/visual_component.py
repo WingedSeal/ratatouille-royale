@@ -68,26 +68,13 @@ class VisualComponent:
         if animation_sequence:
             animation_sequence.update(time)
 
-            # If the sequence does NOT want to run together with default,
-            # skip running the default animation this frame
-            if not animation_sequence.run_together_with_default():
-                return
-
         # Optionally run default animation if allowed
-        if self._default_animation and (
-            animation_sequence is None or animation_sequence.run_together_with_default()
+        if (
+            self._default_animation
+            and animation_sequence is not None
+            and animation_sequence.run_together_with_default()
         ):
             self._default_animation.update(time)
-
-    def _get_animation(self) -> GroupedAnim | None:
-        if self._override_animation_queue:
-            animation = self._override_animation_queue[0]
-        elif self._default_animation:
-            animation = self._default_animation
-        else:
-            return None
-
-        return animation.get_animation_group()
 
     def render(
         self,
@@ -109,6 +96,9 @@ class VisualComponent:
                 frame = self.spritesheet_component.output_frame(
                     spatial_rect, self._camera
                 )
+                # Prevents fully transparent masks from being drawn.
+                if frame.get_alpha() == 0:
+                    return
                 if frame:
                     surface.blit(frame, spatial_rect.topleft)
 
