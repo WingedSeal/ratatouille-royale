@@ -35,12 +35,12 @@ dev = [
   "pytest (>=8.4.2,<9.0.0)",
   "isort (>=6.1.0,<7.0.0)",
 ]
-
-[project.optional-dependencies]
 tools = [
   "numpy (>=2.3.3,<3.0.0)",
   "pillow (>=11.3.0,<12.0.0)",
 ]
+
+[project.optional-dependencies]
 prof = [
     "pytest-profiling (>=1.8.1,<2.0.0)",
     "pytest-repeat (>=0.9.4,<0.10.0)",
