@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import pygame
 from .spritesheet_manager import SpritesheetManager
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
@@ -10,6 +10,10 @@ class SpritesheetComponent:
 
     spritesheet_reference: str | pygame.Surface
     """Can either hold a spritesheet reference or a raw surface for drawing."""
+    _scale_cache: dict[tuple[int, int | float, int | float], pygame.Surface] = field(
+        default_factory=dict
+    )
+    """Caches image scale to reduce pygame.transform.scale calls"""
 
     def __post_init__(self) -> None:
         self._current_anim_name: str | None = None
@@ -30,10 +34,17 @@ class SpritesheetComponent:
     ) -> pygame.Surface:
         # Scale frame exactly to target rect size (ignore camera scale)
         target_w, target_h = target_rect.size
-        scaled_frame = pygame.transform.scale(current_frame, (target_w, target_h))
+        frame_id = id(current_frame)
+        key = (frame_id, target_w, target_h)
 
+        if key in self._scale_cache:
+            return self._scale_cache[key]
+
+        scaled_frame = pygame.transform.scale(current_frame, (target_w, target_h))
         aligned_surface = pygame.Surface((target_w, target_h), pygame.SRCALPHA)
         aligned_surface.blit(scaled_frame, (0, 0))
+        self._scale_cache[key] = aligned_surface
+
         return aligned_surface
 
     def _current_frame(self) -> pygame.Surface:

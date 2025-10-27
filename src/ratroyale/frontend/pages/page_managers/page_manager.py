@@ -10,7 +10,6 @@ from ratroyale.event_tokens.page_token import (
     PageNavigation,
     PageNavigationEvent,
 )
-from ratroyale.event_tokens.visual_token import VisualManagerEvent
 from ratroyale.frontend.gesture.gesture_reader import (
     GESTURE_READER_CARES,
     GestureReader,
@@ -19,6 +18,7 @@ from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
+from ratroyale.backend.game_event import GameEvent
 
 
 class PageManager:
@@ -75,6 +75,7 @@ class PageManager:
         closed_page.on_close()
 
     def remove_page(self, page_type: type[Page]) -> None:
+        print("page to be removed:", page_type)
         for i, page in enumerate(self.page_stack):
             if isinstance(page, page_type):
                 closed_page = self.page_stack.pop(i)
@@ -173,9 +174,7 @@ class PageManager:
 
         # Step 6: for remaining unconsumed gesture, post it into event queue anyways with empty element_id.
         for gesture in gestures:
-            post_gesture_event(
-                InputManagerEvent[None](element_id=None, gesture_data=gesture)
-            )
+            post_gesture_event(InputManagerEvent(element_id=None, gesture_data=gesture))
 
         # Step 5: other_events gets broadcasted.
         self._broadcast_input(other_events)
@@ -219,24 +218,14 @@ class PageManager:
         for page in self.page_stack:
             page.execute_page_callback(msg)
 
-    def execute_visual_callback(self) -> None:
-        msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
-
+    def execute_game_event_callback(self, game_event: GameEvent) -> None:
         for page in self.page_stack:
-            if msg_queue:
-                for msg in msg_queue:
-                    page.execute_visual_callback(msg)
+            page.execute_game_event_callback(game_event)
 
-            if page._animation_queue and not page._animation_lock:
-                # Check if there's another animation queued
-                next_element, next_anim = page._animation_queue.popleft()
-                # Issue the next animation
-                vis = next_element.visual_component
-                assert vis
-                vis.queue_override_animation(next_anim)
-            else:
-                # No more animations left — unlock input
-                page._animation_lock = False
+    def execute_visual_callback(self) -> None:
+        # msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
+
+        pass
 
     # endregion
 

@@ -90,10 +90,4 @@ class InspectDeckPage(Page):
 
     @input_event_bind("close_inspect_deck", pygame_gui.UI_BUTTON_PRESSED)
     def on_example_click(self, msg: pygame.event.Event) -> None:
-        self.coordination_manager.put_message(
-            PageNavigationEvent(
-                action_list=[
-                    (PageNavigation.CLOSE, "InspectDeckPage"),
-                ]
-            )
-        )
+        self.close_self()

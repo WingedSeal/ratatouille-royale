@@ -3,7 +3,10 @@ from ..spatial_component import Camera
 from ratroyale.backend.entity import Entity
 from ....visual.asset_management.game_obj_to_sprite_registry import (
     SPRITE_METADATA_REGISTRY,
+    TYPICAL_TILE_SIZE,
 )
+
+from ....visual.anim.core.anim_structure import SequentialAnim
 from ....visual.asset_management.spritesheet_manager import SpritesheetManager
 from ..spatial_component import SpatialComponent
 from ..hitbox import RectangleHitbox
@@ -17,7 +20,6 @@ from ....visual.anim.presets.presets import (
     move_entity,
     entity_hurt,
 )
-from ....visual.asset_management.sprite_key_registry import TYPICAL_TILE_SIZE
 from .....backend.hexagon import OddRCoord
 
 import pygame
@@ -71,16 +73,29 @@ class EntityElement(ElementWrapper):
 
     @classmethod
     def _define_entity_rect(cls, entity: Entity) -> pygame.Rect:
-        """Given an Entity, return its bounding rectangle as (x, y, width, height)."""
+        """Given an Entity, return its bounding rectangle as (x, y, width, height).
+        Assumes pos.to_pixel() returns the *center* of the hex tile.
+        """
         pixel_x, pixel_y = EntityElement._define_position(entity.pos)
-        return pygame.Rect((pixel_x, pixel_y, *cls._ENTITY_WIDTH_HEIGHT))
+        width, height = cls._ENTITY_WIDTH_HEIGHT
+
+        return pygame.Rect(pixel_x, pixel_y, width, height)
 
     @classmethod
     def _define_position(cls, pos: OddRCoord) -> tuple[float, float]:
+        """Return the *center* pixel position of an entity on the hex grid.
+        Adjusts based on tile and entity dimensions.
+        """
+        # Get hex center
         pixel_x, pixel_y = pos.to_pixel(*TYPICAL_TILE_SIZE, is_bounding_box=True)
-        width, height = cls._ENTITY_WIDTH_HEIGHT
-        pixel_x += (TYPICAL_TILE_SIZE[0] - width) / 2
-        pixel_y += (TYPICAL_TILE_SIZE[1] - height) / 2
+        tile_w, tile_h = TYPICAL_TILE_SIZE
+        ent_w, ent_h = cls._ENTITY_WIDTH_HEIGHT
+
+        # Center the entity relative to the hex center
+        # (so a smaller entity stays centered on its tile)
+        pixel_x += (tile_w - ent_w) / 2 - tile_w / 2
+        pixel_y += (tile_h - ent_h) / 2 - tile_h / 2
+
         return pixel_x, pixel_y
 
     def _temp_stat_generators(self) -> list[ElementWrapper]:
@@ -145,12 +160,15 @@ class EntityElement(ElementWrapper):
 
         return elements
 
-    def move_entity(self, pos_sequence: list[OddRCoord]) -> bool:
+    def move_entity(
+        self, pos_sequence: list[OddRCoord]
+    ) -> list[tuple[ElementWrapper, SequentialAnim]]:
         """
         Queue movement animations for an entity along a sequence of positions,
         moving from each position to the next.
         """
         visual_component = self.visual_component
+        anim_list: list[tuple[ElementWrapper, SequentialAnim]] = []
         if visual_component and visual_component.spritesheet_component:
 
             for pos in pos_sequence:
@@ -159,21 +177,20 @@ class EntityElement(ElementWrapper):
                     spatial=self.spatial_component,
                     camera=self.camera,
                 )
-                visual_component.queue_override_animation(anim)
+                anim_list.append((self, anim))
 
-        return True
+        return anim_list
 
-    def on_hurt(self) -> bool:
+    def on_hurt(self) -> tuple[ElementWrapper, SequentialAnim]:
         visual_component = self.visual_component
         if visual_component and visual_component.spritesheet_component:
             anim = entity_hurt(
                 visual_component.spritesheet_component, pygame.Color(255, 0, 0)
             )
-            visual_component.queue_override_animation(anim)
 
         self.update_health()
 
-        return True
+        return (self, anim)
 
     def on_select(self) -> bool:
         visual_component = self.visual_component

@@ -34,7 +34,6 @@ class MoveAnim(TransformAnim):
         super().__post_init__()
         # Track starting position for interpolation
         # Get untransformed rect
-        super().__post_init__()
         self._start_pos: tuple[float, float] | None = None
         self._current_pos: tuple[float, float] | None = None
 
