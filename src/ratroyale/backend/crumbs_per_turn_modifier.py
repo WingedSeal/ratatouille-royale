@@ -14,6 +14,13 @@ def default_base_crumbs_per_turn(turn_count: int) -> int:
     return min(math.ceil(turn_count / 4) * 10, 50)
 
 
+BASE_CRUMBS_PER_TURN: dict[int, BaseCrumbsPerTurn] = {0: default_base_crumbs_per_turn}
+
+REVERSED_BASE_CRUMBS_PER_TURN = {
+    value: key for key, value in BASE_CRUMBS_PER_TURN.items()
+}
+
+
 @dataclass
 class CrumbsPerTurnModifier:
     base_crumbs_per_turn: BaseCrumbsPerTurn
