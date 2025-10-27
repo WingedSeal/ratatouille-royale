@@ -16,19 +16,16 @@ from ....visual.anim.presets.presets import (
     on_select_color_fade_out,
 )
 from ....pages.page_elements.spatial_component import Camera
+from ....visual.screen_constants import (
+    SQUEAK_COST_PADDING,
+    SQUEAK_SPACING,
+    SQUEAK_SIZE,
+    SQUEAK_RECT,
+)
 
 import uuid
 
 import pygame
-
-PADDING = 5  # padding for cost text
-
-SQUEAK_WIDTH, SQUEAK_HEIGHT = 112, 70
-SQUEAK_SPACING = 5
-LEFT_MARGIN = 0
-TOP_MARGIN = 80
-
-CARD_RECT = pygame.Rect(LEFT_MARGIN, TOP_MARGIN, SQUEAK_WIDTH, SQUEAK_HEIGHT)
 
 
 # Load a font, size 48, italic
@@ -54,8 +51,8 @@ class SqueakElement(ElementWrapper):
             sprite_metadata
         ).get_key()
 
-        card_rect = CARD_RECT.copy()
-        card_rect.y += index * (SQUEAK_HEIGHT + SQUEAK_SPACING)
+        card_rect = SQUEAK_RECT.copy()
+        card_rect.y += index * (SQUEAK_SIZE[1] + SQUEAK_SPACING)
 
         super().__init__(
             registered_name=self.squeak_element_id,
@@ -93,8 +90,8 @@ class SqueakElement(ElementWrapper):
 
         # --- Local position relative to the card (bottom-right corner) ---
         cost_rect = pygame.Rect(
-            SQUEAK_WIDTH - cost_width - PADDING,
-            SQUEAK_HEIGHT - cost_height - PADDING,
+            SQUEAK_SIZE[0] - cost_width - SQUEAK_COST_PADDING,
+            SQUEAK_SIZE[1] - cost_height - SQUEAK_COST_PADDING,
             cost_width,
             cost_height,
         )
@@ -180,7 +177,7 @@ class SqueakElement(ElementWrapper):
         if visual_component:
             visual_component.queue_override_animation(
                 return_squeak_to_normal(
-                    spatial, self.camera, target_rect.topleft, CARD_RECT.size
+                    spatial, self.camera, target_rect.topleft, SQUEAK_RECT.size
                 )
             )
 

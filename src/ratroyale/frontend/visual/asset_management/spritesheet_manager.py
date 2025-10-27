@@ -47,6 +47,7 @@ class CachedSpritesheet:
 
     def get_sprite_by_name(self, anim_name: str, frame_index: int) -> pygame.Surface:
         indices = self.animation_list.get(anim_name)
+
         if indices is None:
             raise ValueError(f"Animation '{anim_name}' not found")
         abs_index = indices[frame_index % len(indices)]
