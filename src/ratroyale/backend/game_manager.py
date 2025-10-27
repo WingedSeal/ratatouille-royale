@@ -1,9 +1,13 @@
-import math
 from random import shuffle
 from typing import Iterator
 from dataclasses import dataclass, field
 from collections import defaultdict
 
+from .crumbs_per_turn_modifier import (
+    BaseCrumbsPerTurn,
+    CrumbsPerTurnModifier,
+    default_base_crumbs_per_turn,
+)
 from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
@@ -50,10 +54,6 @@ from .side import Side
 from .timer import Timer
 
 
-def crumb_per_turn(turn_count: int) -> int:
-    return min(math.ceil(turn_count / 4) * 10, 50)
-
-
 @dataclass
 class GameStats:
     squeak_placed: dict[Side, int] = field(default_factory=lambda: defaultdict(int))
@@ -72,7 +72,7 @@ class GameManager:
     turn: Side
     """Whose turn it currently is"""
     turn_count: int
-    """How many turns it has been"""
+    """How many turns it has been (starts at 1)"""
     board: Board
     """Game board"""
     hands: dict[Side, list[Squeak]]
@@ -89,11 +89,14 @@ class GameManager:
         map: Map,
         players_info: tuple[PlayerInfo, PlayerInfo],
         first_turn: Side,
+        *,
+        base_crumbs_per_turn: BaseCrumbsPerTurn = default_base_crumbs_per_turn,
     ) -> None:
         self.turn = first_turn
         self.first_turn = first_turn
         self.turn_count = 1
-        self.crumbs = crumb_per_turn(self.turn_count)
+        self.crumbs_per_turn_modifier = CrumbsPerTurnModifier(base_crumbs_per_turn)
+        self.set_crumbs()
         self.board = Board(map)
         self.players_info = {
             first_turn: players_info[0],
@@ -113,6 +116,19 @@ class GameManager:
         """
         self.game_over_event: GameOverEvent | None = None
         self.game_stats = GameStats()
+
+    def get_crumbs(self, turn_count: int) -> int:
+        return self.crumbs_per_turn_modifier.get_crumbs(
+            turn_count,
+            (
+                self.first_turn
+                if self.turn_count % 2 == 1
+                else self.first_turn.other_side()
+            ),
+        )
+
+    def set_crumbs(self) -> None:
+        self.crumbs = self.get_crumbs(self.turn_count)
 
     @property
     def is_selecting_target(self) -> bool:
@@ -371,7 +387,7 @@ class GameManager:
             self.turn_count += 1
         leftover_crumbs = self.crumbs
         old_crumbs = self.crumbs
-        self.crumbs = crumb_per_turn(self.turn_count)
+        self.set_crumbs()
         for entity in self.board.cache.sides[None]:
             entity.reset_stamina()
         for entity in self.board.cache.sides[from_side]:
