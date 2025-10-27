@@ -86,9 +86,6 @@ class InspectEntity(Page):
                 ),
                 anchors={
                     "left": "right",  # position rect's left relative to parent's right
-                    "right": "right",  # and right side also relative to parent's right
-                    "top": "top",  # stick to parent's top
-                    "bottom": "top",  # bottom is not used, but 'top' ensures fixed position
                 },
             ),
             registered_name="close_button",

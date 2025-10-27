@@ -243,15 +243,9 @@ class GameInfoPage(Page):
         assert self.temp_selected_tile
         entity = self.temp_selected_tile.entities[entity_index]
 
-        CoordinationManager.put_message(
-            PageNavigationEvent([(PageNavigation.OPEN, "InspectEntity")])
-        )
-        CoordinationManager.put_message(
-            PageCallbackEvent("crumb", payload=CrumbUpdatePayload(self.crumbs))
-        )
-        CoordinationManager.put_message(
-            PageCallbackEvent("entity_data", payload=EntityPayload(entity))
-        )
+        self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectEntity")]))
+        self.post(PageCallbackEvent("crumb", payload=CrumbUpdatePayload(self.crumbs)))
+        self.post(PageCallbackEvent("entity_data", payload=EntityPayload(entity)))
 
     # region UTILITIES
 

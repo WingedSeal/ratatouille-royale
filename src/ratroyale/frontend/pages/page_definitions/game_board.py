@@ -524,6 +524,12 @@ class GameBoard(Page):
 
     # region Squeak Related Events
 
+    @input_event_bind("squeak", GestureType.HOLD.to_pygame_event())
+    def squeak_hold_inspect(self, msg: pygame.event.Event) -> None:
+        squeak_payload = get_payload_from_msg(msg, SqueakPayload)
+        self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectSqueak")]))
+        self.post(PageCallbackEvent("squeak_data", payload=squeak_payload))
+
     @input_event_bind("squeak", GestureType.DRAG_START.to_pygame_event())
     def squeak_drag_start(self, msg: pygame.event.Event) -> None:
         squeak_element_id = get_id(msg)

@@ -49,12 +49,6 @@ def main():
     screen = pygame.display.set_mode(SCREEN_SIZE)
     clock = pygame.time.Clock()
 
-    coord = OddRCoord(15, 15)
-    to_pixel = coord.to_pixel(64, 64, is_bounding_box=True)
-    print("TO PIXEL:", to_pixel)
-    from_pixel = OddRCoord.from_pixel(*to_pixel, 64, is_bounding_box=True)
-    print("FROM PIXEL:", from_pixel)
-
     coordination_manager = CoordinationManager()
 
     page_manager = PageManager(screen=screen, coordination_manager=coordination_manager)
@@ -141,7 +135,7 @@ def main():
     coordination_manager.put_message(
         PageNavigationEvent(
             action_list=[
-                (PageNavigation.OPEN, "InspectFeature"),
+                (PageNavigation.OPEN, "MainMenu"),
             ]
         )  # change this to test your page
     )

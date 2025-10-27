@@ -84,7 +84,6 @@ class MainMenu(Page):
 
     @input_event_bind("select_player_button", pygame_gui.UI_BUTTON_PRESSED)
     def _on_select_player_click(self, msg: pygame.event.Event) -> None:
-        print("hello")
         self.close_self()
         self.post(
             PageNavigationEvent(

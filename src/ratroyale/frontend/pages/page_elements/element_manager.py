@@ -201,7 +201,7 @@ class ElementManager:
 
     def get_element_with_typecheck(self, registered_name: str, cls: type[U]) -> U:
         element = self.get_element(registered_name)
-        if type(element) is cls:
+        if isinstance(element, cls):
             return element
         else:
             raise TypeError(

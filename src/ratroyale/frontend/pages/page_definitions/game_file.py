@@ -22,7 +22,7 @@ from ..page_managers.base_page import Page
 
 
 @register_page
-class SelectPlayerPage(Page):
+class GameFilePage(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
