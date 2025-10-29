@@ -7,7 +7,7 @@ import shutil
 from setuptools.dist import Distribution
 from setuptools.command.build_ext import build_ext
 
-SOURCE_DIR = Path("src")
+SOURCE_DIR = Path(__file__).parent / "src"
 TEMP_BUILD_DIR = Path("temp_cython_build")
 SOURCE_EXTENSIONS = (".c", ".cpp")
 COMPILED_EXTENSIONS = (".so", ".pyd", ".dll")
