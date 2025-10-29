@@ -3,7 +3,7 @@
 import pygame
 
 pygame.init()
-
+from ratroyale.frontend import feature_texture
 from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
 from ratroyale.backend.player_info.squeaks.rodents.duelist import (
@@ -170,7 +170,7 @@ def main():
 if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
-    main()
+    feature_texture.main_TEST()
     # profiler.disable()
 
     # stats = pstats.Stats(profiler)
