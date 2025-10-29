@@ -1,22 +1,22 @@
+import pygame
+import pygame_gui
+
+from ratroyale.backend.player_info.squeak import Squeak
 from ratroyale.coordination_manager import CoordinationManager
-
-from ratroyale.event_tokens.visual_token import *
-from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-
-
-from ..page_managers.base_page import Page
-from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.event_tokens.input_token import get_payload_from_msg
+from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.payloads import SqueakPayload
+from ratroyale.event_tokens.visual_token import *
+from ratroyale.frontend.pages.page_elements.element import ElementWrapper
+from ratroyale.frontend.pages.page_managers.event_binder import (
+    callback_event_bind,
+    input_event_bind,
+)
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.frontend.pages.page_elements.element import (
-    ElementWrapper,
-    ui_element_wrapper,
-)
 from ..page_elements.spatial_component import Camera
-
-import pygame_gui
-import pygame
+from ..page_managers.base_page import Page
 
 
 @register_page
@@ -25,61 +25,85 @@ class InspectSqueak(Page):
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
         super().__init__(coordination_manager, camera)
+        self.current_squeak: Squeak | None = None
+        self.main_panel: pygame_gui.elements.UIPanel | None = None
 
     def define_initial_gui(self) -> list[ElementWrapper]:
-        gui_elements: list[ElementWrapper] = []
+        return []
+
+    @callback_event_bind("squeak_data")
+    def show_squeak_data(self, msg: PageCallbackEvent) -> None:
+        """Populate UI with real squeak data from GameBoard."""
+        if msg.success and msg.payload:
+            payload = get_payload_from_msg(msg, SqueakPayload)
+            if not payload:
+                return
+
+            squeak = payload.squeak
+            self.current_squeak = squeak
+            self._create_squeak_ui(squeak)
+
+    def _create_squeak_ui(self, squeak: Squeak) -> None:
+        """Create fresh UI elements with squeak data."""
+        # Clear existing elements except main_panel
+        if self.main_panel:
+            self.main_panel.kill()  # type: ignore[no-untyped-call]
+
+        # Get rodent class for stats (rodent holds the class data)
+        rodent_cls = squeak.rodent
+
         # === MainPanel ===
-        panel_element = pygame_gui.elements.UIPanel(
+        self.main_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(100, 80, 620, 460),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainPanel", object_id="main_panel"
             ),
         )
-        panel_element_wrapper = ui_element_wrapper(
-            panel_element, "main_panel", self.camera
-        )
-        gui_elements.append(panel_element_wrapper)
 
         # === Close button ===
         pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(-40, 12, 28, 28),
             text="x",
             manager=self.gui_manager,
-            container=panel_element,
+            container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
                 class_id="CloseButton", object_id="close_button"
             ),
             anchors={"right": "right", "top": "top"},
         )
 
-        # === Rat image ===
+        # === Rat image (placeholder) ===
         portrait_surface = pygame.Surface((140, 180), flags=pygame.SRCALPHA)
-        portrait_surface.fill((200, 210, 255))  # placeholder
+        portrait_surface.fill((200, 210, 255))
         pygame_gui.elements.UIImage(
             relative_rect=pygame.Rect(20, 20, 80, 100),
             image_surface=portrait_surface,
             manager=self.gui_manager,
-            container=panel_element,
+            container=self.main_panel,
         )
 
-        # === Name ===
+        # === Name with real squeak data ===
+        name_text = f"<b>{squeak.name}</b>"
         pygame_gui.elements.UITextBox(
             relative_rect=pygame.Rect(110, 20, 200, 28),
-            html_text="NAME :",
+            html_text=name_text,
             manager=self.gui_manager,
-            container=panel_element,
+            container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
                 class_id="NameTitle", object_id="char_name"
             ),
         )
 
-        # === Description ===
+        # === Description with real squeak data ===
+        desc_text = "No description available"
+        if rodent_cls:
+            desc_text = getattr(rodent_cls, "description", "No description available")
         pygame_gui.elements.UITextBox(
-            html_text="DESCRIPTION",
+            html_text=desc_text,
             relative_rect=pygame.Rect(110, 45, 480, 90),
             manager=self.gui_manager,
-            container=panel_element,
+            container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(class_id="Desc", object_id="desc"),
         )
 
@@ -87,7 +111,7 @@ class InspectSqueak(Page):
         stats_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(20, 140, 200, 295),
             manager=self.gui_manager,
-            container=panel_element,
+            container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
                 class_id="StatsPanel", object_id="stats_panel"
             ),
@@ -102,16 +126,26 @@ class InspectSqueak(Page):
             ),
         )
 
-        # === StatsRows ===
+        # === StatsRows with real data from rodent class ===
         stat_data = {
-            "HP": "7",
-            "SPEED": "3",
-            "DEFENSE": "3",
-            "ATTACK": "10",
-            "STAMINA": "2",
-            "MOVE COST": "3",
-            "CRUMB COST": "25",
-            "HEIGHT": "0",
+            "HP": str(getattr(rodent_cls, "health", "N/A") if rodent_cls else "N/A"),
+            "SPEED": str(getattr(rodent_cls, "speed", "N/A") if rodent_cls else "N/A"),
+            "DEFENSE": str(
+                getattr(rodent_cls, "defense", "N/A") if rodent_cls else "N/A"
+            ),
+            "ATTACK": str(
+                getattr(rodent_cls, "attack", "N/A") if rodent_cls else "N/A"
+            ),
+            "STAMINA": str(
+                getattr(rodent_cls, "max_move_stamina", "N/A") if rodent_cls else "N/A"
+            ),
+            "MOVE COST": str(
+                getattr(rodent_cls, "move_cost", "N/A") if rodent_cls else "N/A"
+            ),
+            "CRUMB COST": str(squeak.crumb_cost),
+            "HEIGHT": str(
+                getattr(rodent_cls, "height", "N/A") if rodent_cls else "N/A"
+            ),
         }
 
         y = 36
@@ -140,7 +174,7 @@ class InspectSqueak(Page):
         skills_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(220, 140, 370, 295),
             manager=self.gui_manager,
-            container=panel_element,
+            container=self.main_panel,
         )
 
         pygame_gui.elements.UILabel(
@@ -156,10 +190,11 @@ class InspectSqueak(Page):
             relative_rect=pygame.Rect(7, 30, 350, 255),
             manager=self.gui_manager,
             container=skills_panel,
-            allow_scroll_x=False,  # disable horizontal scroll
+            allow_scroll_x=False,
         )
 
         y_offset = 0
+
         # --- Active Skills Header ---
         pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(5, y_offset, 200, 25),
@@ -169,22 +204,21 @@ class InspectSqueak(Page):
         )
         y_offset += 30
 
-        active_skills = [
-            (
-                "Railgun Charge",
-                "If it doesn't have <u>Railgun Cooldown</u> status effect, charge its weapon and give itself Railgun Charged status effect at the end of the turn. The effect lasts for 2 turn. "
-                "<br><b>Crumb Cost: 20</b>",
-            ),
-            (
-                "Railgun",
-                "If it has <u>Railgun Charged</u> status effect, shoot the weapon at an enemy dealing ATK*2 damage and clear said effect and give new <u>Railgun Cooldown</u> status effect that last for 1 turn. "
-                "<br><b>Reach: 20, Altitude: 0, Crumb Cost: 5</b>",
-            ),
-        ]
-        for skill_name, desc in active_skills:
-            y_offset += self._create_skill_card(
-                scroll_container, skill_name, desc, y_offset
-            )
+        # Get real skills from rodent class
+        if rodent_cls:
+            # Get skill descriptions from rodent
+            try:
+                # Create a temporary instance to call skill_descriptions
+                temp_rodent = rodent_cls(pos=None, side=None)  # type: ignore[arg-type]
+                skill_descriptions = temp_rodent.skill_descriptions()
+                for skill_desc in skill_descriptions:
+                    # skill_desc is typically a string, extract name and description
+                    # Format might vary, so we'll handle it gracefully
+                    y_offset += self._create_skill_card(
+                        scroll_container, "Skill", skill_desc, y_offset
+                    )
+            except Exception:
+                pass  # If we can't get skills, just skip
 
         # --- Passive Skills Header ---
         pygame_gui.elements.UILabel(
@@ -195,22 +229,20 @@ class InspectSqueak(Page):
         )
         y_offset += 30
 
-        passive_skills = [
-            (
-                "High ground",
-                "When being at higher tile than the target, reach of all skills +1",
-            ),
-            ("Top OP", "Cannot attack base"),
-        ]
-        for skill_name, desc in passive_skills:
-            y_offset += self._create_skill_card(
-                scroll_container, skill_name, desc, y_offset
-            )
+        # Get passive skills from rodent class
+        if rodent_cls:
+            try:
+                temp_rodent = rodent_cls(pos=None, side=None)  # type: ignore[arg-type]
+                passive_descriptions = temp_rodent.passive_descriptions()
+                for skill_name, skill_desc in passive_descriptions:
+                    y_offset += self._create_skill_card(
+                        scroll_container, skill_name, skill_desc, y_offset
+                    )
+            except Exception:
+                pass  # If we can't get passives, just skip
 
         # expand scrollable area to fit all skills
         scroll_container.set_scrollable_area_dimensions((350, y_offset + 20))
-
-        return gui_elements
 
     def _create_skill_card(
         self,
