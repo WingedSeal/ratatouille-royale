@@ -49,7 +49,7 @@ class OddRCoord:
     def get_neighbor(self, direction: int) -> OddRCoord:
         """
         Get neighbor on a specific direction
-        :param direction: The direction to get the neighbor, ranges between 0 (top left) to 5 (left)
+        :param direction: The direction to get the neighbor, ranges between 0 (right) to 5 (bottom-right) (counter-clockwise)
         :returns: Neighbor coord
         """
         ...
