@@ -95,3 +95,12 @@ class SkillTargetingPayload(Payload):
 class GameOverPayload(Payload):
     is_winner_from_first_turn_side: bool
     victory_side: Side
+
+
+@dataclass
+class MoveHistoryPayload(Payload):
+    entity_name: str
+    from_pos: str
+    to_pos: str
+    turn: int
+    is_player_move: bool

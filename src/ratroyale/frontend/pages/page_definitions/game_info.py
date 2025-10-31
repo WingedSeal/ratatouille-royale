@@ -24,9 +24,11 @@ from ratroyale.event_tokens.payloads import (
     GameSetupPayload,
     EntityPayload,
     CrumbUpdatePayload,
+    MoveHistoryPayload,
 )
 from ratroyale.backend.tile import Tile
-from ratroyale.backend.game_event import CrumbChangeEvent
+from ratroyale.backend.game_event import CrumbChangeEvent, EntityMoveEvent, EndTurnEvent
+from ratroyale.backend.side import Side
 
 import pygame_gui
 import pygame
@@ -42,6 +44,13 @@ class GameInfoPage(Page):
         self.temp_saved_buttons: list[str] = []
         self.temp_selected_tile: Tile | None = None
         self.temp_hovered_tile: Tile | None = None
+        
+        # Move history tracking
+        self.move_history: list[dict] = []  # Stores move history entries
+        self.current_turn: int = 1
+        self.current_turn_side: Side | None = None  # Track whose turn it is
+        self.player_side: Side | None = None  # Track player's side
+        self.move_history_buttons: list[str] = []  # Track buttons for clearing
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
@@ -157,6 +166,8 @@ class GameInfoPage(Page):
                 f"Crumbs: {payload.starting_crumbs}"
             )
             self.crumbs = payload.starting_crumbs
+            # Store player side for tracking turns
+            self.player_side = payload.player_1_side
 
     @callback_event_bind("tile_selected")
     def tile_selected(self, msg: PageCallbackEvent) -> None:
@@ -213,24 +224,53 @@ class GameInfoPage(Page):
         if not self.temp_selected_tile:
             self.kill_old_tile_data()
 
+    @game_event_bind(EntityMoveEvent)
+    def on_entity_move(self, event: EntityMoveEvent) -> None:
+        """Track entity movements in move history."""
+        # Record the move
+        move_entry = {
+            "entity_name": event.entity.name,
+            "from_pos": str(event.from_pos),
+            "to_pos": str(event.path[-1]),
+            "turn": self.current_turn,
+            "side": event.entity.side,  # Track which side made the move
+        }
+        self.move_history.append(move_entry)
+        self._refresh_move_history_panel()
+
+    @game_event_bind(EndTurnEvent)
+    def on_end_turn(self, event: EndTurnEvent) -> None:
+        """Track turn changes."""
+        self.current_turn_side = event.to_side
+        self.current_turn += 1
+        self._refresh_move_history_panel()
+
     @callback_event_bind("move_history")
     def _move_history(self, msg: PageCallbackEvent) -> None:
-        move_history_panel = self._element_manager.get_element("move_history_panel")
-        move_history_panel_object = move_history_panel.get_interactable(
-            pygame_gui.elements.UIPanel
-        )
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(0, 0, 100, 20),
-            text="dummy button for move history panel",
-            manager=self.gui_manager,
-            container=move_history_panel_object,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="OddRCoordButton",
-                object_id="odd_r_coord_button",
-            ),
-        )
-        # TODO: add more buttons when receiving successful move history events
-        ...
+        """Callback for manual move history refresh if needed."""
+        self._refresh_move_history_panel()
+
+    @input_event_bind("move_history_btn", pygame_gui.UI_BUTTON_ON_HOVERED)
+    def on_move_history_hover(self, msg: pygame.event.Event) -> None:
+        """Handle hover over move history button to show inspect history."""
+        if hasattr(msg, "ui_element") and hasattr(msg.ui_element, "move_data"):
+            move_data = msg.ui_element.move_data
+            payload = MoveHistoryPayload(
+                entity_name=move_data["entity_name"],
+                from_pos=move_data["from_pos"],
+                to_pos=move_data["to_pos"],
+                turn=move_data["turn"],
+                is_player_move=(move_data["side"] == self.player_side),
+            )
+            # Open inspect history page with the move data
+            self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectHistory")]))
+            self.post(PageCallbackEvent("move_history_data", payload=payload))
+
+    @input_event_bind("move_history_btn", pygame_gui.UI_BUTTON_ON_UNHOVERED)
+    def on_move_history_unhover(self, msg: pygame.event.Event) -> None:
+        """Handle unhover to close inspect history."""
+        # Close the inspect history page when mouse leaves
+        self.post(PageNavigationEvent([(PageNavigation.CLOSE, "InspectHistory")]))
 
     @input_event_bind("ShowEntityButton", pygame_gui.UI_BUTTON_PRESSED)
     def entity_selected(self, msg: pygame.event.Event) -> None:
@@ -329,5 +369,50 @@ class GameInfoPage(Page):
         for ids in self.temp_saved_buttons:
             self._element_manager.remove_element(ids)
         self.temp_saved_buttons.clear()
+
+    def _refresh_move_history_panel(self) -> None:
+        """Refresh the move history panel with current move history data."""
+        try:
+            move_history_panel = self._element_manager.get_element("move_history_panel")
+        except KeyError:
+            # Panel not yet created
+            return
+
+        move_history_panel_object = move_history_panel.get_interactable(
+            pygame_gui.elements.UIPanel
+        )
+
+        # Clear old buttons
+        for button_id in self.move_history_buttons:
+            try:
+                self._element_manager.remove_element(button_id)
+            except KeyError:
+                pass
+        self.move_history_buttons.clear()
+
+        # Display move history entries (show last 10 moves)
+        y_offset = 0
+        displayed_moves = self.move_history[-10:]  # Show last 10 moves
+
+        for index, move in enumerate(displayed_moves):
+            button_id = f"move_history_btn_{index}"
+            is_player_turn = move["side"] == self.player_side
+            turn_prefix = "[YOU]" if is_player_turn else "[ENEMY]"
+            move_text = f"{turn_prefix} T{move['turn']}: {move['entity_name']}"
+            
+            button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(0, y_offset, 195, 25),
+                text=move_text,
+                manager=self.gui_manager,
+                container=move_history_panel_object,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="MoveHistoryButton",
+                    object_id=button_id,
+                ),
+            )
+            # Store move data for hover access
+            button.move_data = move
+            self.move_history_buttons.append(button_id)
+            y_offset += 25
 
     # endregion
