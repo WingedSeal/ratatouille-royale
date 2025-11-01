@@ -7,6 +7,7 @@ from ratroyale.event_tokens.game_token import *
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
+from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
@@ -90,6 +91,9 @@ class PlayerProfile(Page):
                 text="SELECT",
                 manager=self.gui_manager,
                 container=scroll_container,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="SelectButton", object_id="select_button"
+                ),
             )
 
             pygame_gui.elements.UIButton(
@@ -124,3 +128,44 @@ class PlayerProfile(Page):
         scroll_container.set_scrollable_area_dimensions((600, y_offset + 100))
 
         return gui_elements
+
+    @input_event_bind("create_button", pygame_gui.UI_BUTTON_PRESSED)
+    def proceed_to_create_profile(self, msg: pygame.event.Event) -> None:
+        CoordinationManager.put_message(
+            PageNavigationEvent(
+                [
+                    (PageNavigation.OPEN, "CreateProfile"),
+                ]
+            )
+        )
+
+    @input_event_bind("confirm_button", pygame_gui.UI_BUTTON_PRESSED)
+    def confirm_profile(self, msg: pygame.event.Event) -> None:
+        CoordinationManager.put_message(
+            PageNavigationEvent(
+                [
+                    (PageNavigation.CLOSE, "CreateProfile"),
+                ]
+            )
+        )
+
+    @input_event_bind("cancel_button", pygame_gui.UI_BUTTON_PRESSED)
+    def cancel_button(self, msg: pygame.event.Event) -> None:
+        CoordinationManager.put_message(
+            PageNavigationEvent(
+                [
+                    (PageNavigation.CLOSE, "CreateProfile"),
+                ]
+            )
+        )
+
+    @input_event_bind("select_button", pygame_gui.UI_BUTTON_PRESSED)
+    def select_button(self, msg: pygame.event.Event) -> None:
+        CoordinationManager.put_message(
+            PageNavigationEvent(
+                [
+                    (PageNavigation.CLOSE, "PlayerProfile"),
+                    (PageNavigation.OPEN, "MainMenu"),
+                ]
+            )
+        )

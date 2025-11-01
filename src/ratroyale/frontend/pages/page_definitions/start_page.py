@@ -7,6 +7,7 @@ from ratroyale.event_tokens.game_token import *
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
+from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
@@ -38,3 +39,14 @@ class StartPage(Page):
             anchors={"centerx": "centerx", "bottom": "bottom"},
         )
         return gui_elements
+
+    @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
+    def proceed_to_select_profile(self, msg: pygame.event.Event) -> None:
+        CoordinationManager.put_message(
+            PageNavigationEvent(
+                [
+                    (PageNavigation.CLOSE, "StartPage"),
+                    (PageNavigation.OPEN, "PlayerProfile"),
+                ]
+            )
+        )
