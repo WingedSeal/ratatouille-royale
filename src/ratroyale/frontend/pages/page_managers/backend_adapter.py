@@ -10,10 +10,10 @@ from ratroyale.event_tokens.payloads import (
     SqueakPlacementPayload,
     SqueakPayload,
     GameSetupPayload,
-    PlayableTiles,
+    PlayableTilesPayload,
     CrumbUpdatePayload,
     EntityPayload,
-    AbilityActivationPayload,
+    SkillActivationPayload,
     EntityMovementPayload,
     SkillTargetingPayload,
     AbilityTargetPayload,
@@ -38,7 +38,7 @@ from ratroyale.backend.game_event import (
 )
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
-from ratroyale.backend.error import NotEnoughCrumbError
+from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -46,12 +46,16 @@ class BackendAdapter:
     def __init__(
         self,
         game_manager: GameManager,
+        page_manager: PageManager,
         coordination_manager: CoordinationManager,
-        ai_type: type[BaseAI],
+        ai_type: type[BaseAI] | None,
     ) -> None:
         self.game_manager = game_manager
+        self.page_manager = page_manager
         self.coordination_manager = coordination_manager
-        self.ai: BaseAI = ai_type(self.game_manager, Side.MOUSE)
+        self.ai: BaseAI | None = (
+            ai_type(self.game_manager, Side.MOUSE) if ai_type else None
+        )
         self._ai_turn: bool = False
         self.game_manager_response: dict[str, Callable[[GameManagerEvent], None]] = {
             "start_game": self.handle_game_start,
@@ -61,6 +65,7 @@ class BackendAdapter:
             "resolve_movement": self.handle_resolve_movement,
             "end_turn": self.handle_end_turn,
             "target_selected": self.handle_target_selected,
+            "skill_canceled": self.handle_skill_canceled,
         }
         self.game_manager_issued_events: dict[
             type[GameEvent], Callable[[GameEvent], None]
@@ -100,18 +105,15 @@ class BackendAdapter:
                 if page_handler:
                     page_handler(msg_from_page)
                 else:
-                    print(
-                        f"No handler for page event type: {msg_from_page.game_action}"
-                    )
+                    pass
+                    # print(
+                    #     f"No handler for page event type: {msg_from_page.game_action}"
+                    # )
 
             # Process backend -> page messages
             if not msg_queue_from_backend.empty():
-                msg: GameEvent = msg_queue_from_backend.get()
-                handler = self.game_manager_issued_events.get(type(msg))
-                if handler:
-                    handler(msg)
-                else:
-                    print(f"No handler for backend event type: {type(msg)}")
+                msg_from_backend: GameEvent = msg_queue_from_backend.get()
+                self.page_manager.execute_game_event_callback(msg_from_backend)
 
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
@@ -119,7 +121,6 @@ class BackendAdapter:
         player_1_side = self.game_manager.first_turn
         player_info = self.game_manager.players_info[player_1_side]
         squeak_in_hand_list = player_info.get_squeak_set().get_deck_and_hand()[1]
-        print(f"{self.game_manager.crumbs=}")
         self.coordination_manager.put_message(
             PageCallbackEvent(
                 callback_action="start_game",
@@ -128,6 +129,7 @@ class BackendAdapter:
                     hand_squeaks=squeak_in_hand_list,
                     starting_crumbs=self.game_manager.crumbs,
                     player_1_side=player_1_side,
+                    playing_with_ai=self.ai is not None,
                 ),
             )
         )
@@ -148,6 +150,9 @@ class BackendAdapter:
                 )
             )
 
+    def handle_skill_canceled(self, event: GameManagerEvent) -> None:
+        self.game_manager.cancel_selecting_target()
+
     def handle_squeak_placable_tiles(self, event: GameManagerEvent) -> None:
         payload = event.payload
         assert isinstance(payload, SqueakPayload)
@@ -159,58 +164,51 @@ class BackendAdapter:
             self.coordination_manager.put_message(
                 PageCallbackEvent(
                     callback_action="handle_squeak_placable_tiles",
-                    payload=PlayableTiles(placable_tiles),
+                    payload=PlayableTilesPayload(list(placable_tiles)),
                 )
             )
 
     def handle_ability_activation(self, event: GameManagerEvent) -> None:
         payload = event.payload
-        assert isinstance(payload, AbilityActivationPayload)
+        assert isinstance(payload, SkillActivationPayload)
         entity = payload.entity
         ability_index = payload.ability_index
 
         assert isinstance(entity, Rodent)
 
-        try:
-            # -1 for movement
-            if ability_index == -1:
-                coord_set = self.game_manager.board.get_reachable_coords(entity)
-                self.coordination_manager.put_message(
-                    PageCallbackEvent(
-                        callback_action="reachable_coords",
-                        payload=PlayableTiles(list(coord_set)),
-                    )
+        # -1 is for for movement
+        if ability_index == -1:
+            coord_set = self.game_manager.board.get_reachable_coords(entity)
+            self.coordination_manager.put_message(
+                PageCallbackEvent(
+                    callback_action="reachable_coords",
+                    payload=EntityMovementPayload(entity, list(coord_set)),
                 )
-            else:
-                skill_result = self.game_manager.activate_skill(entity, ability_index)
-                # send back results and change game board state to selection & block irrelevant functions
-                self.coordination_manager.put_message(
-                    PageCallbackEvent(
-                        "skill_targeting",
-                        payload=SkillTargetingPayload(skill_result),
-                    )
+            )
+        else:
+            skill_result = self.game_manager.activate_skill(entity, ability_index)
+            # send back results and change game board state to selection & block irrelevant functions
+            self.coordination_manager.put_message(
+                PageCallbackEvent(
+                    "skill_targeting",
+                    payload=SkillTargetingPayload(skill_result),
                 )
-                self.coordination_manager.put_message(
-                    PageCallbackEvent(
-                        "crumb_update",
-                        payload=CrumbUpdatePayload(self.game_manager.crumbs),
-                    )
+            )
+            self.coordination_manager.put_message(
+                PageCallbackEvent(
+                    "crumb_update",
+                    payload=CrumbUpdatePayload(self.game_manager.crumbs),
                 )
-        except NotEnoughCrumbError:
-            print("You don't have enough crumbs for this skill!")
+            )
 
     def handle_resolve_movement(self, event: GameManagerEvent) -> None:
         payload = event.payload
         assert isinstance(payload, EntityMovementPayload)
         entity = payload.entity
-        coord = payload.path[0]
+        coord = payload.coord_list[0]
 
         assert isinstance(entity, Rodent)
-
-        try:
-            self.game_manager.move_rodent(entity, coord)
-        except NotEnoughCrumbError:
-            print("You don't have enough crumbs for this skill!")
+        self.game_manager.move_rodent(entity, coord)
 
         self.coordination_manager.put_message(
             PageCallbackEvent(
@@ -221,18 +219,18 @@ class BackendAdapter:
 
     def handle_end_turn(self, event: GameManagerEvent) -> None:
         self.game_manager.end_turn()
-        self.ai.run_ai_and_update_game_manager()
+        if self.ai:
+            self.ai.run_ai_and_update_game_manager()
 
     def handle_target_selected(self, event: GameManagerEvent) -> None:
         payload = event.payload
         assert isinstance(payload, AbilityTargetPayload)
         selected_coords = payload.selected_targets
-        result = self.game_manager.apply_skill_callback(selected_coords)
-        print(result)
-        self.coordination_manager.put_message(
+        skill_result = self.game_manager.apply_skill_callback(selected_coords)
+        CoordinationManager.put_message(
             PageCallbackEvent(
-                "crumb_update",
-                payload=CrumbUpdatePayload(self.game_manager.crumbs),
+                "skill_targeting",
+                payload=SkillTargetingPayload(skill_result),
             )
         )
 
@@ -263,13 +261,12 @@ class BackendAdapter:
         assert isinstance(event, SqueakDrawnEvent)
         hand_index = event.hand_index
         squeak = event.squeak
-        if not self.ai.is_ai_turn():
-            self.coordination_manager.put_message(
-                PageCallbackEvent(
-                    callback_action="squeak_drawn",
-                    payload=SqueakPayload(hand_index, squeak),
-                )
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="squeak_drawn",
+                payload=SqueakPayload(hand_index, squeak),
             )
+        )
 
     def handle_end_turn_event(self, event: GameEvent) -> None:
         assert isinstance(event, EndTurnEvent)

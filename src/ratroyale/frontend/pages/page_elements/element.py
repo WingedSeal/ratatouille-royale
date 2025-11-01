@@ -7,12 +7,13 @@ from typing import TypeVar
 from pygame_gui.core import UIElement
 from ratroyale.event_tokens.payloads import Payload
 from .spatial_component import SpatialComponent, Camera
-from .hitbox import Hitbox
+from .hitbox import Hitbox, RectangleHitbox
 from ratroyale.frontend.visual.anim.core.anim_structure import (
     AnimEvent,
     SequentialAnim,
     GroupedAnim,
 )
+from ...visual.screen_constants import screen_rect
 
 T = TypeVar("T")
 
@@ -55,11 +56,14 @@ class ElementWrapper:
         self.payload: Payload | None = payload
         self.is_blocking: bool = is_blocking
         self.is_interactable: bool = True
+        self._supporting_hitbox_for_ui_elements: RectangleHitbox
 
         # Visual info
         self.visual_component: VisualComponent | None = visual_component
 
         self.camera: Camera = camera
+        self._is_visible: bool = True
+        """Cached visibility status"""
 
         if isinstance(self.interactable_component, Hitbox):
             self.interactable_component._bind(spatial_component, camera)
@@ -84,34 +88,40 @@ class ElementWrapper:
             raise AttributeError("This element wrapper does not have a payload.")
         if not isinstance(self.payload, cls):
             raise TypeError(
-                f"The type provided {cls.__name__} was incorrect. The actual type was {type(self.payload).__name__}"
+                f"The element {self.registered_name} has payload type {type(self.payload).__name__}, not {cls.__name__}."
             )
         else:
             return self.payload
 
     def handle_gesture(self, gesture: GestureData, is_processing_input: bool) -> bool:
-        if not isinstance(self.interactable_component, Hitbox):
-            return False
-
+        # Filter out input non-processing scenarios.
         if not is_processing_input:
             return False
 
         if not self.is_interactable:
-            return self.is_blocking
-
-        pos = gesture.mouse_pos
-        if pos is None or not self.interactable_component.contains_point(pos):
             return False
 
-        post_gesture_event(
-            InputManagerEvent(
-                element_id=self.registered_name,
-                gesture_data=gesture,
-                payload=self.payload,
-            )
-        )
-
-        return self.is_blocking
+        # Detects input based on interactable component's type:
+        pos = gesture.mouse_pos
+        if isinstance(self.interactable_component, Hitbox):
+            if self.interactable_component.contains_point(pos):
+                post_gesture_event(
+                    InputManagerEvent(
+                        element_id=self.registered_name,
+                        gesture_data=gesture,
+                        payload=self.payload,
+                    )
+                )
+                return self.is_blocking
+            else:
+                return False
+        elif isinstance(self.interactable_component, UIElement):
+            if self.get_absolute_rect().collidepoint(pos):
+                return self.is_blocking
+            else:
+                return False
+        else:
+            return False
 
     def destroy(self) -> None:
         if isinstance(self.interactable_component, UIElement):
@@ -135,18 +145,46 @@ class ElementWrapper:
         child.parent = None
 
     # TODO: somethings wrong here
-    def _set_absolute_rect(self) -> pygame.Rect | pygame.FRect:
-        my_rect = self.spatial_component.get_screen_rect(self.camera).copy()
+    def get_absolute_rect(self) -> pygame.Rect | pygame.FRect:
+        self.spatial_component.invalidate_cache()
 
-        if self.parent:
-            parent_rect = self.parent.spatial_component.get_rect()
-            my_rect.x += parent_rect.x
-            my_rect.y += parent_rect.y
+        if not self.parent:
+            # No parent: just project to screen
+            return self.spatial_component.get_screen_rect(self.camera).copy()
 
-        return my_rect
+        # Get scaled child rect (top-left scaled, no position change)
+        child_rect = self.spatial_component.get_relative_rect(self.camera).copy()
+
+        # Get parent screen rect
+        parent_rect = self.parent.spatial_component.get_screen_rect(self.camera)
+
+        # Determine parent scale factor (combined element + camera scale)
+        parent_scale = (
+            self.parent.spatial_component.scale * self.camera.scale
+            if self.parent.spatial_component.space_mode == "WORLD"
+            else self.parent.spatial_component.scale
+        )
+
+        # Add scaled offset from parent
+        child_rect.x += parent_rect.x
+        child_rect.y += parent_rect.y
+
+        # Offset respect scale of parent
+        child_rect.x += self.spatial_component.local_rect.x * (parent_scale - 1)
+        child_rect.y += self.spatial_component.local_rect.y * (parent_scale - 1)
+
+        return child_rect
 
     def render(self, surface: pygame.Surface) -> None:
-        abs_rect = self._set_absolute_rect()
+        # Only recompute visibility if camera moved
+        if self.camera._dirty:
+            self.update_visibility()
+
+        # Skip entirely if not visible
+        if not self._is_visible:
+            return
+
+        abs_rect = self.get_absolute_rect()
         if self.visual_component:
             self.visual_component.render(
                 self.interactable_component,
@@ -156,6 +194,14 @@ class ElementWrapper:
 
         # DRAW RECT DEBUG
         # pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
+
+    def update_visibility(self) -> None:
+        """Recompute visibility only if camera is dirty or element moved."""
+        spatial = self.get_absolute_rect()
+        if spatial:
+            self._is_visible = spatial.colliderect(screen_rect)
+        else:
+            self._is_visible = False
 
     def queue_override_animation(
         self, anim_event: AnimEvent | SequentialAnim | GroupedAnim
@@ -215,6 +261,7 @@ def ui_element_wrapper(
     registered_name: str,
     camera: Camera,
     grouping_name: str = "UI_ELEMENT",
+    z_order: int = 1,
 ) -> ElementWrapper:
     """
     Convenience helper to wrap a pygame_gui element into an ElementWrapper.
@@ -232,7 +279,7 @@ def ui_element_wrapper(
     rect = element.relative_rect
 
     # Build the spatial component using the element's rect
-    spatial = SpatialComponent(rect)
+    spatial = SpatialComponent(rect, z_order=z_order)
 
     # Build the visual and interactable components
     visual = VisualComponent()

@@ -121,7 +121,7 @@ class EntityHealedEvent(GameEvent):
 @dataclass
 class FeatureDamagedEvent(GameEvent):
     feature: Feature
-    damage: int
+    damage: int | InstantKill
     hp_loss: int
     source: SourceOfDamageOrHeal
 
