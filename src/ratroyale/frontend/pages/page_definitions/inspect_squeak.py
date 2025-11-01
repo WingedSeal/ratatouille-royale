@@ -17,6 +17,7 @@ from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ..page_elements.spatial_component import Camera
 from ..page_managers.base_page import Page
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 @register_page
@@ -45,23 +46,22 @@ class InspectSqueak(Page):
 
     def _create_squeak_ui(self, squeak: Squeak) -> None:
         """Create fresh UI elements with squeak data."""
-        # Clear existing elements except main_panel
         if self.main_panel:
             self.main_panel.kill()  # type: ignore[no-untyped-call]
 
-        # Get rodent class for stats (rodent holds the class data)
         rodent_cls = squeak.rodent
 
-        # === MainPanel ===
+        panel_w, panel_h = 620, 460
+        panel_x = (SCREEN_SIZE[0] - panel_w) // 2
+        panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         self.main_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(100, 80, 620, 460),
+            relative_rect=pygame.Rect(panel_x, panel_y, panel_w, panel_h),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainPanel", object_id="main_panel"
             ),
+            anchors={"left": "left", "top": "top"},
         )
-
-        # === Close button ===
         pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(-40, 12, 28, 28),
             text="x",
@@ -72,8 +72,6 @@ class InspectSqueak(Page):
             ),
             anchors={"right": "right", "top": "top"},
         )
-
-        # === Rat image (placeholder) ===
         portrait_surface = pygame.Surface((140, 180), flags=pygame.SRCALPHA)
         portrait_surface.fill((200, 210, 255))
         pygame_gui.elements.UIImage(
@@ -81,9 +79,8 @@ class InspectSqueak(Page):
             image_surface=portrait_surface,
             manager=self.gui_manager,
             container=self.main_panel,
+            anchors={"left": "left", "top": "top"},
         )
-
-        # === Name with real squeak data ===
         name_text = f"<b>{squeak.name}</b>"
         pygame_gui.elements.UITextBox(
             relative_rect=pygame.Rect(110, 20, 200, 28),
@@ -93,9 +90,8 @@ class InspectSqueak(Page):
             object_id=pygame_gui.core.ObjectID(
                 class_id="NameTitle", object_id="char_name"
             ),
+            anchors={"left": "left", "top": "top"},
         )
-
-        # === Description with real squeak data ===
         desc_text = "No description available"
         if rodent_cls:
             desc_text = getattr(rodent_cls, "description", "No description available")
@@ -105,9 +101,8 @@ class InspectSqueak(Page):
             manager=self.gui_manager,
             container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(class_id="Desc", object_id="desc"),
+            anchors={"left": "left", "top": "top"},
         )
-
-        # === Stat_panel ===
         stats_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(20, 140, 200, 295),
             manager=self.gui_manager,
@@ -115,6 +110,7 @@ class InspectSqueak(Page):
             object_id=pygame_gui.core.ObjectID(
                 class_id="StatsPanel", object_id="stats_panel"
             ),
+            anchors={"left": "left", "top": "top"},
         )
         pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(80, 5, 40, 20),
@@ -124,6 +120,7 @@ class InspectSqueak(Page):
             object_id=pygame_gui.core.ObjectID(
                 class_id="StatsHeader", object_id="stats_header"
             ),
+            anchors={"left": "left", "top": "top"},
         )
 
         # === StatsRows with real data from rodent class ===
@@ -158,6 +155,7 @@ class InspectSqueak(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="StatKey", object_id=f"key_{key}"
                 ),
+                anchors={"left": "left", "top": "top"},
             )
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(100, y, 100, 22),
@@ -167,14 +165,14 @@ class InspectSqueak(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="StatVal", object_id=f"val_{key}"
                 ),
+                anchors={"left": "left", "top": "top"},
             )
             y += 30
-
-        # === Skills Panel ===
         skills_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(220, 140, 370, 295),
             manager=self.gui_manager,
             container=self.main_panel,
+            anchors={"left": "left", "top": "top"},
         )
 
         pygame_gui.elements.UILabel(
@@ -184,23 +182,21 @@ class InspectSqueak(Page):
             container=skills_panel,
             anchors={"centerx": "centerx", "top": "top"},
         )
-
-        # === Scroll Container ===
         scroll_container = pygame_gui.elements.UIScrollingContainer(
             relative_rect=pygame.Rect(7, 30, 350, 255),
             manager=self.gui_manager,
             container=skills_panel,
             allow_scroll_x=False,
+            anchors={"left": "left", "top": "top"},
         )
 
         y_offset = 0
-
-        # --- Active Skills Header ---
         pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(5, y_offset, 200, 25),
             text="------- Active Skills -------",
             manager=self.gui_manager,
             container=scroll_container,
+            anchors={"left": "left", "top": "top"},
         )
         y_offset += 30
 
@@ -220,12 +216,12 @@ class InspectSqueak(Page):
             except Exception:
                 pass  # If we can't get skills, just skip
 
-        # --- Passive Skills Header ---
         pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(5, y_offset, 200, 25),
             text="-------- Passive Skills -------",
             manager=self.gui_manager,
             container=scroll_container,
+            anchors={"left": "left", "top": "top"},
         )
         y_offset += 30
 
@@ -241,7 +237,6 @@ class InspectSqueak(Page):
             except Exception:
                 pass  # If we can't get passives, just skip
 
-        # expand scrollable area to fit all skills
         scroll_container.set_scrollable_area_dimensions((350, y_offset + 20))
 
     def _create_skill_card(
@@ -256,14 +251,12 @@ class InspectSqueak(Page):
         padding = 10
         image_size = 50
 
-        # === Base card ===
         skill_card = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(0, y_start, card_width, 60),
             manager=self.gui_manager,
             container=parent_container,
+            anchors={"left": "left", "top": "top"},
         )
-
-        # === Skill image ===
         portrait_surface = pygame.Surface(
             (image_size, image_size), flags=pygame.SRCALPHA
         )
@@ -273,26 +266,23 @@ class InspectSqueak(Page):
             image_surface=portrait_surface,
             manager=self.gui_manager,
             container=skill_card,
+            anchors={"left": "left", "top": "top"},
         )
-
-        # === Name ===
         pygame_gui.elements.UITextBox(
             relative_rect=pygame.Rect(60, 0, 150, 35),
             html_text=f"{name}",
             manager=self.gui_manager,
             container=skill_card,
+            anchors={"left": "left", "top": "top"},
         )
-
-        # === Description  ===
         desc_box = pygame_gui.elements.UITextBox(
             html_text=f"Description: <font size=3>{description}</font>",
             relative_rect=pygame.Rect(60, 30, 260, 10),
             manager=self.gui_manager,
             container=skill_card,
             wrap_to_height=True,
+            anchors={"left": "left", "top": "top"},
         )
-
-        # === dynamically expand height ===
         text_height = int(desc_box.get_relative_rect().height)
         desc_box.set_dimensions((260, text_height))
         total_height = max(image_size, 40 + text_height)

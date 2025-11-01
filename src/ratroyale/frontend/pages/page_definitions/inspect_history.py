@@ -22,6 +22,7 @@ from ratroyale.frontend.pages.page_elements.element import (
 )
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ratroyale.frontend.gesture.gesture_data import GestureType
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 @register_page
@@ -42,13 +43,17 @@ class InspectHistory(Page):
     def define_initial_gui(self) -> list[ElementWrapper]:
         elements: list[ElementWrapper] = []
 
+        panel_w, panel_h = 500, 420
+        panel_x = (SCREEN_SIZE[0] - panel_w) // 2
+        panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         panel = ui_element_wrapper(
             pygame_gui.elements.UIPanel(
-                relative_rect=pygame.Rect(150, 60, 500, 420),
+                relative_rect=pygame.Rect(panel_x, panel_y, panel_w, panel_h),
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectHistoryPanel", object_id="inspect_history_panel"
                 ),
+                anchors={"left": "left", "top": "top"},
             ),
             registered_name="inspect_history_panel",
             grouping_name="inspect_history",
@@ -64,6 +69,10 @@ class InspectHistory(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="PortraitArea", object_id="history_portrait"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="history_portrait",
             grouping_name="inspect_history",
@@ -80,6 +89,10 @@ class InspectHistory(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectHistoryLabel", object_id="history_title"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="history_title",
             grouping_name="inspect_history",
@@ -96,6 +109,10 @@ class InspectHistory(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectHistoryLabel", object_id="history_desc"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="history_desc",
             grouping_name="inspect_history",
@@ -111,6 +128,10 @@ class InspectHistory(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="HistoryMap", object_id="history_map"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="history_map",
             grouping_name="inspect_history",
@@ -120,13 +141,17 @@ class InspectHistory(Page):
 
         exit_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(410, 10, 80, 30),
+                relative_rect=pygame.Rect(-90, 10, 80, 30),
                 text="exit",
                 manager=self.gui_manager,
                 container=panel.get_interactable(pygame_gui.elements.UIPanel),
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectHistoryButton", object_id="exit_button"
                 ),
+                anchors={
+                    "right": "right",
+                    "top": "top",
+                },
             ),
             registered_name="exit_button",
             grouping_name="inspect_history",

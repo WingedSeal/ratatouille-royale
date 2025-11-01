@@ -18,6 +18,7 @@ from ratroyale.frontend.pages.page_elements.element import (
     ui_element_wrapper,
 )
 from ..page_elements.spatial_component import Camera
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 import pygame_gui
 import pygame
@@ -39,36 +40,41 @@ class InspectFeature(Page):
 
         gui_elements: list[ElementWrapper] = []
 
-        # === MainPanel ===
+        panel_w, panel_h = 680, 460
+        panel_x = (SCREEN_SIZE[0] - panel_w) // 2
+        panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         panel_element = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(60, 70, 680, 460),
+            relative_rect=pygame.Rect(panel_x, panel_y, panel_w, panel_h),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainPanel", object_id="main_panel"
             ),
+            anchors={"left": "left", "top": "top"},
         )
         panel_element_wrapper = ui_element_wrapper(
             panel_element, "main_panel", self.camera
         )
         gui_elements.append(panel_element_wrapper)
 
-        # === Close button ===
         close_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(640, 12, 28, 28),
+                relative_rect=pygame.Rect(-40, 12, 28, 28),
                 text="x",
                 manager=self.gui_manager,
                 container=panel_element,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="CloseButton", object_id="close_button"
                 ),
+                anchors={
+                    "right": "right",
+                    "top": "top",
+                },
             ),
             "close_button",
             self.camera,
         )
         gui_elements.append(close_button)
 
-        # === Name / feature title ===
         title_label = ui_element_wrapper(
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(0, 56, 520, 32),
@@ -83,7 +89,6 @@ class InspectFeature(Page):
         )
         gui_elements.append(title_label)
 
-        # === Description ===
         desc_box = ui_element_wrapper(
             pygame_gui.elements.UITextBox(
                 html_text="<b>Description</b><br>"
@@ -94,13 +99,16 @@ class InspectFeature(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="description", object_id="desc"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             "desc",
             self.camera,
         )
         gui_elements.append(desc_box)
 
-        # === Skill image ===
         portrait_surface = pygame.Surface((50, 200), flags=pygame.SRCALPHA)
         portrait_surface.fill((220, 220, 255))
         pygame_gui.elements.UIImage(
@@ -119,12 +127,10 @@ class InspectFeature(Page):
             payload = msg.payload
             assert isinstance(payload, FeaturePayload)
 
-            # Update title with feature name
             title_element = self._element_manager.get_element("title")
             title_label = title_element.get_interactable(pygame_gui.elements.UILabel)
             title_label.set_text(payload.feature_name)
 
-            # Update description with feature details
             desc_element = self._element_manager.get_element("desc")
             desc_box = desc_element.get_interactable(pygame_gui.elements.UITextBox)
             desc_box.html_text = (

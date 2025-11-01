@@ -13,6 +13,7 @@ from ratroyale.frontend.pages.page_elements.element import (
     ui_element_wrapper,
 )
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 from ..page_managers.base_page import Page
 
@@ -32,14 +33,24 @@ class PauseMenu(Page):
     def define_initial_gui(self) -> list[ElementWrapper]:
         elements: list[ElementWrapper] = []
 
+        button_width, button_height = 200, 50
+        button_x = (SCREEN_SIZE[0] - button_width) // 2
+        button_y = SCREEN_SIZE[1] // 3
+
         resume_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(300, 200, 200, 50),
+                relative_rect=pygame.Rect(
+                    button_x, button_y, button_width, button_height
+                ),
                 text="Continue",
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="PauseMenuButton", object_id="resume_button"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="resume_button",
             grouping_name="pause_menu",
@@ -49,12 +60,18 @@ class PauseMenu(Page):
 
         options_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(300, 260, 200, 50),
+                relative_rect=pygame.Rect(
+                    button_x, button_y + 60, button_width, button_height
+                ),
                 text="Options/Settings",
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="PauseMenuButton", object_id="options_button"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="options_button",
             grouping_name="pause_menu",
@@ -64,12 +81,18 @@ class PauseMenu(Page):
 
         guide_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(300, 320, 200, 50),
+                relative_rect=pygame.Rect(
+                    button_x, button_y + 120, button_width, button_height
+                ),
                 text="Guide Book",
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="PauseMenuButton", object_id="guide_button"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="guide_button",
             grouping_name="pause_menu",
@@ -79,12 +102,18 @@ class PauseMenu(Page):
 
         quit_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(300, 380, 200, 50),
+                relative_rect=pygame.Rect(
+                    button_x, button_y + 180, button_width, button_height
+                ),
                 text="Quit Game",
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="PauseMenuButton", object_id="quit_button"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="quit_button",
             grouping_name="pause_menu",
@@ -94,12 +123,18 @@ class PauseMenu(Page):
 
         exit_desktop_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(300, 440, 200, 50),
+                relative_rect=pygame.Rect(
+                    button_x, button_y + 240, button_width, button_height
+                ),
                 text="Exit to Desktop",
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="PauseMenuButton", object_id="exit_desktop_button"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="exit_desktop_button",
             grouping_name="pause_menu",
@@ -109,7 +144,6 @@ class PauseMenu(Page):
 
         return elements
 
-    # --- Input Handlers ---
     @input_event_bind("resume_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_resume_click(self, msg: pygame.event.Event) -> None:
         self.post(PageNavigationEvent(action_list=[(PageNavigation.CLOSE_TOP, None)]))
