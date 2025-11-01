@@ -2,6 +2,7 @@ from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
+from ratroyale.event_tokens.payloads import MoveHistoryPayload, FeaturePayload
 
 
 from ..page_managers.base_page import Page
@@ -24,7 +25,6 @@ from ratroyale.event_tokens.payloads import (
     GameSetupPayload,
     EntityPayload,
     CrumbUpdatePayload,
-    MoveHistoryPayload,
 )
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.game_event import CrumbChangeEvent, EntityMoveEvent, EndTurnEvent
@@ -276,7 +276,6 @@ class GameInfoPage(Page):
     def entity_selected(self, msg: pygame.event.Event) -> None:
         id = get_id(msg)
         assert id
-
         # The id is given as "entity_hover_data_panel.ShowEntityButton_x"
         entity_index = int(id.split("_")[-1])
 
@@ -286,6 +285,51 @@ class GameInfoPage(Page):
         self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectEntity")]))
         self.post(PageCallbackEvent("crumb", payload=CrumbUpdatePayload(self.crumbs)))
         self.post(PageCallbackEvent("entity_data", payload=EntityPayload(entity)))
+
+    @input_event_bind("ShowFeatureButton", pygame_gui.UI_BUTTON_PRESSED)
+    def on_feature_button_click(self, msg: pygame.event.Event) -> None:
+        """Handle feature button click to show feature details."""
+        feature_button = msg.ui_element
+
+        # Extract feature from button's feature_data attribute
+        if hasattr(feature_button, "feature_data"):
+            feature = feature_button.feature_data
+
+            # Build feature description with relevant stats
+            description_parts = []
+
+            # Add health if available
+            if feature.health is not None:
+                description_parts.append(f"Health: {feature.health}")
+
+            # Add defense if greater than 0
+            if feature.defense > 0:
+                description_parts.append(f"Defense: {feature.defense}")
+
+            # Add collision info
+            is_collision = "Collision" if feature.is_collision() else "No Collision"
+            description_parts.append(is_collision)
+
+            # Add side info if available
+            if feature.side is not None:
+                description_parts.append(f"Side: {feature.side}")
+
+            feature_description = (
+                "\n".join(description_parts)
+                if description_parts
+                else "No details available"
+            )
+
+            # Create payload with feature information
+            payload = FeaturePayload(
+                feature_name=feature.get_name(),
+                feature_description=feature_description,
+                feature_type=type(feature).__name__,
+            )
+
+            # Open InspectFeature page and pass feature data
+            self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectFeature")]))
+            self.post(PageCallbackEvent("feature_data", payload=payload))
 
     # region UTILITIES
 
@@ -347,17 +391,21 @@ class GameInfoPage(Page):
 
         for index, feature in enumerate(tile.features):
             feature_button_id = f"ShowFeatureButton_{id(feature)}"
-            feature_button_wrapper = ui_element_wrapper(
-                pygame_gui.elements.UIButton(
-                    relative_rect=pygame.Rect(100 + index * 60, (index // 6), 50, 20),
-                    text=f"{feature.get_name()}",
-                    manager=self.gui_manager,
-                    container=tile_hover_data_panel_object,
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="ShowFeatureButton",
-                        object_id=feature_button_id,
-                    ),
+            feature_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(100 + index * 60, (index // 6), 50, 20),
+                text=f"{feature.get_name()}",
+                manager=self.gui_manager,
+                container=tile_hover_data_panel_object,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="ShowFeatureButton",
+                    object_id=feature_button_id,
                 ),
+            )
+            # Attach feature data to button
+            feature_button.feature_data = feature  # type: ignore
+
+            feature_button_wrapper = ui_element_wrapper(
+                feature_button,
                 feature_button_id,
                 self.camera,
             )

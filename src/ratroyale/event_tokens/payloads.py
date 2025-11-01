@@ -104,3 +104,10 @@ class MoveHistoryPayload(Payload):
     to_pos: str
     turn: int
     is_player_move: bool
+
+
+@dataclass
+class FeaturePayload(Payload):
+    feature_name: str
+    feature_description: str
+    feature_type: str
