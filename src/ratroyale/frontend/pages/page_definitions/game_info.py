@@ -44,9 +44,9 @@ class GameInfoPage(Page):
         self.temp_saved_buttons: list[str] = []
         self.temp_selected_tile: Tile | None = None
         self.temp_hovered_tile: Tile | None = None
-        
+
         # Move history tracking
-        self.move_history: list[dict] = []  # Stores move history entries
+        self.move_history: list[dict[str, object]] = []  # Stores move history entries
         self.current_turn: int = 1
         self.current_turn_side: Side | None = None  # Track whose turn it is
         self.player_side: Side | None = None  # Track player's side
@@ -399,7 +399,7 @@ class GameInfoPage(Page):
             is_player_turn = move["side"] == self.player_side
             turn_prefix = "[YOU]" if is_player_turn else "[ENEMY]"
             move_text = f"{turn_prefix} T{move['turn']}: {move['entity_name']}"
-            
+
             button = pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(0, y_offset, 195, 25),
                 text=move_text,
@@ -411,7 +411,7 @@ class GameInfoPage(Page):
                 ),
             )
             # Store move data for hover access
-            button.move_data = move
+            button.move_data = move  # type: ignore
             self.move_history_buttons.append(button_id)
             y_offset += 25
 
