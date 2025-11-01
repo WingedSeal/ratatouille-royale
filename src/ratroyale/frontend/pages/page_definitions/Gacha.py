@@ -1,0 +1,101 @@
+from ratroyale.coordination_manager import CoordinationManager
+
+from ratroyale.event_tokens.visual_token import *
+from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.game_token import *
+
+from ..page_managers.base_page import Page
+from ratroyale.frontend.pages.page_managers.page_registry import register_page
+
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+)
+from ..page_elements.spatial_component import Camera
+
+import pygame
+import pygame_gui
+
+
+@register_page
+class GachaPage(Page):
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(coordination_manager, camera)
+
+    def define_initial_gui(self) -> list[ElementWrapper]:
+        gui_elements: list[ElementWrapper] = []
+
+        # === BACK button ===
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(10, 10, 120, 50),
+            text="Back",
+            manager=self.gui_manager,
+            anchors={"left": "left", "top": "top"},
+            object_id=pygame_gui.core.ObjectID(
+                class_id="BackButton", object_id="back_button"
+            ),
+        )
+
+        # === Currency text ===
+        _ = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(-130, 10, 80, 50),
+            text="999",
+            manager=self.gui_manager,
+            anchors={"left": "right", "top": "top"},
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CurrencyLabel", object_id="currency_label"
+            ),
+        )
+
+        # === Currency icon ===
+        cheese_surface = pygame.Surface((40, 40))
+        cheese_surface.fill((255, 220, 100))
+
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(-60, 15, 40, 40),
+            image_surface=cheese_surface,
+            manager=self.gui_manager,
+            anchors={"left": "right", "top": "top"},
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CurrencyIcon", object_id="currency_icon"
+            ),
+        )
+
+        # === Image ===
+        banner_surface = pygame.Surface((700, 400))
+        banner_surface.fill((220, 220, 230))
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(0, 0, 700, 400),
+            image_surface=banner_surface,
+            manager=self.gui_manager,
+            anchors={"centerx": "centerx", "centery": "centery"},
+        )
+
+        # === 1 Draw button ===
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(-130, 520, 120, 50),
+            text="1 Draw",
+            manager=self.gui_manager,
+            anchors={
+                "centerx": "centerx",
+            },
+            object_id=pygame_gui.core.ObjectID(
+                class_id="OpenButton", object_id="open_button"
+            ),
+        )
+
+        # === 10 Draws button ===
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(130, 520, 120, 50),
+            text="10 Draws",
+            manager=self.gui_manager,
+            anchors={
+                "centerx": "centerx",
+            },
+            object_id=pygame_gui.core.ObjectID(
+                class_id="OpenButton", object_id="open_button"
+            ),
+        )
+
+        return gui_elements
