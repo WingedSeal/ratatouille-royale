@@ -196,7 +196,7 @@ class ElementWrapper:
             )
 
         # DRAW RECT DEBUG
-        pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
+        # pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
 
     def update_visibility(self) -> None:
         """Recompute visibility only if camera is dirty or element moved."""

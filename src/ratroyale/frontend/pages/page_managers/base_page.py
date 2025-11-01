@@ -135,9 +135,14 @@ class Page(ABC):
             )
 
     def close_self(self) -> None:
-        self.post(
-            PageNavigationEvent([(PageNavigation.CLOSE, f"{type(self).__name__}")])
-        )
+        name = f"{type(self).__name__}"
+        self.post(PageNavigationEvent([(PageNavigation.CLOSE, name)]))
+
+    def close_page(self, page_name: str) -> None:
+        self.post(PageNavigationEvent([(PageNavigation.CLOSE, page_name)]))
+
+    def open_page(self, page_name: str) -> None:
+        self.post(PageNavigationEvent([(PageNavigation.OPEN, page_name)]))
 
     def setup_event_bindings(self) -> None:
         """
