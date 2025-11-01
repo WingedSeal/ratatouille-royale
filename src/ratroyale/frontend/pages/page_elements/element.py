@@ -148,6 +148,9 @@ class ElementWrapper:
     def get_absolute_rect(self) -> pygame.Rect | pygame.FRect:
         self.spatial_component.invalidate_cache()
 
+        if isinstance(self.interactable_component, UIElement):
+            return self.interactable_component.get_abs_rect()
+
         if not self.parent:
             # No parent: just project to screen
             return self.spatial_component.get_screen_rect(self.camera).copy()
@@ -193,7 +196,7 @@ class ElementWrapper:
             )
 
         # DRAW RECT DEBUG
-        # pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
+        pygame.draw.rect(surface, (255, 0, 0), abs_rect, width=2)
 
     def update_visibility(self) -> None:
         """Recompute visibility only if camera is dirty or element moved."""
