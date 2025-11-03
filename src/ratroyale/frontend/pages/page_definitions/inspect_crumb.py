@@ -23,6 +23,7 @@ import pygame_gui
 import pygame
 
 from pygame_gui.elements import UIPanel
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 @register_page
@@ -36,8 +37,12 @@ class InspectCrumb(Page):
         gui_elements: list[ElementWrapper] = []
 
         # === MainPanel ===
+        panel_w, panel_h = 700, 200
+        panel_x = (SCREEN_SIZE[0] - panel_w) // 2
+        panel_y = (SCREEN_SIZE[1] - panel_h) // 2
+
         panel_element = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(50, 255, 700, 200),
+            relative_rect=pygame.Rect(panel_x, panel_y, 700, 200),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainPanel", object_id="main_panel"
