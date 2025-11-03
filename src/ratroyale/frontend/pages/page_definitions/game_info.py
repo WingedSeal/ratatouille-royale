@@ -6,6 +6,7 @@ from ratroyale.event_tokens.payloads import (
     MoveHistoryPayload,
     FeaturePayload,
     TurnPayload,
+    SidePayload,
 )
 
 
@@ -199,6 +200,16 @@ class GameInfoPage(Page):
                 ]
             )
         )
+        try:
+            assert self.player_side is not None
+            side_payload = SidePayload(side=self.player_side)
+            self.post(
+                GameManagerEvent(
+                    game_action="inspect_deck_clicked", payload=side_payload
+                )
+            )
+        except Exception:
+            pass
 
     @input_event_bind("end_turn", pygame_gui.UI_BUTTON_PRESSED)
     def on_end_turn_click(self, msg: pygame.event.Event) -> None:

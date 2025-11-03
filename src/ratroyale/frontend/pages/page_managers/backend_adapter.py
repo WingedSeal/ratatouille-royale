@@ -19,6 +19,8 @@ from ratroyale.event_tokens.payloads import (
     AbilityTargetPayload,
     EntityDamagedPayload,
     GameOverPayload,
+    SidePayload,
+    DeckPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
@@ -66,6 +68,7 @@ class BackendAdapter:
             "end_turn": self.handle_end_turn,
             "target_selected": self.handle_target_selected,
             "skill_canceled": self.handle_skill_canceled,
+            "inspect_deck_clicked": self.handle_inspect_deck_clicked,
         }
         self.game_manager_issued_events: dict[
             type[GameEvent], Callable[[GameEvent], None]
@@ -336,5 +339,17 @@ class BackendAdapter:
                 payload=GameOverPayload(
                     event.is_winner_from_first_turn_side, event.victory_side
                 ),
+            )
+        )
+
+    def handle_inspect_deck_clicked(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, SidePayload)
+        side = payload.side
+        deck = self.game_manager.decks[side]
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="inspect_deck",
+                payload=DeckPayload(deck=deck),
             )
         )

@@ -116,3 +116,13 @@ class FeaturePayload(Payload):
 @dataclass
 class TurnPayload(Payload):
     turn_number: int
+
+
+@dataclass
+class SidePayload(Payload):
+    side: Side
+
+
+@dataclass
+class DeckPayload(Payload):
+    deck: list[Squeak]

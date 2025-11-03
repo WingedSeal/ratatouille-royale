@@ -100,8 +100,8 @@ def main():
 
     # Player 1: create a SqueakSet directly in the constructor
     player_info_1 = PlayerInfo(
-        {TAIL_BLAZER: 5, RATBERT_BREWBELLY: 2},
-        [{TAIL_BLAZER: 5, RATBERT_BREWBELLY: 2}],
+        {TAIL_BLAZER: 50, RATBERT_BREWBELLY: 20},
+        [{TAIL_BLAZER: 15, RATBERT_BREWBELLY: 12}],
         [{TAIL_BLAZER: 3, RATBERT_BREWBELLY: 2}],
         selected_squeak_set_index=0,
         exp=0,
