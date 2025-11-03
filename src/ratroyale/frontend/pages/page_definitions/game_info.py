@@ -34,6 +34,7 @@ from ratroyale.event_tokens.payloads import (
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.game_event import CrumbChangeEvent, EntityMoveEvent, EndTurnEvent
 from ratroyale.backend.side import Side
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 import pygame_gui
 import pygame
@@ -62,9 +63,16 @@ class GameInfoPage(Page):
         gui_elements: list[ElementWrapper] = []
 
         # region Perm buttons/panels
+        view_deck_button_pos = (0, SCREEN_SIZE[1] * 9 / 12)
+        view_deck_button_dim = (SCREEN_SIZE[0] / 8, SCREEN_SIZE[1] / 12)
         view_deck_button_id = "view_deck_button"
         view_deck_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(0, 450, 200, 50),
+            relative_rect=pygame.Rect(
+                view_deck_button_pos[0],
+                view_deck_button_pos[1],
+                view_deck_button_dim[0],
+                view_deck_button_dim[1],
+            ),
             text="View Deck",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
@@ -78,8 +86,15 @@ class GameInfoPage(Page):
         gui_elements.append(view_deck_button_element)
 
         show_crumbs_button_id = "show_crumbs_button"
+        show_crumbs_button_pos = (0, 0)
+        show_crumbs_button_dim = (SCREEN_SIZE[0] / 8, SCREEN_SIZE[1] / 12)
         show_crumbs_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(0, 0, 200, 50),
+            relative_rect=pygame.Rect(
+                show_crumbs_button_pos[0],
+                show_crumbs_button_pos[1],
+                show_crumbs_button_dim[0],
+                show_crumbs_button_dim[1],
+            ),
             text="Crumbs: ",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
@@ -93,8 +108,15 @@ class GameInfoPage(Page):
         gui_elements.append(show_crumbs_button_element)
 
         end_turn_button_id = "end_turn_button"
+        end_turn_button_pos = (SCREEN_SIZE[0] * 7 / 8, SCREEN_SIZE[1] * 9 / 12)
+        end_turn_button_dim = (SCREEN_SIZE[0] / 8, SCREEN_SIZE[1] / 12)
         end_turn_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(700, 500, 100, 50),
+            relative_rect=pygame.Rect(
+                end_turn_button_pos[0],
+                end_turn_button_pos[1],
+                end_turn_button_dim[0],
+                end_turn_button_dim[1],
+            ),
             text="End Turn",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
@@ -110,8 +132,15 @@ class GameInfoPage(Page):
 
         # region Panels visible on hover
         tile_hover_data_panel_id = "tile_hover_data_panel"
+        tile_hover_data_panel_pos = (SCREEN_SIZE[0] * 2 / 8, 0)
+        tile_hover_data_panel_dim = (SCREEN_SIZE[0] * 4 / 8, SCREEN_SIZE[1] / 12)
         tile_hover_data_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(200, 0, 400, 50),
+            relative_rect=pygame.Rect(
+                tile_hover_data_panel_pos[0],
+                tile_hover_data_panel_pos[1],
+                tile_hover_data_panel_dim[0],
+                tile_hover_data_panel_dim[1],
+            ),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="TileHoverDataPanel", object_id="tile_hover_data_panel"
@@ -123,8 +152,15 @@ class GameInfoPage(Page):
         gui_elements.append(tile_hover_data_panel_element)
 
         entity_hover_data_panel_id = "entity_hover_data_panel"
+        entity_hover_data_panel_pos = (SCREEN_SIZE[0] * 2 / 8, SCREEN_SIZE[1] * 11 / 12)
+        entity_hover_data_panel_dim = (SCREEN_SIZE[0] * 4 / 8, SCREEN_SIZE[1] / 12)
         entity_hover_data_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(200, 500, 400, 100),
+            relative_rect=pygame.Rect(
+                entity_hover_data_panel_pos[0],
+                entity_hover_data_panel_pos[1],
+                entity_hover_data_panel_dim[0],
+                entity_hover_data_panel_dim[1],
+            ),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="EntityHoverDataPanel",
@@ -137,8 +173,15 @@ class GameInfoPage(Page):
         gui_elements.append(entity_hover_data_panel_element)
 
         move_history_panel_id = "move_history_panel"
+        move_history_panel_pos = (SCREEN_SIZE[0] * 6 / 8, SCREEN_SIZE[1] * 1 / 6)
+        move_history_panel_dim = (SCREEN_SIZE[0] * 2 / 8, SCREEN_SIZE[1] * 1 / 2)
         move_history_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(600, 200, 200, 300),
+            relative_rect=pygame.Rect(
+                move_history_panel_pos[0],
+                move_history_panel_pos[1],
+                move_history_panel_dim[0],
+                move_history_panel_dim[1],
+            ),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MoveHistoryPanel",

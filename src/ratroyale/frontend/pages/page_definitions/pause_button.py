@@ -13,6 +13,7 @@ from ratroyale.frontend.pages.page_elements.element import (
     ui_element_wrapper,
 )
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 from ..page_managers.base_page import Page
 
@@ -32,9 +33,16 @@ class PauseButton(Page):
     def define_initial_gui(self) -> list[ElementWrapper]:
         elements: list[ElementWrapper] = []
 
+        pause_button_pos = (SCREEN_SIZE[0] * 7 / 8, 0)
+        pause_button_dim = (SCREEN_SIZE[0] / 8, SCREEN_SIZE[1] / 12)
         pause_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(700, 20, 80, 40),
+                relative_rect=pygame.Rect(
+                    pause_button_pos[0],
+                    pause_button_pos[1],
+                    pause_button_dim[0],
+                    pause_button_dim[1],
+                ),
                 text="Pause",
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
