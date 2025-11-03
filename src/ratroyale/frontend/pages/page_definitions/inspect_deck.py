@@ -89,5 +89,5 @@ class InspectDeckPage(Page):
             )
 
     @input_event_bind("close_inspect_deck", pygame_gui.UI_BUTTON_PRESSED)
-    def on_example_click(self, msg: pygame.event.Event) -> None:
+    def on_close_inspect_deck_click(self, msg: pygame.event.Event) -> None:
         self.close_self()
