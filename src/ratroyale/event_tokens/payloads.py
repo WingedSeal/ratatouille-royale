@@ -111,3 +111,8 @@ class FeaturePayload(Payload):
     feature_name: str
     feature_description: str
     feature_type: str
+
+
+@dataclass
+class TurnPayload(Payload):
+    turn_number: int

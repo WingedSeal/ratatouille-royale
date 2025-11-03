@@ -2,7 +2,11 @@ from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
-from ratroyale.event_tokens.payloads import MoveHistoryPayload, FeaturePayload
+from ratroyale.event_tokens.payloads import (
+    MoveHistoryPayload,
+    FeaturePayload,
+    TurnPayload,
+)
 
 
 from ..page_managers.base_page import Page
@@ -288,14 +292,15 @@ class GameInfoPage(Page):
 
     @input_event_bind("show_crumbs", pygame_gui.UI_BUTTON_PRESSED)
     def on_show_crumbs_button_click(self, msg: pygame.event.Event) -> None:
+        payload = TurnPayload(turn_number=self.current_turn)
         self.post(
             PageNavigationEvent(
                 [
                     (PageNavigation.OPEN, "InspectCrumb"),
-                    (PageNavigation.REPLACE_TOP, "InspectCrumb"),
                 ]
             )
         )
+        self.post(PageCallbackEvent("show_crumbs", payload=payload))
 
     @input_event_bind("ShowFeatureButton", pygame_gui.UI_BUTTON_PRESSED)
     def on_feature_button_click(self, msg: pygame.event.Event) -> None:
