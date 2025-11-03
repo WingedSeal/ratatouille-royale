@@ -286,6 +286,17 @@ class GameInfoPage(Page):
         self.post(PageCallbackEvent("crumb", payload=CrumbUpdatePayload(self.crumbs)))
         self.post(PageCallbackEvent("entity_data", payload=EntityPayload(entity)))
 
+    @input_event_bind("show_crumbs", pygame_gui.UI_BUTTON_PRESSED)
+    def on_show_crumbs_button_click(self, msg: pygame.event.Event) -> None:
+        self.post(
+            PageNavigationEvent(
+                [
+                    (PageNavigation.OPEN, "InspectCrumb"),
+                    (PageNavigation.REPLACE_TOP, "InspectCrumb"),
+                ]
+            )
+        )
+
     @input_event_bind("ShowFeatureButton", pygame_gui.UI_BUTTON_PRESSED)
     def on_feature_button_click(self, msg: pygame.event.Event) -> None:
         """Handle feature button click to show feature details."""
