@@ -32,14 +32,77 @@ class MainMenu(Page):
         """Return all GUI elements for the main menu page, auto-stacked vertically."""
         elements: list[ElementWrapper] = []
 
+        # === Image ===
+        banner_surface = pygame.Surface((100, 100))
+        banner_surface.fill((220, 220, 230))
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(100, 100, 200, 100),
+            image_surface=banner_surface,
+            manager=self.gui_manager,
+        )
+        # === Right Corner ===
+        Right = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(-320, 20, 300, 55),
+            manager=self.gui_manager,
+            anchors={"right": "right", "top": "top"},
+        )
+        # Lvl
+        pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(5, 18, 50, 20),
+            text="Level 1",
+            manager=self.gui_manager,
+            container=Right,
+        )
+        # Progress Bar
+        progress_bar = pygame_gui.elements.UIProgressBar(
+            relative_rect=pygame.Rect(55, 18, 120, 20),
+            manager=self.gui_manager,
+            container=Right,
+        )
+        progress_bar.set_current_progress(45)
+
+        # === Currency icon ===
+        cheese_surface = pygame.Surface((40, 40))
+        cheese_surface.fill((255, 220, 100))
+
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(-50, 5, 40, 40),
+            image_surface=cheese_surface,
+            manager=self.gui_manager,
+            container=Right,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CurrencyIcon", object_id="currency_icon"
+            ),
+            anchors={"left": "right", "top": "top"},
+        )
+        # === Currency text ===
+        _ = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(180, 3, 80, 50),
+            text="999",
+            manager=self.gui_manager,
+            container=Right,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CurrencyLabel", object_id="currency_label"
+            ),
+        )
+        # === Player Name (below the Right panel) ===
+        _ = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(-220, 80, 120, 25),
+            text="Player Name",
+            manager=self.gui_manager,
+            anchors={"right": "right", "top": "top"},
+        )
+
         button_specs = [
             ("start_button", "Start"),
             ("select_player_button", "Select Player"),
+            ("forge_button", "Forge"),
+            ("gacha_button", "Gacha"),
             ("quit_button", "Quit"),
         ]
 
         start_x = 100
-        start_y = 100
+        start_y = 210
         button_width = 200
         button_height = 50
         padding = 10  # space between buttons
@@ -88,7 +151,18 @@ class MainMenu(Page):
         self.post(
             PageNavigationEvent(
                 action_list=[
-                    (PageNavigation.OPEN, "SelectPlayerPage"),
+                    (PageNavigation.OPEN, "PlayerProfile"),
+                ]
+            )
+        )
+
+    @input_event_bind("gacha_button", pygame_gui.UI_BUTTON_PRESSED)
+    def _on_open_gacha_click(self, msg: pygame.event.Event) -> None:
+        self.close_self()
+        self.post(
+            PageNavigationEvent(
+                action_list=[
+                    (PageNavigation.OPEN, "GachaPage"),
                 ]
             )
         )

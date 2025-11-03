@@ -139,33 +139,9 @@ class PlayerProfile(Page):
             )
         )
 
-    @input_event_bind("confirm_button", pygame_gui.UI_BUTTON_PRESSED)
-    def confirm_profile(self, msg: pygame.event.Event) -> None:
-        CoordinationManager.put_message(
-            PageNavigationEvent(
-                [
-                    (PageNavigation.CLOSE, "CreateProfile"),
-                ]
-            )
-        )
-
-    @input_event_bind("cancel_button", pygame_gui.UI_BUTTON_PRESSED)
-    def cancel_button(self, msg: pygame.event.Event) -> None:
-        CoordinationManager.put_message(
-            PageNavigationEvent(
-                [
-                    (PageNavigation.CLOSE, "CreateProfile"),
-                ]
-            )
-        )
-
     @input_event_bind("select_button", pygame_gui.UI_BUTTON_PRESSED)
     def select_button(self, msg: pygame.event.Event) -> None:
+        self.close_self()
         CoordinationManager.put_message(
-            PageNavigationEvent(
-                [
-                    (PageNavigation.CLOSE, "PlayerProfile"),
-                    (PageNavigation.OPEN, "MainMenu"),
-                ]
-            )
+            PageNavigationEvent([(PageNavigation.OPEN, "MainMenu")])
         )

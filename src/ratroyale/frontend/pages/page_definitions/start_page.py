@@ -42,11 +42,7 @@ class StartPage(Page):
 
     @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
     def proceed_to_select_profile(self, msg: pygame.event.Event) -> None:
+        self.close_self()
         CoordinationManager.put_message(
-            PageNavigationEvent(
-                [
-                    (PageNavigation.CLOSE, "StartPage"),
-                    (PageNavigation.OPEN, "PlayerProfile"),
-                ]
-            )
+            PageNavigationEvent([(PageNavigation.OPEN, "PlayerProfile")])
         )

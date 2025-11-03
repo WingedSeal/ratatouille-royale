@@ -6,6 +6,7 @@ from ratroyale.event_tokens.game_token import *
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
+from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
@@ -99,3 +100,10 @@ class GachaPage(Page):
         )
 
         return gui_elements
+
+    @input_event_bind("back_button", pygame_gui.UI_BUTTON_PRESSED)
+    def confirm_profile(self, msg: pygame.event.Event) -> None:
+        self.close_self()
+        CoordinationManager.put_message(
+            PageNavigationEvent([(PageNavigation.OPEN, "MainMenu")])
+        )
