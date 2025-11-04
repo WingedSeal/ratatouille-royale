@@ -118,7 +118,7 @@ class InspectHistory(Page):
 
         map_panel = ui_element_wrapper(
             pygame_gui.elements.UIPanel(
-                relative_rect=pygame.Rect(10, 140, 480, 260),
+                relative_rect=pygame.Rect(10, 140, 465, 260),
                 manager=self.gui_manager,
                 container=panel.get_interactable(pygame_gui.elements.UIPanel),
                 object_id=pygame_gui.core.ObjectID(
