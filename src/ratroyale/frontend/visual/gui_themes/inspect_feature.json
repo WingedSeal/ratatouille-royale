@@ -1,0 +1,117 @@
+{
+  "defaults": {
+    "font": {
+        "name": "Arial",
+        "size": 16,
+        "bold": false,
+        "italic": false
+    },
+    "text_color": "#e8dcc8",
+    "bg_color": "#2a3a4a",
+    "border_width": 1,
+    "border_color": "#8b6f47",
+    "shadow_width": 0
+  },
+
+  "MainPanel": {
+    "colours": {
+      "normal_bg": "#1a2330",
+      "normal_border": "#d4a574"
+    },
+    "misc": {
+      "border_width": "3",
+      "shadow_width": "5"
+    }
+  },
+
+  "#main_panel": {
+    "colours": {
+      "normal_bg": "#1a2330",
+      "normal_border": "#d4a574"
+    },
+    "misc": {
+      "border_width": "3",
+      "shadow_width": "5"
+    }
+  },
+
+  "CloseButton": {
+    "colours": {
+      "normal_bg": "#c4885f",
+      "hovered_bg": "#d4985f",
+      "disabled_bg": "#6a5a4a",
+      "selected_bg": "#d4a875",
+      "active_bg": "#e4b885",
+      "normal_text": "#ffffff",
+      "hovered_text": "#ffffff",
+      "selected_text": "#ffffff",
+      "disabled_text": "#909090",
+      "active_text": "#ffffff",
+      "normal_border": "#8b6f47",
+      "hovered_border": "#b48a52",
+      "disabled_border": "#5a4a3a",
+      "selected_border": "#c4a474",
+      "active_border": "#d4b484"
+    },
+    "misc": {
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "4",
+      "border_width": "1",
+      "shadow_width": "2"
+    }
+  },
+
+  "#close_button": {
+    "colours": {
+      "normal_bg": "#c4885f",
+      "hovered_bg": "#d4985f",
+      "disabled_bg": "#6a5a4a",
+      "selected_bg": "#d4a875",
+      "active_bg": "#e4b885",
+      "normal_text": "#ffffff",
+      "hovered_text": "#ffffff",
+      "selected_text": "#ffffff",
+      "disabled_text": "#909090",
+      "active_text": "#ffffff",
+      "normal_border": "#8b6f47",
+      "hovered_border": "#b48a52",
+      "disabled_border": "#5a4a3a",
+      "selected_border": "#c4a474",
+      "active_border": "#d4b484"
+    },
+    "misc": {
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "4",
+      "border_width": "1",
+      "shadow_width": "2"
+    }
+  },
+
+  "FeatureTitle": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "#title": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "FeatureDesc": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "#desc": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#1a2330"
+    }
+  }
+}

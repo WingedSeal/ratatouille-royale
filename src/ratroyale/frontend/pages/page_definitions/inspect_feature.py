@@ -34,6 +34,7 @@ class InspectFeature(Page):
             is_blocking=True,
             theme_name="inspect_feature",
             camera=camera,
+            base_color=(0, 0, 0, 128),
         )
 
     def define_initial_gui(self) -> list[ElementWrapper]:
@@ -81,7 +82,9 @@ class InspectFeature(Page):
                 text="Name / feature title",
                 manager=self.gui_manager,
                 container=panel_element,
-                object_id=pygame_gui.core.ObjectID(class_id="Title", object_id="title"),
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="FeatureTitle", object_id="title"
+                ),
                 anchors={"centerx": "centerx", "top": "top"},
             ),
             "title",
@@ -97,7 +100,7 @@ class InspectFeature(Page):
                 manager=self.gui_manager,
                 container=panel_element,
                 object_id=pygame_gui.core.ObjectID(
-                    class_id="description", object_id="desc"
+                    class_id="FeatureDesc", object_id="desc"
                 ),
                 anchors={
                     "left": "left",
