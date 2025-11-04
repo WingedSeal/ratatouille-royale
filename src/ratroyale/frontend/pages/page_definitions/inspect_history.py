@@ -35,6 +35,7 @@ class InspectHistory(Page):
             is_blocking=True,
             theme_name="inspect_history",
             camera=camera,
+            base_color=(0, 0, 0, 128),
         )
         self.current_move_data: MoveHistoryPayload | None = None
         self.map_surface: pygame.Surface | None = None
