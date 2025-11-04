@@ -56,7 +56,6 @@ class InspectHistory(Page):
                 anchors={"left": "left", "top": "top"},
             ),
             registered_name="inspect_history_panel",
-            grouping_name="inspect_history",
             camera=self.camera,
         )
         elements.append(panel)
@@ -75,7 +74,6 @@ class InspectHistory(Page):
                 },
             ),
             registered_name="history_portrait",
-            grouping_name="inspect_history",
             camera=self.camera,
         )
         elements.append(portrait_area)
@@ -95,7 +93,6 @@ class InspectHistory(Page):
                 },
             ),
             registered_name="history_title",
-            grouping_name="inspect_history",
             camera=self.camera,
         )
         elements.append(history_title)
@@ -115,7 +112,6 @@ class InspectHistory(Page):
                 },
             ),
             registered_name="history_desc",
-            grouping_name="inspect_history",
             camera=self.camera,
         )
         elements.append(history_desc)
@@ -134,7 +130,6 @@ class InspectHistory(Page):
                 },
             ),
             registered_name="history_map",
-            grouping_name="inspect_history",
             camera=self.camera,
         )
         elements.append(map_panel)
@@ -154,7 +149,6 @@ class InspectHistory(Page):
                 },
             ),
             registered_name="exit_button",
-            grouping_name="inspect_history",
             camera=self.camera,
         )
         elements.append(exit_button)

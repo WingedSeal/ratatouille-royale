@@ -308,9 +308,9 @@ class GameInfoPage(Page):
         """Callback for manual move history refresh if needed."""
         self._refresh_move_history_panel()
 
-    @input_event_bind("move_history_btn", pygame_gui.UI_BUTTON_ON_HOVERED)
-    def on_move_history_hover(self, msg: pygame.event.Event) -> None:
-        """Handle hover over move history button to show inspect history."""
+    @input_event_bind("move_history_btn", pygame_gui.UI_BUTTON_PRESSED)
+    def on_move_history_click(self, msg: pygame.event.Event) -> None:
+        """Handle click on move history button to show inspect history."""
         if hasattr(msg, "ui_element") and hasattr(msg.ui_element, "move_data"):
             move_data = msg.ui_element.move_data
             payload = MoveHistoryPayload(
@@ -323,12 +323,6 @@ class GameInfoPage(Page):
             # Open inspect history page with the move data
             self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectHistory")]))
             self.post(PageCallbackEvent("move_history_data", payload=payload))
-
-    @input_event_bind("move_history_btn", pygame_gui.UI_BUTTON_ON_UNHOVERED)
-    def on_move_history_unhover(self, msg: pygame.event.Event) -> None:
-        """Handle unhover to close inspect history."""
-        # Close the inspect history page when mouse leaves
-        self.post(PageNavigationEvent([(PageNavigation.CLOSE, "InspectHistory")]))
 
     @input_event_bind("ShowEntityButton", pygame_gui.UI_BUTTON_PRESSED)
     def entity_selected(self, msg: pygame.event.Event) -> None:
