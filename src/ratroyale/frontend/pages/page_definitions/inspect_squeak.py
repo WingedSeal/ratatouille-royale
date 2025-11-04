@@ -25,7 +25,13 @@ class InspectSqueak(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
-        super().__init__(coordination_manager, camera)
+        super().__init__(
+            coordination_manager,
+            camera=camera,
+            theme_name="inspect_squeak",
+            is_blocking=True,
+            base_color=(0, 0, 0, 128),
+        )
         self.current_squeak: Squeak | None = None
         self.main_panel: pygame_gui.elements.UIPanel | None = None
 
@@ -172,6 +178,9 @@ class InspectSqueak(Page):
             relative_rect=pygame.Rect(220, 140, 370, 295),
             manager=self.gui_manager,
             container=self.main_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="SkillsPanel", object_id="skills_panel"
+            ),
             anchors={"left": "left", "top": "top"},
         )
 
@@ -180,6 +189,9 @@ class InspectSqueak(Page):
             text="SKILLS & PASSIVES",
             manager=self.gui_manager,
             container=skills_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="SkillsPanelHeader", object_id="skills_panel_header"
+            ),
             anchors={"centerx": "centerx", "top": "top"},
         )
         scroll_container = pygame_gui.elements.UIScrollingContainer(
@@ -196,6 +208,9 @@ class InspectSqueak(Page):
             text="------- Active Skills -------",
             manager=self.gui_manager,
             container=scroll_container,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="SkillsHeader", object_id="active_skills_header"
+            ),
             anchors={"left": "left", "top": "top"},
         )
         y_offset += 30
@@ -221,6 +236,9 @@ class InspectSqueak(Page):
             text="-------- Passive Skills -------",
             manager=self.gui_manager,
             container=scroll_container,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="SkillsHeader", object_id="passive_skills_header"
+            ),
             anchors={"left": "left", "top": "top"},
         )
         y_offset += 30
@@ -255,6 +273,9 @@ class InspectSqueak(Page):
             relative_rect=pygame.Rect(0, y_start, card_width, 60),
             manager=self.gui_manager,
             container=parent_container,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="SkillCard", object_id="skill_card"
+            ),
             anchors={"left": "left", "top": "top"},
         )
         portrait_surface = pygame.Surface(
@@ -273,6 +294,9 @@ class InspectSqueak(Page):
             html_text=f"{name}",
             manager=self.gui_manager,
             container=skill_card,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="SkillName", object_id="skill_name"
+            ),
             anchors={"left": "left", "top": "top"},
         )
         desc_box = pygame_gui.elements.UITextBox(
@@ -280,6 +304,9 @@ class InspectSqueak(Page):
             relative_rect=pygame.Rect(60, 30, 260, 10),
             manager=self.gui_manager,
             container=skill_card,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="SkillDesc", object_id="skill_desc"
+            ),
             wrap_to_height=True,
             anchors={"left": "left", "top": "top"},
         )
