@@ -325,7 +325,7 @@ class GameBoard(Page):
                         coord = tile.coord
 
                         tile_hover_mask_element = TileMaskElement(
-                            tile, self.camera, "HOVERMASK", 50, pygame.Color(255, 0, 0)
+                            tile, self.camera, "HOVERMASK", 50, pygame.Color("cyan")
                         )
 
                         tile_select_mask_element = TileMaskElement(
@@ -333,7 +333,7 @@ class GameBoard(Page):
                             self.camera,
                             "SELECTMASK",
                             51,
-                            pygame.Color(0, 255, 255),
+                            pygame.Color("yellow"),
                         )
 
                         tile_available_mask_element = TileMaskElement(
@@ -341,7 +341,7 @@ class GameBoard(Page):
                             self.camera,
                             "AVAILABLEMASK",
                             49,
-                            pygame.Color(0, 255, 0),
+                            pygame.Color("green"),
                         )
 
                         self.coord_to_tile_mapping[coord] = (
@@ -668,20 +668,16 @@ class GameBoard(Page):
     # Called while dragging; moves element regardless of hitbox
     @input_event_bind(SpecialInputScope.GLOBAL, GestureType.DRAG.to_pygame_event())
     def _on_drag(self, msg: pygame.event.Event) -> None:
-        if self.game_state not in (
-            GameState.MOVEMENT_TARGETING,
-            GameState.SKILL_TARGETING,
-        ):
-            squeak_element = self._element_manager.get_selected_elements("SQUEAK")
-            gesture_data = get_gesture_data(msg)
+        squeak_element = self._element_manager.get_selected_elements("SQUEAK")
+        gesture_data = get_gesture_data(msg)
 
-            if squeak_element and gesture_data.mouse_pos:
-                squeak_element[0].spatial_component.center_to_screen_pos(
-                    gesture_data.mouse_pos, self.camera
-                )
-            else:
-                self.camera.drag_to(pygame.mouse.get_pos())
-                return
+        if squeak_element and gesture_data.mouse_pos:
+            squeak_element[0].spatial_component.center_to_screen_pos(
+                gesture_data.mouse_pos, self.camera
+            )
+        else:
+            self.camera.drag_to(pygame.mouse.get_pos())
+            return
 
     @input_event_bind("SELECTMASK", GestureType.DRAG.to_pygame_event())
     def _on_drag_tile(self, msg: pygame.event.Event) -> None:
