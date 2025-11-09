@@ -31,7 +31,7 @@ def on_select_color_fade_in(
     )
     result = SequentialAnim(
         [GroupedAnim([color_overlay_anim], run_together_with_default=True)],
-        interrupts_queue=True,
+        interrupts_queue=False,
     )
     return result
 
@@ -51,7 +51,7 @@ def on_select_color_fade_out(
     )
     result = SequentialAnim(
         [GroupedAnim([color_overlay_anim], run_together_with_default=True)],
-        interrupts_queue=True,
+        interrupts_queue=False,
     )
     return result
 
@@ -69,7 +69,7 @@ def shrink_squeak(
         target=(0.5, 0.5),
         expansion_anchor=(VerticalAnchor.MIDDLE, HorizontalAnchor.MIDDLE),
     )
-    result = SequentialAnim([GroupedAnim([scale_anim])], interrupts_queue=True)
+    result = SequentialAnim([GroupedAnim([scale_anim])], interrupts_queue=False)
     return result
 
 
@@ -99,7 +99,7 @@ def return_squeak_to_normal(
         direction_vector=direction_vector,
     )
     result = SequentialAnim(
-        [GroupedAnim([scale_anim, move_anim])], interrupts_queue=True
+        [GroupedAnim([scale_anim, move_anim])], interrupts_queue=False
     )
     return result
 
@@ -113,7 +113,7 @@ def default_idle_for_entity(
         timing_mode=TimingMode.DURATION_PER_LOOP,
         period_in_seconds=0.5,
     )
-    result = SequentialAnim([GroupedAnim([sprite_anim])], interrupts_queue=True)
+    result = SequentialAnim([GroupedAnim([sprite_anim])], interrupts_queue=False)
     return result
 
 

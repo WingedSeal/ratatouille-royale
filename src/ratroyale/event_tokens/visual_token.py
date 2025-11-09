@@ -31,7 +31,5 @@ class PageVisual(Enum):
 
 @dataclass
 class VisualManagerEvent(EventToken):
-    callback: str
-    # TODO: quick and dirty implementation of the visual manager events.
-    # Future works should separate it into a few different types.
-    pass
+    page_name: str
+    callback_action: str

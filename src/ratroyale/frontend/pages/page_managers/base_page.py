@@ -44,6 +44,10 @@ class CallbackHandler(Protocol):
     def __call__(self, event: PageCallbackEvent) -> None: ...
 
 
+class VisualCallbackHandler(Protocol):
+    def __call__(self, event: VisualManagerEvent) -> None: ...
+
+
 class GameEventHandler(Protocol):
     def __call__(self, event: GameEvent) -> None: ...
 
@@ -82,11 +86,14 @@ class Page(ABC):
         ] = {}
         """ Maps (element_id, gesture_type) to handler functions """
         self._callback_bindings: dict[str, CallbackHandler] = {}
-        """ Maps (game_action) to handler functions """
+        """ Maps (page_event_name) to handler functions """
         self._game_event_bindings: dict[type[GameEvent], GameEventHandler] = {}
         """ Maps (game_action) to handler functions """
+        self._visual_event_bindings: dict[str, VisualCallbackHandler] = {}
 
-        self._animation_coordinator: AnimationCoordinator = AnimationCoordinator()
+        self._animation_coordinator: AnimationCoordinator = AnimationCoordinator(
+            type(self).__name__
+        )
 
         self.setup_event_bindings()
 
@@ -179,6 +186,13 @@ class Page(ABC):
                         GameEventHandler, attr
                     )
 
+            # --- Visual event bindings ---
+            if hasattr(attr, "_visual_event_bindings"):
+                for visual_callback_action in getattr(attr, "_visual_event_bindings"):
+                    self._visual_event_bindings[visual_callback_action] = cast(
+                        VisualCallbackHandler, attr
+                    )
+
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
         """
         Dispatch a GestureData object to the appropriate Elements(s).
@@ -258,8 +272,13 @@ class Page(ABC):
         """
         return object_id.split(".")[-1] if object_id else None
 
-    def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
-        pass
+    def execute_visual_callback(self, msg: VisualManagerEvent) -> bool:
+        executed = False
+        for callback_action, handler in self._visual_event_bindings.items():
+            if callback_action == msg.callback_action:
+                handler(msg)
+                executed = True
+        return executed
 
     def hide(self) -> None:
         self.is_visible = False

@@ -129,7 +129,7 @@ def main():
         game_manager=game_manager,
         page_manager=page_manager,
         coordination_manager=coordination_manager,
-        ai_type=RandomAI,
+        ai_type=None,
     )
 
     coordination_manager.put_message(

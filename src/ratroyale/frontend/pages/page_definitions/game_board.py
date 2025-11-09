@@ -22,6 +22,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
     input_event_bind,
     callback_event_bind,
     game_event_bind,
+    visual_event_bind,
     SpecialInputScope,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
@@ -84,8 +85,8 @@ italic_bold_arial = pygame.font.SysFont("Arial", 48, bold=True, italic=True)
 
 
 class GameState(Enum):
-    PLAY = auto()
-    WAIT = auto()
+    PLAYER1 = auto()
+    PLAYER2 = auto()
     SKILL_TARGETING = auto()
     MOVEMENT_TARGETING = auto()
 
@@ -96,8 +97,10 @@ class GameBoard(Page):
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
         super().__init__(coordination_manager, camera)
-        self.squeak_in_hand: list[str] = []
+        self.player_1_squeaks: list[str] = []
+        self.player_2_squeaks: list[str] = []
         self.hand_slots_element: list[str] = []
+        self.hiding_slots_element: list[str] = []
 
         self.coord_to_tile_mapping: dict[OddRCoord, tuple[str, str, str]] = {}
         """Maps coord to HOVERMASK, SELECTMASK, and AVAILABLEMASK"""
@@ -110,7 +113,7 @@ class GameBoard(Page):
         self.player_1_side: Side = Side.RAT
         self.is_playing_with_ai: bool = True
 
-        self.game_state: GameState = GameState.PLAY
+        self.game_state: GameState = GameState.PLAYER1
 
     def on_open(self) -> None:
         self.post(GameManagerEvent(game_action="start_game"))
@@ -118,11 +121,36 @@ class GameBoard(Page):
     def define_initial_gui(self) -> list[ElementWrapper]:
         return []
 
+    # region Visual Event Callbacks
+
+    @visual_event_bind("anim_queue_finished")
+    def anim_queue_finished(self, msg: VisualManagerEvent) -> None:
+        if self.game_state == GameState.PLAYER2 and self.is_playing_with_ai:
+            self.game_state = GameState.PLAYER1
+            self.show_player_hand(1)
+            self.hide_player_hand(2)
+
+    # endregion
+
     # region Game Event Callbacks
 
     @game_event_bind(EndTurnEvent)
     def end_turn_event(self, event: EndTurnEvent) -> None:
+        # Switches player hands. If playing with an AI, this simply has the effect of hiding the player's hand instead.
+        self.hide_player_hand(1)
+        self.clear_selections()
         self.is_player_1_now = not event.is_from_first_turn_side
+
+        # If not playing with an AI, show the player 2's hand.
+        if not self.is_playing_with_ai:
+            self.show_player_hand(2)
+
+        # If playing with an AI, ignore the EndTurnEvent signal and wait until AI's animations finish instead.
+        self.game_state = GameState.PLAYER2
+        if not self.is_playing_with_ai:
+            self.game_state = GameState.PLAYER1
+            self.show_player_hand(1)
+            self.hide_player_hand(2)
 
     @game_event_bind(EntitySpawnEvent)
     def entity_spawn_event(self, event: EntitySpawnEvent) -> None:
@@ -146,7 +174,7 @@ class GameBoard(Page):
     @game_event_bind(CrumbChangeEvent)
     def crumb_change_event(self, event: CrumbChangeEvent) -> None:
         new_crumbs = event.new_crumbs
-        for squeak_id in self.squeak_in_hand:
+        for squeak_id in self.player_1_squeaks:
             squeak_element = self._element_manager.get_element_with_typecheck(
                 squeak_id, SqueakElement
             )
@@ -169,7 +197,7 @@ class GameBoard(Page):
         self.setup_elements([squeak_element, squeak_cost_element, squeak_name_element])
 
         assert isinstance(squeak_element, SqueakElement)
-        self.squeak_in_hand.insert(hand_index, squeak_element.registered_name)
+        self.player_1_squeaks.insert(hand_index, squeak_element.registered_name)
 
     @game_event_bind(EntityDamagedEvent)
     def entity_damaged_event(self, event: EntityDamagedEvent) -> None:
@@ -280,54 +308,90 @@ class GameBoard(Page):
                         feature_element = FeatureElement(feature, coord, self.camera)
                         element_configs.append(feature_element)
 
-            squeak_list = payload.hand_squeaks
+            player1_squeak_list = payload.player1_squeaks
+            player2_squeak_list = payload.player2_squeaks
 
-            for i, squeak in enumerate(squeak_list):
-                squeak_element = SqueakElement(
-                    squeak, i, self.camera, italic_bold_arial
-                )
-                squeak_cost_element = squeak_element.create_cost_element()
-                squeak_name_element = squeak_element._temp_name_generator()
+            for i, (sq1, sq2) in enumerate(
+                zip(player1_squeak_list, player2_squeak_list)
+            ):
+                # Shared slot geometry
+                temp_squeak = SqueakElement(sq1, i, self.camera, italic_bold_arial)
+                card_rect = temp_squeak.spatial_component.get_screen_rect(self.camera)
+                hide_slot_rect = card_rect.move(-card_rect.width, 0)
 
-                card_rect = squeak_element.spatial_component.get_screen_rect(
-                    self.camera
-                )
-
+                # Shared slot wrappers
                 slot_id = f"hand_slot_{i}"
+                hide_slot_id = f"hide_slot_{i}"
                 slot = ElementWrapper(
                     registered_name=slot_id,
                     grouping_name="HANDSLOT",
                     camera=self.camera,
                     spatial_component=SpatialComponent(
-                        local_rect=card_rect,
-                        z_order=99,
+                        local_rect=card_rect, z_order=99
+                    ),
+                )
+                hide_slot = ElementWrapper(
+                    registered_name=hide_slot_id,
+                    grouping_name="HIDESLOT",
+                    camera=self.camera,
+                    spatial_component=SpatialComponent(
+                        local_rect=hide_slot_rect, z_order=99
                     ),
                 )
                 self.hand_slots_element.append(slot_id)
-                self.squeak_in_hand.insert(i, squeak_element.ids[0])
+                self.hiding_slots_element.append(hide_slot_id)
 
-                element_configs.append(squeak_element)
-                element_configs.append(squeak_cost_element)
-                element_configs.append(squeak_name_element)
-                element_configs.append(slot)
+                # Player 1 squeak (starts visible)
+                squeak1 = SqueakElement(sq1, i, self.camera, italic_bold_arial)
+                squeak1_cost = squeak1.create_cost_element()
+                squeak1_name = squeak1._temp_name_generator()
+                self.player_1_squeaks.insert(i, squeak1.ids[0])
+
+                # Player 2 squeak (starts hidden)
+                squeak2 = SqueakElement(sq2, i, self.camera, italic_bold_arial)
+                squeak2_cost = squeak2.create_cost_element()
+                squeak2_name = squeak2._temp_name_generator()
+                squeak2.spatial_component.local_rect = hide_slot_rect.copy()
+                self.player_2_squeaks.insert(i, squeak2.ids[0])
+
+                # Collect everything
+                element_configs += [
+                    squeak1,
+                    squeak1_cost,
+                    squeak1_name,
+                    squeak2,
+                    squeak2_cost,
+                    squeak2_name,
+                    slot,
+                    hide_slot,
+                ]
 
             self.setup_elements(element_configs)
-
-            for squeak_id in self.squeak_in_hand:
-                squeak_element = self.get_element(squeak_id, "SQUEAK", SqueakElement)
 
         else:
             raise RuntimeError(f"Failed to start game: {msg.error_msg}")
 
     @callback_event_bind("can_show_skill_panel_or_not")
     def can_show_skill_panel_or_not_response(self, msg: PageCallbackEvent) -> None:
-        if msg.success and msg.payload:
-            payload = get_payload_from_msg(msg, EntityPayload)
-            assert payload
-            if payload.entity.side != self.player_1_side:
-                return
+        if not (msg.success and msg.payload):
+            return
 
-            self.post(PageCallbackEvent("can_show_skill_panel"))
+        payload = get_payload_from_msg(msg, EntityPayload)
+        assert payload
+
+        # Determine which side should be allowed right now
+        current_side = (
+            self.player_1_side
+            if self.is_player_1_now
+            else self.player_1_side.other_side()
+        )
+
+        # Only allow showing the panel if the entity belongs to the side whose turn it is
+        if payload.entity.side != current_side:
+            return
+
+        # Post event to actually show panel
+        self.post(PageCallbackEvent("can_show_skill_panel"))
 
     @callback_event_bind("handle_squeak_placable_tiles")
     def _handle_squeak_placable_tiles(self, msg: PageCallbackEvent) -> None:
@@ -389,7 +453,7 @@ class GameBoard(Page):
                     )
                 )
                 self.clear_selections()
-                self.game_state = GameState.PLAY
+                self.game_state = GameState.PLAYER1
 
     @callback_event_bind("game_over")
     def _handle_game_over(self, msg: PageCallbackEvent) -> None:
@@ -404,7 +468,9 @@ class GameBoard(Page):
     def _handle_skill_canceled(self, msg: PageCallbackEvent) -> None:
         if msg.success:
             self.clear_selections()
-            self.game_state = GameState.PLAY
+            self.game_state = (
+                GameState.PLAYER1 if self.is_player_1_now else GameState.PLAYER2
+            )
 
     @callback_event_bind("entity_data")
     def inspect_entity(self, msg: PageCallbackEvent) -> None:
@@ -428,14 +494,16 @@ class GameBoard(Page):
     def on_tile_click(self, msg: pygame.event.Event) -> None:
         id = get_id(msg)
         assert id
-        if self.game_state == GameState.PLAY:
+        if self.game_state == GameState.PLAYER1 or (
+            self.game_state == GameState.PLAYER2 and not self.is_playing_with_ai
+        ):
             self.play_state_tile_interaction(id)
         elif self.game_state == GameState.SKILL_TARGETING:
             targeting_done = self.skill_targeting_state_tile_interaction(id)
-            self.game_state = GameState.PLAY if targeting_done else self.game_state
+            self.game_state = GameState.PLAYER1 if targeting_done else self.game_state
         elif self.game_state == GameState.MOVEMENT_TARGETING:
             targeting_done = self.movement_targeting_state_tile_interaction(id)
-            self.game_state = GameState.PLAY if targeting_done else self.game_state
+            self.game_state = GameState.PLAYER1 if targeting_done else self.game_state
 
     def play_state_tile_interaction(self, id: str) -> None:
         """Selects or toggle tiles, and send data to GameInfo page"""
@@ -515,10 +583,6 @@ class GameBoard(Page):
     def check_if_hovering_nothing(self, msg: pygame.event.Event) -> None:
         self._element_manager.deselect_all("HOVERMASK")
         self.post(PageCallbackEvent("no_hovered"))
-
-    # endregion
-
-    # region Entity Related Events
 
     # endregion
 
@@ -624,6 +688,36 @@ class GameBoard(Page):
 
     # region UTILITY METHODS
 
+    def hide_player_hand(self, player: int) -> None:
+        if player == 1:
+            squeak_list = self.player_1_squeaks
+        elif player == 2:
+            squeak_list = self.player_2_squeaks
+        else:
+            return
+
+        for squeak, hide_slot in zip(squeak_list, self.hiding_slots_element):
+            squeak_element = self._element_manager.get_element_with_typecheck(
+                squeak, SqueakElement
+            )
+            hide_rect = self._element_manager.get_element(hide_slot).get_absolute_rect()
+            squeak_element.move_to_position(hide_rect)
+
+    def show_player_hand(self, player: int) -> None:
+        if player == 1:
+            squeak_list = self.player_1_squeaks
+        elif player == 2:
+            squeak_list = self.player_2_squeaks
+        else:
+            return
+
+        for squeak, hand_slot in zip(squeak_list, self.hand_slots_element):
+            squeak_element = self._element_manager.get_element_with_typecheck(
+                squeak, SqueakElement
+            )
+            hand_rect = self._element_manager.get_element(hand_slot).get_absolute_rect()
+            squeak_element.move_to_position(hand_rect)
+
     def select_entity(self, entity: Entity) -> None:
         entity_elem_id = self.entity_to_element_id_mapping[entity]
         self._element_manager.select_element(entity_elem_id)
@@ -679,7 +773,7 @@ class GameBoard(Page):
             GameManagerEvent(
                 game_action="squeak_tile_interaction",
                 payload=SqueakPlacementPayload(
-                    hand_index=self.squeak_in_hand.index(selected_squeak_id),
+                    hand_index=self.player_1_squeaks.index(selected_squeak_id),
                     tile_coord=tile_coord,
                 ),
             )
@@ -687,17 +781,17 @@ class GameBoard(Page):
         # Kill the squeak element after placement
         self._element_manager.remove_element(selected_squeak_id)
         # Remove selected squeak element id from saved keys & hand list
-        self.squeak_in_hand.remove(selected_squeak_id)
+        self.player_1_squeaks.remove(selected_squeak_id)
 
     def return_squeak_to_hand(self, squeak_element: ElementWrapper) -> None:
         """Return the squeak element back to the player's hand."""
-        squeak_hand_index = self.squeak_in_hand.index(squeak_element.registered_name)
+        squeak_hand_index = self.player_1_squeaks.index(squeak_element.registered_name)
         hand_slot_id = self.hand_slots_element[squeak_hand_index]
         hand_slot_element = self.get_element(hand_slot_id, "HANDSLOT", ElementWrapper)
         target_rect = hand_slot_element.spatial_component.get_screen_rect(self.camera)
         assert isinstance(squeak_element, SqueakElement)
         self._element_manager.deselect_element(squeak_element.registered_name)
-        squeak_element.return_to_position(target_rect)
+        squeak_element.move_to_position(target_rect)
 
     # endregion
 

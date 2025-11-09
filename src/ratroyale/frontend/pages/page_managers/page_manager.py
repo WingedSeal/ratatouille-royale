@@ -10,6 +10,7 @@ from ratroyale.event_tokens.page_token import (
     PageNavigation,
     PageNavigationEvent,
 )
+from ratroyale.event_tokens.visual_token import VisualManagerEvent
 from ratroyale.frontend.gesture.gesture_reader import (
     GESTURE_READER_CARES,
     GestureReader,
@@ -223,9 +224,14 @@ class PageManager:
             page.execute_game_event_callback(game_event)
 
     def execute_visual_callback(self) -> None:
-        # msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
+        msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
+        if not msg_queue:
+            return
 
-        pass
+        while not msg_queue.empty():
+            msg = msg_queue.get()
+            for page in self.page_stack:
+                page.execute_visual_callback(msg)
 
     # endregion
 
