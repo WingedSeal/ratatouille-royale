@@ -31,6 +31,7 @@ class GameOver(Page):
             base_color=(0, 0, 0, 128),
             theme_name="pause_menu",
             camera=camera,
+            is_blocking=True,
         )
 
     def define_initial_gui(self) -> list[ElementWrapper]:

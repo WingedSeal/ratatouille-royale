@@ -52,6 +52,7 @@ class VisualComponent:
             # Remove finished non-persistent overrides
             if animation_sequence.is_finished() and not animation_sequence.persistent:
                 self._override_animation_queue.pop(0)
+                animation_sequence.make_callback()
                 # Recheck for next override in queue
                 if self._override_animation_queue:
                     animation_sequence = self._override_animation_queue[0]

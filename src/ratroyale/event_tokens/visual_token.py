@@ -31,5 +31,5 @@ class PageVisual(Enum):
 
 @dataclass
 class VisualManagerEvent(EventToken):
-    page_name: str
+    element_name: str
     callback_action: str

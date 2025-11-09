@@ -48,7 +48,6 @@ from ratroyale.event_tokens.payloads import (
     EntityPayload,
     GameSetupPayload,
     PlayableTilesPayload,
-    GameOverPayload,
     AbilityTargetPayload,
 )
 from ratroyale.backend.game_event import (
@@ -60,6 +59,8 @@ from ratroyale.backend.game_event import (
     EntityDamagedEvent,
     EntityDieEvent,
     GameOverEvent,
+    FeatureDamagedEvent,
+    FeatureDieEvent,
 )
 from ratroyale.backend.tile import Tile
 
@@ -105,6 +106,7 @@ class GameBoard(Page):
         self.coord_to_tile_mapping: dict[OddRCoord, tuple[str, str, str]] = {}
         """Maps coord to HOVERMASK, SELECTMASK, and AVAILABLEMASK"""
         self.entity_to_element_id_mapping: dict[Entity, str] = {}
+        self.feature_to_element_id_mapping: dict[int, list[str]] = {}
 
         self.temp_skill_target_count: int = 0
         self.temp_skill_entity_source: Entity | None = None
@@ -112,6 +114,7 @@ class GameBoard(Page):
         self.is_player_1_now: bool = True
         self.player_1_side: Side = Side.RAT
         self.is_playing_with_ai: bool = True
+        self.is_game_over: bool = False
 
         self.game_state: GameState = GameState.PLAYER1
 
@@ -125,10 +128,19 @@ class GameBoard(Page):
 
     @visual_event_bind("anim_queue_finished")
     def anim_queue_finished(self, msg: VisualManagerEvent) -> None:
+        if self.is_game_over:
+            self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
+            self.open_page("GameOver")
         if self.game_state == GameState.PLAYER2 and self.is_playing_with_ai:
             self.game_state = GameState.PLAYER1
             self.show_player_hand(1)
             self.hide_player_hand(2)
+
+    @visual_event_bind("entity_die_finished")
+    @visual_event_bind("particle_anim_finished")
+    def entity_die_finished(self, msg: VisualManagerEvent) -> None:
+        entity_name = msg.element_name
+        self._element_manager.remove_element(entity_name)
 
     # endregion
 
@@ -152,14 +164,22 @@ class GameBoard(Page):
             self.show_player_hand(1)
             self.hide_player_hand(2)
 
+        entities = self._element_manager.get_group("ENTITY").get_all_elements()
+        for entity in entities:
+            assert isinstance(entity, EntityElement)
+            entity.update_move_stamina()
+
     @game_event_bind(EntitySpawnEvent)
     def entity_spawn_event(self, event: EntitySpawnEvent) -> None:
         """Handle spawning entity from backend."""
         entity = event.entity
         entity_element = EntityElement(entity, self.camera)
-        temp_stat = entity_element._temp_stat_generators()
+        temp_stat = entity_element.stat_elements()
         self.setup_elements([entity_element, *temp_stat])
         self.entity_to_element_id_mapping[entity] = entity_element.registered_name
+
+        anim = entity_element.on_spawn()
+        self.queue_animation([anim])
 
     @game_event_bind(EntityMoveEvent)
     def entity_move_event(self, event: EntityMoveEvent) -> None:
@@ -168,6 +188,7 @@ class GameBoard(Page):
 
         entity_id = self.entity_to_element_id_mapping[entity]
         entity_element = self.get_element(entity_id, "ENTITY", EntityElement)
+        entity_element.update_move_stamina()
         anim_set = entity_element.move_entity(path)
         self.queue_animation(anim_set)
 
@@ -179,7 +200,6 @@ class GameBoard(Page):
                 squeak_id, SqueakElement
             )
             squeak_element.decide_interactivity(new_crumbs)
-        pass
 
     @game_event_bind(SqueakDrawnEvent)
     def squeak_drawn_event(self, event: SqueakDrawnEvent) -> None:
@@ -210,14 +230,47 @@ class GameBoard(Page):
         anim_set = entity_element.on_hurt()
         self.queue_animation([anim_set])
 
+        hurt_particle = entity_element.hurt_particle(event.hp_loss)
+        self.setup_elements([hurt_particle])
+
     @game_event_bind(EntityDieEvent)
     def entity_die_event(self, event: EntityDieEvent) -> None:
         entity = event.entity
 
-        entity_id = self.entity_to_element_id_mapping[entity]
+        entity_element_id = self.entity_to_element_id_mapping.pop(entity)
+        entity_element = self._element_manager.get_element_with_typecheck(
+            entity_element_id, EntityElement
+        )
+        anim = entity_element.on_die()
+        self.queue_animation([anim])
 
-        self.entity_to_element_id_mapping.pop(entity)
-        self._element_manager.remove_element(entity_id)
+    @game_event_bind(FeatureDamagedEvent)
+    def feature_damaged_event(self, event: FeatureDamagedEvent) -> None:
+        feature = event.feature
+
+        feature_element_ids = self.feature_to_element_id_mapping[id(feature)]
+        for feature_element_id in feature_element_ids:
+            feature_element = self._element_manager.get_element_with_typecheck(
+                feature_element_id, FeatureElement
+            )
+
+            anim = feature_element.on_damaged()
+            self.queue_animation([anim])
+
+            element = feature_element.hurt_particle(event.hp_loss)
+            self.setup_elements([element])
+
+    @game_event_bind(FeatureDieEvent)
+    def feature_die_event(self, event: FeatureDieEvent) -> None:
+        feature = event.feature
+
+        feature_element_ids = self.feature_to_element_id_mapping[id(feature)]
+        for feature_element_id in feature_element_ids:
+            feature_element = self._element_manager.get_element_with_typecheck(
+                feature_element_id, FeatureElement
+            )
+            anim = feature_element.on_die()
+            self.queue_animation([anim])
 
     @game_event_bind(GameOverEvent)
     def game_over_event(self, event: GameOverEvent) -> None:
@@ -225,8 +278,10 @@ class GameBoard(Page):
 
         print(who_won)
 
-        self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
-        # self.post(PageCallbackEvent("who_won", payload=payload))
+        self.is_game_over = True
+
+        # self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
+        # self.post(PageCallbackEvent("who_won", payload=Game))
 
     # endregion
 
@@ -302,11 +357,14 @@ class GameBoard(Page):
             features = board.cache.features
 
             for feature in features:
+                feature_element_ids = []
                 coord_list = feature.shape
                 if coord_list:
                     for coord in coord_list:
                         feature_element = FeatureElement(feature, coord, self.camera)
+                        feature_element_ids.append(feature_element.registered_name)
                         element_configs.append(feature_element)
+                self.feature_to_element_id_mapping[id(feature)] = feature_element_ids
 
             player1_squeak_list = payload.player1_squeaks
             player2_squeak_list = payload.player2_squeaks
@@ -454,15 +512,6 @@ class GameBoard(Page):
                 )
                 self.clear_selections()
                 self.game_state = GameState.PLAYER1
-
-    @callback_event_bind("game_over")
-    def _handle_game_over(self, msg: PageCallbackEvent) -> None:
-        if msg.success and msg.payload:
-            assert isinstance(msg.payload, GameOverPayload)
-            payload = msg.payload
-
-            self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
-            self.post(PageCallbackEvent("who_won", payload=payload))
 
     @callback_event_bind("skill_canceled")
     def _handle_skill_canceled(self, msg: PageCallbackEvent) -> None:
@@ -631,8 +680,7 @@ class GameBoard(Page):
                     gesture_data.mouse_pos, self.camera
                 )
             else:
-                if self.game_state is not GameState.SKILL_TARGETING:
-                    self.camera.drag_to(pygame.mouse.get_pos())
+                self.camera.drag_to(pygame.mouse.get_pos())
                 return
 
     @input_event_bind("SELECTMASK", GestureType.DRAG.to_pygame_event())

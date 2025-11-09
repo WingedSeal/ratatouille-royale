@@ -63,7 +63,6 @@ class ElementManager:
     def get_group(self, group_name: str) -> ElementGroup:
         """Retrieves the collection for the given element type, creating it if necessary."""
         if group_name not in self.element_groups:
-            print(f"group name {group_name} not already exists")
             group = self.create_group(group_name)
         else:
             group = self.element_groups[group_name]

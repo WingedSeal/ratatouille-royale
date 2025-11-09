@@ -106,3 +106,12 @@ FEATURE_SPRITE_METADATA: dict[int, SpritesheetMetadata] = {
         {"NONE": [18]},
     ),
 }
+
+MISC_SPRITE_METADATA: dict[str, SpritesheetMetadata] = {
+    "HealthIcon": SpritesheetMetadata(
+        "HEALTH_ICON", ASSET_DIR / "HealthIcon.png", (20, 18), {"NONE": [0]}
+    ),
+    "MoveStaminaIcon": SpritesheetMetadata(
+        "MOVE_STAMINA_ICON", ASSET_DIR / "MoveStaminaIcon.png", (16, 22), {"NONE": [0]}
+    ),
+}

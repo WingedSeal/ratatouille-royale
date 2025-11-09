@@ -273,6 +273,7 @@ class Page(ABC):
         return object_id.split(".")[-1] if object_id else None
 
     def execute_visual_callback(self, msg: VisualManagerEvent) -> bool:
+
         executed = False
         for callback_action, handler in self._visual_event_bindings.items():
             if callback_action == msg.callback_action:

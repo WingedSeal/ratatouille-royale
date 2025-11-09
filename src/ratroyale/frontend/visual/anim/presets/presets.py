@@ -11,6 +11,7 @@ from ..core.anim_settings import (
 )
 from ...asset_management.spritesheet_structure import SpritesheetComponent
 from ....pages.page_elements.spatial_component import SpatialComponent, Camera
+from ....pages.page_elements.element import ElementWrapper
 
 import pytweening  # type: ignore
 import pygame
@@ -159,6 +160,83 @@ def entity_hurt(
     )
     result = SequentialAnim(
         [GroupedAnim([anim, color_overlay_anim], run_together_with_default=True)],
+        interrupts_queue=False,
+    )
+    return result
+
+
+def entity_spawn(
+    spatial_component: SpatialComponent,
+    camera: Camera,
+) -> SequentialAnim:
+    scale_anim = ScaleAnim(
+        easing_func=pytweening.easeOutCirc,
+        timing_mode=TimingMode.DURATION_PER_LOOP,
+        period_in_seconds=0.2,
+        spatial_component=spatial_component,
+        camera=camera,
+        scale_mode=ScaleMode.SCALE_TO_SIZE,
+        target=(50, 50),
+        expansion_anchor=(VerticalAnchor.MIDDLE, HorizontalAnchor.MIDDLE),
+    )
+    result = SequentialAnim([GroupedAnim([scale_anim])], interrupts_queue=False)
+    return result
+
+
+def entity_die(
+    element: ElementWrapper,
+    spatial_component: SpatialComponent,
+    camera: Camera,
+) -> SequentialAnim:
+    scale_anim = ScaleAnim(
+        easing_func=pytweening.easeOutCirc,
+        timing_mode=TimingMode.DURATION_PER_LOOP,
+        period_in_seconds=0.2,
+        spatial_component=spatial_component,
+        camera=camera,
+        scale_mode=ScaleMode.SCALE_TO_SIZE,
+        target=(1, 1),
+        expansion_anchor=(VerticalAnchor.MIDDLE, HorizontalAnchor.MIDDLE),
+    )
+    result = SequentialAnim(
+        [GroupedAnim([scale_anim])],
+        interrupts_queue=False,
+        callback_info=(element.registered_name, "entity_die_finished"),
+    )
+    return result
+
+
+def hurt_particle_motion(element: ElementWrapper) -> SequentialAnim:
+    move_anim = MoveAnim(
+        easing_func=pytweening.easeOutCirc,
+        timing_mode=TimingMode.DURATION_PER_LOOP,
+        period_in_seconds=0.2,
+        spatial_component=element.spatial_component,
+        camera=element.camera,
+        move_mode=MoveAnimMode.MOVE_TO,
+        direction_vector=(0, -50),
+    )
+    result = SequentialAnim(
+        [GroupedAnim([move_anim])],
+        interrupts_queue=False,
+        callback_info=(element.registered_name, "particle_anim_finished"),
+    )
+    return result
+
+
+def feature_damaged(
+    spritesheet: SpritesheetComponent, color: pygame.Color
+) -> SequentialAnim:
+    color_overlay_anim = ColorOverlayAnim(
+        spritesheet_component=spritesheet,
+        pygame_blend_mode=pygame.BLEND_RGBA_ADD,
+        intensity_range=(0.5, 0),
+        color=color,
+        timing_mode=TimingMode.DURATION_PER_LOOP,
+        period_in_seconds=0.5,
+    )
+    result = SequentialAnim(
+        [GroupedAnim([color_overlay_anim], run_together_with_default=True)],
         interrupts_queue=False,
     )
     return result

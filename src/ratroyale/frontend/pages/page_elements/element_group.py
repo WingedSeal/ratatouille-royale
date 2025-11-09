@@ -67,6 +67,9 @@ class ElementGroup:
                 f"At get: the element with registered name: {registered_name} is not found in group {self.group_name}"
             )
 
+    def get_all_elements(self) -> list[ElementWrapper]:
+        return self.flattened_elements_list
+
     def get_selected_elements(self) -> list[ElementWrapper]:
         elements = []
         for name in self.selected_ids:

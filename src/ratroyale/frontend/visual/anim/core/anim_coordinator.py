@@ -17,21 +17,19 @@ class AnimationCoordinator:
     ) -> None:
         """Add a new set of animations to run together."""
         self.queue.append(anim_set)
+        self._was_running = True
 
     def queue_to_elements(self) -> None:
-        if not self.queue and not self._current_anim_set:
-            # detect end-of-queue edge
-            if self._was_running:
-                self._was_running = False
-                self.queue_finished_callback()
-            return
-
-        if not self._current_anim_set and self.queue:
-            # new animation set begins
-            self._current_anim_set = self.queue.popleft()
-            for element, seq_anim in self._current_anim_set:
-                element.queue_override_animation(seq_anim)
-            self._was_running = True
+        if not self._current_anim_set:
+            if self.queue:
+                # new animation set begins
+                self._current_anim_set = self.queue.popleft()
+                for element, seq_anim in self._current_anim_set:
+                    element.queue_override_animation(seq_anim)
+            else:
+                if self._was_running:
+                    self._was_running = False
+                    self.queue_finished_callback()
 
         if self._current_anim_set and self.is_not_running_anim():
             self._current_anim_set.clear()
