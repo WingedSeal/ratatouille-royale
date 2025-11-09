@@ -440,7 +440,7 @@ class InspectEntity(Page):
     def skill_panel(self, msg: PageCallbackEvent) -> None:
         entity = self.entity
         panel_width = 160
-        panel_x = 350
+        panel_x = SCREEN_SIZE[0] - panel_width - 10
         panel_id = "skill_panel"
         self.ability_panel_id = panel_id
         panel_height = len(entity.skills) * 30 + 30 + 10
