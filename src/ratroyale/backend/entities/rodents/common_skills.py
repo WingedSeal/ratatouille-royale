@@ -373,7 +373,6 @@ class SelectTarget:
                 if can_select_callback(game_manager, tile):
                     targets.append(coord)
                     continue
-                continue
         return targets
 
     def to_skill_targeting(
