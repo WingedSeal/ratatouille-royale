@@ -41,7 +41,7 @@ class MainMenu(Page):
             manager=self.gui_manager,
         )
         # === Right Corner ===
-        Right = pygame_gui.elements.UIPanel(
+        player_info_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(-320, 20, 300, 55),
             manager=self.gui_manager,
             anchors={"right": "right", "top": "top"},
@@ -51,13 +51,13 @@ class MainMenu(Page):
             relative_rect=pygame.Rect(5, 18, 50, 20),
             text="Level 1",
             manager=self.gui_manager,
-            container=Right,
+            container=player_info_panel,
         )
         # Progress Bar
         progress_bar = pygame_gui.elements.UIProgressBar(
             relative_rect=pygame.Rect(55, 18, 120, 20),
             manager=self.gui_manager,
-            container=Right,
+            container=player_info_panel,
         )
         progress_bar.set_current_progress(45)
 
@@ -69,7 +69,7 @@ class MainMenu(Page):
             relative_rect=pygame.Rect(-50, 5, 40, 40),
             image_surface=cheese_surface,
             manager=self.gui_manager,
-            container=Right,
+            container=player_info_panel,
             object_id=pygame_gui.core.ObjectID(
                 class_id="CurrencyIcon", object_id="currency_icon"
             ),
@@ -80,7 +80,7 @@ class MainMenu(Page):
             relative_rect=pygame.Rect(180, 3, 80, 50),
             text="999",
             manager=self.gui_manager,
-            container=Right,
+            container=player_info_panel,
             object_id=pygame_gui.core.ObjectID(
                 class_id="CurrencyLabel", object_id="currency_label"
             ),

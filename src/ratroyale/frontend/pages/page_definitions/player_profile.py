@@ -11,6 +11,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
+    ui_element_wrapper,
 )
 from ..page_elements.spatial_component import Camera
 
@@ -47,13 +48,17 @@ class PlayerProfile(Page):
                 "centery": "centery",
             },
         )
+        panel_element_wrapper = ui_element_wrapper(
+            panel_element, "main_panel", self.camera
+        )
+        gui_elements.append(panel_element_wrapper)
 
         # === Scroll Container ===
         scroll_container = pygame_gui.elements.UIScrollingContainer(
             relative_rect=pygame.Rect(0, 0, 430, 450),
             manager=self.gui_manager,
             container=panel_element,
-            allow_scroll_x=False,  # disable horizontal scroll
+            allow_scroll_x=False,
             anchors={
                 "centerx": "centerx",
                 "centery": "centery",
@@ -104,7 +109,7 @@ class PlayerProfile(Page):
             )
             # === Divider line ===
             divider_surface = pygame.Surface((400, 2))
-            divider_surface.fill((180, 180, 180))  # light gray line
+            divider_surface.fill((180, 180, 180))
             pygame_gui.elements.UIImage(
                 relative_rect=pygame.Rect(10, y_offset + 110, 390, 1),
                 image_surface=divider_surface,

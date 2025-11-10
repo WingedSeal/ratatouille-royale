@@ -10,6 +10,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
+    ui_element_wrapper,
 )
 from ..page_elements.spatial_component import Camera
 
@@ -74,30 +75,38 @@ class GachaPage(Page):
         )
 
         # === 1 Draw button ===
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(-130, 520, 120, 50),
-            text="1 Draw",
-            manager=self.gui_manager,
-            anchors={
-                "centerx": "centerx",
-            },
-            object_id=pygame_gui.core.ObjectID(
-                class_id="OpenButton", object_id="open_button"
+        One_Draw = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(-130, 520, 120, 50),
+                text="1 Draw",
+                manager=self.gui_manager,
+                anchors={"centerx": "centerx"},
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="OpenButton", object_id="one_draw_button"
+                ),
             ),
+            registered_name="one_draw_button",
+            camera=self.camera,
         )
+        gui_elements.append(One_Draw)
 
         # === 10 Draws button ===
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(130, 520, 120, 50),
-            text="10 Draws",
-            manager=self.gui_manager,
-            anchors={
-                "centerx": "centerx",
-            },
-            object_id=pygame_gui.core.ObjectID(
-                class_id="OpenButton", object_id="open_button"
+        Ten_Draws = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(130, 520, 120, 50),
+                text="10 Draws",
+                manager=self.gui_manager,
+                anchors={
+                    "centerx": "centerx",
+                },
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="OpenButton", object_id="Ten_draws_button"
+                ),
             ),
+            registered_name="Ten_draws_button",
+            camera=self.camera,
         )
+        gui_elements.append(Ten_Draws)
 
         return gui_elements
 

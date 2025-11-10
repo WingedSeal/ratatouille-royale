@@ -11,6 +11,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
+    ui_element_wrapper,
 )
 from ..page_elements.spatial_component import Camera
 
@@ -29,15 +30,21 @@ class StartPage(Page):
         gui_elements: list[ElementWrapper] = []
 
         # === Start button ===
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(0, -180, 150, 60),
-            text="Start",
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="StartButton", object_id="start_button"
+        start_button = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(0, -180, 150, 60),
+                text="Start",
+                manager=self.gui_manager,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="StartButton", object_id="start_button"
+                ),
+                anchors={"centerx": "centerx", "bottom": "bottom"},
             ),
-            anchors={"centerx": "centerx", "bottom": "bottom"},
+            registered_name="start_button",
+            camera=self.camera,
         )
+        gui_elements.append(start_button)
+
         return gui_elements
 
     @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)

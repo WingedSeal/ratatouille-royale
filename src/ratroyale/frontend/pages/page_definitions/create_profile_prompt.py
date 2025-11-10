@@ -11,6 +11,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
+    ui_element_wrapper,
 )
 from ..page_elements.spatial_component import Camera
 
@@ -39,6 +40,10 @@ class CreateProfile(Page):
                 "centery": "centery",
             },
         )
+        panel_element_wrapper = ui_element_wrapper(
+            panel_element, "main_panel", self.camera
+        )
+        gui_elements.append(panel_element_wrapper)
 
         # === Title label ===
         pygame_gui.elements.UILabel(

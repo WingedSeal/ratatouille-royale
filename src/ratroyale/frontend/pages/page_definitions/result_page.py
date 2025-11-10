@@ -10,6 +10,7 @@ from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
+    ui_element_wrapper,
 )
 from ..page_elements.spatial_component import Camera
 
@@ -36,6 +37,8 @@ class Result(Page):
             anchors={"centerx": "centerx", "centery": "centery"},
             object_id=pygame_gui.core.ObjectID(class_id="result_panel"),
         )
+        panel_wrapper = ui_element_wrapper(panel, "main_panel", self.camera)
+        gui_elements.append(panel_wrapper)
 
         # === Title Banner ===
         pygame_gui.elements.UILabel(
@@ -46,21 +49,6 @@ class Result(Page):
             object_id=pygame_gui.core.ObjectID(class_id="result_title"),
             anchors={"centerx": "centerx", "top": "top"},
         )
-
-        # # === Picture ===
-        # cheese_surface = pygame.Surface((40, 40))
-        # cheese_surface.fill((255, 255, 255))
-
-        # pygame_gui.elements.UIImage(
-        #     relative_rect=pygame.Rect(0, 80, 150, 150),
-        #     image_surface=cheese_surface,
-        #     manager=self.gui_manager,
-        #     container=panel,
-        #     object_id=pygame_gui.core.ObjectID(
-        #         class_id="CurrencyIcon", object_id="currency_icon"
-        #     ),
-        #     anchors={"centerx": "centerx"},
-        # )
 
         pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(0, 90, 300, 40),
