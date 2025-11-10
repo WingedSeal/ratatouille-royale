@@ -1,4 +1,5 @@
 import random
+import sys
 from .squeaks.rodents.vanguard import TAIL_BLAZER
 from .squeaks.rodents.tank import CRACKER
 from .squeaks.rodents.duelist import (
@@ -24,7 +25,10 @@ GACHA_POOL_WEIGHTS: dict[Squeak, float] = {
 """Pool of all possible Squeak and its draw weight"""
 
 
-def gacha_squeak(count: int = 1) -> list[Squeak]:
-    return random.choices(
+def gacha_squeak(seed: int, count: int = 1) -> tuple[list[Squeak], int]:
+    random.seed(seed)
+    result = random.choices(
         list(GACHA_POOL_WEIGHTS.keys()), list(GACHA_POOL_WEIGHTS.values()), k=count
     )
+    new_seed = random.randrange(sys.maxsize)
+    return result, new_seed
