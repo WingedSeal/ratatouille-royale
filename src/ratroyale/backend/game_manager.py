@@ -116,7 +116,7 @@ class GameManager:
         Get crumbs of that turn and different between that and crumbs of that turn
         without static multiplier.
         For example, if you have a temporary "+1 crumb for all turn" buff and with
-        that buff you'll get 10 crumbs totat, it would return (10, 1).
+        that buff you'll get 10 crumbs total, it would return (10, 1).
         It is done this way so player can know what crumbs they'll have if that buff
         was to be taken away. And since turn specific buffs are "permanent",
         that isn't a problem.
