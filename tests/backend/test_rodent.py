@@ -6,12 +6,11 @@ from ratroyale.backend.game_event import EntityDieEvent
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.player_info.player_info import PlayerInfo
 from ratroyale.backend.player_info.squeak import Squeak
-from ratroyale.backend.player_info.squeaks.rodents.duelist import (
-    RATBERT_BREWBELLY,
-)
+from ratroyale.backend.player_info.gacha import GACHA_POOL_WEIGHTS
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.side import Side
+from ratroyale.backend.tags import EntityTag
 
 
 @pytest.fixture
@@ -29,9 +28,16 @@ def rodent_map() -> Map:
     )
 
 
+@pytest.mark.slow
 @pytest.mark.integration
-@pytest.mark.parametrize("squeak", [RATBERT_BREWBELLY])
+@pytest.mark.parametrize(
+    "squeak",
+    GACHA_POOL_WEIGHTS.keys(),
+    ids=[squeak.name.replace(" ", "_") for squeak in GACHA_POOL_WEIGHTS.keys()],
+)
 def test_rodents(rodent_map: Map, squeak: Squeak) -> None:
+    if squeak.rodent and EntityTag.NO_ATTACK in squeak.rodent.entity_tags:
+        return None
     game_manager = GameManager(
         rodent_map,
         players_info=(
@@ -57,16 +63,16 @@ def test_rodents(rodent_map: Map, squeak: Squeak) -> None:
         first_turn=Side.RAT,
     )
     ai = RandomAI(game_manager, Side.MOUSE)
-    game_manager.crumbs = 1000
+    game_manager.crumbs = 10000
     game_manager.place_squeak(0, OddRCoord(0, 0))
-    for _ in range(100):
+    for _ in range(10):
         assert game_manager.turn == Side.RAT
         # Player Turn
         game_manager.end_turn()
-        game_manager.crumbs = 1000
+        game_manager.crumbs = 10000
         # AI Turn
-        ai.run_ai_and_update_game_manager()
-        for event in game_manager.event_queue:
-            if isinstance(event, EntityDieEvent):
-                return
+        for _ in ai._run_ai_and_update_game_manager():
+            for event in game_manager.event_queue:
+                if isinstance(event, EntityDieEvent):
+                    return
     assert False

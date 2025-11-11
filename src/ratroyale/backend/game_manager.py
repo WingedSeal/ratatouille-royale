@@ -4,10 +4,8 @@ from typing import Iterator
 from dataclasses import dataclass, field
 from collections import defaultdict
 
-from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EntityEffect
@@ -41,12 +39,14 @@ from .game_event import (
     SqueakPlacedEvent,
     SqueakSetResetEvent,
 )
+from .player_info.squeak_set import HAND_LENGTH
 from .hexagon import OddRCoord
+from .instant_kill import InstantKill
 from .map import Map
 from .player_info.player_info import PlayerInfo
-from .player_info.squeak_set import HAND_LENGTH
 from .player_info.squeak import Squeak
 from .side import Side
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .timer import Timer
 
 
@@ -250,6 +250,7 @@ class GameManager:
             raise UpdatingTheDeadError(rodent)
         from_pos = rodent.pos
         self._validate_not_selecting_target()
+        origin = rodent.pos
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
         if rodent.move_stamina <= 0:
@@ -271,6 +272,13 @@ class GameManager:
         event = EntityMoveEvent(path, rodent, from_pos)
         self.event_queue.put_nowait(event)
         self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
+        if rodent.side is not None:
+            for entity in self.board.cache.entities_with_on_ally_move[rodent.side]:
+                entity.on_ally_move(self, rodent, path, origin)
+            for entity in self.board.cache.entities_with_on_enemy_move[
+                rodent.side.other_side()
+            ]:
+                entity.on_enemy_move(self, rodent, path, origin)
         return path
 
     def move_entity_uncheck(
@@ -285,7 +293,7 @@ class GameManager:
         """
         if entity.is_dead:
             raise UpdatingTheDeadError(entity)
-        from_pos = entity.pos
+        origin = entity.pos
         path = self.board.path_find(
             entity, target, custom_jump_height=custom_jump_height
         )
@@ -295,7 +303,14 @@ class GameManager:
         if not is_success:
             raise InvalidMoveTargetError("Cannot move entity there")
         self._trigger_feature_on_move(path, entity)
-        self.event_queue.put(EntityMoveEvent(path, entity, from_pos))
+        self.event_queue.put(EntityMoveEvent(path, entity, origin))
+        if entity.side is not None:
+            for _entity in self.board.cache.entities_with_on_ally_move[entity.side]:
+                _entity.on_ally_move(self, entity, path, origin)
+            for _entity in self.board.cache.entities_with_on_enemy_move[
+                entity.side.other_side()
+            ]:
+                entity.on_enemy_move(self, entity, path, origin)
         return path
 
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
@@ -397,9 +412,8 @@ class GameManager:
             raise UpdatingTheDeadError(timer.entity)
         self.board.cache.timers.append(timer)
 
-    def apply_effect(
-        self, entity: Entity, effect: EntityEffect, stack_intensity: bool = False
-    ) -> None:
+    def apply_effect(self, effect: EntityEffect, stack_intensity: bool = False) -> None:
+        entity = effect.entity
         if entity.is_dead:
             raise UpdatingTheDeadError(entity)
         old_effect = entity.effects.get(effect.name)

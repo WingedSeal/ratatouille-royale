@@ -1,8 +1,10 @@
 from ....entities.rodents.duelist import (
-    RatbertBrewbelly,
-    SodaKabooma,
+    Clanker,
     Mortar,
     PeaPeaPoolPool,
+    RailRodent,
+    RatbertBrewbelly,
+    SodaKabooma,
 )
 from ...squeak import Squeak, SqueakType, rodent_placable_tile, summon_on_place
 
@@ -37,4 +39,20 @@ PEA_PEA_POOL_POOL = Squeak(
     on_place=summon_on_place(PeaPeaPoolPool),
     get_placable_tiles=rodent_placable_tile,
     rodent=PeaPeaPoolPool,
+)
+RAIL_RODENT = Squeak(
+    name="Rail Rodent",
+    crumb_cost=25,
+    squeak_type=SqueakType.RODENT,
+    on_place=summon_on_place(RailRodent),
+    get_placable_tiles=rodent_placable_tile,
+    rodent=RailRodent,
+)
+CLANKER = Squeak(
+    name="Clanker",
+    crumb_cost=20,
+    squeak_type=SqueakType.RODENT,
+    on_place=summon_on_place(Clanker),
+    get_placable_tiles=rodent_placable_tile,
+    rodent=Clanker,
 )

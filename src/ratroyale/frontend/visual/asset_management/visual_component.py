@@ -1,12 +1,14 @@
-from pygame_gui.core.ui_element import UIElement
 import pygame
-from .spritesheet_structure import SpritesheetComponent
-from ..anim.core.anim_structure import SequentialAnim, GroupedAnim, AnimEvent
+from pygame_gui.core.ui_element import UIElement
+
 from ratroyale.frontend.pages.page_elements.spatial_component import (
     Camera,
     SpatialComponent,
 )
+
 from ...pages.page_elements.hitbox import Hitbox
+from ..anim.core.anim_structure import AnimEvent, GroupedAnim, SequentialAnim
+from .spritesheet_structure import SpritesheetComponent
 
 
 class VisualComponent:

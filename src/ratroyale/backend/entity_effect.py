@@ -21,6 +21,7 @@ class EntityEffect(ABC):
     name: str
     entity: "Entity"
     duration: int | None
+    """Effect is cleared at the end of the turn."""
     turn_passed: int
     effect_clear_side: EffectClearSide
     intensity: float

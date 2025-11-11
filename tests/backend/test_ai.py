@@ -8,7 +8,7 @@ from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
 from ratroyale.backend.player_info.player_info import PlayerInfo
-from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAILBLAZER
 from ratroyale.backend.side import Side
 
 
@@ -49,18 +49,18 @@ def test_all_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
         small_map,
         players_info=(
             PlayerInfo(
-                {TAIL_BLAZER: 5},
-                [{TAIL_BLAZER: 5}],
-                [{TAIL_BLAZER: 5}],
+                {TAILBLAZER: 5},
+                [{TAILBLAZER: 5}],
+                [{TAILBLAZER: 5}],
                 selected_squeak_set_index=0,
                 exp=0,
                 cheese=0,
                 is_progression_frozen=True,
             ),
             PlayerInfo(
-                {TAIL_BLAZER: 5},
-                [{TAIL_BLAZER: 5}],
-                [{TAIL_BLAZER: 5}],
+                {TAILBLAZER: 5},
+                [{TAILBLAZER: 5}],
+                [{TAILBLAZER: 5}],
                 selected_squeak_set_index=0,
                 exp=0,
                 cheese=0,
@@ -89,18 +89,18 @@ def test_long_map(long_map: Map, ai_type: type[BaseAI]) -> None:
         long_map,
         players_info=(
             PlayerInfo(
-                {TAIL_BLAZER: 5},
-                [{TAIL_BLAZER: 5}],
-                [{TAIL_BLAZER: 5}],
+                {TAILBLAZER: 5},
+                [{TAILBLAZER: 5}],
+                [{TAILBLAZER: 5}],
                 selected_squeak_set_index=0,
                 exp=0,
                 cheese=0,
                 is_progression_frozen=True,
             ),
             PlayerInfo(
-                {TAIL_BLAZER: 5},
-                [{TAIL_BLAZER: 5}],
-                [{TAIL_BLAZER: 5}],
+                {TAILBLAZER: 5},
+                [{TAILBLAZER: 5}],
+                [{TAILBLAZER: 5}],
                 selected_squeak_set_index=0,
                 exp=0,
                 cheese=0,
