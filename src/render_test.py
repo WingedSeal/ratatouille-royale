@@ -5,7 +5,7 @@ import pygame
 pygame.init()
 
 from ratroyale.backend.ai.rushb_ai import RushBAI
-from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAILBLAZER
 from ratroyale.backend.player_info.squeaks.rodents.duelist import (
     RATBERT_BREWBELLY,
     SODA_KABOOMA,
@@ -100,9 +100,9 @@ def main():
 
     # Player 1: create a SqueakSet directly in the constructor
     player_info_1 = PlayerInfo(
-        {TAIL_BLAZER: 5, RATBERT_BREWBELLY: 2},
-        [{TAIL_BLAZER: 5, RATBERT_BREWBELLY: 2}],
-        [{TAIL_BLAZER: 3, RATBERT_BREWBELLY: 2}],
+        {TAILBLAZER: 5, RATBERT_BREWBELLY: 2},
+        [{TAILBLAZER: 5, RATBERT_BREWBELLY: 2}],
+        [{TAILBLAZER: 3, RATBERT_BREWBELLY: 2}],
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,
@@ -111,9 +111,9 @@ def main():
 
     # Player 2: separate SqueakSet instance
     player_info_2 = PlayerInfo(
-        {TAIL_BLAZER: 5},
-        [{TAIL_BLAZER: 5}],
-        [{TAIL_BLAZER: 5}],
+        {TAILBLAZER: 5},
+        [{TAILBLAZER: 5}],
+        [{TAILBLAZER: 5}],
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,

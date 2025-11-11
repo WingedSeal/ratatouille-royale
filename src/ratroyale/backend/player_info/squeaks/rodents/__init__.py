@@ -1,4 +1,1 @@
-from . import vanguard
-from . import tank
-from . import duelist
-from . import specialist
+from . import duelist, specialist, tank, vanguard, support
