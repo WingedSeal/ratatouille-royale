@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from .anim_structure import AnimEvent
 
 

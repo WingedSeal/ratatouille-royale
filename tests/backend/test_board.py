@@ -1,7 +1,7 @@
 import pytest
 
 from ratroyale.backend.board import Board
-from ratroyale.backend.entities.rodents.vanguard import TailBlazer
+from ratroyale.backend.entities.rodents.vanguard import Tailblazer
 from ratroyale.backend.features.common import Lair
 from ratroyale.backend.game_event import EntitySpawnEvent
 from ratroyale.backend.hexagon import OddRCoord
@@ -16,18 +16,18 @@ def empty_board(example_map: Map) -> Board:
 
 @pytest.fixture
 def example_board(empty_board: Board) -> Board:
-    empty_board.add_entity(TailBlazer(OddRCoord(0, 0), Side.MOUSE))
+    empty_board.add_entity(Tailblazer(OddRCoord(0, 0), Side.MOUSE))
     empty_board.event_queue.get_or_none()
     return empty_board
 
 
 def test_cache(example_board: Board) -> None:
     assert type(example_board.cache.features[0]) is Lair
-    assert type(example_board.cache.entities_with_hp[0]).name == "TailBlazer"
+    assert type(example_board.cache.entities_with_hp[0]) is Tailblazer
 
 
 def test_add_entity(empty_board: Board) -> None:
-    tail_blazer = TailBlazer(OddRCoord(0, 0), Side.MOUSE)
+    tail_blazer = Tailblazer(OddRCoord(0, 0), Side.MOUSE)
     empty_board.add_entity(tail_blazer)
     assert empty_board.event_queue.get_or_none() == EntitySpawnEvent(tail_blazer)
 
@@ -35,7 +35,7 @@ def test_add_entity(empty_board: Board) -> None:
 def test_get_tile(example_board: Board) -> None:
     tile = example_board.get_tile(OddRCoord(0, 0))
     assert tile is not None
-    assert tile.entities[0].name == "TailBlazer"
+    assert tile.entities[0].name == Tailblazer.name
 
 
 # def test_damage_entity(example_board: Board) -> None:
