@@ -3,8 +3,7 @@ from dataclasses import dataclass, field
 from pprint import pformat
 from typing import TYPE_CHECKING, ClassVar
 
-from ratroyale.backend.instant_kill import InstantKill
-
+from .instant_kill import InstantKill
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .hexagon import OddRCoord
 from .side import Side
@@ -135,6 +134,12 @@ class Feature(ABC):
             return True, damage_taken
         self.on_hp_loss(game_manager, damage_taken, source)
         return False, damage_taken
+
+    def get_relative_shape_and_origin(self) -> tuple[list[OddRCoord], OddRCoord]:
+        x = min(coord.x for coord in self.shape)
+        y = min(coord.y for coord in self.shape)
+        origin = OddRCoord(x, y)
+        return [coord - origin for coord in self.shape], origin
 
     def __repr__(self) -> str:
         return f"""Feature(
