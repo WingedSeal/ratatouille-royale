@@ -4,7 +4,7 @@ from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.payloads import MoveHistoryPayload, FeaturePayload
 
-
+from ratroyale.event_tokens.input_token import get_id
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
     input_event_bind,
@@ -22,6 +22,8 @@ from ratroyale.frontend.pages.page_elements.element import (
 from ratroyale.event_tokens.payloads import (
     TilePayload,
     GameSetupPayload,
+    EntityPayload,
+    CrumbUpdatePayload,
 )
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.game_event import CrumbChangeEvent, EntityMoveEvent, EndTurnEvent
@@ -435,5 +437,19 @@ class GameInfoPage(Page):
             self.button_move_data[button_id] = move
             self.move_history_buttons.append(button_id)
             y_offset += 25
+
+    @input_event_bind("ShowEntityButton", pygame_gui.UI_BUTTON_PRESSED)
+    def entity_selected(self, msg: pygame.event.Event) -> None:
+        id = get_id(msg)
+        assert id
+        # The id is given as "entity_hover_data_panel.ShowEntityButton_x"
+        entity_index = int(id.split("_")[-1])
+
+        assert self.temp_selected_tile
+        entity = self.temp_selected_tile.entities[entity_index]
+
+        self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectEntity")]))
+        self.post(PageCallbackEvent("crumb", payload=CrumbUpdatePayload(self.crumbs)))
+        self.post(PageCallbackEvent("entity_data", payload=EntityPayload(entity)))
 
     # endregion
