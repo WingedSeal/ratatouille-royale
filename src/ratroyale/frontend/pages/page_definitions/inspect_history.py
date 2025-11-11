@@ -1,6 +1,6 @@
 import pygame
 import pygame_gui
-
+import math
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
@@ -163,14 +163,10 @@ class InspectHistory(Page):
 
         # If we have a map surface to draw, blit it onto the panel area
         if self.map_surface and self.map_panel_element:
-            try:
-                map_panel = self.map_panel_element
-                # Blit the map surface onto the panel
-                canvas.blit(
-                    self.map_surface, (map_panel.rect.x + 2, map_panel.rect.y + 2)
-                )
-            except Exception:
-                pass  # Silently fail if panel is not available
+
+            map_panel = self.map_panel_element
+            # Blit the map surface onto the panel
+            canvas.blit(self.map_surface, (map_panel.rect.x + 2, map_panel.rect.y + 2))
 
         return canvas
 
@@ -220,12 +216,9 @@ class InspectHistory(Page):
 
         # Calculate tile size - use larger radius for better visibility
         tile_radius = 35
-        padding = 10
 
         # Draw grid of tiles
-        self._draw_hexagon_grid(
-            self.map_surface, tile_radius, padding, from_coords, to_coords
-        )
+        self._draw_hexagon_grid(self.map_surface, tile_radius, from_coords, to_coords)
 
         # Store reference to panel for later drawing
         self.map_panel_element = map_panel
@@ -234,7 +227,6 @@ class InspectHistory(Page):
         self,
         surface: pygame.Surface,
         hex_radius: int,
-        padding: int,
         from_coords: tuple[int, int],
         to_coords: tuple[int, int],
     ) -> None:
@@ -298,11 +290,10 @@ class InspectHistory(Page):
         to_y = start_y + (to_r - min_r) * tile_size + tile_size / 2
 
         # Draw directional arrow
-        import math as m
 
         dx = to_x - from_x
         dy = to_y - from_y
-        distance = m.sqrt(dx * dx + dy * dy)
+        distance = math.sqrt(dx * dx + dy * dy)
 
         if distance > 0:
             # Normalize and scale
@@ -328,12 +319,12 @@ class InspectHistory(Page):
 
             # Draw arrow head
             arrow_size = 8
-            angle = m.atan2(dy, dx)
+            angle = math.atan2(dy, dx)
 
-            left_x = arrow_end_x - arrow_size * m.cos(angle - m.pi / 6)
-            left_y = arrow_end_y - arrow_size * m.sin(angle - m.pi / 6)
-            right_x = arrow_end_x - arrow_size * m.cos(angle + m.pi / 6)
-            right_y = arrow_end_y - arrow_size * m.sin(angle + m.pi / 6)
+            left_x = arrow_end_x - arrow_size * math.cos(angle - math.pi / 6)
+            left_y = arrow_end_y - arrow_size * math.sin(angle - math.pi / 6)
+            right_x = arrow_end_x - arrow_size * math.cos(angle + math.pi / 6)
+            right_y = arrow_end_y - arrow_size * math.sin(angle + math.pi / 6)
 
             pygame.draw.polygon(
                 surface,

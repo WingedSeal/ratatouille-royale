@@ -2,6 +2,7 @@ import pygame
 import pygame_gui
 
 from ratroyale.backend.player_info.squeak import Squeak
+from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.input_token import get_payload_from_msg
@@ -56,6 +57,7 @@ class InspectSqueak(Page):
             self.main_panel.kill()  # type: ignore[no-untyped-call]
 
         rodent_cls = squeak.rodent
+        assert rodent_cls is not None, "Rodent class must not be None"
 
         panel_w, panel_h = 620, 460
         panel_x = (SCREEN_SIZE[0] - panel_w) // 2
@@ -131,24 +133,14 @@ class InspectSqueak(Page):
 
         # === StatsRows with real data from rodent class ===
         stat_data = {
-            "HP": str(getattr(rodent_cls, "health", "N/A") if rodent_cls else "N/A"),
-            "SPEED": str(getattr(rodent_cls, "speed", "N/A") if rodent_cls else "N/A"),
-            "DEFENSE": str(
-                getattr(rodent_cls, "defense", "N/A") if rodent_cls else "N/A"
-            ),
-            "ATTACK": str(
-                getattr(rodent_cls, "attack", "N/A") if rodent_cls else "N/A"
-            ),
-            "STAMINA": str(
-                getattr(rodent_cls, "max_move_stamina", "N/A") if rodent_cls else "N/A"
-            ),
-            "MOVE COST": str(
-                getattr(rodent_cls, "move_cost", "N/A") if rodent_cls else "N/A"
-            ),
+            "HP": str(rodent_cls.health),
+            "SPEED": str(rodent_cls.speed),
+            "DEFENSE": str(rodent_cls.defense),
+            "ATTACK": str(rodent_cls.attack),
+            "STAMINA": str(rodent_cls.max_move_stamina),
+            "MOVE COST": str(rodent_cls.move_cost),
             "CRUMB COST": str(squeak.crumb_cost),
-            "HEIGHT": str(
-                getattr(rodent_cls, "height", "N/A") if rodent_cls else "N/A"
-            ),
+            "HEIGHT": str(rodent_cls.height),
         }
 
         y = 36
@@ -215,21 +207,11 @@ class InspectSqueak(Page):
         )
         y_offset += 30
 
-        # Get real skills from rodent class
-        if rodent_cls:
-            # Get skill descriptions from rodent
-            try:
-                # Create a temporary instance to call skill_descriptions
-                temp_rodent = rodent_cls(pos=None, side=None)  # type: ignore[arg-type]
-                skill_descriptions = temp_rodent.skill_descriptions()
-                for skill_desc in skill_descriptions:
-                    # skill_desc is typically a string, extract name and description
-                    # Format might vary, so we'll handle it gracefully
-                    y_offset += self._create_skill_card(
-                        scroll_container, "Skill", skill_desc, y_offset
-                    )
-            except Exception:
-                pass  # If we can't get skills, just skip
+        temp_rodent = rodent_cls(pos=OddRCoord(0, 0), side=None)
+        for skill_desc in temp_rodent.skill_descriptions():
+            y_offset += self._create_skill_card(
+                scroll_container, "Skill", skill_desc, y_offset
+            )
 
         pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(5, y_offset, 200, 25),
@@ -244,16 +226,11 @@ class InspectSqueak(Page):
         y_offset += 30
 
         # Get passive skills from rodent class
-        if rodent_cls:
-            try:
-                temp_rodent = rodent_cls(pos=None, side=None)  # type: ignore[arg-type]
-                passive_descriptions = temp_rodent.passive_descriptions()
-                for skill_name, skill_desc in passive_descriptions:
-                    y_offset += self._create_skill_card(
-                        scroll_container, skill_name, skill_desc, y_offset
-                    )
-            except Exception:
-                pass  # If we can't get passives, just skip
+        temp_rodent = rodent_cls(pos=None, side=None)  # type: ignore[arg-type]
+        for skill_name, skill_desc in temp_rodent.passive_descriptions():
+            y_offset += self._create_skill_card(
+                scroll_container, skill_name, skill_desc, y_offset
+            )
 
         scroll_container.set_scrollable_area_dimensions((350, y_offset + 20))
 
