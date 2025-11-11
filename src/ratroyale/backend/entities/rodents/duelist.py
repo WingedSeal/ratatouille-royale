@@ -162,7 +162,7 @@ class PeaPeaPoolPool(Rodent):
 
     def skill_descriptions(self) -> list[str]:
         return [
-            f"Shoot the peas inside the pod at an enemy dealing {self.attack}(ATK/2) damage twice."
+            f"Shoot the peas inside the pod at an enemy dealing {self.attack // 2}(ATK/2) damage twice."
         ]
 
 

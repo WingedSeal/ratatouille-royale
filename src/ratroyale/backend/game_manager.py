@@ -219,12 +219,15 @@ class GameManager:
             path_tile = self.board.get_tile(path_coord)
             if path_tile is None:
                 continue
+            new_entities_in_features: list[Feature] = []
             for feature in self.board.cache.entities_in_features[entity]:
                 if feature in path_tile.features:
                     feature.on_entity_moving_by(self, entity, path_coord)
+                    new_entities_in_features.append(feature)
                 else:
                     feature.on_entity_exit(self, entity, path_coord)
-                    self.board.cache.entities_in_features[entity].remove(feature)
+            self.board.cache.entities_in_features[entity] = new_entities_in_features
+
             for feature in path_tile.features:
                 if feature not in self.board.cache.entities_in_features[entity]:
                     feature.on_entity_enter(self, entity, path_coord)
@@ -364,11 +367,14 @@ class GameManager:
                     active_effect.overridden_effects.remove(effect)
                 else:
                     self.effect_duration_over(effect)
+        new_timers: list[Timer] = []
         for timer in self.board.cache.timers:
             timer.on_turn_change(timer, self)
             if timer.duration == 1 and timer.should_clear(self.turn):
                 timer.on_timer_over(timer, self)
-                self.board.cache.timers.remove(timer)
+            else:
+                new_timers.append(timer)
+        self.board.cache.timers = new_timers
         from_side = self.turn
         self.turn = self.turn.other_side()
         for entity in self.board.cache.entities_with_turn_change:
