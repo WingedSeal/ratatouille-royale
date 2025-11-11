@@ -264,7 +264,6 @@ class GameInfoPage(Page):
                 from_pos=str(move_data["from_pos"]),
                 to_pos=str(move_data["to_pos"]),
                 turn=turn_value,
-                is_player_move=(move_data["side"] == self.player_side),
             )
             self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectHistory")]))
             self.post(PageCallbackEvent("move_history_data", payload=payload))

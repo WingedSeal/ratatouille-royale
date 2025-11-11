@@ -103,7 +103,6 @@ class MoveHistoryPayload(Payload):
     from_pos: str
     to_pos: str
     turn: int
-    is_player_move: bool
 
 
 @dataclass
