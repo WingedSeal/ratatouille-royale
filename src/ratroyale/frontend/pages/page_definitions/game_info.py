@@ -278,7 +278,7 @@ class GameInfoPage(Page):
         if button_id and button_id in self.button_feature_data:
             feature = self.button_feature_data[button_id]
 
-            description_parts = []
+            description_parts: list[str] = []
 
             if feature.health is not None:
                 description_parts.append(f"Health: {feature.health}")
