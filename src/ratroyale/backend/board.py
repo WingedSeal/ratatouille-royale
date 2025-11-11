@@ -1,7 +1,8 @@
 from collections import defaultdict
 from copy import deepcopy
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING, Iterable
 
+from .cython_board import get_attackable_coords
 from ..utils import EventQueue, is_ellipsis_body
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .entity import CallableEntitySkill, Entity
@@ -246,7 +247,7 @@ class Board:
 
     def get_attackable_coords(
         self, rodent: Rodent, skill: CallableEntitySkill
-    ) -> Iterator[OddRCoord]:
+    ) -> Iterable[OddRCoord]:
         """
         Get every coords a rodent can attack with its skill altitude
 
@@ -254,19 +255,20 @@ class Board:
         :param skill: Which skills of the rodent to use in calculation
         :returns: All attackable coords
         """
-        rodent_tile = self.get_tile(rodent.pos)
-        if rodent_tile is None:
-            raise ValueError("Rodent has invalid pos")
-        max_altitude = rodent_tile.get_total_height(rodent.side) + (skill.altitude or 0)
-        reach = skill.reach
-        if reach is None:
-            raise ValueError("'get_attackable_coords is called on skill without reach")
-        for target_coord in rodent.pos.all_in_range(reach):
-            for passed_coord in rodent.pos.line_draw(target_coord):
-                passed_tile = self.get_tile(passed_coord)
-                if passed_tile is None:
-                    break
-                if passed_tile.get_total_height(rodent.side) > max_altitude:
-                    break
-            else:
-                yield target_coord
+        return get_attackable_coords(self, rodent, skill)
+        # rodent_tile = self.get_tile(rodent.pos)
+        # if rodent_tile is None:
+        #     raise ValueError("Rodent has invalid pos")
+        # max_altitude = rodent_tile.get_total_height(rodent.side) + (skill.altitude or 0)
+        # reach = skill.reach
+        # if reach is None:
+        #     raise ValueError("'get_attackable_coords is called on skill without reach")
+        # for target_coord in rodent.pos.all_in_range(reach):
+        #     for passed_coord in rodent.pos.line_draw(target_coord):
+        #         passed_tile = self.get_tile(passed_coord)
+        #         if passed_tile is None:
+        #             break
+        #         if passed_tile.get_total_height(rodent.side) > max_altitude:
+        #             break
+        #     else:
+        #         yield target_coord

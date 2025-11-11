@@ -3,6 +3,12 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any, Final
 
+from .crumbs_per_turn_modifier import (
+    BASE_CRUMBS_PER_TURN,
+    REVERSED_BASE_CRUMBS_PER_TURN,
+    BaseCrumbsPerTurn,
+    default_base_crumbs_per_turn,
+)
 from ratroyale.utils import DataPointer
 
 from .entity import Entity
@@ -23,6 +29,7 @@ class Map:
     features: list[Feature]
     tiles: list[list[Tile | None]]
     entities: list[Entity]
+    base_crumbs_per_turn: BaseCrumbsPerTurn
 
     _FORMAT_SPEC = """
         1 byte for map_name_length
@@ -76,6 +83,7 @@ class Map:
                 }
             }
         }
+        1 byte for base_crumbs_per_turn
         """
     """Binary format specification"""
 
@@ -87,12 +95,14 @@ class Map:
         tiles: list[list[Tile | None]],
         entities: list[Entity] = [],
         features: list[Feature] = [],
+        base_crumbs_per_turn: BaseCrumbsPerTurn = default_base_crumbs_per_turn,
     ) -> None:
         self.name = name
         self.size_x = size_x
         self.size_y = size_y
         self.tiles = tiles
         self.entities = entities
+        self.base_crumbs_per_turn = base_crumbs_per_turn
         self.features = []
         if len(tiles) != size_y:
             raise ValueError(
@@ -213,6 +223,8 @@ class Map:
                 data.append(len(unique_arguments))
                 data.extend(unique_arguments)
 
+        data.append(REVERSED_BASE_CRUMBS_PER_TURN[self.base_crumbs_per_turn])
+
         return bytes(data)
 
     @classmethod
@@ -296,9 +308,13 @@ class Map:
                 entity_class(OddRCoord(x, y), side, *entity_unique_parameters)
             )
 
+        base_crumbs_per_turn = BASE_CRUMBS_PER_TURN[data_pointer.get_byte()]
+
         assert data_pointer.verify_end()
 
-        return cls(name, size_x, size_y, tiles, entities, features)
+        return cls(
+            name, size_x, size_y, tiles, entities, features, base_crumbs_per_turn
+        )
 
     def __repr__(self) -> str:
         return f"""Map(

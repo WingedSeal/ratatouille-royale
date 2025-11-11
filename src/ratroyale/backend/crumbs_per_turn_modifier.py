@@ -1,0 +1,68 @@
+from collections import defaultdict
+from dataclasses import dataclass, field
+import math
+from typing import Protocol
+
+from .side import Side
+
+
+class BaseCrumbsPerTurn(Protocol):
+    def __call__(self, turn_count: int) -> int: ...
+
+
+def default_base_crumbs_per_turn(turn_count: int) -> int:
+    return min(math.ceil(turn_count / 4) * 10, 50)
+
+
+BASE_CRUMBS_PER_TURN: dict[int, BaseCrumbsPerTurn] = {0: default_base_crumbs_per_turn}
+
+REVERSED_BASE_CRUMBS_PER_TURN = {
+    value: key for key, value in BASE_CRUMBS_PER_TURN.items()
+}
+
+
+@dataclass
+class CrumbsPerTurnModifier:
+    base_crumbs_per_turn: BaseCrumbsPerTurn
+    multiplier: dict[Side, float] = field(default_factory=lambda: defaultdict(float))
+    adder: dict[Side, int] = field(default_factory=lambda: defaultdict(int))
+    turn_multiplier: list[tuple[range, float]] = field(default_factory=list)
+    turn_adder: list[tuple[range, int]] = field(default_factory=list)
+
+    def _get_turn_adder(self, turn_count: int) -> int:
+        total_adder = 0
+        for turn_range, adder in self.turn_adder:
+            if turn_count in turn_range:
+                total_adder += adder
+        return total_adder
+
+    def _get_turn_multiplier(self, turn_count: int) -> float:
+        total_multiplier = 1.0
+        for turn_range, multiplier in self.turn_multiplier:
+            if turn_count in turn_range:
+                total_multiplier += multiplier
+        return total_multiplier
+
+    def get_crumbs(self, turn_count: int, turn_side: Side) -> tuple[int, int]:
+        """
+        Get crumbs of that turn and different between that and crumbs of that turn
+        without static multiplier.
+        For example, if you have a temporary "+1 crumb for all turn" buff and with
+        that buff you'll get 10 crumbs total, it would return (10, 1).
+        It is done this way so player can know what crumbs they'll have if that buff
+        was to be taken away. And since turn specific buffs are "permanent",
+        that isn't a problem.
+        """
+        crumbs = self.base_crumbs_per_turn(turn_count)
+        crumbs_with_only_turn_modifier = crumbs
+        crumbs = math.floor(
+            crumbs
+            * (self._get_turn_multiplier(turn_count) + self.multiplier[turn_side])
+        )
+        crumbs_with_only_turn_modifier = math.floor(
+            crumbs * self._get_turn_multiplier(turn_count)
+        )
+        crumbs += self._get_turn_adder(turn_count) + self.adder[turn_side]
+        crumbs_with_only_turn_modifier += self._get_turn_adder(turn_count)
+
+        return crumbs, crumbs - crumbs_with_only_turn_modifier

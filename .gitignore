@@ -1,6 +1,8 @@
 # Custom
 .vscode/
 .DS_Store
+/prof/
+*.c
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
