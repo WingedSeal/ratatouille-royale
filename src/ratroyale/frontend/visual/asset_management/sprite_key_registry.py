@@ -1,6 +1,5 @@
 import pygame
 
-
 # TODO: refactor entity/tile sprite drawing into type-based handlers
 
 # region PLACEHOLDER VISUALS

@@ -8,7 +8,7 @@ class SkillTag(Enum):
 
 
 class EntityTag(Enum):
-    pass
+    NO_ATTACK = "no-attack"
 
 
 class RodentClassTag(Enum):
@@ -16,3 +16,4 @@ class RodentClassTag(Enum):
     DUELIST = "Duelist"
     TANK = "Tank"
     SPECIALIST = "Specialist"
+    SUPPORT = "Support"

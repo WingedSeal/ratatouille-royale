@@ -1,6 +1,6 @@
 from .player_info import PlayerInfo
 from .squeak import Squeak
-from .squeaks.rodents.vanguard import TAIL_BLAZER
+from .squeaks.rodents.vanguard import TAILBLAZER
 from .squeaks.rodents.tank import CRACKER
 from .squeaks.rodents.duelist import (
     PEA_PEA_POOL_POOL,
@@ -26,9 +26,9 @@ def _make_ai_player_info(
 
 def get_default_player_info() -> PlayerInfo:
     return PlayerInfo(
-        {TAIL_BLAZER: 4, PEA_PEA_POOL_POOL: 1},
-        [{TAIL_BLAZER: 4, PEA_PEA_POOL_POOL: 1}],
-        [{TAIL_BLAZER: 4, PEA_PEA_POOL_POOL: 1}],
+        {TAILBLAZER: 4, PEA_PEA_POOL_POOL: 1},
+        [{TAILBLAZER: 4, PEA_PEA_POOL_POOL: 1}],
+        [{TAILBLAZER: 4, PEA_PEA_POOL_POOL: 1}],
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,
@@ -39,13 +39,13 @@ def get_default_player_info() -> PlayerInfo:
 AI_PLAYER_INFO = {
     "Balanced": _make_ai_player_info(
         {
-            TAIL_BLAZER: 3,
+            TAILBLAZER: 3,
             CRACKER: 3,
             MORTAR: 3,
             RATBERT_BREWBELLY: 3,
             SODA_KABOOMA: 2,
             PEA_PEA_POOL_POOL: 4,
         },
-        {TAIL_BLAZER: 1, PEA_PEA_POOL_POOL: 2, MORTAR: 1, CRACKER: 1},
+        {TAILBLAZER: 1, PEA_PEA_POOL_POOL: 2, MORTAR: 1, CRACKER: 1},
     )
 }
