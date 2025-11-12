@@ -66,7 +66,8 @@ class GachaPage(Page):
 
         # === Image ===
         banner_surface = pygame.Surface((700, 400))
-        banner_surface.fill((220, 220, 230))
+        LIGHT_GRAY = (180, 180, 180)
+        banner_surface.fill(LIGHT_GRAY)
         pygame_gui.elements.UIImage(
             relative_rect=pygame.Rect(0, 0, 700, 400),
             image_surface=banner_surface,
@@ -75,7 +76,7 @@ class GachaPage(Page):
         )
 
         # === 1 Draw button ===
-        One_Draw = ui_element_wrapper(
+        one_draw_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(-130, 520, 120, 50),
                 text="1 Draw",
@@ -88,10 +89,10 @@ class GachaPage(Page):
             registered_name="one_draw_button",
             camera=self.camera,
         )
-        gui_elements.append(One_Draw)
+        gui_elements.append(one_draw_button)
 
         # === 10 Draws button ===
-        Ten_Draws = ui_element_wrapper(
+        ten_draws_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(130, 520, 120, 50),
                 text="10 Draws",
@@ -100,13 +101,13 @@ class GachaPage(Page):
                     "centerx": "centerx",
                 },
                 object_id=pygame_gui.core.ObjectID(
-                    class_id="OpenButton", object_id="Ten_draws_button"
+                    class_id="OpenButton", object_id="ten_draws_button"
                 ),
             ),
-            registered_name="Ten_draws_button",
+            registered_name="ten_draws_button",
             camera=self.camera,
         )
-        gui_elements.append(Ten_Draws)
+        gui_elements.append(ten_draws_button)
 
         return gui_elements
 

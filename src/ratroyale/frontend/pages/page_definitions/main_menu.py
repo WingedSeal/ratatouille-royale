@@ -34,7 +34,8 @@ class MainMenu(Page):
 
         # === Image ===
         banner_surface = pygame.Surface((100, 100))
-        banner_surface.fill((220, 220, 230))
+        LIGHT_GRAY = (180, 180, 180)
+        banner_surface.fill(LIGHT_GRAY)
         pygame_gui.elements.UIImage(
             relative_rect=pygame.Rect(100, 100, 200, 100),
             image_surface=banner_surface,
@@ -85,8 +86,8 @@ class MainMenu(Page):
                 class_id="CurrencyLabel", object_id="currency_label"
             ),
         )
-        # === Player Name (below the Right panel) ===
-        _ = pygame_gui.elements.UILabel(
+        # === Player Name  ===
+        pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(-220, 80, 120, 25),
             text="Player Name",
             manager=self.gui_manager,

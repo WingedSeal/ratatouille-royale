@@ -58,7 +58,7 @@ class CreateProfile(Page):
         )
 
         # === Text entry box ===
-        _ = pygame_gui.elements.UITextEntryLine(
+        pygame_gui.elements.UITextEntryLine(
             relative_rect=pygame.Rect(0, 0, 240, 40),
             manager=self.gui_manager,
             container=panel_element,

@@ -109,7 +109,8 @@ class PlayerProfile(Page):
             )
             # === Divider line ===
             divider_surface = pygame.Surface((400, 2))
-            divider_surface.fill((180, 180, 180))
+            LIGHT_GRAY = (180, 180, 180)
+            divider_surface.fill(LIGHT_GRAY)
             pygame_gui.elements.UIImage(
                 relative_rect=pygame.Rect(10, y_offset + 110, 390, 1),
                 image_surface=divider_surface,
