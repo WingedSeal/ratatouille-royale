@@ -307,10 +307,11 @@ class GameInfoPage(Page):
 
         for index, feature in enumerate(tile.features):
             feature_button_id = f"ShowFeatureButton_{id(feature)}"
+            feature_name, feature_description = feature.get_name_and_description()
             feature_button_wrapper = ui_element_wrapper(
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(100 + index * 60, (index // 6), 50, 20),
-                    text=f"{feature.get_name()}",
+                    text=f"{feature_name}: {feature_description}",  # TODO: add place for description
                     manager=self.gui_manager,
                     container=tile_hover_data_panel_object,
                     object_id=pygame_gui.core.ObjectID(

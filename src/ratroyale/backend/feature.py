@@ -37,7 +37,7 @@ class Feature(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_name() -> str: ...
+    def get_name_and_description() -> tuple[str, str]: ...
 
     def __init_subclass__(cls) -> None:
         if cls.FEATURE_ID() in Feature.ALL_FEATURES:

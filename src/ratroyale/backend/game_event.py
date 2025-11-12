@@ -22,7 +22,7 @@ def source_of_damage_or_heal_to_string(
     elif isinstance(source_of_damage_or_heal, EntityEffect):
         return f"{source_of_damage_or_heal.name} effect"
     elif isinstance(source_of_damage_or_heal, Feature):
-        return f"Feature {source_of_damage_or_heal.get_name()} around {source_of_damage_or_heal.shape[0]}"
+        return f"Feature {source_of_damage_or_heal.get_name_and_description()[0]} around {source_of_damage_or_heal.get_relative_shape_and_origin()[1]}"
     elif source_of_damage_or_heal is None:
         return "unknown source"
 
@@ -67,7 +67,7 @@ class FeatureDieEvent(GameEvent):
     feature: Feature
 
     def __str__(self) -> str:
-        return f"{STR_PREFIX}Feature {self.feature.get_name()} around {self.feature.shape[0]} died."
+        return f"{STR_PREFIX}Feature {self.feature.get_name_and_description()[0]} around {self.feature.shape[0]} died."
 
 
 @dataclass(frozen=True)
@@ -149,7 +149,7 @@ class FeatureDamagedEvent(GameEvent):
         super().__post_init__()
 
     def __str__(self) -> str:
-        return f"{STR_PREFIX}Feature {self.feature.get_name()} around {self.feature.shape[0]} took {self.damage} damage from {source_of_damage_or_heal_to_string(self.source)} losing {self.hp_loss} hp HP Remaining: {self.hp_remaining}"
+        return f"{STR_PREFIX}Feature {self.feature.get_name_and_description()[0]} around {self.feature.shape[0]} took {self.damage} damage from {source_of_damage_or_heal_to_string(self.source)} losing {self.hp_loss} hp HP Remaining: {self.hp_remaining}"
 
 
 @dataclass(frozen=True)
