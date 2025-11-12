@@ -31,6 +31,7 @@ class TilePayload(Payload):
 
 @dataclass
 class GameSetupPayload(Payload):
+    crumbs_modifier: CrumbsPerTurnModifier
     board: Board
     hand_squeaks: list[Squeak]
     starting_crumbs: int
@@ -119,7 +120,6 @@ class TurnPayload(Payload):
     turn_number: int
     current_side: Side
     crumbs_modifier: CrumbsPerTurnModifier
-
 
 
 @dataclass

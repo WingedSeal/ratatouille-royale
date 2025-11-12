@@ -128,6 +128,7 @@ class BackendAdapter:
             PageCallbackEvent(
                 callback_action="start_game",
                 payload=GameSetupPayload(
+                    crumbs_modifier=self.game_manager.crumbs_per_turn_modifier,
                     board=board,
                     hand_squeaks=squeak_in_hand_list,
                     starting_crumbs=self.game_manager.crumbs,

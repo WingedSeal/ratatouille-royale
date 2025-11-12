@@ -1,3 +1,4 @@
+from ratroyale.backend.crumbs_per_turn_modifier import CrumbsPerTurnModifier
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
@@ -50,7 +51,7 @@ class GameInfoPage(Page):
         self.temp_saved_buttons: list[str] = []
         self.temp_selected_tile: Tile | None = None
         self.temp_hovered_tile: Tile | None = None
-
+        self.crumbs_modifier: CrumbsPerTurnModifier | None = None
         # Move history tracking
         self.move_history: list[dict[str, object]] = []  # Stores move history entries
         self.current_turn: int = 1
@@ -216,6 +217,7 @@ class GameInfoPage(Page):
             self.crumbs = payload.starting_crumbs
             # Store player side for tracking turns
             self.player_side = payload.player_1_side
+            self.crumbs_modifier = payload.crumbs_modifier
 
     @callback_event_bind("tile_selected")
     def tile_selected(self, msg: PageCallbackEvent) -> None:
@@ -340,7 +342,11 @@ class GameInfoPage(Page):
 
     @input_event_bind("show_crumbs", pygame_gui.UI_BUTTON_PRESSED)
     def on_show_crumbs_button_click(self, msg: pygame.event.Event) -> None:
-        payload = TurnPayload(turn_number=self.current_turn)
+        assert self.current_turn_side is not None
+        assert self.crumbs_modifier is not None
+        payload = TurnPayload(
+            self.current_turn, self.current_turn_side, self.crumbs_modifier
+        )
         self.post(
             PageNavigationEvent(
                 [
