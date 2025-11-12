@@ -1,6 +1,5 @@
 import importlib
 import sys
-import traceback
 from pathlib import Path
 
 from ratroyale.frontend.pages.page_managers.base_page import Page
@@ -24,11 +23,7 @@ def auto_import_pages() -> None:
         if module_name == "__init__":
             continue
         module_path = MODULE_PATH + module_name
-        try:
-            importlib.import_module(module_path)
-        except BaseException as e:
-            print(f"Failed to import {module_name}: {type(e).__name__}: {e}")
-            traceback.print_exc()
+        importlib.import_module(module_path)
 
 
 def register_page(cls: type[Page]) -> type[Page]:
