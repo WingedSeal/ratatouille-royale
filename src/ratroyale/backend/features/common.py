@@ -77,7 +77,7 @@ class CrumbsStack(Feature):
         self,
         game_manager: "GameManager",
         entity: "Entity",
-        coord_that_entity_exit: OddRCoord,
+        coord_that_entity_exit: OddRCoord | None,
     ) -> None:
         if entity.side is None:
             return
