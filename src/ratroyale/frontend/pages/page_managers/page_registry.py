@@ -41,6 +41,7 @@ def register_page(cls: type[Page]) -> type[Page]:
             ...
     """
     name = cls.__name__
+    print(f"registering {name}")
     if name in _PAGE_REGISTRY:
         raise ValueError(f"Duplicate page registration: {name}")
     _PAGE_REGISTRY[name] = cls
@@ -52,6 +53,7 @@ def resolve_page(page_name: str) -> type[Page]:
     Resolve a page class by name. Raises KeyError if not found.
     """
     try:
+        print(list(_PAGE_REGISTRY.keys()))
         return _PAGE_REGISTRY[page_name]
     except KeyError:
         raise KeyError(

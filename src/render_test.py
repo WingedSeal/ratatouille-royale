@@ -170,7 +170,8 @@ def main():
 if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
-    feature_texture.main_TEST()
+    # feature_texture.main_TEST()
+    main()
     # profiler.disable()
 
     # stats = pstats.Stats(profiler)

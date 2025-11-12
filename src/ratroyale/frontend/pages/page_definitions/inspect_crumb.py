@@ -10,7 +10,6 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
     callback_event_bind,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-from ratroyale.backend.game_manager import crumb_per_turn
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
@@ -153,13 +152,15 @@ class InspectCrumb(Page):
         payload = msg.payload
         assert isinstance(payload, TurnPayload)
         self.current_turn = payload.turn_number
+        self.current_side = payload.current_side
+        self.crumbs_modifier = payload.crumbs_modifier
         turn_count = 20
         card_width = 150
         spacing = 20
         base_x = 0
 
         for i in range(self.current_turn, turn_count + self.current_turn):
-            turn_crumbs = crumb_per_turn(i)
+            turn_crumbs = self.crumbs_modifier.get_crumbs(self.current_turn)
             turn_panel = pygame_gui.elements.UIPanel(
                 relative_rect=pygame.Rect(base_x, 0, card_width, 120),
                 manager=self.gui_manager,

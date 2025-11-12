@@ -8,6 +8,7 @@ from ratroyale.backend.entity import SkillTargeting, SkillCompleted
 from ratroyale.backend.instant_kill import InstantKill
 from ratroyale.backend.source_of_damage_or_heal import SourceOfDamageOrHeal
 from ratroyale.backend.side import Side
+from ratroyale.backend.crumbs_per_turn_modifier import CrumbsPerTurnModifier
 
 
 @dataclass
@@ -116,6 +117,9 @@ class FeaturePayload(Payload):
 @dataclass
 class TurnPayload(Payload):
     turn_number: int
+    current_side: Side
+    crumbs_modifier: CrumbsPerTurnModifier
+
 
 
 @dataclass
