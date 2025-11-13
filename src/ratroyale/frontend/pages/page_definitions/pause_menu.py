@@ -116,6 +116,7 @@ class PauseMenu(Page):
 
     @input_event_bind("quit_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_quit_click(self, msg: pygame.event.Event) -> None:
+        self.post(GameManagerEvent("stop"))
         self.post(
             PageNavigationEvent(
                 action_list=[
