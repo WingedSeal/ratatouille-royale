@@ -68,6 +68,10 @@ class EntityElement(ElementWrapper):
             payload=EntityPayload(entity),
         )
 
+        # --- Reference to updatable child elemenets (hp number & move stamina number)
+        self.hp_number_text_ref = "hpText_" + str(uuid.uuid4())
+        self.stamina_number_text_ref = "staminaText_" + str(uuid.uuid4())
+
         # --- EntityElement specific state ---
         self.entity = entity
         self._selected = False
@@ -110,7 +114,7 @@ class EntityElement(ElementWrapper):
         return pixel_x, pixel_y
 
     def stat_elements(self) -> list[ElementWrapper]:
-        elements = []
+        elements: list[ElementWrapper] = []
 
         hp_element = self.health_element()
         elements += hp_element
@@ -137,25 +141,6 @@ class EntityElement(ElementWrapper):
             parent_element=self.registered_name,
         )
         elements.append(side_element)
-
-        # name_text = italic_bold_arial.render(
-        #     str(self.entity.name), False, pygame.Color(0, 0, 0)
-        # )
-        # name_element = ElementWrapper(
-        #     registered_name="name_" + str(uuid.uuid4()),
-        #     grouping_name="NAME",
-        #     camera=self.camera,
-        #     spatial_component=SpatialComponent(
-        #         pygame.Rect(0, -40, 70, 20),
-        #         space_mode="WORLD",
-        #         z_order=11,
-        #     ),
-        #     visual_component=VisualComponent(
-        #         SpritesheetComponent(spritesheet_reference=name_text)
-        #     ),
-        #     parent_element=self.registered_name,
-        # )
-        # elements.append(name_element)
 
         return elements
 
@@ -194,7 +179,7 @@ class EntityElement(ElementWrapper):
         hp_text_rect = pygame.Rect(text_x, text_y, text_width, text_height)
 
         hp_text_element = ElementWrapper(
-            registered_name="hpText_" + str(uuid.uuid4()),
+            registered_name=self.hp_number_text_ref,
             grouping_name="HPELEMENT",
             camera=self.camera,
             spatial_component=SpatialComponent(
@@ -271,7 +256,7 @@ class EntityElement(ElementWrapper):
         stamina_text_rect = pygame.Rect(text_x, text_y, text_width, text_height)
 
         stamina_text_element = ElementWrapper(
-            registered_name="staminaText_" + str(uuid.uuid4()),
+            registered_name=self.stamina_number_text_ref,
             grouping_name="STAMINAELEMENT",
             camera=self.camera,
             spatial_component=SpatialComponent(
@@ -361,17 +346,17 @@ class EntityElement(ElementWrapper):
         hp_text = italic_bold_arial.render(
             str(self.entity.health), False, pygame.Color("white")
         )
-        hp_element = self.children[1]
+        hp_element = self.children[self.hp_number_text_ref]
         visual_component = hp_element.visual_component
         if visual_component and visual_component.spritesheet_component:
             visual_component.spritesheet_component.spritesheet_reference = hp_text
 
     def update_move_stamina(self) -> None:
         assert isinstance(self.entity, Rodent)
-        hp_text = italic_bold_arial.render(
+        stamina_text = italic_bold_arial.render(
             str(self.entity.move_stamina), False, pygame.Color("white")
         )
-        hp_element = self.children[3]
-        visual_component = hp_element.visual_component
+        stamina_text_element = self.children[self.stamina_number_text_ref]
+        visual_component = stamina_text_element.visual_component
         if visual_component and visual_component.spritesheet_component:
-            visual_component.spritesheet_component.spritesheet_reference = hp_text
+            visual_component.spritesheet_component.spritesheet_reference = stamina_text
