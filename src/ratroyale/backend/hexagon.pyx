@@ -139,6 +139,9 @@ cdef class _AxialCoord:
 
         if hex_height == -1.0:
             hex_height = hex_width
+        if is_bounding_box:
+            hex_width /= sqrt(3)
+            hex_height *= 0.5
 
         x /= hex_width
         y /= hex_height
@@ -321,7 +324,7 @@ cdef class OddRCoord:
 
     @staticmethod
     def from_pixel(double x, double y, double hex_width, double hex_height = -1.0, bint is_bounding_box = 0):
-        return _AxialCoord.from_pixel(x, y, hex_height, hex_height, is_bounding_box).to_odd_r()
+        return _AxialCoord.from_pixel(x, y, hex_width, hex_height, is_bounding_box).to_odd_r()
 
     def __add__(self, OddRCoord other):
         return OddRCoord(self.x + other.x, self.y + other.y)
