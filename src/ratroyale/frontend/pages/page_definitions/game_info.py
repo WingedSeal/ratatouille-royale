@@ -118,10 +118,7 @@ class GameInfoPage(Page):
                 end_turn_button_dim[0],
                 end_turn_button_dim[1],
             ),
-            text=f"""
-            Turn: {self.current_turn}
-            End Turn
-            """,
+            text="End Turn",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="EndTurnButton",
@@ -220,7 +217,13 @@ class GameInfoPage(Page):
             self.crumbs = payload.starting_crumbs
             # Store player side for tracking turns
             self.player_side = payload.player_1_side
+            self.current_turn_side = payload.player_1_side
             self.crumbs_modifier = payload.crumbs_modifier
+        assert self.current_turn_side is not None
+        end_turn_button = self._element_manager.get_element("end_turn_button")
+        end_turn_button.get_interactable(pygame_gui.elements.UIButton).set_text(
+            f"End {self.current_turn_side.name} Turn"
+        )
 
     @callback_event_bind("tile_selected")
     def tile_selected(self, msg: PageCallbackEvent) -> None:
@@ -307,6 +310,10 @@ class GameInfoPage(Page):
         self.current_turn_side = event.to_side
         self.current_turn += 1
         self._refresh_move_history_panel()
+        end_turn_button = self._element_manager.get_element("end_turn_button")
+        end_turn_button.get_interactable(pygame_gui.elements.UIButton).set_text(
+            f"End {self.current_turn_side.name} Turn"
+        )
 
     @callback_event_bind("move_history")
     def _move_history(self, msg: PageCallbackEvent) -> None:

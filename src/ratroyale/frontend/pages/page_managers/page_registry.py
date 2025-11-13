@@ -48,7 +48,6 @@ def resolve_page(page_name: str) -> type[Page]:
     Resolve a page class by name. Raises KeyError if not found.
     """
     try:
-        print(list(_PAGE_REGISTRY.keys()))
         return _PAGE_REGISTRY[page_name]
     except KeyError:
         raise KeyError(

@@ -21,6 +21,7 @@ from ratroyale.event_tokens.payloads import (
     GameOverPayload,
     SidePayload,
     DeckPayload,
+    TurnPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
@@ -283,6 +284,16 @@ class BackendAdapter:
             PageCallbackEvent(
                 callback_action="crumb_update",
                 payload=CrumbUpdatePayload(self.game_manager.crumbs),
+            )
+        )
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="end_turn_button_message",
+                payload=TurnPayload(
+                    self.game_manager.turn_count,
+                    self.game_manager.turn,
+                    self.game_manager.crumbs_per_turn_modifier,
+                ),
             )
         )
 
