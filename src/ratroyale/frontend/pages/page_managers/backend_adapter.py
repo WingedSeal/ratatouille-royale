@@ -86,34 +86,12 @@ class BackendAdapter:
         }
 
     def execute_backend_callback(self) -> None:
-        # Get the page -> backend queue
-        msg_queue_from_page: EventQueue[GameManagerEvent] | None = (
-            self.coordination_manager.mailboxes.get(GameManagerEvent, None)
-        )
-        # Get the backend -> page queue
         msg_queue_from_backend: EventQueue[GameEvent] = self.game_manager.event_queue
 
-        if msg_queue_from_page is None:
-            return
-
         # Process all messages currently in both queues
-        while not msg_queue_from_page.empty() or not msg_queue_from_backend.empty():
-            # Process page -> backend messages
-            if not msg_queue_from_page.empty():
-                msg_from_page: GameManagerEvent = msg_queue_from_page.get()
-                page_handler = self.game_manager_response.get(msg_from_page.game_action)
-                if page_handler:
-                    page_handler(msg_from_page)
-                else:
-                    pass
-                    # print(
-                    #     f"No handler for page event type: {msg_from_page.game_action}"
-                    # )
-
-            # Process backend -> page messages
-            if not msg_queue_from_backend.empty():
-                msg_from_backend: GameEvent = msg_queue_from_backend.get()
-                self.page_manager.execute_game_event_callback(msg_from_backend)
+        while not msg_queue_from_backend.empty():
+            msg_from_backend: GameEvent = msg_queue_from_backend.get()
+            self.page_manager.execute_game_event_callback(msg_from_backend)
 
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board

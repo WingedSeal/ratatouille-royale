@@ -2,7 +2,10 @@ from typing import Callable
 
 import pygame
 
+from ratroyale.backend.game_manager import GameManager
 from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.game_token import GameManagerEvent
+from ratroyale.event_tokens.payloads import BackendStartPayload
 from ratroyale.event_tokens.input_token import InputManagerEvent, post_gesture_event
 from ratroyale.event_tokens.page_token import (
     PageCallbackEvent,
@@ -19,6 +22,8 @@ from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE_HALVED
 from ratroyale.backend.game_event import GameEvent
+from ratroyale.utils import EventQueue
+from .backend_adapter import BackendAdapter
 
 
 class PageManager:
@@ -48,6 +53,7 @@ class PageManager:
             PageNavigation.CLOSE_ALL: self.remove_all_pages,
             PageNavigation.CLOSE_TOP: self.remove_top_page,
         }
+        self.backend_adapter: BackendAdapter | None = None
 
     # region Basic Page Management Methods
 
@@ -73,6 +79,42 @@ class PageManager:
             raise IndexError("Page stack is empty.")
         closed_page = self.page_stack.pop()
         closed_page.on_close()
+
+    def execute_backend_page_callback(self) -> None:
+        msg_queue_from_page: EventQueue[GameManagerEvent] = (
+            self.coordination_manager.mailboxes[GameManagerEvent]
+        )
+        while not msg_queue_from_page.empty():
+            msg_from_page: GameManagerEvent = msg_queue_from_page.get_nowait()
+            if self.backend_adapter is None:
+                if msg_from_page.game_action != "start":
+                    raise ValueError(
+                        "Attempting to issue event to GameManager without starting it"
+                    )
+                payload = msg_from_page.payload
+                assert isinstance(payload, BackendStartPayload)
+                self.backend_adapter = BackendAdapter(
+                    GameManager(
+                        payload.map,
+                        (payload.player_info1, payload.player_info2),
+                        payload.first_turn,
+                    ),
+                    self,
+                    self.coordination_manager,
+                    payload.ai_type,
+                )
+                continue
+            if msg_from_page.game_action == "stop":
+                self.backend_adapter = None
+                continue
+            page_handler = self.backend_adapter.game_manager_response.get(
+                msg_from_page.game_action
+            )
+            if page_handler:
+                page_handler(msg_from_page)
+        if self.backend_adapter is not None:
+            self.backend_adapter.execute_backend_callback()
+            return
 
     def remove_page(self, page_type: type[Page]) -> None:
         print("page to be removed:", page_type)
