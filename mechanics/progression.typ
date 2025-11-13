@@ -20,7 +20,7 @@ $ "EXP Required" = 100 + 10(N - 1) $
 
 Where $N$ represents the current level.
 
-\*Example Progression:\*
+*Example Progression:*
 - Level 1 → 2: 100 EXP
 - Level 2 → 3: 110 EXP
 - Level 3 → 4: 120 EXP
