@@ -135,11 +135,14 @@ def main():
     coordination_manager.put_message(
         PageNavigationEvent(
             action_list=[
-                (PageNavigation.OPEN, "MainMenu"),
+                (PageNavigation.CLOSE_ALL, None),
+                (PageNavigation.OPEN, "GameBoard"),
+                (PageNavigation.OPEN, "GameInfoPage"),
+                (PageNavigation.OPEN, "PauseButton"),
             ]
         )  # change this to test your page
     )
-    # page_manager.backend_adapter = backend_adapter  # A hack to make it works in test
+    page_manager.backend_adapter = backend_adapter  # A hack to make it works in test
 
     avg_fps = 0
     fps_alpha = 0.1  # smoothing factor for running average
@@ -171,7 +174,8 @@ def main():
 if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
-    feature_texture.main_TEST()
+    # feature_texture.main_TEST()
+    main()
     # profiler.disable()
 
     # stats = pstats.Stats(profiler)
