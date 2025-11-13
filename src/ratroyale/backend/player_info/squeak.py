@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import TYPE_CHECKING, ClassVar, Iterable, Protocol
 
@@ -33,6 +33,7 @@ class Squeak:
     on_place: SqueakOnPlace
     get_placable_tiles: SqueakGetPlacableTiles
     rodent: "type[Rodent] | None"
+    related_entities: list["Entity"] = field(default_factory=list, hash=False)
     SQEAK_MAP: ClassVar[dict[str, "Squeak"]] = {}
     REVERSED_SQEAK_MAP: ClassVar[dict["Squeak", str]] = {}
 
