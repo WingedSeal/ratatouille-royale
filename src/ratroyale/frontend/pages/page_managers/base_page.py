@@ -80,6 +80,7 @@ class Page(ABC):
         self.hovered: bool = False
         """ Pygame_gui elements will constantly fire hovered events instead of once during entry.
         Use this variable to keep track of scenarios where you want something to trigger only on beginning of hover. """
+        self.received_event_this_tick: bool = False
 
         self._input_bindings: dict[
             tuple[str | SpecialInputScope, int], InputHandler

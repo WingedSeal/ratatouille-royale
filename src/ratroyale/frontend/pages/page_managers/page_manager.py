@@ -15,6 +15,7 @@ from ratroyale.frontend.gesture.gesture_reader import (
     GESTURE_READER_CARES,
     GestureReader,
 )
+from ratroyale.frontend.gesture.gesture_data import GestureType
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
@@ -160,6 +161,12 @@ class PageManager:
 
         # Step 3: produce gesture data
         gestures = self.gesture_reader.read_events(mouse_events)
+
+        # HACK: THE PAGE MANAGER INTERCEPTS AND LISTENS FOR DRAG END SPECIFICALLY TO RESET THE CAMERA
+        # THIS IS NOT ROBUST. A MORE ROBUST METHOD WOULD INTRODUCE A NEW MANAGER ENTIRELY FOR DRAGGING.
+        for gesture in gestures:
+            if gesture.gesture_type == GestureType.DRAG_END:
+                self.camera.end_drag()
 
         # Step 4: distribute gesture data to pages,
         # where pages will distribute gesture data to its elements for posting gesture events.

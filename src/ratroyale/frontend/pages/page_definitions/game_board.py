@@ -677,7 +677,6 @@ class GameBoard(Page):
             )
         else:
             self.camera.drag_to(pygame.mouse.get_pos())
-            return
 
     @input_event_bind("SELECTMASK", GestureType.DRAG.to_pygame_event())
     def _on_drag_tile(self, msg: pygame.event.Event) -> None:
@@ -714,8 +713,6 @@ class GameBoard(Page):
 
             self._element_manager.deselect_all("SELECTMASK")
             self._element_manager.deselect_all("AVAILABLEMASK")
-
-        self.camera.end_drag()
 
     # endregion
 
