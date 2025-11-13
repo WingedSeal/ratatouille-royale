@@ -86,15 +86,10 @@ class BackendAdapter:
         board = self.game_manager.board
 
         player_1_side = self.game_manager.first_turn
-        player_1_info = self.game_manager.players_info[player_1_side]
-        squeak_in_player_1_hand_list = (
-            player_1_info.get_squeak_set().get_deck_and_hand()[1]
-        )
-
-        player_2_info = self.game_manager.players_info[player_1_side.other_side()]
-        squeak_in_player_2_hand_list = (
-            player_2_info.get_squeak_set().get_deck_and_hand()[1]
-        )
+        squeak_in_player_1_hand_list = self.game_manager.decks[player_1_side]
+        squeak_in_player_2_hand_list = self.game_manager.decks[
+            player_1_side.other_side()
+        ]
         self.coordination_manager.put_message(
             PageCallbackEvent(
                 callback_action="start_game",
