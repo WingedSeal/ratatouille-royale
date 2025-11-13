@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import TYPE_CHECKING, ClassVar, Iterable, Protocol
 
@@ -7,6 +7,7 @@ from ..hexagon import OddRCoord
 if TYPE_CHECKING:
     from ..entities.rodent import Rodent
     from ..game_manager import GameManager
+    from ..entity import Entity
 
 
 class SqueakType(Enum):
@@ -32,6 +33,7 @@ class Squeak:
     on_place: SqueakOnPlace
     get_placable_tiles: SqueakGetPlacableTiles
     rodent: "type[Rodent] | None"
+    related_entities: list["Entity"] = field(default_factory=list, hash=False)
     SQEAK_MAP: ClassVar[dict[str, "Squeak"]] = {}
     REVERSED_SQEAK_MAP: ClassVar[dict["Squeak", str]] = {}
 
@@ -58,15 +60,17 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
 
 def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
     def on_place(game_manager: "GameManager", coord: OddRCoord) -> None:
-        return summon(game_manager, coord, rodent_type)
+        summon(game_manager, coord, rodent_type)
 
     return on_place
 
 
 def summon(
     game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]
-) -> None:
+) -> "Entity":
     tile = game_manager.board.get_tile(coord)
     if tile is None:
         raise ValueError("Trying to summon rodent on None tile")
-    game_manager.board.add_entity(rodent_type(coord, game_manager.turn))
+    entity = rodent_type(coord, game_manager.turn)
+    game_manager.board.add_entity(entity, game_manager)
+    return entity

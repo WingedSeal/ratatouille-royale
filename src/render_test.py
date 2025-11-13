@@ -3,9 +3,9 @@
 import pygame
 
 pygame.init()
-
+from ratroyale.frontend import feature_texture
 from ratroyale.backend.ai.rushb_ai import RushBAI
-from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAIL_BLAZER
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAILBLAZER
 from ratroyale.backend.player_info.squeaks.rodents.duelist import (
     RATBERT_BREWBELLY,
     SODA_KABOOMA,
@@ -100,9 +100,9 @@ def main():
 
     # Player 1: create a SqueakSet directly in the constructor
     player_info_1 = PlayerInfo(
-        {TAIL_BLAZER: 5},
-        [{TAIL_BLAZER: 5}],
-        [{TAIL_BLAZER: 5}],
+        {TAILBLAZER: 5},
+        [{TAILBLAZER: 5}],
+        [{TAILBLAZER: 5}],
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,
@@ -111,9 +111,9 @@ def main():
 
     # Player 2: separate SqueakSet instance
     player_info_2 = PlayerInfo(
-        {TAIL_BLAZER: 5},
-        [{TAIL_BLAZER: 5}],
-        [{TAIL_BLAZER: 5}],
+        {TAILBLAZER: 5},
+        [{TAILBLAZER: 5}],
+        [{TAILBLAZER: 5}],
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,
@@ -170,7 +170,7 @@ def main():
 if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
-    main()
+    feature_texture.main_TEST()
     # profiler.disable()
 
     # stats = pstats.Stats(profiler)

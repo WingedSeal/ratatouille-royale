@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+
 import pygame
-from .anim_structure import AnimEvent
+
 from ...asset_management.spritesheet_structure import SpritesheetComponent
 from .anim_settings import AnimDirection
+from .anim_structure import AnimEvent
 
 
 @dataclass

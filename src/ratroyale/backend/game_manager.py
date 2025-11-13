@@ -1,13 +1,12 @@
-import math
 from random import shuffle
 from typing import Iterator
 from dataclasses import dataclass, field
 from collections import defaultdict
 
+from .crumbs_per_turn_modifier import CrumbsPerTurnModifier
 from .instant_kill import InstantKill
 from ..utils import EventQueue
 from .board import Board
-from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .entities.rodent import Rodent
 from .entity import Entity, SkillCompleted, SkillResult, SkillTargeting
 from .entity_effect import EntityEffect
@@ -41,17 +40,14 @@ from .game_event import (
     SqueakPlacedEvent,
     SqueakSetResetEvent,
 )
+from .player_info.squeak_set import HAND_LENGTH
 from .hexagon import OddRCoord
 from .map import Map
 from .player_info.player_info import PlayerInfo
-from .player_info.squeak_set import HAND_LENGTH
 from .player_info.squeak import Squeak
 from .side import Side
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .timer import Timer
-
-
-def crumb_per_turn(turn_count: int) -> int:
-    return min(math.ceil(turn_count / 4) * 10, 50)
 
 
 @dataclass
@@ -72,7 +68,7 @@ class GameManager:
     turn: Side
     """Whose turn it currently is"""
     turn_count: int
-    """How many turns it has been"""
+    """How many turns it has been (starts at 1)"""
     board: Board
     """Game board"""
     hands: dict[Side, list[Squeak]]
@@ -93,7 +89,8 @@ class GameManager:
         self.turn = first_turn
         self.first_turn = first_turn
         self.turn_count = 1
-        self.crumbs = crumb_per_turn(self.turn_count)
+        self.crumbs_per_turn_modifier = CrumbsPerTurnModifier(map.base_crumbs_per_turn)
+        self.set_crumbs()
         self.board = Board(map)
         self.players_info = {
             first_turn: players_info[0],
@@ -113,6 +110,28 @@ class GameManager:
         """
         self.game_over_event: GameOverEvent | None = None
         self.game_stats = GameStats()
+
+    def get_crumbs(self, turn_count: int) -> tuple[int, int]:
+        """
+        Get crumbs of that turn and different between that and crumbs of that turn
+        without static multiplier.
+        For example, if you have a temporary "+1 crumb for all turn" buff and with
+        that buff you'll get 10 crumbs total, it would return (10, 1).
+        It is done this way so player can know what crumbs they'll have if that buff
+        was to be taken away. And since turn specific buffs are "permanent",
+        that isn't a problem.
+        """
+        return self.crumbs_per_turn_modifier.get_crumbs(
+            turn_count,
+            (
+                self.first_turn
+                if self.turn_count % 2 == 1
+                else self.first_turn.other_side()
+            ),
+        )
+
+    def set_crumbs(self) -> None:
+        self.crumbs = self.get_crumbs(self.turn_count)[0]
 
     @property
     def is_selecting_target(self) -> bool:
@@ -219,12 +238,15 @@ class GameManager:
             path_tile = self.board.get_tile(path_coord)
             if path_tile is None:
                 continue
+            new_entities_in_features: list[Feature] = []
             for feature in self.board.cache.entities_in_features[entity]:
                 if feature in path_tile.features:
                     feature.on_entity_moving_by(self, entity, path_coord)
+                    new_entities_in_features.append(feature)
                 else:
                     feature.on_entity_exit(self, entity, path_coord)
-                    self.board.cache.entities_in_features[entity].remove(feature)
+            self.board.cache.entities_in_features[entity] = new_entities_in_features
+
             for feature in path_tile.features:
                 if feature not in self.board.cache.entities_in_features[entity]:
                     feature.on_entity_enter(self, entity, path_coord)
@@ -247,6 +269,7 @@ class GameManager:
             raise UpdatingTheDeadError(rodent)
         from_pos = rodent.pos
         self._validate_not_selecting_target()
+        origin = rodent.pos
         if self.crumbs < rodent.move_cost:
             raise NotEnoughCrumbError()
         if rodent.move_stamina <= 0:
@@ -268,6 +291,13 @@ class GameManager:
         event = EntityMoveEvent(path, rodent, from_pos)
         self.event_queue.put_nowait(event)
         self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
+        if rodent.side is not None:
+            for entity in self.board.cache.entities_with_on_ally_move[rodent.side]:
+                entity.on_ally_move(self, rodent, path, origin)
+            for entity in self.board.cache.entities_with_on_enemy_move[
+                rodent.side.other_side()
+            ]:
+                entity.on_enemy_move(self, rodent, path, origin)
         return path
 
     def move_entity_uncheck(
@@ -282,7 +312,7 @@ class GameManager:
         """
         if entity.is_dead:
             raise UpdatingTheDeadError(entity)
-        from_pos = entity.pos
+        origin = entity.pos
         path = self.board.path_find(
             entity, target, custom_jump_height=custom_jump_height
         )
@@ -292,7 +322,14 @@ class GameManager:
         if not is_success:
             raise InvalidMoveTargetError("Cannot move entity there")
         self._trigger_feature_on_move(path, entity)
-        self.event_queue.put(EntityMoveEvent(path, entity, from_pos))
+        self.event_queue.put(EntityMoveEvent(path, entity, origin))
+        if entity.side is not None:
+            for _entity in self.board.cache.entities_with_on_ally_move[entity.side]:
+                _entity.on_ally_move(self, entity, path, origin)
+            for _entity in self.board.cache.entities_with_on_enemy_move[
+                entity.side.other_side()
+            ]:
+                entity.on_enemy_move(self, entity, path, origin)
         return path
 
     def get_enemies_on_pos(self, pos: OddRCoord) -> Iterator[Entity]:
@@ -349,11 +386,14 @@ class GameManager:
                     active_effect.overridden_effects.remove(effect)
                 else:
                     self.effect_duration_over(effect)
+        new_timers: list[Timer] = []
         for timer in self.board.cache.timers:
             timer.on_turn_change(timer, self)
             if timer.duration == 1 and timer.should_clear(self.turn):
                 timer.on_timer_over(timer, self)
-                self.board.cache.timers.remove(timer)
+            else:
+                new_timers.append(timer)
+        self.board.cache.timers = new_timers
         from_side = self.turn
         self.turn = self.turn.other_side()
         for entity in self.board.cache.entities_with_turn_change:
@@ -371,7 +411,7 @@ class GameManager:
             self.turn_count += 1
         leftover_crumbs = self.crumbs
         old_crumbs = self.crumbs
-        self.crumbs = crumb_per_turn(self.turn_count)
+        self.set_crumbs()
         for entity in self.board.cache.sides[None]:
             entity.reset_stamina()
         for entity in self.board.cache.sides[from_side]:
@@ -391,9 +431,8 @@ class GameManager:
             raise UpdatingTheDeadError(timer.entity)
         self.board.cache.timers.append(timer)
 
-    def apply_effect(
-        self, entity: Entity, effect: EntityEffect, stack_intensity: bool = False
-    ) -> None:
+    def apply_effect(self, effect: EntityEffect, stack_intensity: bool = False) -> None:
+        entity = effect.entity
         if entity.is_dead:
             raise UpdatingTheDeadError(entity)
         old_effect = entity.effects.get(effect.name)

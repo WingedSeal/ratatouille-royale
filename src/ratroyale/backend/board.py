@@ -1,7 +1,8 @@
 from collections import defaultdict
 from copy import deepcopy
-from typing import Iterable, Iterator
+from typing import TYPE_CHECKING, Iterable
 
+from .cython_board import get_attackable_coords
 from ..utils import EventQueue, is_ellipsis_body
 from .entities.rodent import ENTITY_JUMP_HEIGHT, Rodent
 from .entity import CallableEntitySkill, Entity
@@ -15,6 +16,10 @@ from .map import Map
 from .side import Side
 from .tile import Tile
 from .timer import Timer
+
+if TYPE_CHECKING:
+    from .entities.rodents.specialist import TheOne
+    from .game_manager import GameManager
 
 
 class Cache:
@@ -33,6 +38,9 @@ class Cache:
         self.timers: list[Timer] = []
         self.entities_with_turn_change: list[Entity] = []
         self.entities_in_features: dict[Entity, list[Feature]] = defaultdict(list)
+        self.entities_with_on_enemy_move: dict[Side, list[Entity]] = defaultdict(list)
+        self.entities_with_on_ally_move: dict[Side, list[Entity]] = defaultdict(list)
+        self.the_ones: dict[Side, TheOne | None] = defaultdict(lambda: None)
 
     def get_all_lairs(self) -> Iterable[Lair]:
         for side_lair in self.lairs.values():
@@ -65,7 +73,9 @@ class Board:
         for entity in map.entities:
             self.add_entity(entity)
 
-    def add_entity(self, entity: Entity) -> None:
+    def add_entity(
+        self, entity: Entity, game_manager: "GameManager | None" = None
+    ) -> None:
         self.cache.entities.append(entity)
         self.cache.sides[entity.side].append(entity)
         if entity.health is not None:
@@ -75,10 +85,21 @@ class Board:
             self.cache.rodents.append(entity)
         if not is_ellipsis_body(entity.on_turn_change):
             self.cache.entities_with_turn_change.append(entity)
+        if not is_ellipsis_body(entity.on_ally_move):
+            if entity.side is None:
+                raise ValueError("Entity with no side can't trigger on ally move")
+            self.cache.entities_with_on_ally_move[entity.side].append(entity)
+        if not is_ellipsis_body(entity.on_enemy_move):
+            if entity.side is None:
+                raise ValueError("Entity with no side can't trigger on ally move")
+            self.cache.entities_with_on_enemy_move[entity.side].append(entity)
         tile = self.get_tile(entity.pos)
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.append(entity)
+        if game_manager is not None:
+            entity.on_summon(game_manager)
+        entity.on_spawn(self)
         self.event_queue.put_nowait(EntitySpawnEvent(entity))
 
     def remove_entity(self, entity: Entity) -> None:
@@ -94,12 +115,24 @@ class Board:
             self.cache.rodents.remove(entity)
         if not is_ellipsis_body(entity.on_turn_change):
             self.cache.entities_with_turn_change.remove(entity)
+        if not is_ellipsis_body(entity.on_ally_move):
+            assert entity.side is not None
+            self.cache.entities_with_on_ally_move[entity.side].remove(entity)
+        if not is_ellipsis_body(entity.on_enemy_move):
+            assert entity.side is not None
+            self.cache.entities_with_on_enemy_move[entity.side].remove(entity)
         for timer in self.cache.timers:
             if timer.entity is entity:
                 self.cache.timers.remove(timer)
         for effect in self.cache.effects:
             if effect.entity is entity:
                 self.cache.effects.remove(effect)
+        self.cache.timers = [
+            timer for timer in self.cache.timers if timer.entity is not entity
+        ]
+        self.cache.effects = [
+            effect for effect in self.cache.effects if effect.entity is not entity
+        ]
 
     def get_tile(self, coord: OddRCoord) -> Tile | None:
         if coord.x < 0 or coord.x >= self.size_x:
@@ -214,7 +247,7 @@ class Board:
 
     def get_attackable_coords(
         self, rodent: Rodent, skill: CallableEntitySkill
-    ) -> Iterator[OddRCoord]:
+    ) -> Iterable[OddRCoord]:
         """
         Get every coords a rodent can attack with its skill altitude
 
@@ -222,19 +255,20 @@ class Board:
         :param skill: Which skills of the rodent to use in calculation
         :returns: All attackable coords
         """
-        rodent_tile = self.get_tile(rodent.pos)
-        if rodent_tile is None:
-            raise ValueError("Rodent has invalid pos")
-        max_altitude = rodent_tile.get_total_height(rodent.side) + (skill.altitude or 0)
-        reach = skill.reach
-        if reach is None:
-            raise ValueError("'get_attackable_coords is called on skill without reach")
-        for target_coord in rodent.pos.all_in_range(reach):
-            for passed_coord in rodent.pos.line_draw(target_coord):
-                passed_tile = self.get_tile(passed_coord)
-                if passed_tile is None:
-                    break
-                if passed_tile.get_total_height(rodent.side) > max_altitude:
-                    break
-            else:
-                yield target_coord
+        return get_attackable_coords(self, rodent, skill)
+        # rodent_tile = self.get_tile(rodent.pos)
+        # if rodent_tile is None:
+        #     raise ValueError("Rodent has invalid pos")
+        # max_altitude = rodent_tile.get_total_height(rodent.side) + (skill.altitude or 0)
+        # reach = skill.reach
+        # if reach is None:
+        #     raise ValueError("'get_attackable_coords is called on skill without reach")
+        # for target_coord in rodent.pos.all_in_range(reach):
+        #     for passed_coord in rodent.pos.line_draw(target_coord):
+        #         passed_tile = self.get_tile(passed_coord)
+        #         if passed_tile is None:
+        #             break
+        #         if passed_tile.get_total_height(rodent.side) > max_altitude:
+        #             break
+        #     else:
+        #         yield target_coord
