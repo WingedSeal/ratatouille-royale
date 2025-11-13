@@ -35,9 +35,6 @@ class InspectDeckPage(Page):
             base_color=(0, 0, 0, 128),
         )
 
-    # def on_open(self) -> None:
-    #     self.post(GameManagerEvent(game_action="inspect_deck"))
-
     def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
         gui_elements: list[ElementWrapper] = []

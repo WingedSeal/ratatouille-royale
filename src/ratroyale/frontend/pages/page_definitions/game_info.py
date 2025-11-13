@@ -118,7 +118,10 @@ class GameInfoPage(Page):
                 end_turn_button_dim[0],
                 end_turn_button_dim[1],
             ),
-            text="End Turn",
+            text=f"""
+            Turn: {self.current_turn}
+            End Turn
+            """,
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="EndTurnButton",
@@ -488,6 +491,13 @@ class GameInfoPage(Page):
             self._element_manager.remove_element(ids)
         self.temp_saved_buttons.clear()
 
+    @callback_event_bind("first_turn_info")
+    def receive_first_turn(self, msg: PageCallbackEvent) -> None:
+        if msg.success and msg.payload:
+            payload = msg.payload
+            assert isinstance(payload, SidePayload)
+            self.player_side = payload.side
+
     def _refresh_move_history_panel(self) -> None:
         """Refresh the move history panel with current move history data."""
         try:
@@ -512,10 +522,16 @@ class GameInfoPage(Page):
         y_offset = 0
         displayed_moves = self.move_history[-10:]  # Show last 10 moves
 
+        self.post(GameManagerEvent(game_action="get_first_turn", payload=None))
         for index, move in enumerate(displayed_moves):
             button_id = f"move_history_btn_{index}"
             is_player_turn = move["side"] == self.player_side
-            turn_prefix = "[YOU]" if is_player_turn else "[ENEMY]"
+            assert self.player_side is not None
+            turn_prefix = (
+                f"{self.player_side.name}"
+                if is_player_turn
+                else f"{self.player_side.other_side().name}"
+            )
             move_text = f"{turn_prefix} T{move['turn']}: {move['entity_name']}"
 
             button = pygame_gui.elements.UIButton(

@@ -160,7 +160,9 @@ class InspectCrumb(Page):
         base_x = 0
 
         for i in range(self.current_turn, turn_count + self.current_turn):
-            turn_crumbs = self.crumbs_modifier.get_crumbs(self.current_turn)
+            turn_crumbs = self.crumbs_modifier.get_crumbs(
+                self.current_turn, self.current_side
+            )
             turn_panel = pygame_gui.elements.UIPanel(
                 relative_rect=pygame.Rect(base_x, 0, card_width, 120),
                 manager=self.gui_manager,

@@ -69,6 +69,7 @@ class BackendAdapter:
             "target_selected": self.handle_target_selected,
             "skill_canceled": self.handle_skill_canceled,
             "inspect_deck_clicked": self.handle_inspect_deck_clicked,
+            "get_first_turn": self.handle_get_first_turn,
         }
         self.game_manager_issued_events: dict[
             type[GameEvent], Callable[[GameEvent], None]
@@ -352,5 +353,14 @@ class BackendAdapter:
             PageCallbackEvent(
                 callback_action="inspect_deck",
                 payload=DeckPayload(deck=deck),
+            )
+        )
+
+    def handle_get_first_turn(self, event: GameManagerEvent) -> None:
+        first_turn_side = self.game_manager.first_turn
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="first_turn_info",
+                payload=SidePayload(side=first_turn_side),
             )
         )
