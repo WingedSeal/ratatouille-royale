@@ -1,4 +1,3 @@
-from ..utils import lerp as lerp
 from dataclasses import dataclass, field
 from typing import Callable, Iterator, Protocol, Self
 
@@ -209,6 +208,11 @@ class _CubeCoordFloat:
     r: float
     s: float
     def round(self) -> _CubeCoord: ...
+    def lerp(self, other: Self, t: float) -> Self:
+        """
+        https://www.redblobgames.com/grids/hexagons/#line-drawing
+        """
+        ...
 
 @dataclass(order=True)
 class _AStarCoord:
