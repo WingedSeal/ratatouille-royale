@@ -4,6 +4,7 @@ from ratroyale.backend.entity import Entity
 from ....visual.asset_management.game_obj_to_sprite_registry import (
     SPRITE_METADATA_REGISTRY,
     TYPICAL_TILE_SIZE,
+    DUMMY_TEXTURE_METADATA,
 )
 
 from ....visual.anim.core.anim_structure import SequentialAnim
@@ -35,7 +36,11 @@ class EntityElement(ElementWrapper):
 
     def __init__(self, entity: Entity, camera: Camera):
         # Register spritesheet
-        sprite_metadata = SPRITE_METADATA_REGISTRY[type(entity)]
+        try:
+            sprite_metadata = SPRITE_METADATA_REGISTRY[type(entity)]
+        except KeyError:
+            sprite_metadata = DUMMY_TEXTURE_METADATA
+
         spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
         ).get_key()

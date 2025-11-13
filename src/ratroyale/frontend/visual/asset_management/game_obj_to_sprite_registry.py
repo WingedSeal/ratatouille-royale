@@ -22,6 +22,15 @@ class SpritesheetMetadata:
     scale: tuple[float, float] = (1.0, 1.0)
 
 
+DUMMY_TEXTURE_METADATA: SpritesheetMetadata = SpritesheetMetadata(
+    "DUMMY",
+    ASSET_DIR / "missingTexture.jpg",
+    (749, 745),
+    {"NONE": [0]},
+    60,
+)
+
+
 SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
     Tailblazer: SpritesheetMetadata(
         "TAILBLAZER",
