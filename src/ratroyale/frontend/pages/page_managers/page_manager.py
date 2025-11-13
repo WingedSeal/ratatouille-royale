@@ -107,6 +107,10 @@ class PageManager:
             if msg_from_page.game_action == "stop":
                 self.backend_adapter = None
                 continue
+            if msg_from_page.game_action == "start":
+                raise ValueError(
+                    "Attempting to issue start event to GameManager while it's already running"
+                )
             page_handler = self.backend_adapter.game_manager_response.get(
                 msg_from_page.game_action
             )

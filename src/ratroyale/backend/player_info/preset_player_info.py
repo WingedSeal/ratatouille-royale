@@ -1,3 +1,4 @@
+from typing import Final, Literal
 from .player_info import PlayerInfo
 from .squeak import Squeak
 from .squeaks.rodents.vanguard import TAILBLAZER
@@ -36,7 +37,7 @@ def get_default_player_info() -> PlayerInfo:
     )
 
 
-AI_PLAYER_INFO = {
+AI_PLAYER_INFO: Final[dict[Literal["Balanced"], PlayerInfo]] = {
     "Balanced": _make_ai_player_info(
         {
             TAILBLAZER: 3,

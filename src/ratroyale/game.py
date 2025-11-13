@@ -1,37 +1,10 @@
 import pygame
 
-from ratroyale.backend.features.common import DeploymentZone, Lair
-from ratroyale.backend.hexagon import OddRCoord
-from ratroyale.backend.map import Map, heights_to_tiles
-from ratroyale.backend.side import Side
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEvent
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 from .frontend.pages.page_managers.page_manager import PageManager
-
-
-def __temp_get_map() -> Map:
-    size = 10
-    return Map(
-        "Example Map",
-        size,
-        size,
-        heights_to_tiles([[1 for i in range(size)] for i in range(size)]),
-        entities=[],
-        features=[
-            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
-            Lair([OddRCoord(size - 1, size - 1)], 10, side=Side.RAT),
-            DeploymentZone(shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE),
-            DeploymentZone(
-                shape=[
-                    OddRCoord(size - 2, size - 1),
-                    OddRCoord(size - 1, size - 2),
-                ],
-                side=Side.RAT,
-            ),
-        ],
-    )
 
 
 MILLISECOND_PER_SECOND = 1000

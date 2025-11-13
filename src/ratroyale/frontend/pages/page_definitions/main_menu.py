@@ -1,13 +1,20 @@
 import pygame
 import pygame_gui
 
+from ratroyale.backend.ai.rushb_ai import RushBAI
+from ratroyale.backend.player_info.preset_player_info import (
+    AI_PLAYER_INFO,
+    get_default_player_info,
+)
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.payloads import BackendStartPayload
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
+from ratroyale.backend.side import Side
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
@@ -18,6 +25,33 @@ from ratroyale.frontend.pages.page_elements.spatial_component import (
 
 
 from ..page_managers.base_page import Page
+
+
+def _temp_get_map():  # type: ignore
+    from ratroyale.backend.hexagon import OddRCoord
+    from ratroyale.backend.features.common import DeploymentZone, Lair
+    from ratroyale.backend.map import Map, heights_to_tiles
+
+    size = 10
+    return Map(
+        "Example Map",
+        size,
+        size,
+        heights_to_tiles([[1 for i in range(size)] for i in range(size)]),
+        entities=[],
+        features=[
+            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
+            Lair([OddRCoord(size - 1, size - 1)], 10, side=Side.RAT),
+            DeploymentZone(shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE),
+            DeploymentZone(
+                shape=[
+                    OddRCoord(size - 2, size - 1),
+                    OddRCoord(size - 1, size - 2),
+                ],
+                side=Side.RAT,
+            ),
+        ],
+    )
 
 
 # TODO: make helpers to make button registration easier
@@ -67,6 +101,18 @@ class MainMenu(Page):
 
     @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_start_click(self, msg: pygame.event.Event) -> None:
+        self.post(
+            GameManagerEvent(
+                "start",
+                BackendStartPayload(
+                    _temp_get_map(),  # type: ignore
+                    get_default_player_info(),
+                    AI_PLAYER_INFO["Balanced"],
+                    Side.RAT,
+                    RushBAI,
+                ),
+            )
+        )
         self.post(
             PageNavigationEvent(
                 action_list=[

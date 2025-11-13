@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.entities.rodent import Rodent
@@ -38,7 +38,9 @@ from ratroyale.backend.game_event import (
 )
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
-from ratroyale.frontend.pages.page_managers.page_manager import PageManager
+
+if TYPE_CHECKING:
+    from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -46,7 +48,7 @@ class BackendAdapter:
     def __init__(
         self,
         game_manager: GameManager,
-        page_manager: PageManager,
+        page_manager: "PageManager",
         coordination_manager: CoordinationManager,
         ai_type: type[BaseAI] | None,
     ) -> None:
