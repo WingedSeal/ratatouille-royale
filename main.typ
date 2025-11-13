@@ -13,6 +13,8 @@
   ),
 )
 
+#outline()
+
 = Overview
 #include "overview.typ"
 
@@ -37,6 +39,9 @@
 
 = Rodent List
 #include "rodent/rodents/vanguard.typ"
+
+= Trick List
+#include "tricks/offense.typ"
 
 = Gacha Pool
 #include "progression/gacha_pool.typ"
