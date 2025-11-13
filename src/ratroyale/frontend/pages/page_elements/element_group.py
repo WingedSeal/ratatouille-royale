@@ -218,6 +218,8 @@ class ElementGroup:
                 else:
                     element = None
 
+                print("World position:", world_pos, "to Odd R Coord: ", odd_r_coord)
+
                 consumed = (
                     element.handle_gesture(gesture, is_processing_input)
                     if element
