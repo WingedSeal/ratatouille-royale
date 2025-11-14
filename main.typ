@@ -5,7 +5,7 @@
   title: "Game Design Document",
   subtitle: "Ratatouille Royale",
   authors: (
-    "Peepo TheGoat 1234", 
+    "Puwarit Khowean 6522781580", 
     "Pond CodingFrontEnd 777",
     "Cheewanont Chuleekorn 6522781846", 
     "Kamolpat Thananopavarn 6522790045", 
