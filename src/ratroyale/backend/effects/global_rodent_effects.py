@@ -21,11 +21,11 @@ class Slowed(EntityEffect):
             self.entity.speed += int(self.intensity)
 
     def effect_descriptions(self) -> str:
-        return f"Reduce movement speed by {self.intensity:.0f}"
+        return f"Reduce movement speed by {self.intensity:.0f}."
 
     @staticmethod
     def base_effect_descriptions() -> str:
-        return "Reduce movement speed by <intensity>"
+        return "Reduce movement speed by <intensity>."
 
 
 @effect_data(EffectClearSide.ALLY, name="Stunned")
@@ -48,11 +48,11 @@ class Stunned(EntityEffect):
                 self.entity.max_move_stamina += 999
 
     def effect_descriptions(self) -> str:
-        return "Become unable to move or use skill"
+        return "Become unable to move or use skill."
 
     @staticmethod
     def base_effect_descriptions() -> str:
-        return "Become unable to move or use skill"
+        return "Become unable to move or use skill."
 
 
 @effect_data(EffectClearSide.ALLY, name="Poisoned")
