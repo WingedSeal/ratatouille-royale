@@ -288,8 +288,8 @@ class RailgunCharged(EntityEffect):
         EntitySkill(
             name="Railgun Charge",
             method_name="railgun_charge",
-            reach=20,
-            altitude=0,
+            reach=None,
+            altitude=None,
             crumb_cost=20,
             tags=[],
         ),
