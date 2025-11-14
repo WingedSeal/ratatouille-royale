@@ -100,7 +100,6 @@ class Camera:
     def end_drag(self) -> None:
         """Call when drag ends."""
         self._prev_drag_mouse = None
-        print("CAMERA END DRAG CALLED")
 
     def clear_dirty(self) -> None:
         self._dirty = False
