@@ -234,10 +234,7 @@ class PageManager:
                 page.execute_input_callback(event)
 
     def execute_page_callback(self) -> None:
-        msg_queue = self.coordination_manager.mailboxes.get(PageManagerEvent, None)
-        if not msg_queue:
-            return
-
+        msg_queue = self.coordination_manager.mailboxes[PageManagerEvent]
         while not msg_queue.empty():
             msg = msg_queue.get()
             if isinstance(msg, PageNavigationEvent):
@@ -269,7 +266,7 @@ class PageManager:
             page.execute_game_event_callback(game_event)
 
     def execute_visual_callback(self) -> None:
-        # msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
+        # msg_queue = self.coordination_manager.mailboxes[VisualManagerEvent]
 
         pass
 
