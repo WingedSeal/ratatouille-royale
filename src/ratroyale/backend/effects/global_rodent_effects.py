@@ -98,7 +98,7 @@ class Bleeding(EntityEffect):
         return "Take <intensity> damage on application and take <intensity> damage every of enemy's and your turn."
 
 
-@effect_data(EffectClearSide.ALLY, name="MoraleBoost")
+@effect_data(EffectClearSide.ALLY, name="Morale Boost")
 class MoraleBoost(EntityEffect):
     def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
         if not isinstance(self.entity, Rodent):
