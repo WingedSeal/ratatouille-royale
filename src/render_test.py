@@ -129,7 +129,7 @@ def main():
         game_manager=game_manager,
         page_manager=page_manager,
         coordination_manager=coordination_manager,
-        ai_type=RandomAI,
+        ai_type=None,
     )
 
     coordination_manager.put_message(
@@ -170,7 +170,7 @@ def main():
 if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
-    feature_texture.main_TEST()
+    main()
     # profiler.disable()
 
     # stats = pstats.Stats(profiler)

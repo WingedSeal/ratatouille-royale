@@ -12,29 +12,13 @@ from ratroyale.event_tokens.payloads import (
     GameSetupPayload,
     PlayableTilesPayload,
     CrumbUpdatePayload,
-    EntityPayload,
     SkillActivationPayload,
     EntityMovementPayload,
     SkillTargetingPayload,
     AbilityTargetPayload,
-    EntityDamagedPayload,
-    GameOverPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
-    EntitySpawnEvent,
-    SqueakDrawnEvent,
-    EntityMoveEvent,
-    EntityDieEvent,
-    FeatureDieEvent,
-    EntityDamagedEvent,
-    EntityHealedEvent,
-    FeatureDamagedEvent,
-    EntityEffectUpdateEvent,
-    GameOverEvent,
-    EndTurnEvent,
-    SqueakPlacedEvent,
-    SqueakSetResetEvent,
 )
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
@@ -66,23 +50,6 @@ class BackendAdapter:
             "end_turn": self.handle_end_turn,
             "target_selected": self.handle_target_selected,
             "skill_canceled": self.handle_skill_canceled,
-        }
-        self.game_manager_issued_events: dict[
-            type[GameEvent], Callable[[GameEvent], None]
-        ] = {
-            EntitySpawnEvent: self.handle_spawn_entity_event,
-            SqueakDrawnEvent: self.handle_squeak_drawn_event,
-            EntityMoveEvent: self.handle_entity_move_event,
-            EndTurnEvent: self.handle_end_turn_event,
-            SqueakPlacedEvent: self.handle_squeak_placed_event,
-            SqueakSetResetEvent: self.handle_squeak_set_reset_event,
-            EntityDieEvent: self.handle_entity_die_event,
-            FeatureDieEvent: self.handle_feature_die_event,
-            EntityDamagedEvent: self.handle_entity_damaged_event,
-            EntityHealedEvent: self.handle_entity_healed_event,
-            FeatureDamagedEvent: self.handle_feature_damaged_event,
-            EntityEffectUpdateEvent: self.handle_entity_effect_update_event,
-            GameOverEvent: self.handle_game_over_event,
         }
 
     def execute_backend_callback(self) -> None:
@@ -117,16 +84,20 @@ class BackendAdapter:
 
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
-        # TODO: Which side is the player's side?
+
         player_1_side = self.game_manager.first_turn
-        player_info = self.game_manager.players_info[player_1_side]
-        squeak_in_hand_list = player_info.get_squeak_set().get_deck_and_hand()[1]
+        squeak_in_player_1_hand_list = self.game_manager.hands[player_1_side]
+        squeak_in_player_2_hand_list = self.game_manager.hands[
+            player_1_side.other_side()
+        ]
+
         self.coordination_manager.put_message(
             PageCallbackEvent(
                 callback_action="start_game",
                 payload=GameSetupPayload(
                     board=board,
-                    hand_squeaks=squeak_in_hand_list,
+                    player1_squeaks=squeak_in_player_1_hand_list,
+                    player2_squeaks=squeak_in_player_2_hand_list,
                     starting_crumbs=self.game_manager.crumbs,
                     player_1_side=player_1_side,
                     playing_with_ai=self.ai is not None,
@@ -221,6 +192,8 @@ class BackendAdapter:
         self.game_manager.end_turn()
         if self.ai:
             self.ai.run_ai_and_update_game_manager()
+        else:
+            print("NO AI!")
 
     def handle_target_selected(self, event: GameManagerEvent) -> None:
         payload = event.payload
@@ -231,110 +204,5 @@ class BackendAdapter:
             PageCallbackEvent(
                 "skill_targeting",
                 payload=SkillTargetingPayload(skill_result),
-            )
-        )
-
-    # region Backend-produced messages
-
-    def handle_entity_move_event(self, event: GameEvent) -> None:
-        assert isinstance(event, EntityMoveEvent)
-        entity = event.entity
-        path = event.path
-        self.coordination_manager.put_message(
-            PageCallbackEvent(
-                callback_action="move_entity",
-                payload=EntityMovementPayload(entity, path),
-            )
-        )
-
-    def handle_spawn_entity_event(self, event: GameEvent) -> None:
-        assert isinstance(event, EntitySpawnEvent)
-        entity = event.entity
-        self.coordination_manager.put_message(
-            PageCallbackEvent(
-                callback_action="spawn_entity",
-                payload=EntityPayload(entity),
-            )
-        )
-
-    def handle_squeak_drawn_event(self, event: GameEvent) -> None:
-        assert isinstance(event, SqueakDrawnEvent)
-        hand_index = event.hand_index
-        squeak = event.squeak
-        self.coordination_manager.put_message(
-            PageCallbackEvent(
-                callback_action="squeak_drawn",
-                payload=SqueakPayload(hand_index, squeak),
-            )
-        )
-
-    def handle_end_turn_event(self, event: GameEvent) -> None:
-        assert isinstance(event, EndTurnEvent)
-        print(event.__str__())
-        self.coordination_manager.put_message(
-            PageCallbackEvent(callback_action="end_turn")
-        )
-        self.coordination_manager.put_message(
-            PageCallbackEvent(
-                callback_action="crumb_update",
-                payload=CrumbUpdatePayload(self.game_manager.crumbs),
-            )
-        )
-
-    def handle_squeak_placed_event(self, event: GameEvent) -> None:
-        assert isinstance(event, SqueakPlacedEvent)
-        print(event.__str__())
-
-    def handle_squeak_set_reset_event(self, event: GameEvent) -> None:
-        assert isinstance(event, SqueakSetResetEvent)
-        print(event.__str__())
-
-    def handle_entity_die_event(self, event: GameEvent) -> None:
-        assert isinstance(event, EntityDieEvent)
-        print(event.__str__())
-        CoordinationManager.put_message(
-            PageCallbackEvent("entity_died", payload=EntityPayload(event.entity))
-        )
-
-    def handle_feature_die_event(self, event: GameEvent) -> None:
-        assert isinstance(event, FeatureDieEvent)
-        print(event.__str__())
-
-    def handle_entity_damaged_event(self, event: GameEvent) -> None:
-        assert isinstance(event, EntityDamagedEvent)
-        print(event.__str__())
-        CoordinationManager.put_message(
-            PageCallbackEvent(
-                "entity_damaged",
-                payload=EntityDamagedPayload(
-                    entity=event.entity,
-                    damage=event.damage,
-                    hp_loss=event.hp_loss,
-                    source=event.source,
-                ),
-            )
-        )
-
-    def handle_entity_healed_event(self, event: GameEvent) -> None:
-        assert isinstance(event, EntityHealedEvent)
-        print(event.__str__())
-
-    def handle_feature_damaged_event(self, event: GameEvent) -> None:
-        assert isinstance(event, FeatureDamagedEvent)
-        print(event.__str__())
-
-    def handle_entity_effect_update_event(self, event: GameEvent) -> None:
-        assert isinstance(event, EntityEffectUpdateEvent)
-        print(event.__str__())
-
-    def handle_game_over_event(self, event: GameEvent) -> None:
-        assert isinstance(event, GameOverEvent)
-        print(event.__str__())
-        CoordinationManager.put_message(
-            PageCallbackEvent(
-                "game_over",
-                payload=GameOverPayload(
-                    event.is_winner_from_first_turn_side, event.victory_side
-                ),
             )
         )

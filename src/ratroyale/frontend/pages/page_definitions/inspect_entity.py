@@ -49,8 +49,8 @@ class InspectEntity(Page):
         return elements
 
     @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
-    def close_page(self, msg: PageCallbackEvent) -> None:
-        self.post(PageNavigationEvent([(PageNavigation.CLOSE, "InspectEntity")]))
+    def close_button(self, msg: PageCallbackEvent) -> None:
+        self.close_self()
 
     @callback_event_bind("entity_data")
     def show_entity_data(self, msg: PageCallbackEvent) -> None:
