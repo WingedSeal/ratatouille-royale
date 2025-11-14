@@ -46,49 +46,69 @@ class CreateProfile(Page):
         gui_elements.append(panel_element_wrapper)
 
         # === Title label ===
-        pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect(0, 10, 420, 40),
-            text="Enter your name",
-            manager=self.gui_manager,
-            container=panel_element,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="TitleLabel", object_id="title_label"
+        title_label = ui_element_wrapper(
+            pygame_gui.elements.UILabel(
+                relative_rect=pygame.Rect(0, 10, 420, 40),
+                text="Enter your name",
+                manager=self.gui_manager,
+                container=panel_element,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="TitleLabel", object_id="title_label"
+                ),
+                anchors={"centerx": "centerx", "top": "top"},
             ),
-            anchors={"centerx": "centerx", "top": "top"},
+            registered_name="title_label",
+            camera=self.camera,
         )
+        gui_elements.append(title_label)
 
         # === Text entry box ===
-        pygame_gui.elements.UITextEntryLine(
-            relative_rect=pygame.Rect(0, 0, 240, 40),
-            manager=self.gui_manager,
-            container=panel_element,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="NameEntry", object_id="name_entry"
+        name_entry = ui_element_wrapper(
+            pygame_gui.elements.UITextEntryLine(
+                relative_rect=pygame.Rect(0, 0, 240, 40),
+                manager=self.gui_manager,
+                container=panel_element,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="NameEntry", object_id="name_entry"
+                ),
+                anchors={"center": "center"},
             ),
-            anchors={"center": "center"},
+            registered_name="name_entry",
+            camera=self.camera,
         )
+        gui_elements.append(name_entry)
 
         # === Cancel button ===
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(40, 100, 100, 40),
-            text="Cancel",
-            manager=self.gui_manager,
-            container=panel_element,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="CancelButton", object_id="cancel_button"
+        cancel_button = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(40, 100, 100, 40),
+                text="Cancel",
+                manager=self.gui_manager,
+                container=panel_element,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="CancelButton", object_id="cancel_button"
+                ),
             ),
+            registered_name="cancel_button",
+            camera=self.camera,
         )
+        gui_elements.append(cancel_button)
 
         # === Confirm button ===
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(175, 100, 100, 40),
-            text="Confirm",
-            manager=self.gui_manager,
-            container=panel_element,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="ConfirmButton", object_id="confirm_button"
+        confirm_button = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(175, 100, 100, 40),
+                text="Confirm",
+                manager=self.gui_manager,
+                container=panel_element,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="ConfirmButton", object_id="confirm_button"
+                ),
             ),
+            registered_name="confirm_button",
+            camera=self.camera,
         )
+        gui_elements.append(confirm_button)
         return gui_elements
 
     @input_event_bind("confirm_button", pygame_gui.UI_BUTTON_PRESSED)

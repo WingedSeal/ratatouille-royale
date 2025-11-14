@@ -41,7 +41,7 @@ class Result(Page):
         gui_elements.append(panel_wrapper)
 
         # === Title Banner ===
-        pygame_gui.elements.UILabel(
+        result_title = pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(0, 20, 300, 60),
             text="YOU WIN!",
             manager=self.gui_manager,
@@ -49,8 +49,10 @@ class Result(Page):
             object_id=pygame_gui.core.ObjectID(class_id="result_title"),
             anchors={"centerx": "centerx", "top": "top"},
         )
+        panel_wrapper = ui_element_wrapper(result_title, "result_pane", self.camera)
+        gui_elements.append(panel_wrapper)
 
-        pygame_gui.elements.UILabel(
+        result_score = pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(0, 90, 300, 40),
             text="EXP: +99",
             manager=self.gui_manager,
@@ -58,6 +60,8 @@ class Result(Page):
             object_id=pygame_gui.core.ObjectID(class_id="result_score"),
             anchors={"centerx": "centerx"},
         )
+        panel_wrapper = ui_element_wrapper(result_score, "result_score", self.camera)
+        gui_elements.append(panel_wrapper)
 
         # === Reward Box ===
         reward_box = pygame_gui.elements.UIPanel(
@@ -67,12 +71,14 @@ class Result(Page):
             object_id=pygame_gui.core.ObjectID(class_id="reward_box"),
             anchors={"centerx": "centerx"},
         )
+        panel_wrapper = ui_element_wrapper(reward_box, "reward_box", self.camera)
+        gui_elements.append(panel_wrapper)
 
         # === Currency icon ===
         cheese_surface = pygame.Surface((40, 40))
         cheese_surface.fill((255, 220, 100))
 
-        pygame_gui.elements.UIImage(
+        currency_icon = pygame_gui.elements.UIImage(
             relative_rect=pygame.Rect(-50, 10, 40, 40),
             image_surface=cheese_surface,
             manager=self.gui_manager,
@@ -82,17 +88,21 @@ class Result(Page):
             ),
             anchors={"left": "right", "top": "top"},
         )
+        panel_wrapper = ui_element_wrapper(currency_icon, "currency_icon", self.camera)
+        gui_elements.append(panel_wrapper)
 
-        pygame_gui.elements.UILabel(
+        reward_text = pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(0, 10, 140, 50),
             text="+500",
             manager=self.gui_manager,
             container=reward_box,
             object_id=pygame_gui.core.ObjectID(class_id="reward_text"),
         )
+        panel_wrapper = ui_element_wrapper(reward_text, "reward_text", self.camera)
+        gui_elements.append(panel_wrapper)
 
         # === Bottom Buttons ===
-        pygame_gui.elements.UIButton(
+        ok_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(0, 250, 150, 60),
             text="OK",
             manager=self.gui_manager,
@@ -102,6 +112,8 @@ class Result(Page):
             ),
             anchors={"centerx": "centerx"},
         )
+        panel_wrapper = ui_element_wrapper(ok_button, "ok_button", self.camera)
+        gui_elements.append(panel_wrapper)
 
         return gui_elements
 

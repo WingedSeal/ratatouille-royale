@@ -29,51 +29,71 @@ class GachaPage(Page):
         gui_elements: list[ElementWrapper] = []
 
         # === BACK button ===
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(10, 10, 120, 50),
-            text="Back",
-            manager=self.gui_manager,
-            anchors={"left": "left", "top": "top"},
-            object_id=pygame_gui.core.ObjectID(
-                class_id="BackButton", object_id="back_button"
+        back_button = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(10, 10, 120, 50),
+                text="Back",
+                manager=self.gui_manager,
+                anchors={"left": "left", "top": "top"},
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="BackButton", object_id="back_button"
+                ),
             ),
+            registered_name="back_button",
+            camera=self.camera,
         )
+        gui_elements.append(back_button)
 
         # === Currency text ===
-        _ = pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect(-130, 10, 80, 50),
-            text="999",
-            manager=self.gui_manager,
-            anchors={"left": "right", "top": "top"},
-            object_id=pygame_gui.core.ObjectID(
-                class_id="CurrencyLabel", object_id="currency_label"
+        currency_label = ui_element_wrapper(
+            pygame_gui.elements.UILabel(
+                relative_rect=pygame.Rect(-130, 10, 80, 50),
+                text="999",
+                manager=self.gui_manager,
+                anchors={"left": "right", "top": "top"},
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="CurrencyLabel", object_id="currency_label"
+                ),
             ),
+            registered_name="back_button",
+            camera=self.camera,
         )
+        gui_elements.append(currency_label)
 
         # === Currency icon ===
         cheese_surface = pygame.Surface((40, 40))
         cheese_surface.fill((255, 220, 100))
-
-        pygame_gui.elements.UIImage(
-            relative_rect=pygame.Rect(-60, 15, 40, 40),
-            image_surface=cheese_surface,
-            manager=self.gui_manager,
-            anchors={"left": "right", "top": "top"},
-            object_id=pygame_gui.core.ObjectID(
-                class_id="CurrencyIcon", object_id="currency_icon"
+        currency_icon = ui_element_wrapper(
+            pygame_gui.elements.UIImage(
+                relative_rect=pygame.Rect(-60, 15, 40, 40),
+                image_surface=cheese_surface,
+                manager=self.gui_manager,
+                anchors={"left": "right", "top": "top"},
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="CurrencyIcon", object_id="currency_icon"
+                ),
             ),
+            registered_name="currency_icon",
+            camera=self.camera,
         )
+        gui_elements.append(currency_icon)
 
         # === Image ===
         banner_surface = pygame.Surface((700, 400))
         LIGHT_GRAY = (180, 180, 180)
         banner_surface.fill(LIGHT_GRAY)
-        pygame_gui.elements.UIImage(
-            relative_rect=pygame.Rect(0, 0, 700, 400),
-            image_surface=banner_surface,
-            manager=self.gui_manager,
-            anchors={"centerx": "centerx", "centery": "centery"},
+        image = ui_element_wrapper(
+            pygame_gui.elements.UIImage(
+                relative_rect=pygame.Rect(0, 0, 700, 400),
+                image_surface=banner_surface,
+                manager=self.gui_manager,
+                anchors={"centerx": "centerx", "centery": "centery"},
+                object_id=pygame_gui.core.ObjectID(class_id="Image", object_id="image"),
+            ),
+            registered_name="image",
+            camera=self.camera,
         )
+        gui_elements.append(image)
 
         # === 1 Draw button ===
         one_draw_button = ui_element_wrapper(

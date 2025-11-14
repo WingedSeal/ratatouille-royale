@@ -28,14 +28,20 @@ class PlayerProfile(Page):
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         gui_elements: list[ElementWrapper] = []
-
-        pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect(0, 20, 100, 20),
-            text="Select a Profile",
-            manager=self.gui_manager,
-            object_id=pygame_gui.core.ObjectID(class_id="Header", object_id="header"),
-            anchors={"centerx": "centerx", "top": "top"},
+        header = ui_element_wrapper(
+            pygame_gui.elements.UILabel(
+                relative_rect=pygame.Rect(0, 20, 100, 20),
+                text="Select a Profile",
+                manager=self.gui_manager,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="Header", object_id="header"
+                ),
+                anchors={"centerx": "centerx", "top": "top"},
+            ),
+            registered_name="header",
+            camera=self.camera,
         )
+        gui_elements.append(header)
 
         panel_element = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(0, 0, 450, 460),
@@ -63,7 +69,14 @@ class PlayerProfile(Page):
                 "centerx": "centerx",
                 "centery": "centery",
             },
+            object_id=pygame_gui.core.ObjectID(
+                class_id="scoller", object_id="scroll_container"
+            ),
         )
+        panel_element_wrapper = ui_element_wrapper(
+            panel_element, "scroll_container", self.camera
+        )
+        gui_elements.append(panel_element_wrapper)
 
         y_offset = 10
         for i in range(4):
@@ -121,15 +134,20 @@ class PlayerProfile(Page):
             y_offset += 120
 
         # === Create new profile button ===
-        pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(10, y_offset + 10, 400, 60),
-            text="+  Create new profile",
-            manager=self.gui_manager,
-            container=scroll_container,
-            object_id=pygame_gui.core.ObjectID(
-                class_id="CreateButton", object_id="create_button"
+        create_button = ui_element_wrapper(
+            pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect(10, y_offset + 10, 400, 60),
+                text="+  Create new profile",
+                manager=self.gui_manager,
+                container=scroll_container,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="CreateButton", object_id="create_button"
+                ),
             ),
+            registered_name="create_button",
+            camera=self.camera,
         )
+        gui_elements.append(create_button)
 
         scroll_container.set_scrollable_area_dimensions((600, y_offset + 100))
 
