@@ -84,3 +84,48 @@ A coward with an access to artillery strike.
 
 *Passives*
 + A Coward: After taking damage, gain 100% speed for 1 turn.
+
+=== Rail Rodent
+A little over confident rodent that happens to have giant weapon of mass destruction in its hands.
+- HP: 7
+- Defense: 3
+- Speed: 3
+- Move Stamina: 2
+- Skill Stamina: 1
+- Attack: 10
+- Move Cost: 3
+- Height: 0
+- Crumb Cost: 25
+
+*Skills*
++ Railgun Charge: Charge its railgun and give itself "Railgun Charged" status effect for 3 of ally turn. 
+  - Crumb Cost: 20
++ Railgun: If it has "Railgun Charged" status effect, fire the railgun at an enemy dealing ATK*2 damage and clear said effect.
+  - Reach: 20
+  - Altitude: 0
+  - Crumb Cost: 5
+
+*Passives*
++ High Ground: When being at higher tile than the target, reach of all skills +1.
++ Too OP: This rodent cannot attack any structure.
+
+=== Clanker
+Rail Rodent
+- HP: 3
+- Defense: 999
+- Speed: 2
+- Move Stamina: 1
+- Skill Stamina: 2
+- Attack: 20
+- Move Cost: 20
+- Height: 0
+- Crumb Cost: 20
+
+*Skills*
++ Pancakes!: Clanker stabs his opponent with his pancake fork dealing ATK damage.
+  - Reach: 2
+  - Altitude: 0
+  - Crumb Cost: 10
+
+*Passives*
+None
