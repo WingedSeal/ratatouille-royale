@@ -79,7 +79,7 @@ def compile_cython_files() -> None:
                 continue
             if not source_file.stem.startswith(module_stem):
                 continue
-            if not source_file.suffix in COMPILED_EXTENSIONS:
+            if source_file.suffix not in COMPILED_EXTENSIONS:
                 continue
             destination_file = target_dir / source_file.name
             shutil.copy2(source_file, destination_file)
