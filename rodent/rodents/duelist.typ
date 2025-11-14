@@ -18,6 +18,7 @@ A bloated, beer-stained brown rat with bloodshot eyes and a sloshing belly who w
   - Crumb Cost: 10
 
 *Passives*
+
 None
 
 === Soda Kabooma
@@ -37,6 +38,7 @@ No idea what it is doing here, but it was told to hold this soda can, and hold t
   - Crumb Cost: 5
 
 *Passives*
+
 None
 
 === Pea Pea Pool Pool
@@ -58,6 +60,7 @@ A rodent in a pool with a gun. That is if a cup of water can be called pool and 
   - Crumb Cost: 5
 
 *Passives*
+
 None
 
 === Mortar
@@ -128,4 +131,5 @@ Rail Rodent
   - Crumb Cost: 10
 
 *Passives*
+
 None
