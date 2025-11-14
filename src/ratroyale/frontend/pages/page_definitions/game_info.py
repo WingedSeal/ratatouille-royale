@@ -237,6 +237,28 @@ class GameInfoPage(Page):
             self.kill_old_tile_data()
             self.update_entity_info(self.temp_selected_tile)
             self.update_tile_info(self.temp_selected_tile)
+            top_entity = (
+                self.temp_selected_tile.entities[-1]
+                if len(self.temp_selected_tile.entities) > 0
+                else None
+            )
+            if top_entity:
+                self.post(
+                    PageNavigationEvent(
+                        action_list=[
+                            (PageNavigation.OPEN, "InspectEntity"),
+                        ]
+                    )
+                )
+                self.post(
+                    PageCallbackEvent("crumb", payload=CrumbUpdatePayload(self.crumbs))
+                )
+                self.post(
+                    PageCallbackEvent(
+                        "entity_data",
+                        payload=EntityPayload(top_entity),
+                    )
+                )
 
     @callback_event_bind("tile_deselected")
     def tile_deselected(self, msg: PageCallbackEvent) -> None:
