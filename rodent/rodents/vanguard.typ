@@ -13,6 +13,9 @@ The rodent that will never deny a call for adventures.
 
 *Skills*
 + Stab: Stab an enemy with a toothpick dealing ATK+1 damage.
+  - Reach: 2
+  - Altitude: 0
+  - Crumb Cost: 3
 + Spear Launching: Throw a toothpick at an enemy dealing ATK damage.
 
 *Passives*
