@@ -100,3 +100,6 @@ class Tailtrail(Tailblazer):
     defense = 4
     attack = 2
     height = 1
+
+    def skill_descriptions(self) -> list[str]:
+        return super().skill_descriptions()[0:1]

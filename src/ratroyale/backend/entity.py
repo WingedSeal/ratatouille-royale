@@ -239,6 +239,7 @@ def override_skills(
 ) -> Callable[[type[Entity_T]], type[Entity_T]]:
     def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
         assert issubclass(cls, Entity)
+        cls.skills = []
         for skill in skills:
             if isinstance(skill, int):
                 skill = cls._cached_skills[skill]
