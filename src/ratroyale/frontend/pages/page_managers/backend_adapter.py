@@ -2,6 +2,7 @@ from typing import Callable
 
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.entities.rodent import Rodent
+from ratroyale.backend.game_event import *
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
@@ -12,31 +13,18 @@ from ratroyale.event_tokens.payloads import (
     GameSetupPayload,
     PlayableTilesPayload,
     CrumbUpdatePayload,
-    EntityPayload,
     SkillActivationPayload,
     EntityMovementPayload,
     SkillTargetingPayload,
     AbilityTargetPayload,
     EntityDamagedPayload,
+    EntityPayload,
     GameOverPayload,
     SidePayload,
     DeckPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
-    EntitySpawnEvent,
-    SqueakDrawnEvent,
-    EntityMoveEvent,
-    EntityDieEvent,
-    FeatureDieEvent,
-    EntityDamagedEvent,
-    EntityHealedEvent,
-    FeatureDamagedEvent,
-    EntityEffectUpdateEvent,
-    GameOverEvent,
-    EndTurnEvent,
-    SqueakPlacedEvent,
-    SqueakSetResetEvent,
 )
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
@@ -71,23 +59,6 @@ class BackendAdapter:
             "inspect_deck_clicked": self.handle_inspect_deck_clicked,
             "get_first_turn": self.handle_get_first_turn,
         }
-        self.game_manager_issued_events: dict[
-            type[GameEvent], Callable[[GameEvent], None]
-        ] = {
-            EntitySpawnEvent: self.handle_spawn_entity_event,
-            SqueakDrawnEvent: self.handle_squeak_drawn_event,
-            EntityMoveEvent: self.handle_entity_move_event,
-            EndTurnEvent: self.handle_end_turn_event,
-            SqueakPlacedEvent: self.handle_squeak_placed_event,
-            SqueakSetResetEvent: self.handle_squeak_set_reset_event,
-            EntityDieEvent: self.handle_entity_die_event,
-            FeatureDieEvent: self.handle_feature_die_event,
-            EntityDamagedEvent: self.handle_entity_damaged_event,
-            EntityHealedEvent: self.handle_entity_healed_event,
-            FeatureDamagedEvent: self.handle_feature_damaged_event,
-            EntityEffectUpdateEvent: self.handle_entity_effect_update_event,
-            GameOverEvent: self.handle_game_over_event,
-        }
 
     def execute_backend_callback(self) -> None:
         # Get the page -> backend queue
@@ -121,17 +92,21 @@ class BackendAdapter:
 
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
-        # TODO: Which side is the player's side?
+
         player_1_side = self.game_manager.first_turn
-        player_info = self.game_manager.players_info[player_1_side]
-        squeak_in_hand_list = player_info.get_squeak_set().get_deck_and_hand()[1]
+        squeak_in_player_1_hand_list = self.game_manager.hands[player_1_side]
+        squeak_in_player_2_hand_list = self.game_manager.hands[
+            player_1_side.other_side()
+        ]
+
         self.coordination_manager.put_message(
             PageCallbackEvent(
                 callback_action="start_game",
                 payload=GameSetupPayload(
                     crumbs_modifier=self.game_manager.crumbs_per_turn_modifier,
                     board=board,
-                    hand_squeaks=squeak_in_hand_list,
+                    player1_squeaks=squeak_in_player_1_hand_list,
+                    player2_squeaks=squeak_in_player_2_hand_list,
                     starting_crumbs=self.game_manager.crumbs,
                     player_1_side=player_1_side,
                     playing_with_ai=self.ai is not None,
@@ -226,6 +201,8 @@ class BackendAdapter:
         self.game_manager.end_turn()
         if self.ai:
             self.ai.run_ai_and_update_game_manager()
+        else:
+            print("NO AI!")
 
     def handle_target_selected(self, event: GameManagerEvent) -> None:
         payload = event.payload

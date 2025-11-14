@@ -30,10 +30,16 @@ class TilePayload(Payload):
 
 
 @dataclass
+class IntegerPayload(Payload):
+    value: int
+
+
+@dataclass
 class GameSetupPayload(Payload):
     crumbs_modifier: CrumbsPerTurnModifier
     board: Board
-    hand_squeaks: list[Squeak]
+    player1_squeaks: list[Squeak]
+    player2_squeaks: list[Squeak]
     starting_crumbs: int
     player_1_side: Side
     playing_with_ai: bool

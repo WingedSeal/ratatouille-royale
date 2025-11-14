@@ -68,3 +68,17 @@ def game_event_bind(
         return func
 
     return decorator
+
+
+def visual_event_bind(
+    visual_callback_action: str,
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
+
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
+
+        bindings = getattr(func, "_visual_event_bindings", [])
+        bindings.append(visual_callback_action)
+        setattr(func, "_visual_event_bindings", bindings)
+        return func
+
+    return decorator

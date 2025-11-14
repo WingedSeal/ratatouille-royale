@@ -63,7 +63,6 @@ class ElementManager:
     def get_group(self, group_name: str) -> ElementGroup:
         """Retrieves the collection for the given element type, creating it if necessary."""
         if group_name not in self.element_groups:
-            # print(f"group name {group_name} not already exists")
             group = self.create_group(group_name)
         else:
             group = self.element_groups[group_name]
@@ -106,12 +105,15 @@ class ElementManager:
             )
 
         # Remove from parent's children list safely
-        if removed_elem.parent and removed_elem in removed_elem.parent.children:
-            removed_elem.parent.children.remove(removed_elem)
+        if (
+            removed_elem.parent
+            and removed_elem in removed_elem.parent.children.values()
+        ):
+            removed_elem.parent.remove_child(removed_elem)
             removed_elem.parent = None
 
         # Recursively remove children
-        for child in removed_elem.children.copy():
+        for child in removed_elem.children.copy().values():
             self.remove_element(child.registered_name, child.grouping_name)
 
         # Clear the removed element's children list

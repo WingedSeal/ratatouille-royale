@@ -10,10 +10,12 @@ from ratroyale.event_tokens.page_token import (
     PageNavigation,
     PageNavigationEvent,
 )
+from ratroyale.event_tokens.visual_token import VisualManagerEvent
 from ratroyale.frontend.gesture.gesture_reader import (
     GESTURE_READER_CARES,
     GestureReader,
 )
+from ratroyale.frontend.gesture.gesture_data import GestureType
 from ratroyale.frontend.pages.page_elements.spatial_component import Camera
 from ratroyale.frontend.pages.page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import resolve_page
@@ -75,7 +77,6 @@ class PageManager:
         closed_page.on_close()
 
     def remove_page(self, page_type: type[Page]) -> None:
-        # print("page to be removed:", page_type)
         for i, page in enumerate(self.page_stack):
             if isinstance(page, page_type):
                 closed_page = self.page_stack.pop(i)
@@ -161,6 +162,12 @@ class PageManager:
         # Step 3: produce gesture data
         gestures = self.gesture_reader.read_events(mouse_events)
 
+        # HACK: THE PAGE MANAGER INTERCEPTS AND LISTENS FOR DRAG END SPECIFICALLY TO RESET THE CAMERA
+        # THIS IS NOT ROBUST. A MORE ROBUST METHOD WOULD INTRODUCE A NEW MANAGER ENTIRELY FOR DRAGGING.
+        for gesture in gestures:
+            if gesture.gesture_type in [GestureType.DRAG_END, GestureType.SWIPE]:
+                self.camera.end_drag()
+
         # Step 4: distribute gesture data to pages,
         # where pages will distribute gesture data to its elements for posting gesture events.
         for page in reversed(self.page_stack):
@@ -223,9 +230,14 @@ class PageManager:
             page.execute_game_event_callback(game_event)
 
     def execute_visual_callback(self) -> None:
-        # msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
+        msg_queue = self.coordination_manager.mailboxes.get(VisualManagerEvent, None)
+        if not msg_queue:
+            return
 
-        pass
+        while not msg_queue.empty():
+            msg = msg_queue.get()
+            for page in self.page_stack:
+                page.execute_visual_callback(msg)
 
     # endregion
 

@@ -44,6 +44,10 @@ class CallbackHandler(Protocol):
     def __call__(self, event: PageCallbackEvent) -> None: ...
 
 
+class VisualCallbackHandler(Protocol):
+    def __call__(self, event: VisualManagerEvent) -> None: ...
+
+
 class GameEventHandler(Protocol):
     def __call__(self, event: GameEvent) -> None: ...
 
@@ -76,17 +80,21 @@ class Page(ABC):
         self.hovered: bool = False
         """ Pygame_gui elements will constantly fire hovered events instead of once during entry.
         Use this variable to keep track of scenarios where you want something to trigger only on beginning of hover. """
+        self.received_event_this_tick: bool = False
 
         self._input_bindings: dict[
             tuple[str | SpecialInputScope, int], InputHandler
         ] = {}
         """ Maps (element_id, gesture_type) to handler functions """
         self._callback_bindings: dict[str, CallbackHandler] = {}
-        """ Maps (game_action) to handler functions """
+        """ Maps (page_event_name) to handler functions """
         self._game_event_bindings: dict[type[GameEvent], GameEventHandler] = {}
         """ Maps (game_action) to handler functions """
+        self._visual_event_bindings: dict[str, VisualCallbackHandler] = {}
 
-        self._animation_coordinator: AnimationCoordinator = AnimationCoordinator()
+        self._animation_coordinator: AnimationCoordinator = AnimationCoordinator(
+            type(self).__name__
+        )
 
         self.setup_event_bindings()
 
@@ -135,9 +143,14 @@ class Page(ABC):
             )
 
     def close_self(self) -> None:
-        self.post(
-            PageNavigationEvent([(PageNavigation.CLOSE, f"{type(self).__name__}")])
-        )
+        name = f"{type(self).__name__}"
+        self.post(PageNavigationEvent([(PageNavigation.CLOSE, name)]))
+
+    def close_page(self, page_name: str) -> None:
+        self.post(PageNavigationEvent([(PageNavigation.CLOSE, page_name)]))
+
+    def open_page(self, page_name: str) -> None:
+        self.post(PageNavigationEvent([(PageNavigation.OPEN, page_name)]))
 
     def setup_event_bindings(self) -> None:
         """
@@ -172,6 +185,13 @@ class Page(ABC):
                 for game_event_type in getattr(attr, "_game_event_bindings"):
                     self._game_event_bindings[game_event_type] = cast(
                         GameEventHandler, attr
+                    )
+
+            # --- Visual event bindings ---
+            if hasattr(attr, "_visual_event_bindings"):
+                for visual_callback_action in getattr(attr, "_visual_event_bindings"):
+                    self._visual_event_bindings[visual_callback_action] = cast(
+                        VisualCallbackHandler, attr
                     )
 
     def handle_gestures(self, gestures: list[GestureData]) -> list[GestureData]:
@@ -253,8 +273,14 @@ class Page(ABC):
         """
         return object_id.split(".")[-1] if object_id else None
 
-    def execute_visual_callback(self, msg: VisualManagerEvent) -> None:
-        pass
+    def execute_visual_callback(self, msg: VisualManagerEvent) -> bool:
+
+        executed = False
+        for callback_action, handler in self._visual_event_bindings.items():
+            if callback_action == msg.callback_action:
+                handler(msg)
+                executed = True
+        return executed
 
     def hide(self) -> None:
         self.is_visible = False

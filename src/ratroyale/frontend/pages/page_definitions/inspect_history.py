@@ -360,22 +360,7 @@ class InspectHistory(Page):
         border_color = tuple(max(0, c - 50) for c in color)
         pygame.draw.rect(surface, border_color, rect, border_width)
 
+    @input_event_bind(SpecialInputScope.UNCONSUMED, GestureType.CLICK.to_pygame_event())
     @input_event_bind("exit_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_exit_click(self, msg: pygame.event.Event) -> None:
-        self.post(PageNavigationEvent(action_list=[(PageNavigation.CLOSE_TOP, None)]))
-
-    @input_event_bind(SpecialInputScope.GLOBAL, GestureType.CLICK.to_pygame_event())
-    def on_click_outside(self, msg: pygame.event.Event) -> None:
-        if hasattr(msg, "ui_element"):
-            return
-
-        panel = self._element_manager.get_element("inspect_history_panel")
-
-        if panel and hasattr(msg, "pos"):
-            click_pos = msg.pos
-            panel_rect = panel.spatial_component.get_screen_rect(self.camera)
-
-            if not panel_rect.collidepoint(click_pos):
-                self.post(
-                    PageNavigationEvent(action_list=[(PageNavigation.CLOSE_TOP, None)])
-                )
+        self.close_self()
