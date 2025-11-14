@@ -37,7 +37,11 @@ class QuartermasterSoul(EntityEffect):
         pass
 
     def effect_descriptions(self) -> str:
-        return "Someone entrusted their soul"
+        return "Someone entrusted their soul to you"
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Someone entrusted their soul to you"
 
 
 @rodent_data(

@@ -270,6 +270,10 @@ class RailgunCharged(EntityEffect):
     def effect_descriptions(self) -> str:
         return "Railgun is charged and is ready to fire."
 
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Railgun is charged and is ready to fire."
+
 
 @rodent_data(
     name="Rail Rodent",
