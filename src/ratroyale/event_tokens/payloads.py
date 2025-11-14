@@ -29,6 +29,11 @@ class TilePayload(Payload):
 
 
 @dataclass
+class IntegerPayload(Payload):
+    value: int
+
+
+@dataclass
 class GameSetupPayload(Payload):
     board: Board
     player1_squeaks: list[Squeak]

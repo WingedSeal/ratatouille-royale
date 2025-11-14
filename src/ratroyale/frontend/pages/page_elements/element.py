@@ -273,6 +273,7 @@ def ui_element_wrapper(
     camera: Camera,
     grouping_name: str = "UI_ELEMENT",
     z_order: int = 1,
+    payload: Payload | None = None,
 ) -> ElementWrapper:
     """
     Convenience helper to wrap a pygame_gui element into an ElementWrapper.
@@ -304,4 +305,5 @@ def ui_element_wrapper(
         spatial_component=spatial,
         visual_component=visual,
         interactable_component=interactable,
+        payload=payload,
     )

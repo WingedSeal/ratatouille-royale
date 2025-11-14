@@ -165,7 +165,7 @@ class PageManager:
         # HACK: THE PAGE MANAGER INTERCEPTS AND LISTENS FOR DRAG END SPECIFICALLY TO RESET THE CAMERA
         # THIS IS NOT ROBUST. A MORE ROBUST METHOD WOULD INTRODUCE A NEW MANAGER ENTIRELY FOR DRAGGING.
         for gesture in gestures:
-            if gesture.gesture_type == GestureType.DRAG_END:
+            if gesture.gesture_type in [GestureType.DRAG_END, GestureType.SWIPE]:
                 self.camera.end_drag()
 
         # Step 4: distribute gesture data to pages,
