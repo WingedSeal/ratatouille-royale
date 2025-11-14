@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from ...side import Side
 from .common_skills import SelectTarget, TargetAction
-from ...entity import EntitySkill, SkillTargeting, entity_skill_check
+from ...entity import EntitySkill, SkillTargeting, entity_skill_check, override_skills
 from ...tags import RodentClassTag
 from ..rodent import Rodent, rodent_data
 
@@ -91,3 +91,12 @@ class Tailblazer(Rodent):
                 "When placed, if there's no other ally rodents on the field, gain +2 speed until the turn after there's one.",
             )
         ]
+
+
+@override_skills([0])
+class Tailtrail(Tailblazer):
+    name = "Tailtrail"
+    description = "The rodent that will never deny a call for adventures."
+    defense = 4
+    attack = 2
+    height = 1
