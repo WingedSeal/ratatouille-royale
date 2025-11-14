@@ -45,6 +45,9 @@
 = Trick List
 #include "tricks/offense.typ"
 
+= Common Effects
+#include "effects.typ"
+
 = Gacha Pool
 #include "progression/gacha_pool.typ"
 
