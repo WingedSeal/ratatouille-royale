@@ -42,20 +42,25 @@ class EntityElement(ElementWrapper):
 
     def __init__(self, entity: Entity, camera: Camera):
         # Register spritesheet
+        default_anim_name = "NONE"
+
         try:
             sprite_metadata = SPRITE_METADATA_REGISTRY[type(entity)]
+            default_anim_name = "IDLE"
         except KeyError:
             sprite_metadata = DUMMY_TEXTURE_METADATA
+
         spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
         ).get_key()
         spritesheet_component = SpritesheetComponent(spritesheet_name)
 
         # Build visual component
-        visual_component = VisualComponent(spritesheet_component, "IDLE")
-        visual_component.set_default_animation(
-            default_idle_for_entity(spritesheet_component)
-        )
+        visual_component = VisualComponent(spritesheet_component, default_anim_name)
+        if default_anim_name == "IDLE":
+            visual_component.set_default_animation(
+                default_idle_for_entity(spritesheet_component)
+            )
 
         # Initialize base element
         super().__init__(
