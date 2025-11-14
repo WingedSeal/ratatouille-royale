@@ -114,8 +114,8 @@ class MoraleBoost(EntityEffect):
         pass
 
     def effect_descriptions(self) -> str:
-        return f"Attack increased by {self.intensity:.0f}"
+        return f"Increase attack by {self.intensity:.0f}."
 
     @staticmethod
     def base_effect_descriptions() -> str:
-        return "Attack increased by <intensity>"
+        return "Increase attack by <intensity>."
