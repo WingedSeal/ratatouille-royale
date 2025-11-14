@@ -446,6 +446,9 @@ class InspectEntity(Page):
                 ),
             )
 
+            if entity.move_stamina == 0:
+                move_button.disable()  # type: ignore
+
             skill_buttons.append(
                 ui_element_wrapper(
                     move_button,

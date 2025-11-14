@@ -173,8 +173,6 @@ class BackendAdapter:
         self.game_manager.end_turn()
         if self.ai:
             self.ai.run_ai_and_update_game_manager()
-        else:
-            print("NO AI!")
 
     def handle_target_selected(self, event: GameManagerEvent) -> None:
         payload = event.payload

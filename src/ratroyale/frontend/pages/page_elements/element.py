@@ -208,6 +208,12 @@ class ElementWrapper:
 
     def update_visibility(self) -> None:
         """Recompute visibility only if camera is dirty or element moved."""
+        # HACK: we will only consider updating visibility for WORLD elements.
+        # Skipping visibility for SCREEN elements since they are a minority ATM and shouldn't impact framerate too much.
+        if self.spatial_component.space_mode == "SCREEN":
+            self._is_visible = True
+            return
+
         spatial = self.get_absolute_rect()
         if spatial:
             self._is_visible = spatial.colliderect(screen_rect)
