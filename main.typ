@@ -6,10 +6,10 @@
   subtitle: "Ratatouille Royale",
   authors: (
     "Puwarit Khowean 6522781580", 
-    "Pond CodingFrontEnd 777",
+    "Nattapol Phanmadee 6522781994",
     "Cheewanont Chuleekorn 6522781846", 
     "Kamolpat Thananopavarn 6522790045", 
-    "Aek Egg 12345"
+    "Aekkarin Yimyaem 6522772498"
   ),
 )
 
