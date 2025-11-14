@@ -176,7 +176,7 @@ class SqueakElement(ElementWrapper):
                 )
             )
 
-    def return_to_position(self, target_rect: pygame.Rect | pygame.FRect) -> None:
+    def move_to_position(self, target_rect: pygame.Rect | pygame.FRect) -> None:
         spatial = self.spatial_component
         visual_component = self.visual_component
         if visual_component:

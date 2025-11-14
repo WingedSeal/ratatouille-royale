@@ -43,7 +43,8 @@ class TilePayload(Payload):
 @dataclass
 class GameSetupPayload(Payload):
     board: Board
-    hand_squeaks: list[Squeak]
+    player1_squeaks: list[Squeak]
+    player2_squeaks: list[Squeak]
     starting_crumbs: int
     player_1_side: Side
     playing_with_ai: bool

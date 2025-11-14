@@ -94,6 +94,7 @@ class GestureReader:
         self._check_hold()
 
         self._sync_with_hardware()
+
         return self.gesture_queue.copy()
 
     # region Gesture Logic
