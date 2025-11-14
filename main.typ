@@ -39,6 +39,7 @@
 
 = Rodent List
 #include "rodent/rodents/vanguard.typ"
+#include "rodent/rodents/tank.typ"
 
 = Trick List
 #include "tricks/offense.typ"
