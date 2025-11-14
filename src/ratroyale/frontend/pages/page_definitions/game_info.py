@@ -1,3 +1,4 @@
+from typing import Final
 from ratroyale.backend.crumbs_per_turn_modifier import CrumbsPerTurnModifier
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
@@ -46,7 +47,6 @@ class GameInfoPage(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
-        super().__init__(coordination_manager, camera, is_blocking=False)
         self.crumbs = 0
         self.temp_saved_buttons: list[str] = []
         self.temp_selected_tile: Tile | None = None
@@ -58,6 +58,8 @@ class GameInfoPage(Page):
         self.current_turn_side: Side | None = None  # Track whose turn it is
         self.player_side: Side | None = None  # Track player's side
         self.move_history_buttons: list[str] = []  # Track buttons for clearing
+        # self.font = self.gui_manager.get_theme().get_font_dictionary().get_default_font()
+        super().__init__(coordination_manager, camera, is_blocking=False)
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
@@ -420,13 +422,33 @@ class GameInfoPage(Page):
         entity_hover_data_panel_object = entity_hover_data_panel.get_interactable(
             pygame_gui.elements.UIPanel
         )
-        new_element_wrappers = []
-        for index, entity in enumerate(tile.entities):
+        font = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(0, 0, 0, 0),
+            text="",
+            manager=self.gui_manager,
+            container=entity_hover_data_panel_object,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="ShowEntityButton",
+                object_id="__temp__",
+            ),
+        ).font
+        assert font is not None
+        PADDING_X: Final = 20
+        PADDING_Y: Final = 10
+        MARGIN: Final = 10
+        new_element_wrappers: list[ElementWrapper] = []
+
+        for index, entity in enumerate(reversed(tile.entities)):
             entity_button_id = f"ShowEntityButton_{index}"
+            text_width, text_height = font.size(f"{entity.name}")
             entity_button_wrapper = ui_element_wrapper(
                 pygame_gui.elements.UIButton(
                     relative_rect=pygame.Rect(
-                        10 + index * 60, 10 + (index // 6) * 80, 50, 20
+                        (1 if index == 0 else 2) * MARGIN
+                        + index * (text_width + PADDING_X),
+                        10 + (index // 6) * (text_height + PADDING_Y),
+                        text_width + PADDING_X,
+                        text_height + PADDING_Y,
                     ),
                     text=f"{entity.name}",
                     manager=self.gui_manager,
@@ -450,11 +472,29 @@ class GameInfoPage(Page):
         tile_hover_data_panel_object = tile_hover_data_panel.get_interactable(
             pygame_gui.elements.UIPanel
         )
-        new_element_wrappers = []
+        font = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(0, 0, 0, 0),
+            text="",
+            manager=self.gui_manager,
+            container=tile_hover_data_panel_object,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="ShowEntityButton",
+                object_id="__temp__",
+            ),
+        ).font
+        assert font is not None
+
+        PADDING_X: Final = 10
+        PADDING_Y: Final = 10
+        MARGIN: Final = 10
+
+        new_element_wrappers: list[ElementWrapper] = []
         coord_button_id = f"odd_r_coord_btn_{id(tile.coord)}"
         coord_button_wrapper = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(0, 0, 100, 20),
+                relative_rect=pygame.Rect(
+                    PADDING_X, PADDING_Y, 100 + PADDING_X, 20 + PADDING_Y
+                ),
                 text=f"Odd-R: {tile.coord}",
                 manager=self.gui_manager,
                 container=tile_hover_data_panel_object,
@@ -469,10 +509,18 @@ class GameInfoPage(Page):
         self.temp_saved_buttons.append(coord_button_id)
         new_element_wrappers.append(coord_button_wrapper)
 
-        for index, feature in enumerate(tile.features):
+        for index, feature in enumerate(reversed(tile.features)):
             feature_button_id = f"ShowFeatureButton_{id(feature)}"
+            text_width, text_height = font.size(f"{feature.get_name()}")
             feature_button = pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(100 + index * 60, (index // 6), 50, 20),
+                relative_rect=pygame.Rect(
+                    120
+                    + (1 if index == 0 else 2) * MARGIN
+                    + index * (text_width + PADDING_X),
+                    10 + (index // 6) * (text_height + PADDING_Y),
+                    text_width + PADDING_X,
+                    text_height + PADDING_Y,
+                ),
                 text=f"{feature.get_name()}",
                 manager=self.gui_manager,
                 container=tile_hover_data_panel_object,

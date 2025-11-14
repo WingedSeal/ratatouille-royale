@@ -75,7 +75,7 @@ class PageManager:
         closed_page.on_close()
 
     def remove_page(self, page_type: type[Page]) -> None:
-        print("page to be removed:", page_type)
+        # print("page to be removed:", page_type)
         for i, page in enumerate(self.page_stack):
             if isinstance(page, page_type):
                 closed_page = self.page_stack.pop(i)
