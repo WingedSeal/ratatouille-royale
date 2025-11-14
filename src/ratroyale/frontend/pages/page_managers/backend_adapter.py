@@ -60,6 +60,7 @@ class BackendAdapter:
         # Process all messages currently in both queues
         while not msg_queue_from_backend.empty():
             msg_from_backend: GameEvent = msg_queue_from_backend.get()
+
             self.page_manager.execute_game_event_callback(msg_from_backend)
 
     def handle_game_start(self, event: GameManagerEvent) -> None:

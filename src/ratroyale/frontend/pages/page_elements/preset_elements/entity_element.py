@@ -42,11 +42,11 @@ class EntityElement(ElementWrapper):
 
     def __init__(self, entity: Entity, camera: Camera):
         # Register spritesheet
-        default_anim_name = "NONE"
+        self.default_anim_name = "NONE"
 
         try:
             sprite_metadata = SPRITE_METADATA_REGISTRY[type(entity)]
-            default_anim_name = "IDLE"
+            self.default_anim_name = "IDLE"
         except KeyError:
             sprite_metadata = DUMMY_TEXTURE_METADATA
 
@@ -56,8 +56,10 @@ class EntityElement(ElementWrapper):
         spritesheet_component = SpritesheetComponent(spritesheet_name)
 
         # Build visual component
-        visual_component = VisualComponent(spritesheet_component, default_anim_name)
-        if default_anim_name == "IDLE":
+        visual_component = VisualComponent(
+            spritesheet_component, self.default_anim_name
+        )
+        if self.default_anim_name == "IDLE":
             visual_component.set_default_animation(
                 default_idle_for_entity(spritesheet_component)
             )

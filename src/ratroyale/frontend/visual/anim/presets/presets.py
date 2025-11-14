@@ -145,7 +145,7 @@ def entity_hurt(
 ) -> SequentialAnim:
     anim = SpriteAnim(
         spritesheet_component=spritesheet,
-        animation_name="HUNGRY",
+        animation_name="HURT",
         start_frame=0,
         timing_mode=TimingMode.DURATION_PER_LOOP,
         period_in_seconds=0.5,

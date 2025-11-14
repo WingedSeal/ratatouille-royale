@@ -26,7 +26,7 @@ DUMMY_TEXTURE_METADATA: SpritesheetMetadata = SpritesheetMetadata(
     "DUMMY",
     ASSET_DIR / "missingTexture.jpg",
     (749, 745),
-    {"NONE": [0]},
+    {"NONE": [0], "HURT": [0]},
     60,
 )
 
@@ -38,7 +38,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
-            "HUNGRY": list(range(11, 20)),
+            "HURT": list(range(11, 20)),
             "DIE": list(range(21, 30)),
         },
         60,
@@ -49,7 +49,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
-            "HUNGRY": list(range(11, 20)),
+            "HURT": list(range(11, 20)),
             "DIE": list(range(21, 30)),
         },
         60,
@@ -60,7 +60,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
-            "HUNGRY": list(range(11, 20)),
+            "HURT": list(range(11, 20)),
             "DIE": list(range(21, 30)),
         },
         60,

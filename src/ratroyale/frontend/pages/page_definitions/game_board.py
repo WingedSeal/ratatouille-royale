@@ -61,6 +61,7 @@ from ratroyale.backend.game_event import (
     GameOverEvent,
     FeatureDamagedEvent,
     FeatureDieEvent,
+    GameEvent,
 )
 from ratroyale.backend.tile import Tile
 
@@ -116,6 +117,10 @@ class GameBoard(Page):
         self.is_playing_with_ai: bool = True
         self.is_game_over: bool = False
 
+        self.ai_did_something: bool = False
+        # HACK: previous "vs. AI turn switching" logic relied on the AI player playing anything to trigger end of animation.
+        # If the ai played nothing, the logic breaks and the human player never gets to see their hand again until the AI decides to play something again.
+
         self.game_state: GameState = GameState.PLAYER1
 
     def on_open(self) -> None:
@@ -148,13 +153,12 @@ class GameBoard(Page):
 
     @game_event_bind(EndTurnEvent)
     def end_turn_event(self, event: EndTurnEvent) -> None:
-        # Switches player hands. If playing with an AI, this simply has the effect of hiding the player's hand instead.
-        self.hide_player_hand(1)
         self.clear_selections()
         self.is_player_1_now = not event.is_from_first_turn_side
 
-        # If not playing with an AI, show the player 2's hand.
+        # If not playing with an AI, switches player hands.
         if not self.is_playing_with_ai:
+            self.hide_player_hand(1)
             self.show_player_hand(2)
 
         # If playing with an AI, ignore the EndTurnEvent signal and wait until AI's animations finish instead.
@@ -168,6 +172,18 @@ class GameBoard(Page):
         for entity in entities:
             assert isinstance(entity, EntityElement)
             entity.update_move_stamina()
+
+    @game_event_bind(GameEvent)
+    def generic_game_event_test(self, event: GameEvent) -> None:
+        # If the player is playing with an AI, attempt to detect whether the AI player has played anything.
+        # This is done in order to prevent AI freezing the turn switching logic by not playing anything.
+        if (
+            self.game_state == GameState.PLAYER2
+            and self.is_playing_with_ai
+            and not self.ai_did_something
+        ):
+            if not isinstance(event, (CrumbChangeEvent, EndTurnEvent)):
+                self.ai_did_something = True
 
     @game_event_bind(EntitySpawnEvent)
     def entity_spawn_event(self, event: EntitySpawnEvent) -> None:
@@ -425,6 +441,13 @@ class GameBoard(Page):
                 ]
 
             self.setup_elements(element_configs)
+
+            crumb = payload.starting_crumbs
+            for squeak_id in self.player_1_squeaks:
+                squeak_element = self._element_manager.get_element_with_typecheck(
+                    squeak_id, SqueakElement
+                )
+                squeak_element.decide_interactivity(crumb)
 
         else:
             raise RuntimeError(f"Failed to start game: {msg.error_msg}")

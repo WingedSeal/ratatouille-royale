@@ -449,7 +449,7 @@ class InspectEntity(Page):
             skill_buttons.append(
                 ui_element_wrapper(
                     move_button,
-                    "move_button",
+                    "skill_-1",
                     self.camera,
                     "SKILL_BUTTONS",
                     payload=IntegerPayload(entity.move_cost),
