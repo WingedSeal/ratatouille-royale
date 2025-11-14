@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 import math
 import pytweening  # type: ignore
 from .anim_settings import TimingMode, AnimDirection
+from .....coordination_manager import CoordinationManager
+from .....event_tokens.visual_token import VisualManagerEvent
 
 
 @dataclass(kw_only=True)
@@ -125,7 +127,7 @@ class SequentialAnim:
     """A SequentialAnim object holds a sequence of GroupedAnims (animations to be executed together)."""
 
     sequential_list: list[GroupedAnim]
-    callback: str | None = None
+    callback_info: tuple[str, str] | None = None
     """A callback happens once all animations in the sequence is finished."""
     loop_count: int = 1
     """Replays the animation for this amount of time."""
@@ -155,7 +157,8 @@ class SequentialAnim:
         return result
 
     def make_callback(self) -> None:
-        pass
+        if self.callback_info:
+            CoordinationManager.put_message(VisualManagerEvent(*self.callback_info))
 
     def get_animation_group(self) -> GroupedAnim:
         return self.sequential_list[self._active_anim_index]

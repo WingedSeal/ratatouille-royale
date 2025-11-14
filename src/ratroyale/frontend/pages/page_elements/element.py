@@ -49,7 +49,7 @@ class ElementWrapper:
         # Hierachical info
         self.parent_element: str | None = parent_element
         self.parent: ElementWrapper | None = None
-        self.children: list[ElementWrapper] = []
+        self.children: dict[str, ElementWrapper] = {}
 
         # Interactivity info
         self.interactable_component: UIElement | Hitbox | None = interactable_component
@@ -128,25 +128,36 @@ class ElementWrapper:
             self.interactable_component.kill()  # type: ignore
 
     def add_child(self, child: "ElementWrapper") -> None:
-        if child in self.children:
+        if child.registered_name in self.children:
             raise ValueError(
                 f"Child '{child.registered_name}' already attached to '{self.registered_name}'"
             )
 
-        self.children.append(child)
+        self.children[child.registered_name] = child
         child.parent = self
 
     def remove_child(self, child: "ElementWrapper") -> None:
-        if child not in self.children:
+        if child.registered_name not in self.children:
             raise ValueError(
                 f"Child '{child.registered_name}' not found in '{self.registered_name}'"
             )
-        self.children.remove(child)
+        self.children.pop(child.registered_name)
+        child.parent = None
+
+    def remove_child_by_name(self, child_name: str) -> None:
+        if child_name not in self.children:
+            raise ValueError(
+                f"Child '{child_name}' not found in '{self.registered_name}'"
+            )
+        child = self.children.pop(child_name)
         child.parent = None
 
     # TODO: somethings wrong here
     def get_absolute_rect(self) -> pygame.Rect | pygame.FRect:
         self.spatial_component.invalidate_cache()
+
+        if isinstance(self.interactable_component, UIElement):
+            return self.interactable_component.get_abs_rect()
 
         if not self.parent:
             # No parent: just project to screen
@@ -234,7 +245,7 @@ class ElementWrapper:
             return
 
         self.interactable_component.draw(surface, color)
-        for child in self.children:
+        for child in self.children.values():
             child.draw_hitbox(surface, color)
 
     def on_select(self) -> bool:

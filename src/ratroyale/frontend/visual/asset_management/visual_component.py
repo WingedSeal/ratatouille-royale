@@ -54,6 +54,7 @@ class VisualComponent:
             # Remove finished non-persistent overrides
             if animation_sequence.is_finished() and not animation_sequence.persistent:
                 self._override_animation_queue.pop(0)
+                animation_sequence.make_callback()
                 # Recheck for next override in queue
                 if self._override_animation_queue:
                     animation_sequence = self._override_animation_queue[0]
@@ -86,7 +87,7 @@ class VisualComponent:
     ) -> None:
         """Draw this visual onto the given surface."""
         if isinstance(interactable_comp, UIElement):
-            gui_rect = interactable_comp.get_relative_rect()
+            gui_rect = interactable_comp.get_abs_rect()
             if spatial_rect.size != gui_rect.size:
                 # Only rebuild if size has changed. This is an attempt to reduce expensive rebuild calls.
                 interactable_comp.set_dimensions(spatial_rect.size)
