@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     ],
 )
 class Tailblazer(Rodent):
-    on_speed: bool = False
+    is_on_speed_passive: bool = False
 
     def on_spawn(self, board: "Board") -> None:
         if not any(
@@ -47,16 +47,16 @@ class Tailblazer(Rodent):
             for entity in board.cache.sides[self.side]
             if entity is not self
         ):
-            self.on_speed = True
+            self.is_on_speed_passive = True
             self.speed += 2
 
     def on_turn_change(self, game_manager: "GameManager", turn_change_to: Side) -> None:
-        if self.on_speed and any(
+        if self.is_on_speed_passive and any(
             isinstance(entity, Rodent)
             for entity in game_manager.board.cache.sides[self.side]
             if entity is not self
         ):
-            self.on_speed = False
+            self.is_on_speed_passive = False
             self.speed -= 2
 
     @entity_skill_check
