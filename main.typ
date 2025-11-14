@@ -42,6 +42,7 @@
 #include "rodent/rodents/tank.typ"
 #include "rodent/rodents/duelist.typ"
 #include "rodent/rodents/support.typ"
+#include "rodent/rodents/specialist.typ"
 
 = Trick List
 #include "tricks/offense.typ"

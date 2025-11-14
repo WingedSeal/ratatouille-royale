@@ -11,4 +11,4 @@ Take \<intensity\> damage every of your turn.
 Take \<intensity\> damage on application and take \<intensity\> damage every of enemy's and your turn.
 
 == Morale Boost
-Attack increased by \<intensity\>
+Increase attack by \<intensity\>.
