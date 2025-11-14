@@ -55,3 +55,10 @@
 
 = Forges
 #include "progression/forges.typ"
+
+= UI
+#grid(
+  columns: (1fr,) * 2,
+  gutter: 1em,
+  ..range(1, 17).map(i => image("ui/" + str(i) + ".png"))
+)
