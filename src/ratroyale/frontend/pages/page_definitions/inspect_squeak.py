@@ -56,6 +56,9 @@ class InspectSqueak(Page):
         if self.main_panel:
             self.main_panel.kill()  # type: ignore[no-untyped-call]
 
+        if squeak.squeak_type is None:
+            return
+
         rodent_cls = squeak.rodent
         assert rodent_cls is not None, "Rodent class must not be None"
 
