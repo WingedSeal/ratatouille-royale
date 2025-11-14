@@ -56,6 +56,7 @@ class Tailblazer(Rodent):
             for entity in game_manager.board.cache.sides[self.side]
             if entity is not self
         ):
+            self.on_speed = False
             self.speed -= 2
 
     @entity_skill_check
