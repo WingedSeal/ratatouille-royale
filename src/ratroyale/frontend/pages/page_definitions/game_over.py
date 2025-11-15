@@ -66,6 +66,6 @@ class GameOver(Page):
             )
             game_over_panel.set_text(
                 f"GAME OVER!! {winner} is the winning side!!" + " (That's you! :) )"
-                if payload.is_winner_from_first_turn_side
+                if payload.is_winner_from_player_1_side
                 else ""
             )

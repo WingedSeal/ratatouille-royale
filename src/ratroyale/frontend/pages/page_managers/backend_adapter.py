@@ -57,7 +57,7 @@ class BackendAdapter:
             "target_selected": self.handle_target_selected,
             "skill_canceled": self.handle_skill_canceled,
             "inspect_deck_clicked": self.handle_inspect_deck_clicked,
-            "get_first_turn": self.handle_get_first_turn,
+            "get_player_1": self.handle_get_player_1,
         }
 
     def execute_backend_callback(self) -> None:
@@ -93,7 +93,7 @@ class BackendAdapter:
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
 
-        player_1_side = self.game_manager.first_turn
+        player_1_side = self.game_manager.player_1
         squeak_in_player_1_hand_list = self.game_manager.hands[player_1_side]
         squeak_in_player_2_hand_list = self.game_manager.hands[
             player_1_side.other_side()
@@ -316,7 +316,7 @@ class BackendAdapter:
             PageCallbackEvent(
                 "game_over",
                 payload=GameOverPayload(
-                    event.is_winner_from_first_turn_side, event.victory_side
+                    event.is_winner_from_player_1_side, event.victory_side
                 ),
             )
         )
@@ -333,11 +333,11 @@ class BackendAdapter:
             )
         )
 
-    def handle_get_first_turn(self, event: GameManagerEvent) -> None:
-        first_turn_side = self.game_manager.first_turn
+    def handle_get_player_1(self, event: GameManagerEvent) -> None:
+        player_1_side = self.game_manager.player_1
         self.coordination_manager.put_message(
             PageCallbackEvent(
-                callback_action="first_turn_info",
-                payload=SidePayload(side=first_turn_side),
+                callback_action="player_1_info",
+                payload=SidePayload(side=player_1_side),
             )
         )

@@ -101,7 +101,7 @@ class SkillTargetingPayload(Payload):
 
 @dataclass
 class GameOverPayload(Payload):
-    is_winner_from_first_turn_side: bool
+    is_winner_from_player_1_side: bool
     victory_side: Side
 
 

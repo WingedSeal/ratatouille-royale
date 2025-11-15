@@ -568,8 +568,8 @@ class GameInfoPage(Page):
             self._element_manager.remove_element(ids)
         self.temp_saved_buttons.clear()
 
-    @callback_event_bind("first_turn_info")
-    def receive_first_turn(self, msg: PageCallbackEvent) -> None:
+    @callback_event_bind("player_1_info")
+    def receive_player_1(self, msg: PageCallbackEvent) -> None:
         if msg.success and msg.payload:
             payload = msg.payload
             assert isinstance(payload, SidePayload)
@@ -599,7 +599,7 @@ class GameInfoPage(Page):
         y_offset = 0
         displayed_moves = self.move_history[-10:]  # Show last 10 moves
 
-        self.post(GameManagerEvent(game_action="get_first_turn", payload=None))
+        self.post(GameManagerEvent(game_action="get_player_1", payload=None))
         for index, move in enumerate(displayed_moves):
             button_id = f"move_history_btn_{index}"
             is_player_turn = move["side"] == self.player_side
