@@ -13,6 +13,7 @@ from ratroyale.frontend.pages.page_elements.element import ElementWrapper
 from ratroyale.frontend.pages.page_managers.event_binder import (
     callback_event_bind,
     input_event_bind,
+    SpecialInputScope,
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
@@ -35,6 +36,7 @@ class InspectSqueak(Page):
         )
         self.current_squeak: Squeak | None = None
         self.main_panel: pygame_gui.elements.UIPanel | None = None
+        self.scroll_container: pygame_gui.elements.UIScrollingContainer | None = None
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         return []
@@ -196,6 +198,7 @@ class InspectSqueak(Page):
             allow_scroll_x=False,
             anchors={"left": "left", "top": "top"},
         )
+        self.scroll_container = scroll_container
 
         y_offset = 0
         pygame_gui.elements.UILabel(
@@ -301,6 +304,15 @@ class InspectSqueak(Page):
 
         skill_card.set_dimensions((card_width, total_height))
         return total_height + padding
+
+    @input_event_bind(SpecialInputScope.GLOBAL, pygame.MOUSEWHEEL)
+    def on_mousewheel(self, msg: pygame.event.Event) -> None:
+        """Block mousewheel events when hovering over the scroll container."""
+        if self.scroll_container:
+            mouse_pos = pygame.mouse.get_pos()
+            container_rect = self.scroll_container.rect
+            if container_rect.collidepoint(mouse_pos):
+                return  # Consume event to prevent GameBoard scrolling
 
     @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
     def close_panel(self, msg: pygame.event.Event) -> None:
