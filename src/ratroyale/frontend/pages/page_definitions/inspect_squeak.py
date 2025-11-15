@@ -1,7 +1,7 @@
 import pygame
 import pygame_gui
 
-from ratroyale.backend.player_info.squeak import Squeak
+from ratroyale.backend.player_info.squeak import Squeak, SqueakType
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
@@ -61,6 +61,15 @@ class InspectSqueak(Page):
         if squeak.squeak_type is None:
             return
 
+        # Handle RODENT type squeaks
+        if squeak.squeak_type == SqueakType.RODENT:
+            self._create_rodent_squeak_ui(squeak)
+        # Handle TRICK type squeaks
+        elif squeak.squeak_type == SqueakType.TRICK:
+            self._create_trick_squeak_ui(squeak)
+
+    def _create_rodent_squeak_ui(self, squeak: Squeak) -> None:
+        """Create UI for RODENT type squeaks."""
         rodent_cls = squeak.rodent
         assert rodent_cls is not None, "Rodent class must not be None"
 
@@ -244,6 +253,139 @@ class InspectSqueak(Page):
             )
 
         scroll_container.set_scrollable_area_dimensions((350, y_offset + 20))
+
+    def _create_trick_squeak_ui(self, squeak: Squeak) -> None:
+        """Create UI for TRICK type squeaks with related entities."""
+        panel_w, panel_h = 620, 460
+        panel_x = (SCREEN_SIZE[0] - panel_w) // 2
+        panel_y = (SCREEN_SIZE[1] - panel_h) // 2
+        self.main_panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(panel_x, panel_y, panel_w, panel_h),
+            manager=self.gui_manager,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="MainPanel", object_id="main_panel"
+            ),
+            anchors={"left": "left", "top": "top"},
+        )
+        pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect(-40, 12, 28, 28),
+            text="x",
+            manager=self.gui_manager,
+            container=self.main_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CloseButton", object_id="close_button"
+            ),
+            anchors={"right": "right", "top": "top"},
+        )
+        name_text = f"<b>{squeak.name}</b>"
+        pygame_gui.elements.UITextBox(
+            relative_rect=pygame.Rect(20, 20, 580, 40),
+            html_text=name_text,
+            manager=self.gui_manager,
+            container=self.main_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="NameTitle", object_id="char_name"
+            ),
+            anchors={"left": "left", "top": "top"},
+        )
+
+        # Description text (placeholder for now)
+        desc_text = "Example description text"
+        pygame_gui.elements.UITextBox(
+            html_text=desc_text,
+            relative_rect=pygame.Rect(20, 60, 580, 70),
+            manager=self.gui_manager,
+            container=self.main_panel,
+            object_id=pygame_gui.core.ObjectID(class_id="Desc", object_id="desc"),
+            anchors={"left": "left", "top": "top"},
+        )
+
+        # Related entities panel
+        entities_panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(20, 130, 580, 305),
+            manager=self.gui_manager,
+            container=self.main_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="EntitiesPanel", object_id="entities_panel"
+            ),
+            anchors={"left": "left", "top": "top"},
+        )
+
+        pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(0, 6, 200, 22),
+            text="Related Entities",
+            manager=self.gui_manager,
+            container=entities_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="EntitiesPanelHeader", object_id="entities_panel_header"
+            ),
+            anchors={"centerx": "centerx", "top": "top"},
+        )
+
+        scroll_container = pygame_gui.elements.UIScrollingContainer(
+            relative_rect=pygame.Rect(7, 30, 566, 268),
+            manager=self.gui_manager,
+            container=entities_panel,
+            allow_scroll_x=False,
+            anchors={"left": "left", "top": "top"},
+        )
+        self.scroll_container = scroll_container
+
+        y_offset = 0
+        # Display all related entities
+        for entity_cls in (
+            squeak.related_entities if hasattr(squeak, "related_entities") else []
+        ):
+            y_offset += self._create_entity_card(scroll_container, entity_cls, y_offset)
+
+        scroll_container.set_scrollable_area_dimensions((566, y_offset + 20))
+
+    def _create_entity_card(
+        self,
+        parent_container: pygame_gui.elements.UIScrollingContainer,
+        entity_cls: type,
+        y_start: int,
+    ) -> int:
+        """Create a card for displaying entity information."""
+        card_width = 550
+        padding = 10
+        image_size = 50
+
+        entity_card = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(0, y_start, card_width, 70),
+            manager=self.gui_manager,
+            container=parent_container,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="EntityCard", object_id="entity_card"
+            ),
+            anchors={"left": "left", "top": "top"},
+        )
+        portrait_surface = pygame.Surface(
+            (image_size, image_size), flags=pygame.SRCALPHA
+        )
+        portrait_surface.fill((200, 200, 200))
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(0, 0, image_size, image_size),
+            image_surface=portrait_surface,
+            manager=self.gui_manager,
+            container=entity_card,
+            anchors={"left": "left", "top": "top"},
+        )
+
+        entity_name = getattr(entity_cls, "name", entity_cls.__name__)
+        pygame_gui.elements.UITextBox(
+            relative_rect=pygame.Rect(60, 10, 480, 50),
+            html_text=f"<b>{entity_name}</b>",
+            manager=self.gui_manager,
+            container=entity_card,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="EntityName", object_id="entity_name"
+            ),
+            anchors={"left": "left", "top": "top"},
+        )
+
+        entity_card.set_dimensions((card_width, image_size + padding))
+        return image_size + padding
 
     def _create_skill_card(
         self,
