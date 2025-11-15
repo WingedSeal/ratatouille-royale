@@ -57,19 +57,19 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
             yield pos
 
 
-def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
+def summon_on_place(entity_type: type["Entity"]) -> SqueakOnPlace:
     def on_place(game_manager: "GameManager", coord: OddRCoord) -> None:
-        summon(game_manager, coord, rodent_type)
+        summon(game_manager, coord, entity_type)
 
     return on_place
 
 
 def summon(
-    game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]
+    game_manager: "GameManager", coord: OddRCoord, entity_type: type["Entity"]
 ) -> "Entity":
     tile = game_manager.board.get_tile(coord)
     if tile is None:
         raise ValueError("Trying to summon rodent on None tile")
-    entity = rodent_type(coord, game_manager.turn)
+    entity = entity_type(coord, game_manager.turn)
     game_manager.board.add_entity(entity, game_manager)
     return entity

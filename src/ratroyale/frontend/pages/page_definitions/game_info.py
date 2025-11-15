@@ -279,7 +279,8 @@ class GameInfoPage(Page):
         if button_id and button_id in self.button_feature_data:
             feature = self.button_feature_data[button_id]
 
-            description_parts: list[str] = []
+            feature_name, feature_description = feature.get_name_and_description()
+            description_parts: list[str] = [feature_description]
 
             if feature.health is not None:
                 description_parts.append(f"Health: {feature.health}")
@@ -287,21 +288,18 @@ class GameInfoPage(Page):
             if feature.defense is not None:
                 description_parts.append(f"Defense: {feature.defense}")
 
-            is_collision = "Collision" if feature.is_collision() else "No Collision"
-            description_parts.append(is_collision)
+            description_parts.append(
+                f"Collision: {'Yes' if feature.is_collision() else 'No'}"
+            )
 
             if feature.side is not None:
                 description_parts.append(f"Side: {feature.side}")
 
-            feature_description = (
-                "\n".join(description_parts)
-                if description_parts
-                else "No details available"
-            )
+            feature_full_description = "\n".join(description_parts)
 
             payload = FeaturePayload(
-                feature_name=feature.get_name(),
-                feature_description=feature_description,
+                feature_name=feature_name,
+                feature_description=feature_full_description,
                 feature_type=type(feature).__name__,
             )
 
@@ -368,24 +366,23 @@ class GameInfoPage(Page):
 
         for index, feature in enumerate(tile.features):
             feature_button_id = f"feature_btn_{id(feature)}"
-            feature_button = pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(100 + index * 60, (index // 6), 50, 20),
-                text=f"{feature.get_name()}",
-                manager=self.gui_manager,
-                container=tile_hover_data_panel_object,
-                object_id=pygame_gui.core.ObjectID(
-                    class_id="feature_btn",
-                    object_id=feature_button_id,
-                ),
-            )
-            # Store feature data in dictionary instead of attaching to button
-            self.button_feature_data[feature_button_id] = feature
-
+            feature_name, feature_description = feature.get_name_and_description()
             feature_button_wrapper = ui_element_wrapper(
-                feature_button,
+                pygame_gui.elements.UIButton(
+                    relative_rect=pygame.Rect(100 + index * 60, (index // 6), 50, 20),
+                    text=f"{feature_name}: {feature_description}",  # TODO: add place for description
+                    manager=self.gui_manager,
+                    container=tile_hover_data_panel_object,
+                    object_id=pygame_gui.core.ObjectID(
+                        class_id="feature_btn",
+                        object_id=feature_button_id,
+                    ),
+                ),
                 feature_button_id,
                 self.camera,
             )
+            # Store feature data in dictionary instead of attaching to button
+            self.button_feature_data[feature_button_id] = feature
             new_element_wrappers.append(feature_button_wrapper)
             self.temp_saved_buttons.append(feature_button_id)
         self.setup_elements(new_element_wrappers)

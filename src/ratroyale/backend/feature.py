@@ -3,8 +3,7 @@ from dataclasses import dataclass, field
 from pprint import pformat
 from typing import TYPE_CHECKING, ClassVar
 
-from ratroyale.backend.instant_kill import InstantKill
-
+from .instant_kill import InstantKill
 from .source_of_damage_or_heal import SourceOfDamageOrHeal
 from .hexagon import OddRCoord
 from .side import Side
@@ -38,7 +37,7 @@ class Feature(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_name() -> str: ...
+    def get_name_and_description() -> tuple[str, str]: ...
 
     def __init_subclass__(cls) -> None:
         if cls.FEATURE_ID() in Feature.ALL_FEATURES:
@@ -82,9 +81,9 @@ class Feature(ABC):
         self,
         game_manager: "GameManager",
         entity: "Entity",
-        coord_that_entity_exit: OddRCoord,
+        coord_that_entity_exit: OddRCoord | None,
     ) -> None:
-        """Can trigger multiple times in a move of entity enter and exit again"""
+        """Can trigger multiple times in a move of entity enter and exit again. If it dies, the `coord_that_entity_exit` will be None."""
         pass
 
     def on_entity_turn_change(
@@ -135,6 +134,12 @@ class Feature(ABC):
             return True, damage_taken
         self.on_hp_loss(game_manager, damage_taken, source)
         return False, damage_taken
+
+    def get_relative_shape_and_origin(self) -> tuple[list[OddRCoord], OddRCoord]:
+        x = min(coord.x for coord in self.shape)
+        y = min(coord.y for coord in self.shape)
+        origin = OddRCoord(x, y)
+        return [coord - origin for coord in self.shape], origin
 
     def __repr__(self) -> str:
         return f"""Feature(
