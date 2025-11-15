@@ -166,6 +166,15 @@ class GameBoard(Page):
                 self.game_state = GameState.PLAYER1
                 self.hide_player_hand(2)
                 self.show_player_hand(1)
+        else:
+            if not self.is_player_1_now:
+                self.ai_did_something = False
+                self.game_state = GameState.PLAYER2
+                self.hide_player_hand(1)
+            else:
+                if not self.ai_did_something:
+                    self.game_state = GameState.PLAYER1
+                    self.show_player_hand(1)
 
         entities = self._element_manager.get_group("ENTITY").get_all_elements()
         for entity in entities:
@@ -174,13 +183,8 @@ class GameBoard(Page):
 
     @game_event_bind(GameEvent)
     def generic_game_event_test(self, event: GameEvent) -> None:
-        # If the player is playing with an AI, attempt to detect whether the AI player has played anything.
-        # This is done in order to prevent AI freezing the turn switching logic by not playing anything.
-        if (
-            self.game_state == GameState.PLAYER2
-            and self.is_playing_with_ai
-            and not self.ai_did_something
-        ):
+        if self.is_playing_with_ai and not self.is_player_1_now:
+            # Only count real actions
             if not isinstance(event, (CrumbChangeEvent, EndTurnEvent)):
                 self.ai_did_something = True
 
@@ -209,8 +213,6 @@ class GameBoard(Page):
 
     @game_event_bind(CrumbChangeEvent)
     def crumb_change_event(self, event: CrumbChangeEvent) -> None:
-        print("CRUMB CHANGE EVENT RECEIVED")
-        print("CURRENT TURN PLAYER", ("1" if self.is_player_1_now else "2"))
         new_crumbs = event.new_crumbs
         targeted_set = self.get_targeted_set()
 
