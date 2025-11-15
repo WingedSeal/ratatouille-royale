@@ -211,9 +211,14 @@ class InspectSqueak(Page):
         y_offset += 30
 
         temp_rodent = rodent_cls(pos=OddRCoord(0, 0), side=None)
-        for skill_desc in temp_rodent.skill_descriptions():
+        for i, skill_desc in enumerate(temp_rodent.skill_descriptions()):
+            skill_name = (
+                temp_rodent.skills[i].name
+                if i < len(temp_rodent.skills)
+                else f"Skill {i}"
+            )
             y_offset += self._create_skill_card(
-                scroll_container, "Skill", skill_desc, y_offset
+                scroll_container, skill_name, skill_desc, y_offset
             )
 
         pygame_gui.elements.UILabel(
