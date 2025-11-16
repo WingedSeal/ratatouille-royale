@@ -6,6 +6,12 @@ from ratroyale.backend.entities.rodents.duelist import (
 )
 from pathlib import Path
 from ratroyale.backend.entity import Entity
+from ratroyale.backend.player_info.squeak import Squeak
+from ratroyale.backend.player_info.squeaks.rodents.duelist import (
+    RATBERT_BREWBELLY,
+    SODA_KABOOMA,
+)
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAILBLAZER
 
 ASSET_DIR = Path(__file__).resolve().parent.parent / "asset"
 
@@ -67,22 +73,22 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
     ),
 }
 
-SQUEAK_IMAGE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
-    Tailblazer: SpritesheetMetadata(
+SQUEAK_IMAGE_METADATA_REGISTRY: dict[Squeak, SpritesheetMetadata] = {
+    TAILBLAZER: SpritesheetMetadata(
         "TAILBLAZER_SQUEAK",
         ASSET_DIR / "tailblazer_squeak.png",
         (238, 150),
         {"NONE": [0]},
         60,
     ),
-    RatbertBrewbelly: SpritesheetMetadata(
+    RATBERT_BREWBELLY: SpritesheetMetadata(
         "RATBERT_BREWBELLY_SQUEAK",
         ASSET_DIR / "ratbert_brewbelly_squeak.png",
         (238, 150),
         {"NONE": [0]},
         60,
     ),
-    SodaKabooma: SpritesheetMetadata(
+    SODA_KABOOMA: SpritesheetMetadata(
         "RATBERT_BREWBELLY_SQUEAK",
         ASSET_DIR / "soda_kabooma_squeak.png",
         (238, 154),

@@ -44,13 +44,11 @@ class SqueakElement(ElementWrapper):
         self.squeak = squeak
 
         # --- Create main squeak element ---
-        assert squeak.rodent
         # TODO: replace random with smth better
         self.squeak_element_id = f"squeak_{uuid.uuid4()}"
-        try:
-            sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY[squeak.rodent]
-        except KeyError:
-            sprite_metadata = DUMMY_TEXTURE_METADATA
+        sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY.get(
+            squeak, DUMMY_TEXTURE_METADATA
+        )
 
         cached_spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
