@@ -396,24 +396,24 @@ class InspectSqueak(Page):
             )
             y += 30
 
-        # Related entities panel (instead of skills)
-        entities_panel = pygame_gui.elements.UIPanel(
+        # Skills & Passives panel (render like rodents)
+        skills_panel = pygame_gui.elements.UIPanel(
             relative_rect=pygame.Rect(220, 140, 370, 295),
             manager=self.gui_manager,
             container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
-                class_id="EntitiesPanel", object_id="entities_panel"
+                class_id="SkillsPanel", object_id="skills_panel"
             ),
             anchors={"left": "left", "top": "top"},
         )
 
         pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect(0, 6, 200, 22),
-            text="PASSIVES",
+            relative_rect=pygame.Rect(0, 6, 130, 22),
+            text="SKILLS & PASSIVES",
             manager=self.gui_manager,
-            container=entities_panel,
+            container=skills_panel,
             object_id=pygame_gui.core.ObjectID(
-                class_id="EntitiesPanelHeader", object_id="entities_panel_header"
+                class_id="SkillsPanelHeader", object_id="skills_panel_header"
             ),
             anchors={"centerx": "centerx", "top": "top"},
         )
@@ -421,19 +421,82 @@ class InspectSqueak(Page):
         scroll_container = pygame_gui.elements.UIScrollingContainer(
             relative_rect=pygame.Rect(7, 30, 350, 255),
             manager=self.gui_manager,
-            container=entities_panel,
+            container=skills_panel,
             allow_scroll_x=False,
             anchors={"left": "left", "top": "top"},
         )
         self.scroll_container = scroll_container
 
         y_offset = 0
+
+        # Active skills header (tricks normally don't have active skills)
+        pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(5, y_offset, 200, 25),
+            text="------- Active Skills -------",
+            manager=self.gui_manager,
+            container=scroll_container,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="SkillsHeader", object_id="active_skills_header"
+            ),
+            anchors={"left": "left", "top": "top"},
+        )
+        y_offset += 30
+
         if trick_cls:
             temp_trick = trick_cls(pos=OddRCoord(0, 0), side=None)
 
-            # Passive skills/abilities
-            passive_descriptions = temp_trick.passive_descriptions()
-            for skill_name, skill_desc in passive_descriptions:
+            # If the trick provides active skill descriptions, render them; otherwise show none
+            if hasattr(temp_trick, "skill_descriptions"):
+                for i, skill_desc in enumerate(temp_trick.skill_descriptions()):
+                    skill_name = (
+                        temp_trick.skills[i].name
+                        if i < len(temp_trick.skills)
+                        else f"Skill {i}"
+                    )
+                    # Add skill stats if available on the skill object
+                    skill_obj = (
+                        temp_trick.skills[i] if i < len(temp_trick.skills) else None
+                    )
+                    if skill_obj:
+                        stats_info = []
+                        # skill objects may have reach/altitude/crumb_cost like rodents
+                        if getattr(skill_obj, "reach", None) is not None:
+                            stats_info.append(f"Reach: {skill_obj.reach}")
+                        if getattr(skill_obj, "altitude", None) is not None:
+                            stats_info.append(f"Altitude: {skill_obj.altitude}")
+                        if getattr(skill_obj, "crumb_cost", None) is not None:
+                            stats_info.append(f"Cost: {skill_obj.crumb_cost}")
+                        if stats_info:
+                            skill_desc = f"{skill_desc}<br>({', '.join(stats_info)})"
+
+                    y_offset += self._create_skill_card(
+                        scroll_container, skill_name, skill_desc, y_offset
+                    )
+            else:
+                # No active skills - show a simple label
+                pygame_gui.elements.UILabel(
+                    relative_rect=pygame.Rect(5, y_offset, 300, 22),
+                    text="(No active skills)",
+                    manager=self.gui_manager,
+                    container=scroll_container,
+                    anchors={"left": "left", "top": "top"},
+                )
+                y_offset += 30
+
+            # Passive skills header
+            pygame_gui.elements.UILabel(
+                relative_rect=pygame.Rect(5, y_offset, 200, 25),
+                text="-------- Passive Skills -------",
+                manager=self.gui_manager,
+                container=scroll_container,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="SkillsHeader", object_id="passive_skills_header"
+                ),
+                anchors={"left": "left", "top": "top"},
+            )
+            y_offset += 30
+
+            for skill_name, skill_desc in temp_trick.passive_descriptions():
                 y_offset += self._create_skill_card(
                     scroll_container, skill_name, skill_desc, y_offset
                 )
