@@ -46,6 +46,8 @@
 
 = Trick List
 #include "tricks/offense.typ"
+#include "tricks/defense.typ"
+#include "tricks/utility.typ"
 
 = Common Effects
 #include "effects.typ"

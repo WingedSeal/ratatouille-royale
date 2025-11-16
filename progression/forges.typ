@@ -1,1 +1,1 @@
-- $10 times "Tailblazer" arrow "Tailtrail"$
+- $10 times "Tailblazer" + 1 times "Cracker" arrow "Tailtrail"$
