@@ -740,9 +740,13 @@ class GameBoard(Page):
                 if selected_tiles[0] not in available_tiles:
                     self.return_squeak_to_hand(selected_squeaks[0])
                 else:
-                    self.trigger_squeak_placement(
-                        selected_squeaks[0].registered_name, selected_tiles[0].coord
-                    )
+                    assert isinstance(selected_squeaks[0], SqueakElement)
+                    if selected_squeaks[0].can_be_played:
+                        self.trigger_squeak_placement(
+                            selected_squeaks[0].registered_name, selected_tiles[0].coord
+                        )
+                    else:
+                        self.return_squeak_to_hand(selected_squeaks[0])
             else:
                 if selected_squeaks:
                     self.return_squeak_to_hand(selected_squeaks[0])
@@ -863,8 +867,6 @@ class GameBoard(Page):
         self._element_manager.remove_element(selected_squeak_id)
         # Remove selected squeak element id from saved keys & hand list
         targeted_set.remove(selected_squeak_id)
-
-        print("REMOVAL:", self.game_state, selected_squeak_id)
 
     def return_squeak_to_hand(self, squeak_element: ElementWrapper) -> None:
         """Return the squeak element back to the player's hand."""

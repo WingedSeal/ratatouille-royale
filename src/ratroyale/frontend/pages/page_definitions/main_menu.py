@@ -22,7 +22,6 @@ from ratroyale.frontend.pages.page_elements.element import (
 from ratroyale.frontend.pages.page_elements.spatial_component import (
     Camera,
 )
-from pathlib import Path
 
 
 from ..page_managers.base_page import Page
@@ -32,7 +31,7 @@ from ratroyale.backend.map import Map
 def _temp_get_map():  # type: ignore
     from ratroyale.backend.hexagon import OddRCoord
     from ratroyale.backend.features.common import DeploymentZone, Lair
-    from ratroyale.backend.map import Map, heights_to_tiles
+    from ratroyale.backend.map import heights_to_tiles
 
     size = 10
     return Map(
@@ -103,9 +102,10 @@ class MainMenu(Page):
 
     @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_start_click(self, msg: pygame.event.Event) -> None:
-        map = Map.from_file(
-            Path(__file__).parents[3] / "map_file/starting-kitchen.rrmap"
-        )
+        # map = Map.from_file(
+        #     Path(__file__).parents[3] / "map_file/starting-kitchen.rrmap"
+        # )
+        map = _temp_get_map()  # type: ignore
         assert map
         self.post(
             GameManagerEvent(
