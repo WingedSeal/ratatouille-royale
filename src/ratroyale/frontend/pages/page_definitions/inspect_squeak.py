@@ -75,7 +75,7 @@ class InspectSqueak(Page):
         """Create UI for RODENT type squeaks."""
         rodent_cls = squeak_info.rodent
 
-        panel_w, panel_h = 620, 460
+        panel_w, panel_h = 700, 520
         panel_x = (SCREEN_SIZE[0] - panel_w) // 2
         panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         self.main_panel = pygame_gui.elements.UIPanel(
@@ -126,7 +126,7 @@ class InspectSqueak(Page):
             anchors={"left": "left", "top": "top"},
         )
         stats_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(20, 140, 200, 295),
+            relative_rect=pygame.Rect(20, 140, 220, 355),
             manager=self.gui_manager,
             container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
@@ -151,9 +151,10 @@ class InspectSqueak(Page):
             "Speed": str(rodent_cls.speed),
             "Defense": str(rodent_cls.defense),
             "Attack": str(rodent_cls.attack),
-            "Stamina": str(rodent_cls.max_move_stamina),
+            "Move Stamina": str(rodent_cls.max_move_stamina),
             "Move Cost": str(rodent_cls.move_cost),
             "Crumb Cost": str(squeak.crumb_cost),
+            "Skill Stamina": str(rodent_cls.skill_stamina),
             "Height": str(rodent_cls.height),
         }
 
@@ -181,7 +182,7 @@ class InspectSqueak(Page):
             )
             y += 30
         skills_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(220, 140, 370, 295),
+            relative_rect=pygame.Rect(250, 140, 430, 355),
             manager=self.gui_manager,
             container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
@@ -201,7 +202,7 @@ class InspectSqueak(Page):
             anchors={"centerx": "centerx", "top": "top"},
         )
         scroll_container = pygame_gui.elements.UIScrollingContainer(
-            relative_rect=pygame.Rect(7, 30, 350, 255),
+            relative_rect=pygame.Rect(7, 30, 410, 315),
             manager=self.gui_manager,
             container=skills_panel,
             allow_scroll_x=False,
@@ -272,13 +273,13 @@ class InspectSqueak(Page):
                 scroll_container, skill_name, skill_desc, y_offset
             )
 
-        scroll_container.set_scrollable_area_dimensions((350, y_offset + 20))
+        scroll_container.set_scrollable_area_dimensions((410, y_offset + 20))
 
     def _create_trick_squeak_ui(
         self, squeak: Squeak, squeak_info: TrickSqueakInfo
     ) -> None:
         """Create UI for TRICK type squeaks with related entities."""
-        panel_w, panel_h = 620, 460
+        panel_w, panel_h = 700, 520
         panel_x = (SCREEN_SIZE[0] - panel_w) // 2
         panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         self.main_panel = pygame_gui.elements.UIPanel(
@@ -337,7 +338,7 @@ class InspectSqueak(Page):
 
         # Stats panel - display trick-specific stats
         stats_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(20, 140, 200, 295),
+            relative_rect=pygame.Rect(20, 140, 220, 355),
             manager=self.gui_manager,
             container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
@@ -398,7 +399,7 @@ class InspectSqueak(Page):
 
         # Skills & Passives panel (render like rodents)
         skills_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(220, 140, 370, 295),
+            relative_rect=pygame.Rect(250, 140, 430, 355),
             manager=self.gui_manager,
             container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
@@ -419,7 +420,7 @@ class InspectSqueak(Page):
         )
 
         scroll_container = pygame_gui.elements.UIScrollingContainer(
-            relative_rect=pygame.Rect(7, 30, 350, 255),
+            relative_rect=pygame.Rect(7, 30, 410, 315),
             manager=self.gui_manager,
             container=skills_panel,
             allow_scroll_x=False,
@@ -429,7 +430,6 @@ class InspectSqueak(Page):
 
         y_offset = 0
 
-        # Active skills header (tricks normally don't have active skills)
         pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(5, y_offset, 200, 25),
             text="------- Active Skills -------",
@@ -501,7 +501,7 @@ class InspectSqueak(Page):
                     scroll_container, skill_name, skill_desc, y_offset
                 )
 
-        scroll_container.set_scrollable_area_dimensions((350, y_offset + 20))
+        scroll_container.set_scrollable_area_dimensions((410, y_offset + 20))
 
     def _create_entity_card(
         self,
@@ -593,7 +593,7 @@ class InspectSqueak(Page):
             anchors={"left": "left", "top": "top"},
         )
         desc_box = pygame_gui.elements.UITextBox(
-            html_text=f"Description: <font size=3>{description}</font>",
+            html_text=f"<font size=3>{description}</font>",
             relative_rect=pygame.Rect(60, 30, 260, 10),
             manager=self.gui_manager,
             container=skill_card,
