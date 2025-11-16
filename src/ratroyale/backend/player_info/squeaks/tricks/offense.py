@@ -27,7 +27,7 @@ SUNDIAL = Squeak(
     on_place=summon_on_place(Sundial),
     get_placable_tiles=sundial_placable_tiles,
     squeak_info=TrickSqueakInfo(
-        "The ultimate last resort. The sign of true desperation. \
+        "Summon \"Sundial\".\
 If not destroyed within 5 of enemy's turn, explode and set every of your lair's health to 1 \
 and kill every entity in the field. (Cannot work if every lair's health is already 1)",
         (Sundial,),
