@@ -30,6 +30,6 @@ SUNDIAL = Squeak(
         "The ultimate last resort. The sign of true desperation. \
 If not destroyed within 5 of enemy's turn, explode and set every of your lair's health to 1 \
 and kill every entity in the field. (Cannot work if every lair's health is already 1)",
-        [Sundial],
+        (Sundial,),
     ),
 )

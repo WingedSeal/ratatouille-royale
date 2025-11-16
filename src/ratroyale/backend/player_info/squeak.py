@@ -37,7 +37,7 @@ class RodentSqueakInfo(SqueakInfo):
 @dataclass(frozen=True)
 class TrickSqueakInfo(SqueakInfo):
     description: str
-    related_entities: list[type["Entity"]]
+    related_entities: tuple[type["Entity"], ...]
 
     @staticmethod
     def is_rodent() -> bool:
