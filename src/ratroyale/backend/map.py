@@ -138,10 +138,10 @@ class Map:
     def from_file(cls, file_path: Path) -> "Map | None":
         with file_path.open("rb") as file:
             data = file.read()
-        try:
+            # try:
             return cls.load(data)
-        except Exception:
-            return None
+        # except Exception:
+        #     return None
 
     def to_file(self, file_path: Path) -> None:
         data = self.save()
