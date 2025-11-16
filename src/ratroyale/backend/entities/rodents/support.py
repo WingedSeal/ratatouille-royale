@@ -37,12 +37,16 @@ class QuartermasterSoul(EntityEffect):
         pass
 
     def effect_descriptions(self) -> str:
-        return "Someone entrusted their soul"
+        return "Someone entrusted their soul to you"
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Someone entrusted their soul to you"
 
 
 @rodent_data(
     name="Quartermaster",
-    description="Live with honor and die with honor.  Army marches on its stomach. It'll continue to distribute these supplies until it has drawn its last breath.",
+    description="Live with honor and die with honor. Army marches on its stomach. It'll continue to distribute these supplies until it has drawn its last breath.",
     health=5,
     defense=0,
     speed=1,
@@ -55,7 +59,7 @@ class QuartermasterSoul(EntityEffect):
     entity_tags=[],
     skills=[
         EntitySkill(
-            name="My body",
+            name="My Body",
             method_name="my_body",
             reach=1,
             altitude=10,
@@ -63,7 +67,7 @@ class QuartermasterSoul(EntityEffect):
             tags=[],
         ),
         EntitySkill(
-            name="My heart",
+            name="My Heart",
             method_name="my_heart",
             reach=1,
             altitude=1,
@@ -71,7 +75,7 @@ class QuartermasterSoul(EntityEffect):
             tags=[],
         ),
         EntitySkill(
-            name="My soul",
+            name="My Soul",
             method_name="my_soul",
             reach=3,
             altitude=10,

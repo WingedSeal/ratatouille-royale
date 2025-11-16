@@ -6,6 +6,12 @@ from ratroyale.backend.entities.rodents.duelist import (
 )
 from pathlib import Path
 from ratroyale.backend.entity import Entity
+from ratroyale.backend.player_info.squeak import Squeak
+from ratroyale.backend.player_info.squeaks.rodents.duelist import (
+    RATBERT_BREWBELLY,
+    SODA_KABOOMA,
+)
+from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAILBLAZER
 
 ASSET_DIR = Path(__file__).resolve().parent.parent / "asset"
 
@@ -22,6 +28,15 @@ class SpritesheetMetadata:
     scale: tuple[float, float] = (1.0, 1.0)
 
 
+DUMMY_TEXTURE_METADATA: SpritesheetMetadata = SpritesheetMetadata(
+    "DUMMY",
+    ASSET_DIR / "missingTexture.jpg",
+    (749, 745),
+    {"NONE": [0], "HURT": [0]},
+    60,
+)
+
+
 SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
     Tailblazer: SpritesheetMetadata(
         "TAILBLAZER",
@@ -29,7 +44,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
-            "HUNGRY": list(range(11, 20)),
+            "HURT": list(range(11, 20)),
             "DIE": list(range(21, 30)),
         },
         60,
@@ -40,7 +55,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
-            "HUNGRY": list(range(11, 20)),
+            "HURT": list(range(11, 20)),
             "DIE": list(range(21, 30)),
         },
         60,
@@ -51,29 +66,29 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
-            "HUNGRY": list(range(11, 20)),
+            "HURT": list(range(11, 20)),
             "DIE": list(range(21, 30)),
         },
         60,
     ),
 }
 
-SQUEAK_IMAGE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
-    Tailblazer: SpritesheetMetadata(
+SQUEAK_IMAGE_METADATA_REGISTRY: dict[Squeak, SpritesheetMetadata] = {
+    TAILBLAZER: SpritesheetMetadata(
         "TAILBLAZER_SQUEAK",
         ASSET_DIR / "tailblazer_squeak.png",
         (238, 150),
         {"NONE": [0]},
         60,
     ),
-    RatbertBrewbelly: SpritesheetMetadata(
+    RATBERT_BREWBELLY: SpritesheetMetadata(
         "RATBERT_BREWBELLY_SQUEAK",
         ASSET_DIR / "ratbert_brewbelly_squeak.png",
         (238, 150),
         {"NONE": [0]},
         60,
     ),
-    SodaKabooma: SpritesheetMetadata(
+    SODA_KABOOMA: SpritesheetMetadata(
         "RATBERT_BREWBELLY_SQUEAK",
         ASSET_DIR / "soda_kabooma_squeak.png",
         (238, 154),
@@ -104,5 +119,14 @@ FEATURE_SPRITE_METADATA: dict[int, SpritesheetMetadata] = {
         ASSET_DIR / "terrain32x32.png",
         (32, 32),
         {"NONE": [18]},
+    ),
+}
+
+MISC_SPRITE_METADATA: dict[str, SpritesheetMetadata] = {
+    "HealthIcon": SpritesheetMetadata(
+        "HEALTH_ICON", ASSET_DIR / "HealthIcon.png", (20, 18), {"NONE": [0]}
+    ),
+    "MoveStaminaIcon": SpritesheetMetadata(
+        "MOVE_STAMINA_ICON", ASSET_DIR / "MoveStaminaIcon.png", (16, 22), {"NONE": [0]}
     ),
 }

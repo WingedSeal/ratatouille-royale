@@ -27,9 +27,9 @@ def test_cache(example_board: Board) -> None:
 
 
 def test_add_entity(empty_board: Board) -> None:
-    tail_blazer = Tailblazer(OddRCoord(0, 0), Side.MOUSE)
-    empty_board.add_entity(tail_blazer)
-    assert empty_board.event_queue.get_or_none() == EntitySpawnEvent(tail_blazer)
+    tailblazer = Tailblazer(OddRCoord(0, 0), Side.MOUSE)
+    empty_board.add_entity(tailblazer)
+    assert empty_board.event_queue.get_or_none() == EntitySpawnEvent(tailblazer)
 
 
 def test_get_tile(example_board: Board) -> None:
@@ -39,14 +39,14 @@ def test_get_tile(example_board: Board) -> None:
 
 
 # def test_damage_entity(example_board: Board) -> None:
-#     tail_blazer = example_board.cache.entities_with_hp[0]
-#     assert tail_blazer.health is not None
-#     original_hp = tail_blazer.health
+#     tailblazer = example_board.cache.entities_with_hp[0]
+#     assert tailblazer.health is not None
+#     original_hp = tailblazer.health
 #     damage = 4
-#     example_board.damage_entity(tail_blazer, damage)
-#     assert original_hp - tail_blazer.health == damage - tail_blazer.defense
+#     example_board.damage_entity(tailblazer, damage)
+#     assert original_hp - tailblazer.health == damage - tailblazer.defense
 #     assert example_board.event_queue.get_or_none() == EntityDamagedEvent(
-#         tail_blazer, damage, damage - tail_blazer.defense
+#         tailblazer, damage, damage - tailblazer.defense
 #     )
 #
 #
