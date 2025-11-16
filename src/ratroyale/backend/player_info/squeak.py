@@ -1,5 +1,5 @@
+from abc import abstractmethod
 from dataclasses import dataclass
-from enum import Enum, auto
 from typing import TYPE_CHECKING, ClassVar, Iterable, Protocol
 
 from ..hexagon import OddRCoord
@@ -10,9 +10,42 @@ if TYPE_CHECKING:
     from ..entity import Entity
 
 
-class SqueakType(Enum):
-    RODENT = auto()
-    TRICK = auto()
+@dataclass(frozen=True)
+class SqueakInfo:
+    @staticmethod
+    @abstractmethod
+    def is_rodent() -> bool: ...
+
+    @staticmethod
+    @abstractmethod
+    def is_trick() -> bool: ...
+
+
+@dataclass(frozen=True)
+class RodentSqueakInfo(SqueakInfo):
+    rodent: type["Rodent"]
+
+    @staticmethod
+    def is_rodent() -> bool:
+        return True
+
+    @staticmethod
+    def is_trick() -> bool:
+        return False
+
+
+@dataclass(frozen=True)
+class TrickSqueakInfo(SqueakInfo):
+    description: str
+    related_entities: list[type["Entity"]]
+
+    @staticmethod
+    def is_rodent() -> bool:
+        return True
+
+    @staticmethod
+    def is_trick() -> bool:
+        return False
 
 
 class SqueakOnPlace(Protocol):
@@ -29,16 +62,14 @@ class SqueakGetPlacableTiles(Protocol):
 class Squeak:
     name: str
     crumb_cost: int
-    squeak_type: SqueakType
+    squeak_info: SqueakInfo
     on_place: SqueakOnPlace
     get_placable_tiles: SqueakGetPlacableTiles
-    rodent: "type[Rodent] | None"
+    trick_description: str | None = None
     SQEAK_MAP: ClassVar[dict[str, "Squeak"]] = {}
-    REVERSED_SQEAK_MAP: ClassVar[dict["Squeak", str]] = {}
 
     def __post_init__(self) -> None:
         type(self).SQEAK_MAP[self.name] = self
-        type(self).REVERSED_SQEAK_MAP[self] = self.name
 
 
 def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:

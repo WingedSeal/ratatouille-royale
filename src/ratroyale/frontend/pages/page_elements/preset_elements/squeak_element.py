@@ -1,5 +1,5 @@
 from ..element import ElementWrapper
-from ratroyale.backend.player_info.squeak import Squeak
+from ratroyale.backend.player_info.squeak import RodentSqueakInfo, Squeak
 from ....visual.asset_management.game_obj_to_sprite_registry import (
     SQUEAK_IMAGE_METADATA_REGISTRY,
 )
@@ -43,10 +43,10 @@ class SqueakElement(ElementWrapper):
         self.squeak = squeak
 
         # --- Create main squeak element ---
-        assert squeak.rodent
+        assert isinstance(squeak.squeak_info, RodentSqueakInfo)
         # TODO: replace random with smth better
         self.squeak_element_id = f"squeak_{uuid.uuid4()}"
-        sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY[squeak.rodent]
+        sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY[squeak.squeak_info.rodent]
         cached_spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
         ).get_key()
