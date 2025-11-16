@@ -21,7 +21,6 @@ from ratroyale.backend.player_info.squeak import (
     Squeak,
     SqueakGetPlacableTiles,
     SqueakOnPlace,
-    SqueakType,
     rodent_placable_tile,
     summon_on_place,
 )
