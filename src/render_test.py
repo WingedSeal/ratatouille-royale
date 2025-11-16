@@ -128,16 +128,20 @@ def main():
         game_manager=game_manager,
         page_manager=page_manager,
         coordination_manager=coordination_manager,
-        ai_type=RandomAI,
+        ai_type=None,
     )
 
     coordination_manager.put_message(
         PageNavigationEvent(
             action_list=[
-                (PageNavigation.OPEN, "MainMenu"),
+                (PageNavigation.CLOSE_ALL, None),
+                (PageNavigation.OPEN, "GameBoard"),
+                (PageNavigation.OPEN, "GameInfoPage"),
+                (PageNavigation.OPEN, "PauseButton"),
             ]
         )  # change this to test your page
     )
+    page_manager.backend_adapter = backend_adapter  # A hack to make it works in test
 
     avg_fps = 0
     fps_alpha = 0.1  # smoothing factor for running average
@@ -151,7 +155,7 @@ def main():
         while not coordination_manager.all_mailboxes_empty():
             page_manager.execute_page_callback()
             page_manager.execute_visual_callback()
-            backend_adapter.execute_backend_callback()
+            page_manager.execute_backend_page_callback()
 
         page_manager.render(dt)
         pygame.display.flip()
@@ -169,7 +173,8 @@ def main():
 if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
-    feature_texture.main_TEST()
+    # feature_texture.main_TEST()
+    main()
     # profiler.disable()
 
     # stats = pstats.Stats(profiler)

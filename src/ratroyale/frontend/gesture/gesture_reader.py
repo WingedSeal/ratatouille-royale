@@ -94,6 +94,7 @@ class GestureReader:
         self._check_hold()
 
         self._sync_with_hardware()
+
         return self.gesture_queue.copy()
 
     # region Gesture Logic
@@ -108,6 +109,13 @@ class GestureReader:
             GestureState.STATE_HOLD_TRIGGERED,
         ):
             # Button is up but we still think it's down -> force release
+            # HACK: dummy drag_end to force fix the jumping camera issues
+            self.on_drag_end(
+                pygame.mouse.get_pos(),
+                self.start_pos if self.start_pos else (0, 0),
+                0,
+                pygame.event.Event(pygame.MOUSEBUTTONUP),
+            )
             self._reset_state()
         elif mouse_down and self.state == GestureState.STATE_IDLE:
             # Button is down but we think idle -> fake a press
@@ -206,6 +214,12 @@ class GestureReader:
             speed = distance_total / max(elapsed_time, 1e-6)
             if speed >= self.SWIPE_SPEED_THRESHOLD:
                 # direction = (dx / speed if speed else 0, dy / speed if speed else 0)
+                self.on_drag_end(
+                    start_pos=self.start_pos,
+                    current_pos=pos,
+                    duration=elapsed_time,
+                    raw_event=raw_event,
+                )
                 self.on_swipe(
                     start_pos=self.start_pos,
                     end_pos=pos,

@@ -1,7 +1,8 @@
 from ..element import ElementWrapper
-from ratroyale.backend.player_info.squeak import RodentSqueakInfo, Squeak
+from ratroyale.backend.player_info.squeak import Squeak
 from ....visual.asset_management.game_obj_to_sprite_registry import (
     SQUEAK_IMAGE_METADATA_REGISTRY,
+    DUMMY_TEXTURE_METADATA,
 )
 from ....visual.asset_management.spritesheet_manager import SpritesheetManager
 from ..spatial_component import SpatialComponent
@@ -43,10 +44,12 @@ class SqueakElement(ElementWrapper):
         self.squeak = squeak
 
         # --- Create main squeak element ---
-        assert isinstance(squeak.squeak_info, RodentSqueakInfo)
         # TODO: replace random with smth better
         self.squeak_element_id = f"squeak_{uuid.uuid4()}"
-        sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY[squeak.squeak_info.rodent]
+        sprite_metadata = SQUEAK_IMAGE_METADATA_REGISTRY.get(
+            squeak, DUMMY_TEXTURE_METADATA
+        )
+
         cached_spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
         ).get_key()
@@ -171,7 +174,7 @@ class SqueakElement(ElementWrapper):
                 )
             )
 
-    def return_to_position(self, target_rect: pygame.Rect | pygame.FRect) -> None:
+    def move_to_position(self, target_rect: pygame.Rect | pygame.FRect) -> None:
         spatial = self.spatial_component
         visual_component = self.visual_component
         if visual_component:

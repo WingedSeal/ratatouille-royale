@@ -23,6 +23,7 @@ from ratroyale.event_tokens.payloads import (
     EntityPayload,
     CrumbUpdatePayload,
     SkillActivationPayload,
+    IntegerPayload,
 )
 from ratroyale.backend.entities.rodent import Rodent
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
@@ -51,8 +52,8 @@ class InspectEntity(Page):
         return elements
 
     @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
-    def close_page(self, msg: PageCallbackEvent) -> None:
-        self.post(PageNavigationEvent([(PageNavigation.CLOSE, "InspectEntity")]))
+    def close_button(self, msg: PageCallbackEvent) -> None:
+        self.close_self()
 
     @callback_event_bind("entity_data")
     def show_entity_data(self, msg: PageCallbackEvent) -> None:
@@ -339,6 +340,16 @@ class InspectEntity(Page):
         # Get skill's ID and desc
         id = get_id(msg)
         assert id
+
+        skill_button_name = self.get_leaf_object_id(id)
+        assert skill_button_name
+        skill_cost = self._element_manager.get_element(skill_button_name).get_payload(
+            IntegerPayload
+        )
+
+        if skill_cost.value > self.crumb:
+            return
+
         skill_id = int(id.split("_")[-1])
 
         ability_payload = SkillActivationPayload(skill_id, self.entity)
@@ -457,6 +468,8 @@ class InspectEntity(Page):
         panel_element = ui_element_wrapper(panel_object, panel_id, self.camera)
         self.setup_elements([panel_element])
 
+        skill_buttons: list[ElementWrapper] = []
+
         # --- Create ability buttons inside the panel ---
         for i, skill in enumerate(entity.skills):
             element_id = f"skill_{i}"
@@ -475,8 +488,15 @@ class InspectEntity(Page):
                 },
             )
 
-            if skill.crumb_cost > self.crumb:
-                button.disable()  # type: ignore
+            skill_buttons.append(
+                ui_element_wrapper(
+                    button,
+                    element_id,
+                    self.camera,
+                    "SKILL_BUTTONS",
+                    payload=IntegerPayload(skill.crumb_cost),
+                )
+            )
 
         # After all skills, add the "Move" button
         if isinstance(entity, Rodent):
@@ -495,5 +515,17 @@ class InspectEntity(Page):
                 },
             )
 
-            if entity.move_cost > self.crumb or entity.move_stamina == 0:
+            if entity.move_stamina == 0:
                 move_button.disable()  # type: ignore
+
+            skill_buttons.append(
+                ui_element_wrapper(
+                    move_button,
+                    "skill_-1",
+                    self.camera,
+                    "SKILL_BUTTONS",
+                    payload=IntegerPayload(entity.move_cost),
+                )
+            )
+
+        self.setup_elements(skill_buttons)

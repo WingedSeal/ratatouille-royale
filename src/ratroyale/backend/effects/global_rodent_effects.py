@@ -21,7 +21,11 @@ class Slowed(EntityEffect):
             self.entity.speed += int(self.intensity)
 
     def effect_descriptions(self) -> str:
-        return "TODO"
+        return f"Reduce movement speed by {self.intensity:.0f}."
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Reduce movement speed by <intensity>."
 
 
 @effect_data(EffectClearSide.ALLY, name="Stunned")
@@ -44,7 +48,11 @@ class Stunned(EntityEffect):
                 self.entity.max_move_stamina += 999
 
     def effect_descriptions(self) -> str:
-        return "TODO"
+        return "Become unable to move or use skill."
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Become unable to move or use skill."
 
 
 @effect_data(EffectClearSide.ALLY, name="Poisoned")
@@ -62,7 +70,11 @@ class Poisoned(EntityEffect):
         _ = is_overridden
 
     def effect_descriptions(self) -> str:
-        return "TODO"
+        return f"Take {self.intensity:.0f} damage every of your turn."
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Take <intensity> damage every of your turn."
 
 
 @effect_data(EffectClearSide.ALLY, name="Bleeding")
@@ -79,10 +91,14 @@ class Bleeding(EntityEffect):
         _ = is_overridden
 
     def effect_descriptions(self) -> str:
-        return "TODO"
+        return f"Take {self.intensity:.0f} damage on application and take {self.intensity:.0f} damage every of enemy's and your turn."
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Take <intensity> damage on application and take <intensity> damage every of enemy's and your turn."
 
 
-@effect_data(EffectClearSide.ALLY, name="MoraleBoost")
+@effect_data(EffectClearSide.ALLY, name="Morale Boost")
 class MoraleBoost(EntityEffect):
     def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
         if not isinstance(self.entity, Rodent):
@@ -98,4 +114,8 @@ class MoraleBoost(EntityEffect):
         pass
 
     def effect_descriptions(self) -> str:
-        return f"Attack increased by {self.intensity:.0f}"
+        return f"Increase attack by {self.intensity:.0f}."
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Increase attack by <intensity>."
