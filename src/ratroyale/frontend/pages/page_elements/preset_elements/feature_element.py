@@ -3,6 +3,7 @@ from ..spatial_component import Camera
 from ratroyale.backend.feature import Feature
 from ratroyale.backend.hexagon import OddRCoord
 from ....visual.asset_management.game_obj_to_sprite_registry import (
+    DUMMY_TEXTURE_METADATA,
     FEATURE_SPRITE_METADATA,
     TYPICAL_TILE_SIZE,
 )
@@ -28,7 +29,9 @@ italic_bold_arial = pygame.font.SysFont("Arial", 30, bold=True, italic=True)
 
 class FeatureElement(ElementWrapper):
     def __init__(self, feature: Feature, coord: OddRCoord, camera: Camera):
-        sprite_metadata = FEATURE_SPRITE_METADATA[feature.FEATURE_ID()]
+        sprite_metadata = FEATURE_SPRITE_METADATA.get(
+            feature.FEATURE_ID(), DUMMY_TEXTURE_METADATA
+        )
         spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
         ).get_key()
@@ -67,11 +70,10 @@ class FeatureElement(ElementWrapper):
 
     def on_damaged(self) -> tuple[ElementWrapper, SequentialAnim]:
         visual_component = self.visual_component
-        if visual_component and visual_component.spritesheet_component:
-            anim = feature_damaged(
-                visual_component.spritesheet_component, pygame.Color(255, 0, 0)
-            )
-
+        assert visual_component and visual_component.spritesheet_component
+        anim = feature_damaged(
+            visual_component.spritesheet_component, pygame.Color(255, 0, 0)
+        )
         return (self, anim)
 
     def hurt_particle(self, hp_loss: int) -> ElementWrapper:
@@ -103,7 +105,7 @@ class FeatureElement(ElementWrapper):
 
     def on_die(self) -> tuple[ElementWrapper, SequentialAnim]:
         visual_component = self.visual_component
-        if visual_component and visual_component.spritesheet_component:
-            anim = entity_die(self, self.spatial_component, self.camera)
+        assert visual_component and visual_component.spritesheet_component
+        anim = entity_die(self, self.spatial_component, self.camera)
 
         return (self, anim)

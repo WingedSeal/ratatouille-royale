@@ -228,6 +228,11 @@ cdef class OddRCoord:
     def col(self) -> int:
         return self.x
 
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+    def __repr__(self):
+        return f"OddRCoord(x={self.x}, y={self.y})"
     
     cpdef _AxialCoord to_axial(self):
         cdef int parity = self.y & 1

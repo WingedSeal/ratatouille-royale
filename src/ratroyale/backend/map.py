@@ -23,7 +23,8 @@ ENDIAN: Final = "big"
 
 
 def _debug(text: str) -> None:
-    print(text)
+    # print(text)
+    pass
 
 
 class Map:
