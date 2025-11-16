@@ -11,6 +11,7 @@ from ratroyale.backend.player_info.squeaks.rodents.duelist import (
     SODA_KABOOMA,
     MORTAR,
 )
+from ratroyale.backend.player_info.squeaks.tricks.offense import SUNDIAL
 from ratroyale.backend.player_info.squeaks.rodents.specialist import MAYO
 from ratroyale.backend.player_info.squeaks.rodents.tank import CRACKER
 from ratroyale.backend.entity import Entity
@@ -99,9 +100,9 @@ def main():
 
     # Player 1: create a SqueakSet directly in the constructor
     player_info_1 = PlayerInfo(
-        {TAILBLAZER: 5, RATBERT_BREWBELLY: 2},
-        [{TAILBLAZER: 5, RATBERT_BREWBELLY: 2}],
-        [{TAILBLAZER: 3, RATBERT_BREWBELLY: 2}],
+        {TAILBLAZER: 5, SUNDIAL: 2},
+        [{TAILBLAZER: 5, SUNDIAL: 2}],
+        [{TAILBLAZER: 3, SUNDIAL: 2}],
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,

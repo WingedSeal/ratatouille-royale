@@ -1,7 +1,11 @@
 import pygame
 import pygame_gui
 
-from ratroyale.backend.player_info.squeak import Squeak, SqueakType
+from ratroyale.backend.player_info.squeak import (
+    Squeak,
+    RodentSqueakInfo,
+    TrickSqueakInfo,
+)
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
@@ -58,20 +62,18 @@ class InspectSqueak(Page):
         if self.main_panel:
             self.main_panel.kill()  # type: ignore[no-untyped-call]
 
-        if squeak.squeak_type is None:
-            return
-
         # Handle RODENT type squeaks
-        if squeak.squeak_type == SqueakType.RODENT:
-            self._create_rodent_squeak_ui(squeak)
+        if isinstance(squeak.squeak_info, RodentSqueakInfo):
+            self._create_rodent_squeak_ui(squeak, squeak.squeak_info)
         # Handle TRICK type squeaks
-        elif squeak.squeak_type == SqueakType.TRICK:
-            self._create_trick_squeak_ui(squeak)
+        elif isinstance(squeak.squeak_info, TrickSqueakInfo):
+            self._create_trick_squeak_ui(squeak, squeak.squeak_info)
 
-    def _create_rodent_squeak_ui(self, squeak: Squeak) -> None:
+    def _create_rodent_squeak_ui(
+        self, squeak: Squeak, squeak_info: RodentSqueakInfo
+    ) -> None:
         """Create UI for RODENT type squeaks."""
-        rodent_cls = squeak.rodent
-        assert rodent_cls is not None, "Rodent class must not be None"
+        rodent_cls = squeak_info.rodent
 
         panel_w, panel_h = 620, 460
         panel_x = (SCREEN_SIZE[0] - panel_w) // 2
@@ -114,9 +116,7 @@ class InspectSqueak(Page):
             ),
             anchors={"left": "left", "top": "top"},
         )
-        desc_text = "No description available"
-        if rodent_cls:
-            desc_text = getattr(rodent_cls, "description", "No description available")
+        desc_text = rodent_cls.description
         pygame_gui.elements.UITextBox(
             html_text=desc_text,
             relative_rect=pygame.Rect(110, 45, 480, 90),
@@ -148,13 +148,13 @@ class InspectSqueak(Page):
         # === StatsRows with real data from rodent class ===
         stat_data = {
             "HP": str(rodent_cls.health),
-            "SPEED": str(rodent_cls.speed),
-            "DEFENSE": str(rodent_cls.defense),
-            "ATTACK": str(rodent_cls.attack),
-            "STAMINA": str(rodent_cls.max_move_stamina),
-            "MOVE COST": str(rodent_cls.move_cost),
-            "CRUMB COST": str(squeak.crumb_cost),
-            "HEIGHT": str(rodent_cls.height),
+            "Speed": str(rodent_cls.speed),
+            "Defense": str(rodent_cls.defense),
+            "Attack": str(rodent_cls.attack),
+            "Stamina": str(rodent_cls.max_move_stamina),
+            "Move Cost": str(rodent_cls.move_cost),
+            "Crumb Cost": str(squeak.crumb_cost),
+            "Height": str(rodent_cls.height),
         }
 
         y = 36
@@ -245,8 +245,6 @@ class InspectSqueak(Page):
         )
         y_offset += 30
 
-        # Get passive skills from rodent class
-        temp_rodent = rodent_cls(pos=None, side=None)  # type: ignore[arg-type]
         for skill_name, skill_desc in temp_rodent.passive_descriptions():
             y_offset += self._create_skill_card(
                 scroll_container, skill_name, skill_desc, y_offset
@@ -254,7 +252,9 @@ class InspectSqueak(Page):
 
         scroll_container.set_scrollable_area_dimensions((350, y_offset + 20))
 
-    def _create_trick_squeak_ui(self, squeak: Squeak) -> None:
+    def _create_trick_squeak_ui(
+        self, squeak: Squeak, squeak_info: TrickSqueakInfo
+    ) -> None:
         """Create UI for TRICK type squeaks with related entities."""
         panel_w, panel_h = 620, 460
         panel_x = (SCREEN_SIZE[0] - panel_w) // 2
@@ -290,7 +290,7 @@ class InspectSqueak(Page):
         )
 
         # Description text (placeholder for now)
-        desc_text = "Example description text"
+        desc_text = squeak_info.description
         pygame_gui.elements.UITextBox(
             html_text=desc_text,
             relative_rect=pygame.Rect(20, 60, 580, 70),
@@ -333,9 +333,7 @@ class InspectSqueak(Page):
 
         y_offset = 0
         # Display all related entities
-        for entity_cls in (
-            squeak.related_entities if hasattr(squeak, "related_entities") else []
-        ):
+        for entity_cls in squeak_info.related_entities:
             y_offset += self._create_entity_card(scroll_container, entity_cls, y_offset)
 
         scroll_container.set_scrollable_area_dimensions((566, y_offset + 20))
@@ -453,6 +451,7 @@ class InspectSqueak(Page):
         if self.scroll_container:
             mouse_pos = pygame.mouse.get_pos()
             container_rect = self.scroll_container.rect
+            assert container_rect is not None
             if container_rect.collidepoint(mouse_pos):
                 return  # Consume event to prevent GameBoard scrolling
 
