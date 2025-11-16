@@ -229,6 +229,28 @@ class InspectSqueak(Page):
                 if i < len(temp_rodent.skills)
                 else f"Skill {i}"
             )
+            # Add skill stats if available
+            skill_obj = temp_rodent.skills[i] if i < len(temp_rodent.skills) else None
+            if skill_obj:
+                reach = skill_obj.reach if hasattr(skill_obj, "reach") else None
+                altitude = (
+                    skill_obj.altitude if hasattr(skill_obj, "altitude") else None
+                )
+                crumb_cost = (
+                    skill_obj.crumb_cost if hasattr(skill_obj, "crumb_cost") else None
+                )
+
+                stats_info = []
+                if reach is not None:
+                    stats_info.append(f"Reach: {reach}")
+                if altitude is not None:
+                    stats_info.append(f"Altitude: {altitude}")
+                if crumb_cost is not None:
+                    stats_info.append(f"Cost: {crumb_cost}")
+
+                if stats_info:
+                    skill_desc = f"{skill_desc}<br>({', '.join(stats_info)})"
+
             y_offset += self._create_skill_card(
                 scroll_container, skill_name, skill_desc, y_offset
             )
@@ -277,9 +299,22 @@ class InspectSqueak(Page):
             ),
             anchors={"right": "right", "top": "top"},
         )
+
+        # Portrait placeholder
+        portrait_surface = pygame.Surface((140, 180), flags=pygame.SRCALPHA)
+        portrait_surface.fill((200, 210, 255))
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(20, 20, 80, 100),
+            image_surface=portrait_surface,
+            manager=self.gui_manager,
+            container=self.main_panel,
+            anchors={"left": "left", "top": "top"},
+        )
+
+        # Name title
         name_text = f"<b>{squeak.name}</b>"
         pygame_gui.elements.UITextBox(
-            relative_rect=pygame.Rect(20, 20, 580, 40),
+            relative_rect=pygame.Rect(110, 20, 200, 28),
             html_text=name_text,
             manager=self.gui_manager,
             container=self.main_panel,
@@ -289,20 +324,81 @@ class InspectSqueak(Page):
             anchors={"left": "left", "top": "top"},
         )
 
-        # Description text (placeholder for now)
+        # Description
         desc_text = squeak_info.description
         pygame_gui.elements.UITextBox(
             html_text=desc_text,
-            relative_rect=pygame.Rect(20, 60, 580, 70),
+            relative_rect=pygame.Rect(110, 45, 480, 90),
             manager=self.gui_manager,
             container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(class_id="Desc", object_id="desc"),
             anchors={"left": "left", "top": "top"},
         )
 
-        # Related entities panel
+        # Stats panel - display trick-specific stats
+        stats_panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(20, 140, 200, 295),
+            manager=self.gui_manager,
+            container=self.main_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="StatsPanel", object_id="stats_panel"
+            ),
+            anchors={"left": "left", "top": "top"},
+        )
+        pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(80, 5, 40, 20),
+            text="STATS",
+            manager=self.gui_manager,
+            container=stats_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="StatsHeader", object_id="stats_header"
+            ),
+            anchors={"left": "left", "top": "top"},
+        )
+
+        # Trick-specific stats
+        # Get stats from the first entity class in related_entities
+        trick_cls = (
+            squeak_info.related_entities[0] if squeak_info.related_entities else None
+        )
+
+        stat_data = {
+            "Crumb Cost": str(squeak.crumb_cost),
+        }
+
+        # Add entity properties if available
+        if trick_cls:
+            stat_data["Health"] = str(trick_cls.health)
+            stat_data["Defense"] = str(trick_cls.defense)
+            stat_data["Height"] = str(trick_cls.height)
+
+        y = 36
+        for key, value in stat_data.items():
+            pygame_gui.elements.UILabel(
+                relative_rect=pygame.Rect(0, y, 120, 22),
+                text=f"{key}:",
+                manager=self.gui_manager,
+                container=stats_panel,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="StatKey", object_id=f"key_{key}"
+                ),
+                anchors={"left": "left", "top": "top"},
+            )
+            pygame_gui.elements.UILabel(
+                relative_rect=pygame.Rect(100, y, 100, 22),
+                text=value,
+                manager=self.gui_manager,
+                container=stats_panel,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="StatVal", object_id=f"val_{key}"
+                ),
+                anchors={"left": "left", "top": "top"},
+            )
+            y += 30
+
+        # Related entities panel (instead of skills)
         entities_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(20, 130, 580, 305),
+            relative_rect=pygame.Rect(220, 140, 370, 295),
             manager=self.gui_manager,
             container=self.main_panel,
             object_id=pygame_gui.core.ObjectID(
@@ -313,7 +409,7 @@ class InspectSqueak(Page):
 
         pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect(0, 6, 200, 22),
-            text="Related Entities",
+            text="PASSIVES",
             manager=self.gui_manager,
             container=entities_panel,
             object_id=pygame_gui.core.ObjectID(
@@ -323,7 +419,7 @@ class InspectSqueak(Page):
         )
 
         scroll_container = pygame_gui.elements.UIScrollingContainer(
-            relative_rect=pygame.Rect(7, 30, 566, 268),
+            relative_rect=pygame.Rect(7, 30, 350, 255),
             manager=self.gui_manager,
             container=entities_panel,
             allow_scroll_x=False,
@@ -332,11 +428,17 @@ class InspectSqueak(Page):
         self.scroll_container = scroll_container
 
         y_offset = 0
-        # Display all related entities
-        for entity_cls in squeak_info.related_entities:
-            y_offset += self._create_entity_card(scroll_container, entity_cls, y_offset)
+        if trick_cls:
+            temp_trick = trick_cls(pos=OddRCoord(0, 0), side=None)
 
-        scroll_container.set_scrollable_area_dimensions((566, y_offset + 20))
+            # Passive skills/abilities
+            passive_descriptions = temp_trick.passive_descriptions()
+            for skill_name, skill_desc in passive_descriptions:
+                y_offset += self._create_skill_card(
+                    scroll_container, skill_name, skill_desc, y_offset
+                )
+
+        scroll_container.set_scrollable_area_dimensions((350, y_offset + 20))
 
     def _create_entity_card(
         self,
