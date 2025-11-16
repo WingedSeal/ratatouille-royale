@@ -6,7 +6,7 @@ from ..entities.rodent import Rodent
 from ..entity import CallableEntitySkill
 from ..features.common import Lair
 from ..hexagon import OddRCoord
-from ..player_info.squeak import SqueakType
+from ..player_info.squeak import RodentSqueakInfo
 from ..tags import SkillTag
 from .ai_action import AIAction, AIActions, EndTurn, MoveAlly, PlaceSqueak
 from .base_ai import BaseAI
@@ -49,15 +49,15 @@ class RushBAI(BaseAI):
     def compare_hands(self, a: PlaceSqueak, b: PlaceSqueak) -> int:
         if a.crumb_cost != b.crumb_cost:
             return a.crumb_cost - b.crumb_cost
-        if a.squeak.rodent is None:
+        if not isinstance(a.squeak.squeak_info, RodentSqueakInfo):
             return 1
-        if b.squeak.rodent is None:
+        if not isinstance(b.squeak.squeak_info, RodentSqueakInfo):
             return 1
 
         a_to_lair = a.target_coord.path_find(
             self.choose_lair_coord(),
             self.game_manager.board._is_coord_blocked(
-                a.squeak.rodent.collision, self.ai_side
+                a.squeak.squeak_info.rodent.collision, self.ai_side
             ),
         )
         if a_to_lair is None:
@@ -65,7 +65,7 @@ class RushBAI(BaseAI):
         b_to_lair = b.target_coord.path_find(
             self.choose_lair_coord(),
             self.game_manager.board._is_coord_blocked(
-                b.squeak.rodent.collision, self.ai_side
+                b.squeak.squeak_info.rodent.collision, self.ai_side
             ),
         )
         if b_to_lair is None:
@@ -95,10 +95,9 @@ class RushBAI(BaseAI):
         if len(sorted_hands) == 0:
             return None
         for hand in sorted_hands:
-            if hand.squeak.squeak_type != SqueakType.RODENT:
+            if not isinstance(hand.squeak.squeak_info, RodentSqueakInfo):
                 continue
-            assert hand.squeak.rodent is not None
-            rodent = hand.squeak.rodent
+            rodent = hand.squeak.squeak_info.rodent
             for skill in rodent.skills:
                 if SkillTag.NO_TARGET_FEATURE not in skill.tags:
                     return hand
