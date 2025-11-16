@@ -22,6 +22,10 @@ MAP_FILE_EXTENSION = "rrmap"
 ENDIAN: Final = "big"
 
 
+def _debug(text: str) -> None:
+    print(text)
+
+
 class Map:
     name: str
     size_x: int
@@ -165,13 +169,18 @@ class Map:
         data.extend(self.size_x.to_bytes(1 + large_map_flag, ENDIAN))
         data.extend(self.size_y.to_bytes(1 + large_map_flag, ENDIAN))
 
+        i = 0
         for row in self.tiles:
             for tile in row:
                 if tile is None:
                     data.append(0)
+                    _debug(f"{i=}")
+                    i += 1
                 else:
                     data.append(tile.tile_id)
                     data.append(tile.height)
+                    _debug(f"{i=}, {tile.tile_id=}, {tile.height=}")
+                    i += 1
 
         data.extend(len(self.features).to_bytes(1 + many_features_flag, ENDIAN))
         for feature in self.features:
@@ -232,16 +241,21 @@ class Map:
         data_pointer = DataPointer(data, ENDIAN)
         map_name_length = data_pointer.get_byte()
         name = data_pointer.get_raw_bytes(map_name_length).decode()
+        _debug(f"{name=}")
         flags = data_pointer.get_byte()
         large_map_flag = bool(flags & 1 << 2)
+        _debug(f"{large_map_flag=}")
         many_features_flag = bool(flags & 1 << 1)
         many_entities_flag = bool(flags & 1 << 0)
 
         coord_size = 1 + large_map_flag
         size_x = data_pointer.get_byte(coord_size)
+        _debug(f"{size_x=}")
         size_y = data_pointer.get_byte(coord_size)
+        _debug(f"{size_y=}")
 
         tiles: list[list[Tile | None]] = []
+        i = 0
         for y in range(size_y):
             tiles.append([])
             for x in range(size_x):
@@ -250,13 +264,17 @@ class Map:
                     tiles[y].append(None)
                     continue
                 height = data_pointer.get_byte()
+                _debug(f"{i=}, {tile_id=}, {height=}")
+                i += 1
                 tiles[y].append(Tile(tile_id, OddRCoord(x, y), height))
 
         feature_count = data_pointer.get_byte(1 + many_features_flag)
+        _debug(f"{feature_count=}")
         features: list[Feature] = []
 
         for _ in range(feature_count):
             feature_class_and_unique_constructor_flag = data_pointer.get_byte(2)
+            _debug(f"{feature_class_and_unique_constructor_flag=}")
             feature_class = Feature.ALL_FEATURES[
                 feature_class_and_unique_constructor_flag & ~(1 << 15)
             ]
@@ -265,8 +283,11 @@ class Map:
             )
             health_byte = data_pointer.get_byte()
             health = None if health_byte == 0 else health_byte
+            _debug(f"{health=}")
             defense = data_pointer.get_byte()
+            _debug(f"{defense=}")
             side = Side.from_int(data_pointer.get_byte())
+            _debug(f"{side=}")
             shape_size = data_pointer.get_byte()
 
             shape: list[OddRCoord] = []
