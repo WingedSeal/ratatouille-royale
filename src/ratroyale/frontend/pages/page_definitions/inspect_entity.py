@@ -314,7 +314,7 @@ class InspectEntity(Page):
             IntegerPayload
         )
 
-        if skill_cost.value > self.crumb:
+        if skill_cost.value > self.crumb or self.entity.skill_stamina == 0:
             return
 
         skill_id = int(id.split("_")[-1])
