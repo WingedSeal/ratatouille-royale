@@ -71,7 +71,7 @@ def _process_tile(
     if tile_id == 0:
         tiles[coord.y].append(None)
         return
-    tile_id -= TILE_ID_STARTING_NUMBER
+    tile_id -= TILE_ID_STARTING_NUMBER - 1
     tile = Tile(
         tile_id.item(),
         coord,

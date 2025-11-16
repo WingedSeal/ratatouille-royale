@@ -175,10 +175,12 @@ class Map:
                 if tile is None:
                     data.append(0)
                     _debug(f"{i=}")
+                    i += 1
                 else:
                     data.append(tile.tile_id)
                     data.append(tile.height)
                     _debug(f"{i=}, {tile.tile_id=}, {tile.height=}")
+                    i += 1
 
         data.extend(len(self.features).to_bytes(1 + many_features_flag, ENDIAN))
         for feature in self.features:
