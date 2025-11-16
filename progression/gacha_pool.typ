@@ -11,5 +11,6 @@
   [Rail Rodent], [1],
   [The One], [0.1],
   [Quartermaster], [0.5],
-  [Clanker], [0.7]
+  [Clanker], [0.7],
+  [Sundial], [0.1]
 )
