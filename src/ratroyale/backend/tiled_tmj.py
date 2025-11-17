@@ -118,7 +118,7 @@ def _process_feature(
         )
         new_feature = Feature.ALL_FEATURES[feature_class.item()](
             feature_or_shape,
-            None if feature_health else 0,
+            None if feature_health == 0 else feature_health,
             feature_defense,
             Side.from_int(feature_side),
             *extra_params,
