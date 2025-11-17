@@ -136,6 +136,7 @@ def _process_entity(
 
 TILE_ID_STARTING_NUMBER = 102
 """First 100 numbers are used for number_grid and 101th number is used for hex.png"""
+TILE_ID_MASK = 0x1FFFFFFF
 
 
 def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
@@ -145,7 +146,9 @@ def tmj_to_map(tmj_data: dict[str, Any], map_name: str) -> Map:
     layers_data: dict[str, np.typing.NDArray[np.uint8]] = {}
     for layer in layers:
         with np.errstate(over="raise"):
-            layers_data[layer["name"]] = np.array(layer["data"], dtype="uint8")
+            tile_data = np.array(layer["data"], dtype=np.uint32)
+            cleaned_data = tile_data & TILE_ID_MASK
+            layers_data[layer["name"]] = cleaned_data.astype(np.uint8)
     tiles_data = np.vstack(
         [
             _reconstruct_layer_data(layers_data, layer_name, size_x * size_y)
