@@ -48,8 +48,10 @@ class PageManager:
 
         self.page_actions: dict[PageNavigation, Callable[[type[Page]], None]] = {
             PageNavigation.OPEN: self.open_page,
+            PageNavigation.UNHIDE: self.unhide_page,
             PageNavigation.CLOSE: self.remove_page,
             PageNavigation.REPLACE_TOP: self.replace_top_page,
+            PageNavigation.CLOSE_ALL_EXCEPT: self.remove_all_pages_except,
         }
         self.global_actions: dict[PageNavigation, Callable[[], None]] = {
             PageNavigation.CLOSE_ALL: self.remove_all_pages,
@@ -74,6 +76,12 @@ class PageManager:
             opened_page = page_type(self.coordination_manager, self.camera)
             self.page_stack.append(opened_page)
             opened_page.on_open()
+
+    def unhide_page(self, page_type: type[Page]) -> None:
+        for page in self.page_stack:
+            if isinstance(page, page_type):
+                page.show()
+                break
 
     def remove_top_page(self) -> None:
         """Remove the topmost page, or the first page of the given type."""
@@ -140,6 +148,17 @@ class PageManager:
         """Remove all pages from the stack"""
         while self.page_stack:
             self.remove_top_page()
+
+    def remove_all_pages_except(self, page_type: type[Page]) -> None:
+        """Remove all pages from the stack except 1 type"""
+        new_stack: list[Page] = []
+        while self.page_stack:
+            closed_page = self.page_stack.pop()
+            if not isinstance(closed_page, page_type):
+                closed_page.on_close()
+            else:
+                new_stack.insert(0, closed_page)
+        self.page_stack = new_stack
 
     def move_up_page(self, page_type: type[Page]) -> None:
         """Finds the given page type, then bring it up one layer"""

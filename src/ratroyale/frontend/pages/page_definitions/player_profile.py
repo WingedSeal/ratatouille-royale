@@ -199,19 +199,14 @@ class PlayerProfile(Page):
             self.save_files[button_index],
         )
         assert selected_player_info is not None
-        self.close_self()
-        self.post(PageNavigationEvent([(PageNavigation.OPEN, "MainMenu")]))
         self.post(
-            PageCallbackEvent(
-                "set_player_info",
-                payload=PlayerInfoPayload(
-                    selected_player_info, self.save_files[button_index]
-                ),
+            PageNavigationEvent(
+                [(PageNavigation.CLOSE_ALL, None), (PageNavigation.OPEN, "MainMenu")]
             )
         )
         self.post(
             PageCallbackEvent(
-                "set_player_info2",
+                "set_player_info",
                 payload=PlayerInfoPayload(
                     selected_player_info, self.save_files[button_index]
                 ),

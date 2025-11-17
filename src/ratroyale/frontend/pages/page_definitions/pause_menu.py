@@ -154,8 +154,8 @@ class PauseMenu(Page):
         self.post(
             PageNavigationEvent(
                 action_list=[
-                    (PageNavigation.CLOSE_ALL, None),
-                    (PageNavigation.OPEN, "MainMenu"),
+                    (PageNavigation.CLOSE_ALL_EXCEPT, "MainMenu"),
+                    (PageNavigation.UNHIDE, "MainMenu"),
                 ]
             )
         )

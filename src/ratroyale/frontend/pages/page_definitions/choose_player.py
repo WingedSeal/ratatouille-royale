@@ -115,7 +115,7 @@ class ChoosePlayer(Page):
     @input_event_bind("go_back", pygame_gui.UI_BUTTON_PRESSED)
     def go_back(self, msg: pygame.event.Event) -> None:
         self.close_self()
-        self.open_page("MainMenu")
+        self.post(PageNavigationEvent([(PageNavigation.UNHIDE, "MainMenu")]))
 
     @callback_event_bind("send_player_info")
     def _set_player_info(self, event: PageCallbackEvent) -> None:
