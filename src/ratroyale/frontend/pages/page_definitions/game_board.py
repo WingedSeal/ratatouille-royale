@@ -795,7 +795,9 @@ class GameBoard(Page):
         else:
             return
 
-        for squeak, hand_slot in zip(squeak_list, self.hand_slots_element):
+        for i, (squeak, hand_slot) in enumerate(
+            zip(squeak_list, self.hand_slots_element)
+        ):
             squeak_element = self._element_manager.get_element_with_typecheck(
                 squeak, SqueakElement
             )

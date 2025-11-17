@@ -46,7 +46,10 @@ prof = [
     "pytest-repeat (>=0.9.4,<0.10.0)",
     "snakeviz (>=2.2.2,<3.0.0)"
 ]
-
+compile = [
+  "nuitka (>=2.8.6,<3.0.0)",
+  "ordered-set (>=4.1.0,<5.0.0)",
+]
 
 [tool.poetry]
 packages = [
@@ -66,6 +69,7 @@ fix = [
 ]
 check = "pre-commit run --all-files"
 tiled-cli = { cmd = "python ${POE_ROOT}/src/tiled_cli.py", cwd = "${POE_PWD}" }
+compile = { cmd = "python -m nuitka --standalone --onefile --windows-console-mode=attach --include-data-dir=./src/ratroyale/assets=ratroyale/assets --include-package=ratroyale --follow-imports --output-dir=dist --output-filename=ratroyale  --include-package-data=pygame_gui --include-package-data=pygame --include-package=ratroyale ./src/ratroyale" }
 
 [tool.poe.tasks.prof]
 sequence = [
