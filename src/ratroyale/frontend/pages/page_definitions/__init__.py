@@ -1,4 +1,5 @@
 from . import (
+    choose_ai_playerinfo,
     choose_player,
     create_profile_prompt,
     gacha,
