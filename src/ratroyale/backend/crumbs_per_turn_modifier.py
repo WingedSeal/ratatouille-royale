@@ -53,6 +53,7 @@ class CrumbsPerTurnModifier:
         was to be taken away. And since turn specific buffs are "permanent",
         that isn't a problem.
         """
+        assert turn_count > 0
         crumbs = self.base_crumbs_per_turn(turn_count)
         crumbs_with_only_turn_modifier = crumbs
         crumbs = math.floor(
@@ -60,7 +61,7 @@ class CrumbsPerTurnModifier:
             * (self._get_turn_multiplier(turn_count) + self.multiplier[turn_side])
         )
         crumbs_with_only_turn_modifier = math.floor(
-            crumbs * self._get_turn_multiplier(turn_count)
+            crumbs_with_only_turn_modifier * self._get_turn_multiplier(turn_count)
         )
         crumbs += self._get_turn_adder(turn_count) + self.adder[turn_side]
         crumbs_with_only_turn_modifier += self._get_turn_adder(turn_count)

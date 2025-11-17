@@ -382,7 +382,10 @@ class GameInfoPage(Page):
         assert self.current_turn_side is not None
         assert self.crumbs_modifier is not None
         payload = TurnPayload(
-            self.current_turn, self.current_turn_side, self.crumbs_modifier
+            self.current_turn,
+            self.current_turn,
+            self.current_turn_side,
+            self.crumbs_modifier,
         )
         self.post(
             PageNavigationEvent(
@@ -408,8 +411,6 @@ class GameInfoPage(Page):
 
             if feature.health is not None:
                 description_parts.append(f"Health: {feature.health}")
-
-            if feature.defense is not None:
                 description_parts.append(f"Defense: {feature.defense}")
 
             description_parts.append(
@@ -510,9 +511,9 @@ class GameInfoPage(Page):
         coord_button_wrapper = ui_element_wrapper(
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(
-                    PADDING_X, PADDING_Y, 100 + PADDING_X, 20 + PADDING_Y
+                    PADDING_X, PADDING_Y, 120 + PADDING_X, 20 + PADDING_Y
                 ),
-                text=f"Odd-R: {tile.coord}",
+                text=f"{tile.coord} Height: {tile.height}",
                 manager=self.gui_manager,
                 container=tile_hover_data_panel_object,
                 object_id=pygame_gui.core.ObjectID(

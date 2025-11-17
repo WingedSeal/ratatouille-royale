@@ -1,3 +1,4 @@
+from threading import Timer
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
@@ -23,6 +24,9 @@ import pygame
 
 from pygame_gui.elements import UIPanel
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+
+TURN_COUNT = 20
+"""How many turn will the inspect crumb show"""
 
 
 @register_page
@@ -126,56 +130,53 @@ class InspectCrumb(Page):
             return  # ignore invalid input
 
         turn_number = int(text)
-        if not (1 <= turn_number <= len(self.turn_panels)):
+        if turn_number < 1:
             return
 
-        # --- find the target turn panel ---
-        scrollable_surface = self.scroll_container.scrollable_container
-        visible_width = self.scroll_container.relative_rect.width
-
-        target_panel = self.turn_panels[turn_number - 1]
-        panel_x = target_panel.relative_rect.x
-        panel_w = target_panel.relative_rect.width
-
-        # --- compute offset so that target is centered in view ---
-        new_scroll_x = panel_x + panel_w / 2 - visible_width / 2
-
-        # clamp within valid range
-        max_scroll = max(0, scrollable_surface.relative_rect.width - visible_width)
-        new_scroll_x = max(0, min(new_scroll_x, max_scroll))
-
-        # --- move the inner container (jump instantly) ---
-        scrollable_surface.set_relative_position((-new_scroll_x, 0))
+        payload = TurnPayload(
+            max(turn_number - TURN_COUNT // 2, 1),
+            self.current_turn,
+            self.current_side,
+            self.crumbs_modifier,
+            jump_to_turn=turn_number,
+        )
+        self.post(
+            PageNavigationEvent(action_list=[(PageNavigation.CLOSE, "InspectCrumb")])
+        )
+        self.post(
+            PageNavigationEvent(action_list=[(PageNavigation.OPEN, "InspectCrumb")])
+        )
+        self.post(PageCallbackEvent("show_crumbs", payload=payload))
 
     @callback_event_bind("show_crumbs")
     def update_current_turn(self, msg: PageCallbackEvent) -> None:
         payload = msg.payload
         assert isinstance(payload, TurnPayload)
-        self.current_turn = payload.turn_number
+        self.current_turn = payload.current_turn_number
+        turn = payload.turn_number
         self.current_side = payload.current_side
         self.crumbs_modifier = payload.crumbs_modifier
-        turn_count = 20
         card_width = 150
         spacing = 20
         base_x = 0
 
-        for i in range(self.current_turn, turn_count + self.current_turn):
-            turn_crumbs = self.crumbs_modifier.get_crumbs(
-                self.current_turn, self.current_side
+        for i in range(turn, TURN_COUNT + turn):
+            turn_crumbs, turn_crumbs_diff = self.crumbs_modifier.get_crumbs(
+                turn, self.current_side
             )
             turn_panel = pygame_gui.elements.UIPanel(
                 relative_rect=pygame.Rect(base_x, 0, card_width, 120),
                 manager=self.gui_manager,
                 container=self.scroll_container,
                 object_id=pygame_gui.core.ObjectID(
-                    class_id="TurnPanel", object_id=f"turn_{i+1}"
+                    class_id="TurnPanel", object_id=f"turn_{i}"
                 ),
             )
 
             # Turn Title
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(0, 0, 150, 30),
-                text=f"TURN {i+1}",
+                text=f"TURN {i}" if self.current_turn != i else f"->TURN {i}<-",
                 manager=self.gui_manager,
                 container=turn_panel,
                 anchors={"centerx": "centerx"},
@@ -200,21 +201,33 @@ class InspectCrumb(Page):
                 manager=self.gui_manager,
                 container=table,
             )
+            if turn_crumbs_diff == 0:
+                modifier_text = ""
+            else:
+                modifier_text = f" ({turn_crumbs_diff:+})"
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(5, 35, 50, 25),
-                text=f"{turn_crumbs}",
+                text=f"{turn_crumbs}{modifier_text}",
                 manager=self.gui_manager,
                 container=table,
             )
+            turn_crumbs, turn_crumbs_diff = self.crumbs_modifier.get_crumbs(
+                turn, self.current_side.other_side()
+            )
+
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(70, 5, 50, 25),
                 text="Enemy",
                 manager=self.gui_manager,
                 container=table,
             )
+            if turn_crumbs_diff == 0:
+                modifier_text = ""
+            else:
+                modifier_text = f" ({turn_crumbs_diff:+})"
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(75, 35, 50, 25),
-                text=f"{turn_crumbs}",
+                text=f"{turn_crumbs}{modifier_text}",
                 manager=self.gui_manager,
                 container=table,
             )
@@ -223,3 +236,25 @@ class InspectCrumb(Page):
             base_x += card_width + spacing
 
         self.scroll_container.set_scrollable_area_dimensions((base_x, 140))
+
+        if payload.jump_to_turn is None:
+            return
+        # --- find the target turn panel ---
+        scrollable_surface = self.scroll_container.scrollable_container
+        visible_width = self.scroll_container.relative_rect.width
+
+        target_panel = self.turn_panels[payload.jump_to_turn - payload.turn_number]
+        panel_x = target_panel.relative_rect.x
+        panel_w = target_panel.relative_rect.width
+
+        # --- compute offset so that target is centered in view ---
+        new_scroll_x = panel_x + panel_w / 2 - visible_width / 2
+
+        # clamp within valid range
+        max_scroll = max(0, scrollable_surface.relative_rect.width - visible_width)
+        new_scroll_x = max(0, min(new_scroll_x, max_scroll))
+
+        # --- move the inner container (jump instantly) ---
+        Timer(
+            0.2, lambda: scrollable_surface.set_relative_position((-new_scroll_x, 0))
+        ).start()  # FIXME: It wouldn't work without delay but this is a recipe for diaster.

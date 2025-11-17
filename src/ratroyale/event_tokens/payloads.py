@@ -136,8 +136,10 @@ class FeaturePayload(Payload):
 @dataclass
 class TurnPayload(Payload):
     turn_number: int
+    current_turn_number: int
     current_side: Side
     crumbs_modifier: CrumbsPerTurnModifier
+    jump_to_turn: int | None = None
 
 
 @dataclass
