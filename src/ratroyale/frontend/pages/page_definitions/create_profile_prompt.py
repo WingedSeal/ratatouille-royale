@@ -3,6 +3,7 @@ from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
+from ratroyale.game_data import RRSAVES_DIR_PATH
 
 
 from ..page_managers.base_page import Page
@@ -20,7 +21,6 @@ from ratroyale.backend.player_info.preset_player_info import get_default_player_
 import pygame_gui
 import pygame
 
-from ratroyale.frontend.pages.page_definitions.player_profile import RRSAVES_DIR_PATH
 from ratroyale.backend.player_info.player_info import SAVE_FILE_EXTENSION
 
 

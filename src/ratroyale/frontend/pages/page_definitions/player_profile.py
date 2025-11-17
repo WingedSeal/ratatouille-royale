@@ -4,6 +4,7 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
 from ratroyale.backend.player_info.player_info import SAVE_FILE_EXTENSION
+from ratroyale.game_data import RRSAVES_DIR_PATH
 
 
 from ..page_managers.base_page import Page
@@ -21,8 +22,6 @@ from ..page_elements.spatial_component import Camera
 import pygame_gui
 import pygame
 from pathlib import Path
-
-RRSAVES_DIR_PATH = Path("./saves")
 
 
 @register_page
