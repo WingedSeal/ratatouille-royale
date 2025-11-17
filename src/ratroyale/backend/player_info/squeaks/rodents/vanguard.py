@@ -12,8 +12,7 @@ TAILBLAZER = Squeak(
 TAILTRAIL = Squeak(
     name="Tailtrail",
     crumb_cost=7,
-    squeak_type=SqueakType.RODENT,
     on_place=summon_on_place(Tailtrail),
     get_placable_tiles=rodent_placable_tile,
-    rodent=Tailtrail,
+    squeak_info=RodentSqueakInfo(Tailtrail),
 )
