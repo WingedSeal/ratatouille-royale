@@ -22,33 +22,6 @@ from ..page_managers.base_page import Page
 from ratroyale.backend.map import Map
 
 
-def _temp_get_map():  # type: ignore
-    from ratroyale.backend.hexagon import OddRCoord
-    from ratroyale.backend.features.common import DeploymentZone, Lair
-    from ratroyale.backend.map import heights_to_tiles
-
-    size = 10
-    return Map(
-        "Example Map",
-        size,
-        size,
-        heights_to_tiles([[1 for i in range(size)] for i in range(size)]),
-        entities=[],
-        features=[
-            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
-            Lair([OddRCoord(size - 1, size - 1)], 10, side=Side.RAT),
-            DeploymentZone(shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE),
-            DeploymentZone(
-                shape=[
-                    OddRCoord(size - 2, size - 1),
-                    OddRCoord(size - 1, size - 2),
-                ],
-                side=Side.RAT,
-            ),
-        ],
-    )
-
-
 # TODO: make helpers to make button registration easier
 @register_page
 class MainMenu(Page):

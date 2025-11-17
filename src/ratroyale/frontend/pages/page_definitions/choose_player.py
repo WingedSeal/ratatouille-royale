@@ -4,7 +4,7 @@ import pygame_gui
 from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.player_info.preset_player_info import (
     AI_PLAYER_INFO,
-    get_default_player_info,
+    get_demo_player_info,
 )
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
@@ -101,7 +101,7 @@ class ChoosePlayer(Page):
                 "start",
                 BackendStartPayload(
                     self.map,
-                    get_default_player_info(),
+                    get_demo_player_info(),
                     AI_PLAYER_INFO["Balanced"],
                     Side.RAT,
                     self.ai_type,
