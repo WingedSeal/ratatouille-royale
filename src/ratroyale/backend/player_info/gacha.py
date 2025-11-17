@@ -1,4 +1,6 @@
 import random
+
+from ratroyale.backend.player_info.squeaks.tricks.offense import SUNDIAL
 from .squeaks.rodents.vanguard import TAILBLAZER
 import sys
 from .squeaks.rodents.tank import CRACKER
@@ -28,6 +30,7 @@ GACHA_POOL_WEIGHTS: dict[Squeak, float] = {
     THE_ONE: 0.1,
     QUARTERMASTER: 0.5,
     CLANKER: 0.7,
+    SUNDIAL: 0.1,
 }
 """Pool of all possible Squeak and its draw weight"""
 
