@@ -75,7 +75,7 @@ def test_rodents(rodent_map: Map, squeak: Squeak) -> None:
     ai = RandomAI(game_manager, Side.MOUSE)
     game_manager.crumbs = 10000
     game_manager.place_squeak(0, OddRCoord(0, 0))
-    for _ in range(10):
+    for _ in range(30):
         assert game_manager.turn == Side.RAT
         # Player Turn
         game_manager.end_turn()
