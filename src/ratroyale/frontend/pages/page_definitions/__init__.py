@@ -1,3 +1,22 @@
-from ratroyale.frontend.pages.page_managers.page_registry import auto_import_pages
-
-auto_import_pages()
+from . import (
+    choose_player,
+    create_profile_prompt,
+    gacha,
+    game_board,
+    game_file,
+    game_info,
+    game_over,
+    inspect_crumb,
+    inspect_deck,
+    inspect_entity,
+    inspect_feature,
+    inspect_history,
+    inspect_squeak,
+    main_menu,
+    pause_button,
+    pause_menu,
+    player_profile,
+    result_page,
+    select_target_prompt,
+    start_page,
+)
