@@ -20,10 +20,9 @@ from ..page_elements.spatial_component import Camera
 
 import pygame_gui
 import pygame
-import os
 from pathlib import Path
 
-RRSAVE_DIR_PATH = Path("./saves")
+RRSAVES_DIR_PATH = Path("./saves")
 
 
 @register_page
@@ -31,7 +30,7 @@ class PlayerProfile(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
-        self.save_files: list[str] = []
+        self.save_files: list[Path] = []
         super().__init__(coordination_manager, camera)
 
     def define_initial_gui(self) -> list[ElementWrapper]:
@@ -68,7 +67,7 @@ class PlayerProfile(Page):
         gui_elements.append(panel_element_wrapper)
 
         # === Scroll Container ===
-        pygame_gui.elements.UIScrollingContainer(
+        scroll_panel_element = pygame_gui.elements.UIScrollingContainer(
             relative_rect=pygame.Rect(0, 0, 430, 450),
             manager=self.gui_manager,
             container=panel_element,
@@ -78,27 +77,23 @@ class PlayerProfile(Page):
                 "centery": "centery",
             },
             object_id=pygame_gui.core.ObjectID(
-                class_id="scoller", object_id="scroll_container"
+                class_id="scoller", object_id="scroll_container_real"
             ),
         )
-        panel_element_wrapper = ui_element_wrapper(
-            panel_element, "scroll_container", self.camera
+        scroll_panel_element_wrapper = ui_element_wrapper(
+            scroll_panel_element, "scroll_container_real", self.camera
         )
-        gui_elements.append(panel_element_wrapper)
+        gui_elements.append(scroll_panel_element_wrapper)
 
         return gui_elements
 
     def on_open(self) -> None:
-        os.makedirs(RRSAVE_DIR_PATH, exist_ok=True)
-
         self.save_files = [
-            f
-            for f in os.listdir(RRSAVE_DIR_PATH)
-            if f.endswith(SAVE_FILE_EXTENSION)
-            and os.path.isfile(os.path.join(RRSAVE_DIR_PATH, f))
+            f for f in RRSAVES_DIR_PATH.iterdir() if f.suffix[1:] == SAVE_FILE_EXTENSION
         ]
-
-        scroll_container_element = self._element_manager.get_element("scroll_container")
+        scroll_container_element = self._element_manager.get_element(
+            "scroll_container_real"
+        )
         scroll_container = scroll_container_element.get_interactable(
             pygame_gui.elements.UIScrollingContainer
         )
@@ -115,7 +110,7 @@ class PlayerProfile(Page):
             # === Name ===
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(100, y_offset + 10, 150, 25),
-                text=f"Name: {save}",
+                text=f"Name: {save.stem}",
                 manager=self.gui_manager,
                 container=scroll_container,
             )
@@ -191,13 +186,9 @@ class PlayerProfile(Page):
     def select_button(self, msg: pygame.event.Event) -> None:
         button_id = get_id(msg)
         assert button_id is not None
-        int_button_id = int(button_id)
+        button_index = int(button_id.split("_")[-1])
         selected_player_info = PlayerInfo.from_file(
-            Path(
-                os.path.join(
-                    RRSAVE_DIR_PATH, self.save_files[int_button_id], SAVE_FILE_EXTENSION
-                )
-            )
+            self.save_files[button_index],
         )
         assert selected_player_info is not None
         self.close_self()

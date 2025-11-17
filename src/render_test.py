@@ -135,7 +135,7 @@ def main():
     coordination_manager.put_message(
         PageNavigationEvent(
             action_list=[
-                (PageNavigation.OPEN, "CreateProfile")
+                (PageNavigation.OPEN, "StartPage")
                 # (PageNavigation.CLOSE_ALL, None),
                 # (PageNavigation.OPEN, "GameBoard"),
                 # (PageNavigation.OPEN, "GameInfoPage"),

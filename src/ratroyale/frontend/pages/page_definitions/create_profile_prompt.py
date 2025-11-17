@@ -20,7 +20,8 @@ from ratroyale.backend.player_info.preset_player_info import get_default_player_
 import pygame_gui
 import pygame
 
-from ratroyale.frontend.pages.page_definitions.player_profile import RRSAVE_DIR_PATH
+from ratroyale.frontend.pages.page_definitions.player_profile import RRSAVES_DIR_PATH
+from ratroyale.backend.player_info.player_info import SAVE_FILE_EXTENSION
 
 
 @register_page
@@ -122,8 +123,12 @@ class CreateProfile(Page):
             pygame_gui.elements.UITextEntryLine
         )
         text = ui_text_entry_line.get_text().strip()
-        get_default_player_info().to_file(RRSAVE_DIR_PATH / f"{text}.rrmap")
+        get_default_player_info().to_file(
+            RRSAVES_DIR_PATH / f"{text}.{SAVE_FILE_EXTENSION}"
+        )
         self.close_self()
+        self.close_page("PlayerProfile")
+        self.open_page("PlayerProfile")
 
     @input_event_bind("cancel_button", pygame_gui.UI_BUTTON_PRESSED)
     def cancel_button(self, msg: pygame.event.Event) -> None:
