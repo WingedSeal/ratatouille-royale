@@ -418,6 +418,7 @@ class GameManager:
             to_side=self.turn,
             leftover_crumbs=leftover_crumbs,
             new_crumbs=self.crumbs,
+            turn_count=self.turn_count,
         )
         self.event_queue.put_nowait(event)
         self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
