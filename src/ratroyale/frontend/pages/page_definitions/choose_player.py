@@ -48,9 +48,9 @@ class ChoosePlayer(Page):
         elements: list[ElementWrapper] = []
 
         button_specs = [
-            ("vs_human", "vs. HUMAN"),
-            ("vs_rush_b_ai", "vs. RUSHB AI"),
-            ("vs_random_ai", "vs. RANDOM AI"),
+            ("local_multiplayer", "Local Multiplayer"),
+            ("vs_rush_b_ai", "vs. RushB AI"),
+            ("vs_random_ai", "vs. Random AI"),
         ]
 
         start_x = 100
@@ -80,8 +80,8 @@ class ChoosePlayer(Page):
 
     # region Input Responses
 
-    @input_event_bind("vs_human", pygame_gui.UI_BUTTON_PRESSED)
-    def vs_human(self, msg: pygame.event.Event) -> None:
+    @input_event_bind("local_multiplayer", pygame_gui.UI_BUTTON_PRESSED)
+    def local_multiplayer(self, msg: pygame.event.Event) -> None:
         self.start_game()
 
     @input_event_bind("vs_random_ai", pygame_gui.UI_BUTTON_PRESSED)
