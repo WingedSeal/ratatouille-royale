@@ -161,7 +161,7 @@ class InspectCrumb(Page):
 
         for i in range(turn, TURN_COUNT + turn):
             turn_crumbs, turn_crumbs_diff = self.crumbs_modifier.get_crumbs(
-                turn, self.current_side
+                i, self.current_side
             )
             turn_panel = pygame_gui.elements.UIPanel(
                 relative_rect=pygame.Rect(base_x, 0, card_width, 120),
@@ -242,7 +242,7 @@ class InspectCrumb(Page):
             scrollable_width = (
                 self.scroll_container.scrollable_container.relative_rect.width
             )
-
+            assert target_panel.rect is not None
             # Center target panel in view
             center_offset = (
                 target_panel.relative_rect.centerx

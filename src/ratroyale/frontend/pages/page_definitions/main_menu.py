@@ -8,7 +8,6 @@ from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.backend.side import Side
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
@@ -19,7 +18,6 @@ from ratroyale.frontend.pages.page_elements.spatial_component import (
 
 
 from ..page_managers.base_page import Page
-from ratroyale.backend.map import Map
 
 
 # TODO: make helpers to make button registration easier
