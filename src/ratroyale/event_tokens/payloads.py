@@ -11,6 +11,7 @@ from ratroyale.backend.instant_kill import InstantKill
 from ratroyale.backend.source_of_damage_or_heal import SourceOfDamageOrHeal
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
+from ratroyale.backend.crumbs_per_turn_modifier import CrumbsPerTurnModifier
 
 
 @dataclass
@@ -47,6 +48,7 @@ class IntegerPayload(Payload):
 
 @dataclass
 class GameSetupPayload(Payload):
+    crumbs_modifier: CrumbsPerTurnModifier
     board: Board
     player1_squeaks: list[Squeak]
     player2_squeaks: list[Squeak]
@@ -111,7 +113,7 @@ class SkillTargetingPayload(Payload):
 
 @dataclass
 class GameOverPayload(Payload):
-    is_winner_from_first_turn_side: bool
+    is_winner_from_player_1_side: bool
     victory_side: Side
 
 
@@ -129,3 +131,20 @@ class FeaturePayload(Payload):
     feature_name: str
     feature_description: str
     feature_type: str
+
+
+@dataclass
+class TurnPayload(Payload):
+    turn_number: int
+    current_side: Side
+    crumbs_modifier: CrumbsPerTurnModifier
+
+
+@dataclass
+class SidePayload(Payload):
+    side: Side
+
+
+@dataclass
+class DeckPayload(Payload):
+    deck: list[Squeak]

@@ -63,7 +63,7 @@ def test_rodents(rodent_map: Map, squeak: Squeak) -> None:
                 is_progression_frozen=True,
             ),
         ),
-        first_turn=Side.RAT,
+        player_1=Side.RAT,
     )
     ai = RandomAI(game_manager, Side.MOUSE)
     game_manager.crumbs = 10000
