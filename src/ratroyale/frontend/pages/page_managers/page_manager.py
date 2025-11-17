@@ -239,6 +239,10 @@ class PageManager:
         for event in events:
             for page in reversed(self.page_stack):
                 page.execute_input_callback(event)
+                # Stop broadcasting if we hit a blocking page
+                # This prevents events from propagating to pages below modal dialogs
+                if page.is_blocking:
+                    break
 
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes[PageManagerEvent]
