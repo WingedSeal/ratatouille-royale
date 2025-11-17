@@ -13,6 +13,7 @@ class SpritesheetComponent:
     _scale_cache: dict[tuple[int, int | float, int | float], pygame.Surface] = field(
         default_factory=dict
     )
+    _rounded_corner: int | None = None
     """Caches image scale to reduce pygame.transform.scale calls"""
 
     def __post_init__(self) -> None:
@@ -32,7 +33,10 @@ class SpritesheetComponent:
     def _fit_with_spatial_rect(
         self, current_frame: pygame.Surface, target_rect: pygame.Rect | pygame.FRect
     ) -> pygame.Surface:
-        # Scale frame exactly to target rect size (ignore camera scale)
+        """
+        Scale frame exactly to target rect size (ignore camera scale)
+        and optionally apply rounded corners if self._rounded_corner is set.
+        """
         target_w, target_h = target_rect.size
         frame_id = id(current_frame)
         key = (frame_id, target_w, target_h)
@@ -40,11 +44,28 @@ class SpritesheetComponent:
         if key in self._scale_cache:
             return self._scale_cache[key]
 
-        scaled_frame = pygame.transform.scale(current_frame, (target_w, target_h))
+        # Ensure 32-bit with alpha
+        surf = current_frame.convert_alpha()
+        scaled_frame = pygame.transform.smoothscale(surf, (target_w, target_h))
+
+        # Prepare final surface
         aligned_surface = pygame.Surface((target_w, target_h), pygame.SRCALPHA)
         aligned_surface.blit(scaled_frame, (0, 0))
-        self._scale_cache[key] = aligned_surface
 
+        # Apply rounded corners if requested
+        if self._rounded_corner is not None and self._rounded_corner > 0:
+            mask = pygame.Surface((target_w, target_h), pygame.SRCALPHA)
+            pygame.draw.rect(
+                mask,
+                (255, 255, 255, 255),
+                mask.get_rect(),
+                border_radius=self._rounded_corner,
+            )
+            # Multiply mask onto aligned surface
+            aligned_surface.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+
+        # Cache and return
+        self._scale_cache[key] = aligned_surface
         return aligned_surface
 
     def _current_frame(self) -> pygame.Surface:

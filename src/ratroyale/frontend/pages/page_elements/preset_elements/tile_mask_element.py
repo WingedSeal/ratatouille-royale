@@ -29,7 +29,7 @@ class TileMaskElement(ElementWrapper):
     ):
         rect = TileMaskElement._define_tile_rect(tile)
         surf = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
-        surf.fill((0, 0, 0, 1))
+        surf.fill((0, 0, 0, 0))
         self.mask_color = mask_color
 
         super().__init__(

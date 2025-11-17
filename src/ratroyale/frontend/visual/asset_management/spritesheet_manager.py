@@ -23,7 +23,7 @@ class CachedSpritesheet:
 
     def load_spritesheet(self, path: Path) -> None:
         """Load the spritesheet image and slice it into frames."""
-        sheet = pygame.image.load(path).convert_alpha()
+        sheet = pygame.image.load(path)
         sheet_width, sheet_height = sheet.get_size()
         frame_w, frame_h = self.sprite_size
 
@@ -31,11 +31,6 @@ class CachedSpritesheet:
         for y in range(0, sheet_height, frame_h):
             for x in range(0, sheet_width, frame_w):
                 frame = sheet.subsurface(pygame.Rect(x, y, frame_w, frame_h)).copy()
-                if self.scale != (1.0, 1.0):
-                    frame = pygame.transform.scale(
-                        frame,
-                        (int(frame_w * self.scale[0]), int(frame_h * self.scale[1])),
-                    )
                 frames.append(frame)
 
         self._frames = frames

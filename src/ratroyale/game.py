@@ -6,6 +6,9 @@ from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 from ratroyale.game_data import init_data
 
 from .frontend.pages.page_managers.page_manager import PageManager
+from ratroyale.game_data import (
+    ICONS_DIR_PATH,
+)
 
 
 MILLISECOND_PER_SECOND = 1000
@@ -29,6 +32,10 @@ class Game:
             screen=self.screen, coordination_manager=self.coordination_manager
         )
         self.average_fps: float = 0.0
+
+        pygame.display.set_caption("Ratatouille Royale")
+        icon = pygame.image.load(ICONS_DIR_PATH / "Mice.png")
+        pygame.display.set_icon(icon)
 
     def run(self) -> None:
         self.coordination_manager.put_message(

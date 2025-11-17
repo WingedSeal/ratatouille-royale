@@ -45,6 +45,7 @@ class InspectEntity(Page):
         )
         self.temp_skill_panel_id: str | None = None
         self.crumb: int = 0
+        self.can_give_commands: bool = False
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         elements: list[ElementWrapper] = []
@@ -427,7 +428,7 @@ class InspectEntity(Page):
 
         self.post(
             PageCallbackEvent(
-                "can_show_skill_panel_or_not", payload=EntityPayload(self.entity)
+                "can_give_commands_or_not", payload=EntityPayload(self.entity)
             )
         )
 
@@ -476,7 +477,11 @@ class InspectEntity(Page):
             IntegerPayload
         )
 
-        if skill_cost.value > self.crumb or self.entity.skill_stamina == 0:
+        if (
+            skill_cost.value > self.crumb
+            or self.entity.skill_stamina == 0
+            or not self.can_give_commands
+        ):
             return
 
         skill_id = int(id.split("_")[-1])
@@ -576,8 +581,9 @@ class InspectEntity(Page):
 
         self.temp_skill_panel_id = skill_panel_id
 
-    @callback_event_bind("can_show_skill_panel")
+    @callback_event_bind("can_give_commands")
     def skill_panel(self, msg: PageCallbackEvent) -> None:
+        self.can_give_commands = msg.success
         entity = self.entity
         panel_width = 160
         panel_x = SCREEN_SIZE[0] - panel_width - 10

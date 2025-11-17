@@ -52,6 +52,7 @@ class ChoosePlayer(Page):
             ("local_multiplayer", "Local Multiplayer"),
             ("vs_rush_b_ai", "vs. RushB AI"),
             ("vs_random_ai", "vs. Random AI"),
+            ("go_back", "GO BACK"),
         ]
 
         start_x = 100
@@ -94,6 +95,11 @@ class ChoosePlayer(Page):
     def vs_rushb_ai(self, msg: pygame.event.Event) -> None:
         self.ai_type = RushBAI
         self.start_game()
+
+    @input_event_bind("go_back", pygame_gui.UI_BUTTON_PRESSED)
+    def go_back(self, msg: pygame.event.Event) -> None:
+        self.close_self()
+        self.open_page("MainMenu")
 
     def start_game(self) -> None:
         assert self.map

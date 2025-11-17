@@ -245,6 +245,11 @@ class GameInfoPage(Page):
         if msg.success and msg.payload:
             payload = msg.payload
             assert isinstance(payload, TilePayload)
+            if self.temp_selected_tile == payload.tile:
+                self.temp_selected_tile = None
+                self.kill_old_tile_data()
+                return
+
             self.temp_selected_tile = payload.tile
 
             self.kill_old_tile_data()

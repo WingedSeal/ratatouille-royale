@@ -1,16 +1,17 @@
 import pygame
 import math
 from enum import IntEnum
+from pathlib import Path
 
 from ratroyale.backend.hexagon import OddRCoord
 
 
 class TriangleType(IntEnum):
-    ISOLATED = 0
-    CONNECTED = 1
-    """Only the triangle edge connects with a neighbor"""
-    FULL_CONNECTED = 2
+    FULL_CONNECTED = 0
     """The both triangle edge and nearby edge connect with a neighbor"""
+    ISOLATED = 1
+    CONNECTED = 2
+    """Only the triangle edge connects with a neighbor"""
 
 
 def _calculate_triangle_points(
@@ -68,6 +69,7 @@ def _get_triangle_type(
 
 
 def generate_feature_surface(
+    origin: OddRCoord,
     relative_feature_coords: list[OddRCoord],
     source_textures: tuple[pygame.Surface, pygame.Surface, pygame.Surface],
     hex_width: float,
@@ -91,6 +93,12 @@ def generate_feature_surface(
 
     if not relative_feature_coords:
         return pygame.Surface((0, 0), pygame.SRCALPHA)
+
+    is_even_r = origin.y % 2 == 1
+    if is_even_r:
+        relative_feature_coords = [
+            coord + OddRCoord(0, 1) for coord in relative_feature_coords
+        ]
 
     pixel_positions = {
         coord: coord.to_pixel(hex_width, hex_height, is_bounding_box=False)
@@ -137,6 +145,30 @@ def generate_feature_surface(
     return surface
 
 
+def load_three_tiles(
+    path: Path,
+) -> tuple[pygame.Surface, pygame.Surface, pygame.Surface]:
+    """
+    Load an image containing 3 horizontal 100x100 tiles
+    and return a tuple of 3 separate Surfaces.
+    """
+    full_img = pygame.image.load(path).convert_alpha()
+
+    tile_width = 100
+    tile_height = 100
+
+    t0 = pygame.Surface((tile_width, tile_height), pygame.SRCALPHA)
+    t0.blit(full_img, (0, 0), pygame.Rect(0, 0, tile_width, tile_height))
+
+    t1 = pygame.Surface((tile_width, tile_height), pygame.SRCALPHA)
+    t1.blit(full_img, (0, 0), pygame.Rect(100, 0, tile_width, tile_height))
+
+    t2 = pygame.Surface((tile_width, tile_height), pygame.SRCALPHA)
+    t2.blit(full_img, (0, 0), pygame.Rect(200, 0, tile_width, tile_height))
+
+    return (t0, t1, t2)
+
+
 def __create_example_textures(
     hex_width: int, hex_height: float
 ) -> tuple[pygame.Surface, pygame.Surface, pygame.Surface]:
@@ -153,35 +185,3 @@ def __create_example_textures(
     nearby.fill((50, 50, 200, 255))
 
     return (isolated, connected, nearby)
-
-
-def main_TEST() -> None:
-    pygame.init()
-    hex_width = 60
-    hex_height = 60
-
-    feature_coords: list[OddRCoord] = [
-        OddRCoord(x, y) for x, y in ((2, 2), (3, 2), (4, 2), (2, 3), (2, 4))
-    ]
-
-    source_textures = __create_example_textures(hex_width, hex_height)
-
-    screen = pygame.display.set_mode((800, 600))
-
-    clock = pygame.time.Clock()
-    running = True
-
-    combined_surface = generate_feature_surface(
-        feature_coords, source_textures, hex_width, hex_height
-    )
-
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        screen.fill((30, 30, 30))
-        screen.blit(combined_surface, (100, 100))
-        pygame.display.flip()
-        clock.tick(60)
-    pygame.quit()
