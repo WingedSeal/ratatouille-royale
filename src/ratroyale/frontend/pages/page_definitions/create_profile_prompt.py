@@ -123,6 +123,10 @@ class CreateProfile(Page):
             pygame_gui.elements.UITextEntryLine
         )
         text = ui_text_entry_line.get_text().strip()
+        if not text:
+            return
+        if (RRSAVES_DIR_PATH / f"{text}.{SAVE_FILE_EXTENSION}").is_file():
+            return
         get_default_player_info().to_file(
             RRSAVES_DIR_PATH / f"{text}.{SAVE_FILE_EXTENSION}"
         )
