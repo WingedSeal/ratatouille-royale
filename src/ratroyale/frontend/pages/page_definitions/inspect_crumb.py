@@ -5,17 +5,24 @@ from ratroyale.event_tokens.game_token import *
 
 
 from ..page_managers.base_page import Page
-from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_managers.event_binder import (
+    input_event_bind,
+    callback_event_bind,
+)
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
-
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
 )
 from ..page_elements.spatial_component import Camera
 
+from ratroyale.event_tokens.payloads import TurnPayload
+
 import pygame_gui
 import pygame
+
+from pygame_gui.elements import UIPanel
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 @register_page
@@ -23,14 +30,18 @@ class InspectCrumb(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
-        super().__init__(coordination_manager, camera)
+        super().__init__(coordination_manager, camera, is_blocking=True)
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         gui_elements: list[ElementWrapper] = []
 
         # === MainPanel ===
+        panel_w, panel_h = 700, 200
+        panel_x = (SCREEN_SIZE[0] - panel_w) // 2
+        panel_y = (SCREEN_SIZE[1] - panel_h) // 2
+
         panel_element = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(50, 255, 700, 200),
+            relative_rect=pygame.Rect(panel_x, panel_y, 700, 200),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="MainPanel", object_id="main_panel"
@@ -55,7 +66,7 @@ class InspectCrumb(Page):
         # === Close button ===
         pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(650, 10, 30, 30),
-            text="x",
+            text="X",
             manager=self.gui_manager,
             container=panel_element,
             object_id=pygame_gui.core.ObjectID(
@@ -97,13 +108,61 @@ class InspectCrumb(Page):
         )
 
         # === Multiple turn panels ===
-        self.turn_panels = []
+        self.turn_panels: list[UIPanel] = []
+
+        return gui_elements
+
+    @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
+    def close_panel(self, msg: pygame.event.Event) -> None:
+        self.post(
+            PageNavigationEvent(action_list=[(PageNavigation.CLOSE, "InspectCrumb")])
+        )
+
+    @input_event_bind("search_button", pygame_gui.UI_BUTTON_PRESSED)
+    def search_turn(self, msg: pygame.event.Event) -> None:
+        """Jump instantly to the specified turn (no scrollbar sync)."""
+        text = self.input_box.get_text().strip()
+        if not text.isdigit():
+            return  # ignore invalid input
+
+        turn_number = int(text)
+        if not (1 <= turn_number <= len(self.turn_panels)):
+            return
+
+        # --- find the target turn panel ---
+        scrollable_surface = self.scroll_container.scrollable_container
+        visible_width = self.scroll_container.relative_rect.width
+
+        target_panel = self.turn_panels[turn_number - 1]
+        panel_x = target_panel.relative_rect.x
+        panel_w = target_panel.relative_rect.width
+
+        # --- compute offset so that target is centered in view ---
+        new_scroll_x = panel_x + panel_w / 2 - visible_width / 2
+
+        # clamp within valid range
+        max_scroll = max(0, scrollable_surface.relative_rect.width - visible_width)
+        new_scroll_x = max(0, min(new_scroll_x, max_scroll))
+
+        # --- move the inner container (jump instantly) ---
+        scrollable_surface.set_relative_position((-new_scroll_x, 0))
+
+    @callback_event_bind("show_crumbs")
+    def update_current_turn(self, msg: PageCallbackEvent) -> None:
+        payload = msg.payload
+        assert isinstance(payload, TurnPayload)
+        self.current_turn = payload.turn_number
+        self.current_side = payload.current_side
+        self.crumbs_modifier = payload.crumbs_modifier
         turn_count = 20
         card_width = 150
         spacing = 20
         base_x = 0
 
-        for i in range(turn_count):
+        for i in range(self.current_turn, turn_count + self.current_turn):
+            turn_crumbs = self.crumbs_modifier.get_crumbs(
+                self.current_turn, self.current_side
+            )
             turn_panel = pygame_gui.elements.UIPanel(
                 relative_rect=pygame.Rect(base_x, 0, card_width, 120),
                 manager=self.gui_manager,
@@ -143,7 +202,7 @@ class InspectCrumb(Page):
             )
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(5, 35, 50, 25),
-                text="90",
+                text=f"{turn_crumbs}",
                 manager=self.gui_manager,
                 container=table,
             )
@@ -155,7 +214,7 @@ class InspectCrumb(Page):
             )
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(75, 35, 50, 25),
-                text="70",
+                text=f"{turn_crumbs}",
                 manager=self.gui_manager,
                 container=table,
             )
@@ -164,40 +223,3 @@ class InspectCrumb(Page):
             base_x += card_width + spacing
 
         self.scroll_container.set_scrollable_area_dimensions((base_x, 140))
-
-        return gui_elements
-
-    @input_event_bind("close_button", pygame_gui.UI_BUTTON_PRESSED)
-    def close_panel(self, msg: pygame.event.Event) -> None:
-        self.post(
-            PageNavigationEvent(action_list=[(PageNavigation.CLOSE, "InspectCrumb")])
-        )
-
-    @input_event_bind("search_button", pygame_gui.UI_BUTTON_PRESSED)
-    def search_turn(self, msg: pygame.event.Event) -> None:
-        """Jump instantly to the specified turn (no scrollbar sync)."""
-        text = self.input_box.get_text().strip()
-        if not text.isdigit():
-            return  # ignore invalid input
-
-        turn_number = int(text)
-        if not (1 <= turn_number <= len(self.turn_panels)):
-            return
-
-        # --- find the target turn panel ---
-        scrollable_surface = self.scroll_container.scrollable_container
-        visible_width = self.scroll_container.relative_rect.width
-
-        target_panel = self.turn_panels[turn_number - 1]
-        panel_x = target_panel.relative_rect.x
-        panel_w = target_panel.relative_rect.width
-
-        # --- compute offset so that target is centered in view ---
-        new_scroll_x = panel_x + panel_w / 2 - visible_width / 2
-
-        # clamp within valid range
-        max_scroll = max(0, scrollable_surface.relative_rect.width - visible_width)
-        new_scroll_x = max(0, min(new_scroll_x, max_scroll))
-
-        # --- move the inner container (jump instantly) ---
-        scrollable_surface.set_relative_position((-new_scroll_x, 0))

@@ -26,6 +26,7 @@ from ratroyale.event_tokens.payloads import (
     IntegerPayload,
 )
 from ratroyale.backend.entities.rodent import Rodent
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 import uuid
 
@@ -60,13 +61,17 @@ class InspectEntity(Page):
         self.entity = payload.entity
         entity = self.entity
         elements: list[ElementWrapper] = []
+        panel_w, panel_h = 300, 420
+        panel_x = 10
+        panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         panel = ui_element_wrapper(
             pygame_gui.elements.UIPanel(
-                relative_rect=pygame.Rect(10, 60, 300, 420),
+                relative_rect=pygame.Rect(panel_x, panel_y, panel_w, panel_h),
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectPanel", object_id="inspect_panel"
                 ),
+                anchors={"left": "left", "top": "top"},
             ),
             registered_name="inspect_panel",
             grouping_name="inspect_entity",
@@ -76,9 +81,7 @@ class InspectEntity(Page):
 
         close_button = ui_element_wrapper(
             pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(
-                    -40, 10, 30, 30
-                ),  # offset from the top-right corner
+                relative_rect=pygame.Rect(-40, 10, 30, 30),
                 text="X",
                 manager=self.gui_manager,
                 container=panel.get_interactable(pygame_gui.elements.UIPanel),
@@ -86,7 +89,8 @@ class InspectEntity(Page):
                     class_id="CloseButton", object_id="close_button"
                 ),
                 anchors={
-                    "left": "right",  # position rect's left relative to parent's right
+                    "left": "right",
+                    "top": "top",
                 },
             ),
             registered_name="close_button",
@@ -103,6 +107,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="PortraitArea", object_id="portrait_area"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="portrait_area",
             grouping_name="inspect_entity",
@@ -119,6 +127,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectLabel", object_id="rat_name"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="rat_name",
             grouping_name="inspect_entity",
@@ -135,6 +147,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectLabel", object_id="description"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="description",
             grouping_name="inspect_entity",
@@ -151,6 +167,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectButton", object_id="stats_button"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="stats_button",
             grouping_name="inspect_entity",
@@ -167,6 +187,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectButton", object_id="passive_button"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="passive_button",
             grouping_name="inspect_entity",
@@ -183,6 +207,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="InspectButton", object_id="lore_button"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="lore_button",
             grouping_name="inspect_entity",
@@ -198,6 +226,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="StatsPanel", object_id="stats_panel"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="stats_panel",
             grouping_name="inspect_entity",
@@ -214,6 +246,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="StatLabel", object_id="hp_label"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="hp_label",
             grouping_name="inspect_entity",
@@ -230,6 +266,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="StatLabel", object_id="def_label"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
             registered_name="def_label",
             grouping_name="inspect_entity",
@@ -249,6 +289,10 @@ class InspectEntity(Page):
                     object_id=pygame_gui.core.ObjectID(
                         class_id="StatLabel", object_id="speed_label"
                     ),
+                    anchors={
+                        "left": "left",
+                        "top": "top",
+                    },
                 ),
                 registered_name="speed_label",
                 grouping_name="inspect_entity",
@@ -265,6 +309,10 @@ class InspectEntity(Page):
                     object_id=pygame_gui.core.ObjectID(
                         class_id="StatLabel", object_id="stam_label"
                     ),
+                    anchors={
+                        "left": "left",
+                        "top": "top",
+                    },
                 ),
                 registered_name="stam_label",
                 grouping_name="inspect_entity",
@@ -342,14 +390,19 @@ class InspectEntity(Page):
 
         elements = []
         skill_panel_id = f"skill_panel_{uuid.uuid4()}"
+        # Position the temporary skill description panel same as the main inspect panel
+        panel_w, panel_h = 300, 420
+        panel_x = 10
+        panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         skill_panel = ui_element_wrapper(
             pygame_gui.elements.UIPanel(
-                relative_rect=pygame.Rect(10, 60, 300, 420),
+                relative_rect=pygame.Rect(panel_x, panel_y, panel_w, panel_h),
                 manager=self.gui_manager,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="SkillInspectPanel", object_id="skill_panel"
                 ),
                 starting_height=50,
+                anchors={"left": "left", "top": "top"},
             ),
             registered_name=skill_panel_id,
             grouping_name="inspect_entity",
@@ -368,6 +421,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="SkillLabel", object_id="skill_name"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
         )
 
@@ -380,6 +437,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="SkillLabel", object_id="skill_desc"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             ),
         )
 
@@ -390,18 +451,17 @@ class InspectEntity(Page):
         entity = self.entity
         panel_width = 160
         panel_x = 350
-        panel_y = 100
         panel_id = "skill_panel"
         self.ability_panel_id = panel_id
-        panel_rect = pygame.Rect(
-            panel_x, panel_y, panel_width, len(entity.skills) * 30 + 30 + 10
-        )
+        panel_height = len(entity.skills) * 30 + 30 + 10
+        off_y = (SCREEN_SIZE[1] - panel_height) // 2
         panel_object = pygame_gui.elements.UIPanel(
-            relative_rect=panel_rect,
+            relative_rect=pygame.Rect(panel_x, off_y, panel_width, panel_height),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="SkillPanel", object_id=panel_id
             ),
+            anchors={"left": "left", "top": "top"},
         )
 
         panel_element = ui_element_wrapper(panel_object, panel_id, self.camera)
@@ -421,6 +481,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="SkillButton", object_id=element_id
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             )
 
             skill_buttons.append(
@@ -444,6 +508,10 @@ class InspectEntity(Page):
                 object_id=pygame_gui.core.ObjectID(
                     class_id="SkillButton", object_id="skill_-1"
                 ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
             )
 
             skill_buttons.append(

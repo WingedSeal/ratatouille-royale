@@ -121,7 +121,7 @@ def main():
     )
 
     game_manager = GameManager(
-        map=map, players_info=(player_info_1, player_info_2), first_turn=Side.RAT
+        map=map, players_info=(player_info_1, player_info_2), player_1=Side.RAT
     )
     # endregion
 
@@ -170,6 +170,7 @@ def main():
 if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
+    # feature_texture.main_TEST()
     main()
     # profiler.disable()
 

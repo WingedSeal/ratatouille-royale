@@ -67,7 +67,7 @@ def test_all_ai(small_map: Map, ai_type: type[BaseAI]) -> None:
                 is_progression_frozen=True,
             ),
         ),
-        first_turn=Side.RAT,
+        player_1=Side.RAT,
     )
     ai = ai_type(game_manager, Side.MOUSE)
     for _ in range(100):
@@ -107,7 +107,7 @@ def test_long_map(long_map: Map, ai_type: type[BaseAI]) -> None:
                 is_progression_frozen=True,
             ),
         ),
-        first_turn=Side.RAT,
+        player_1=Side.RAT,
     )
     ai = ai_type(game_manager, Side.MOUSE)
     for _ in range(100):

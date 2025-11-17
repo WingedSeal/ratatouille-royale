@@ -154,14 +154,14 @@ class FeatureDamagedEvent(GameEvent):
 
 @dataclass(frozen=True)
 class EndTurnEvent(GameEvent):
-    is_from_first_turn_side: bool
+    is_from_player_1_side: bool
     from_side: Side
     to_side: Side
     leftover_crumbs: int
     new_crumbs: int
 
     def __str__(self) -> str:
-        return f"{STR_PREFIX}Changing turn from player {'1' if self.is_from_first_turn_side else '2'} to player {'2' if self.is_from_first_turn_side else '1'}. New crumbs: {self.new_crumbs}"
+        return f"{STR_PREFIX}Changing turn from player {'1' if self.is_from_player_1_side else '2'} to player {'2' if self.is_from_player_1_side else '1'}. New crumbs: {self.new_crumbs}"
 
 
 @dataclass(frozen=True)
@@ -197,11 +197,11 @@ class EntityEffectUpdateEvent(GameEvent):
 
 @dataclass(frozen=True)
 class GameOverEvent(GameEvent):
-    is_winner_from_first_turn_side: bool
+    is_winner_from_player_1_side: bool
     victory_side: Side
 
     def __str__(self) -> str:
-        return f"{STR_PREFIX}Game Over! Player {'1' if self.is_winner_from_first_turn_side else '2'} won."
+        return f"{STR_PREFIX}Game Over! Player {'1' if self.is_winner_from_player_1_side else '2'} won."
 
 
 @dataclass(frozen=True)

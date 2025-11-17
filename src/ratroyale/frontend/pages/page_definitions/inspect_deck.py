@@ -21,6 +21,8 @@ from ratroyale.frontend.pages.page_elements.element import (
 import pygame_gui
 import pygame
 
+from ratroyale.event_tokens.payloads import DeckPayload
+
 
 @register_page
 class InspectDeckPage(Page):
@@ -32,9 +34,6 @@ class InspectDeckPage(Page):
             camera,
             base_color=(0, 0, 0, 128),
         )
-
-    def on_open(self) -> None:
-        self.post(GameManagerEvent(game_action="inspect_deck"))
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the TestPage."""
@@ -70,16 +69,16 @@ class InspectDeckPage(Page):
 
     @callback_event_bind("inspect_deck")
     def show_deck(self, msg: PageCallbackEvent) -> None:
-        deck = msg.payload
+        assert isinstance(msg.payload, DeckPayload)
+        deck = msg.payload.deck
         deck_panel = self._element_manager.get_element("inspect_deck_panel")
         deck_panel_object = deck_panel.get_interactable(pygame_gui.elements.UIPanel)
-        assert deck is not None
-        for card_index, card_id in enumerate(deck):  # type: ignore
+        for card_index, squeak in enumerate(deck):
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(
-                    10 + card_index * 60, 10 + (card_index // 6) * 80, 50, 70
+                    10 + card_index % 9 * 60, 10 + (card_index // 9) * 80, 50, 70
                 ),
-                text="image placeholder",
+                text=f"{squeak.name}",
                 manager=self.gui_manager,
                 container=deck_panel_object,
                 object_id=pygame_gui.core.ObjectID(
@@ -89,5 +88,5 @@ class InspectDeckPage(Page):
             )
 
     @input_event_bind("close_inspect_deck", pygame_gui.UI_BUTTON_PRESSED)
-    def on_example_click(self, msg: pygame.event.Event) -> None:
+    def on_close_inspect_deck_click(self, msg: pygame.event.Event) -> None:
         self.close_self()

@@ -77,24 +77,24 @@ class GameManager:
     decks: dict[Side, list[Squeak]]
     crumbs: int
     """Crumbs of the current side"""
-    first_turn: Side
+    player_1: Side
     game_stats: GameStats
 
     def __init__(
         self,
         map: Map,
         players_info: tuple[PlayerInfo, PlayerInfo],
-        first_turn: Side,
+        player_1: Side,
     ) -> None:
-        self.turn = first_turn
-        self.first_turn = first_turn
+        self.turn = player_1
+        self.player_1 = player_1
         self.turn_count = 1
         self.crumbs_per_turn_modifier = CrumbsPerTurnModifier(map.base_crumbs_per_turn)
         self.set_crumbs()
         self.board = Board(map)
         self.players_info = {
-            first_turn: players_info[0],
-            first_turn.other_side(): players_info[1],
+            player_1: players_info[0],
+            player_1.other_side(): players_info[1],
         }
         self.decks: dict[Side, list[Squeak]] = {}
         self.hands: dict[Side, list[Squeak]] = {}
@@ -123,11 +123,7 @@ class GameManager:
         """
         return self.crumbs_per_turn_modifier.get_crumbs(
             turn_count,
-            (
-                self.first_turn
-                if self.turn_count % 2 == 1
-                else self.first_turn.other_side()
-            ),
+            (self.player_1 if self.turn_count % 2 == 1 else self.player_1.other_side()),
         )
 
     def set_crumbs(self) -> None:
@@ -401,7 +397,7 @@ class GameManager:
         for entity, features in self.board.cache.entities_in_features.items():
             for feature in features:
                 feature.on_entity_turn_change(self, entity)
-        if self.turn == self.first_turn:
+        if self.turn == self.player_1:
             for effect in self.board.cache.effects:
                 effect.turn_passed += 1
                 if effect.duration is not None:
@@ -417,7 +413,7 @@ class GameManager:
         for entity in self.board.cache.sides[from_side]:
             entity.reset_stamina()
         event = EndTurnEvent(
-            is_from_first_turn_side=self.first_turn == from_side,
+            is_from_player_1_side=self.player_1 == from_side,
             from_side=from_side,
             to_side=self.turn,
             leftover_crumbs=leftover_crumbs,
@@ -606,7 +602,7 @@ class GameManager:
             self.board.cache.lairs[feature.side].remove(feature)
             if len(self.board.cache.lairs[feature.side]) == 0:
                 game_over_event = GameOverEvent(
-                    feature.side.other_side() == self.first_turn,
+                    feature.side.other_side() == self.player_1,
                     feature.side.other_side(),
                 )
                 self.event_queue.put_nowait(game_over_event)

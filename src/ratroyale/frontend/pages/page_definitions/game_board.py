@@ -151,7 +151,7 @@ class GameBoard(Page):
         # Switches player hands. If playing with an AI, this simply has the effect of hiding the player's hand instead.
         self.hide_player_hand(1)
         self.clear_selections()
-        self.is_player_1_now = not event.is_from_first_turn_side
+        self.is_player_1_now = not event.is_from_player_1_side
 
         # If not playing with an AI, show the player 2's hand.
         if not self.is_playing_with_ai:
