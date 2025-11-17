@@ -156,7 +156,7 @@ class MainMenu(Page):
 
     @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_start_click(self, msg: pygame.event.Event) -> None:
-        self.post(PageNavigationEvent(action_list=[(PageNavigation.CLOSE_ALL, None)]))
+        self.hide()
         self.open_page("ChoosePlayer")
         assert self.player_1_info is not None
         self.post(
@@ -183,7 +183,7 @@ class MainMenu(Page):
 
     @input_event_bind("gacha_button", pygame_gui.UI_BUTTON_PRESSED)
     def _on_open_gacha_click(self, msg: pygame.event.Event) -> None:
-        self.close_self()
+        self.hide()
         self.post(
             PageNavigationEvent(
                 action_list=[

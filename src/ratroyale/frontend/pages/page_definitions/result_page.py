@@ -120,6 +120,4 @@ class Result(Page):
     @input_event_bind("ok_button", pygame_gui.UI_BUTTON_PRESSED)
     def confirm_profile(self, msg: pygame.event.Event) -> None:
         self.close_self()
-        CoordinationManager.put_message(
-            PageNavigationEvent([(PageNavigation.OPEN, "MainMenu")])
-        )
+        self.post(PageNavigationEvent([(PageNavigation.UNHIDE, "MainMenu")]))

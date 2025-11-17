@@ -310,6 +310,14 @@ class GameBoard(Page):
             )
 
         self.is_game_over = True
+        self.post(
+            PageNavigationEvent(
+                [
+                    (PageNavigation.CLOSE_ALL_EXCEPT, "MainMenu"),
+                    (PageNavigation.UNHIDE, "MainMenu"),
+                ]
+            )
+        )
         # self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
         # self.post(PageCallbackEvent("who_won", payload=Game))
 

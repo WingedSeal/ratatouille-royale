@@ -20,6 +20,7 @@ class PageNavigation(Enum):
 
     OPEN = auto()
     """Open a new page on top of the current page stack."""
+    UNHIDE = auto()
     CLOSE = auto()
     """Close the active page with a given name."""
     CLOSE_TOP = auto()
@@ -28,6 +29,8 @@ class PageNavigation(Enum):
     """Replace the current top page with a new one."""
     CLOSE_ALL = auto()
     """Close all pages in the stack, returning to an empty state. No page name argument required."""
+    CLOSE_ALL_EXCEPT = auto()
+    """Close all pages in the stack, except 1 type"""
 
 
 @dataclass
