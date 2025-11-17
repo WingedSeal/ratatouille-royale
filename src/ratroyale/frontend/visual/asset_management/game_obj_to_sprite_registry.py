@@ -13,8 +13,13 @@ from ratroyale.backend.player_info.squeaks.rodents.duelist import (
     SODA_KABOOMA,
 )
 from ratroyale.backend.player_info.squeaks.rodents.vanguard import TAILBLAZER
+from ratroyale.game_data import (
+    ICONS_DIR_PATH,
+    OTHER_IMAGES_PATH,
+    SPRITES_DIR_PATH,
+    TILESETS_DIR_PATH,
+)
 
-ASSET_DIR = Path(__file__).resolve().parent.parent / "asset"
 
 TYPICAL_TILE_SIZE = (64, 64)
 
@@ -41,7 +46,7 @@ class TilesetMetadata:
 
 DUMMY_TEXTURE_METADATA: SpritesheetMetadata = SpritesheetMetadata(
     "DUMMY",
-    ASSET_DIR / "missingTexture.jpg",
+    OTHER_IMAGES_PATH / "missingTexture.jpg",
     (749, 745),
     {"NONE": [0], "HURT": [0]},
     60,
@@ -51,7 +56,7 @@ DUMMY_TEXTURE_METADATA: SpritesheetMetadata = SpritesheetMetadata(
 SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
     Tailblazer: SpritesheetMetadata(
         "TAILBLAZER",
-        ASSET_DIR / "tailblazer.gif",
+        SPRITES_DIR_PATH / "tailblazer.gif",
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
@@ -62,7 +67,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
     ),
     RatbertBrewbelly: SpritesheetMetadata(
         "RATBERT_BREWBELLY",
-        ASSET_DIR / "ratbert_brewbelly.gif",
+        SPRITES_DIR_PATH / "ratbert_brewbelly.gif",
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
@@ -73,7 +78,7 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
     ),
     SodaKabooma: SpritesheetMetadata(
         "SODA_KABOOMA",
-        ASSET_DIR / "soda_kabooma.gif",
+        SPRITES_DIR_PATH / "soda_kabooma.gif",
         (80, 80),
         {
             "IDLE": list(range(0, 10)),
@@ -87,21 +92,21 @@ SPRITE_METADATA_REGISTRY: dict[type[Entity], SpritesheetMetadata] = {
 SQUEAK_IMAGE_METADATA_REGISTRY: dict[Squeak, SpritesheetMetadata] = {
     TAILBLAZER: SpritesheetMetadata(
         "TAILBLAZER_SQUEAK",
-        ASSET_DIR / "tailblazer_squeak.png",
+        SPRITES_DIR_PATH / "tailblazer_squeak.png",
         (238, 150),
         {"NONE": [0]},
         60,
     ),
     RATBERT_BREWBELLY: SpritesheetMetadata(
         "RATBERT_BREWBELLY_SQUEAK",
-        ASSET_DIR / "ratbert_brewbelly_squeak.png",
+        SPRITES_DIR_PATH / "ratbert_brewbelly_squeak.png",
         (238, 150),
         {"NONE": [0]},
         60,
     ),
     SODA_KABOOMA: SpritesheetMetadata(
         "RATBERT_BREWBELLY_SQUEAK",
-        ASSET_DIR / "soda_kabooma_squeak.png",
+        SPRITES_DIR_PATH / "soda_kabooma_squeak.png",
         (238, 154),
         {"NONE": [0]},
         60,
@@ -111,7 +116,7 @@ SQUEAK_IMAGE_METADATA_REGISTRY: dict[Squeak, SpritesheetMetadata] = {
 TILESET_MAP: dict[str, TilesetMetadata] = {
     "Starting Kitchen": TilesetMetadata(
         "Starting Kitchen",
-        ASSET_DIR / "tilesets/starting-kitchen.png",
+        TILESETS_DIR_PATH / "starting-kitchen.png",
         (100, 100),
         row=10,
         col=8,
@@ -146,13 +151,13 @@ def get_spritesheet_metadata(
 FEATURE_SPRITE_METADATA: dict[int, SpritesheetMetadata] = {
     1: SpritesheetMetadata(
         "TEMP_LAIR",
-        ASSET_DIR / "terrain32x32.png",
+        OTHER_IMAGES_PATH / "terrain32x32.png",
         (32, 32),
         {"NONE": [479]},
     ),
     2: SpritesheetMetadata(
         "TEMP_FEATURE",
-        ASSET_DIR / "terrain32x32.png",
+        OTHER_IMAGES_PATH / "terrain32x32.png",
         (32, 32),
         {"NONE": [18]},
     ),
@@ -160,9 +165,12 @@ FEATURE_SPRITE_METADATA: dict[int, SpritesheetMetadata] = {
 
 MISC_SPRITE_METADATA: dict[str, SpritesheetMetadata] = {
     "HealthIcon": SpritesheetMetadata(
-        "HEALTH_ICON", ASSET_DIR / "HealthIcon.png", (20, 18), {"NONE": [0]}
+        "HEALTH_ICON", ICONS_DIR_PATH / "HealthIcon.png", (20, 18), {"NONE": [0]}
     ),
     "MoveStaminaIcon": SpritesheetMetadata(
-        "MOVE_STAMINA_ICON", ASSET_DIR / "MoveStaminaIcon.png", (16, 22), {"NONE": [0]}
+        "MOVE_STAMINA_ICON",
+        ICONS_DIR_PATH / "MoveStaminaIcon.png",
+        (16, 22),
+        {"NONE": [0]},
     ),
 }

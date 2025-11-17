@@ -22,7 +22,8 @@ from ratroyale.frontend.pages.page_elements.element import (
 from ratroyale.frontend.pages.page_elements.spatial_component import (
     Camera,
 )
-from pathlib import Path
+
+from ratroyale.game_data import RRMAPS_DIR_PATH
 
 
 from ..page_managers.base_page import Page
@@ -38,9 +39,7 @@ class ChoosePlayer(Page):
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
         super().__init__(coordination_manager, theme_name="main_menu", camera=camera)
-        self.map = Map.from_file(
-            Path(__file__).parents[3] / "map_file/starting-kitchen.rrmap"
-        )
+        self.map = Map.from_file(RRMAPS_DIR_PATH / "starting-kitchen.rrmap")
         self.ai_type: type[BaseAI] | None = None
 
     def define_initial_gui(self) -> list[ElementWrapper]:

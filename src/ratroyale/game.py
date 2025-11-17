@@ -3,6 +3,7 @@ import pygame
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEvent
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.game_data import init_data
 
 from .frontend.pages.page_managers.page_manager import PageManager
 
@@ -29,6 +30,7 @@ class Game:
         self.average_fps: float = 0.0
 
     def run(self) -> None:
+        init_data()
         self.coordination_manager.put_message(
             PageNavigationEvent(
                 action_list=[
