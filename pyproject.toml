@@ -69,7 +69,7 @@ fix = [
 ]
 check = "pre-commit run --all-files"
 tiled-cli = { cmd = "python ${POE_ROOT}/src/tiled_cli.py", cwd = "${POE_PWD}" }
-compile = { cmd = "python -m nuitka --standalone --onefile --windows-console-mode=attach --include-data-dir=./src/ratroyale/assets=ratroyale/assets --include-package=ratroyale --follow-imports --output-dir=dist --output-filename=\"Ratatouille Royale\"  --include-package-data=pygame_gui --windows-icon-url=./ratroyale.ico --include-package-data=pygame --include-package=ratroyale ./src/ratroyale" }
+compile = { cmd = "python -m nuitka --standalone --onefile --windows-console-mode=attach --include-data-dir=./src/ratroyale/assets=ratroyale/assets --include-package=ratroyale --follow-imports --output-dir=dist --output-filename=\"Ratatouille Royale\"  --include-package-data=pygame_gui --windows-icon-from-ico=./ratroyale.ico --include-package-data=pygame --include-package=ratroyale ./src/ratroyale" }
 
 [tool.poe.tasks.prof]
 sequence = [
