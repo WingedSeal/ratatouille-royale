@@ -24,10 +24,10 @@ def init_data() -> None:
     assets_root = pkg_resources.files(assets)
 
     for item in assets_root.iterdir():
-        if item.name.startswith("__"):
+        if item.name.startswith("__") or item.name.startswith("."):
             continue
         if not item.is_dir():
-            raise Exception("A non-directory exists in assets directory.")
+            raise Exception(f"A non-directory exists in assets directory. {item.name}")
         source_name = item.name
         destination_path = DATA_DIR_PATH / source_name
 
