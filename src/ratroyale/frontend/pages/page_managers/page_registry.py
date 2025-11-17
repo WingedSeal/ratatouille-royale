@@ -36,7 +36,6 @@ def register_page(cls: type[Page]) -> type[Page]:
             ...
     """
     name = cls.__name__
-    print(f"registering {name}")
     if name in _PAGE_REGISTRY:
         raise ValueError(f"Duplicate page registration: {name}")
     _PAGE_REGISTRY[name] = cls

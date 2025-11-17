@@ -4,7 +4,7 @@ import pygame_gui
 from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.player_info.preset_player_info import (
     AI_PLAYER_INFO,
-    get_default_player_info,
+    get_demo_player_info,
 )
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
@@ -22,7 +22,8 @@ from ratroyale.frontend.pages.page_elements.element import (
 from ratroyale.frontend.pages.page_elements.spatial_component import (
     Camera,
 )
-from pathlib import Path
+
+from ratroyale.game_data import RRMAPS_DIR_PATH
 
 
 from ..page_managers.base_page import Page
@@ -38,9 +39,7 @@ class ChoosePlayer(Page):
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
         super().__init__(coordination_manager, theme_name="main_menu", camera=camera)
-        self.map = Map.from_file(
-            Path(__file__).parents[3] / "map_file/starting-kitchen.rrmap"
-        )
+        self.map = Map.from_file(RRMAPS_DIR_PATH / "starting-kitchen.rrmap")
         self.ai_type: type[BaseAI] | None = None
 
     def define_initial_gui(self) -> list[ElementWrapper]:
@@ -48,9 +47,9 @@ class ChoosePlayer(Page):
         elements: list[ElementWrapper] = []
 
         button_specs = [
-            ("vs_human", "vs. HUMAN"),
-            ("vs_rush_b_ai", "vs. RUSHB AI"),
-            ("vs_random_ai", "vs. RANDOM AI"),
+            ("local_multiplayer", "Local Multiplayer"),
+            ("vs_rush_b_ai", "vs. RushB AI"),
+            ("vs_random_ai", "vs. Random AI"),
         ]
 
         start_x = 100
@@ -80,8 +79,8 @@ class ChoosePlayer(Page):
 
     # region Input Responses
 
-    @input_event_bind("vs_human", pygame_gui.UI_BUTTON_PRESSED)
-    def vs_human(self, msg: pygame.event.Event) -> None:
+    @input_event_bind("local_multiplayer", pygame_gui.UI_BUTTON_PRESSED)
+    def local_multiplayer(self, msg: pygame.event.Event) -> None:
         self.start_game()
 
     @input_event_bind("vs_random_ai", pygame_gui.UI_BUTTON_PRESSED)
@@ -101,7 +100,7 @@ class ChoosePlayer(Page):
                 "start",
                 BackendStartPayload(
                     self.map,
-                    get_default_player_info(),
+                    get_demo_player_info(),
                     AI_PLAYER_INFO["Balanced"],
                     Side.RAT,
                     self.ai_type,

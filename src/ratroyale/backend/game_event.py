@@ -159,6 +159,7 @@ class EndTurnEvent(GameEvent):
     to_side: Side
     leftover_crumbs: int
     new_crumbs: int
+    turn_count: int
 
     def __str__(self) -> str:
         return f"{STR_PREFIX}Changing turn from player {'1' if self.is_from_player_1_side else '2'} to player {'2' if self.is_from_player_1_side else '1'}. New crumbs: {self.new_crumbs}"

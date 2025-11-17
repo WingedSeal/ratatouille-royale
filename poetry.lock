@@ -680,7 +680,7 @@ version = "4.5.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.10"
-groups = ["dev"]
+groups = ["main", "dev"]
 files = [
     {file = "platformdirs-4.5.0-py3-none-any.whl", hash = "sha256:e578a81bb873cbb89a41fcc904c7ef523cc18284b7e3b3ccf06aca1403b7ebd3"},
     {file = "platformdirs-4.5.0.tar.gz", hash = "sha256:70ddccdd7c99fc5942e9fc25636a8b34d04c24b335100223152c2803e4063312"},
@@ -1152,4 +1152,4 @@ prof = ["pytest-profiling", "pytest-repeat", "snakeviz"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "f9276190f69fe452d6ad575ca5da8279fc1d6070952953fee1cd053a288335ac"
+content-hash = "7f52ab7c6e754a98e08a77e395355a5e11525b420b91e0d8288672b67909b577"

@@ -99,7 +99,8 @@ class PageManager:
                     GameManager(
                         payload.map,
                         (payload.player_info1, payload.player_info2),
-                        payload.first_turn,
+                        payload.player_1,
+                        is_disable_reward=payload.ai_type is None,
                     ),
                     self,
                     self.coordination_manager,
