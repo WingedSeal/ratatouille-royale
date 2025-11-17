@@ -95,7 +95,22 @@ def _process_feature(
     feature_or_shape = features_from_group[feature_group.item()]
     if isinstance(feature_or_shape, list):
         feature_or_shape.append(coord)
+        feature_health = _get_tile_data_value(tile_data, "feature_health").item()
+        feature_defense = _get_tile_data_value(tile_data, "feature_defense").item()
+        feature_side = _get_tile_data_value(tile_data, "feature_side").item()
         if feature_class == 0:
+            if feature_health != 0:
+                raise ValueError(
+                    f"feature_health {coord} must be in the same tile as feature_class"
+                )
+            if feature_defense != 0:
+                raise ValueError(
+                    f"feature_defense {coord} must be in the same tile as feature_class"
+                )
+            if feature_side != 0:
+                raise ValueError(
+                    f"feature_side {coord} must be in the same tile as feature_class"
+                )
             return
         extra_params = (
             layers_data[f"feature_extra{i}"].item()
@@ -103,9 +118,9 @@ def _process_feature(
         )
         new_feature = Feature.ALL_FEATURES[feature_class.item()](
             feature_or_shape,
-            _get_tile_data_value(tile_data, "feature_health").item(),
-            _get_tile_data_value(tile_data, "feature_defense").item(),
-            Side.from_int(_get_tile_data_value(tile_data, "feature_side").item()),
+            None if feature_health else 0,
+            feature_defense,
+            Side.from_int(feature_side),
             *extra_params,
         )
         features_from_group[feature_group.item()] = new_feature
