@@ -37,23 +37,34 @@ class FeatureElement(ElementWrapper):
         if feature_id == 1:
             if feature.side == Side.RAT:
                 feature_surface = generate_feature_surface(
+                    origin,
                     relative_shape,
                     load_three_tiles(RED_LAIR_PATH),
                     TYPICAL_TILE_SIZE[0],
+                    is_bounding_box=True,
                 )
             else:
                 feature_surface = generate_feature_surface(
+                    origin,
                     relative_shape,
                     load_three_tiles(BLUE_LAIR_PATH),
                     TYPICAL_TILE_SIZE[0],
+                    is_bounding_box=True,
                 )
         else:
             feature_surface = generate_feature_surface(
+                origin,
                 relative_shape,
                 load_three_tiles(FEATURE_SPRITE_PATH[feature_id]),
                 TYPICAL_TILE_SIZE[0],
+                is_bounding_box=True,
             )
-
+        # print(
+        #     feature.get_name_and_description()[0],
+        #     relative_shape,
+        #     origin,
+        #     feature.shape[0],
+        # )
         super().__init__(
             registered_name=f"feature_{id(feature)}_portion_{uuid.uuid4()}",
             grouping_name="FEATURE",
