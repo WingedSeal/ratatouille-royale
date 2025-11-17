@@ -1,4 +1,4 @@
-from .game import Game
+from ratroyale.game import Game
 
 
 def main() -> None:

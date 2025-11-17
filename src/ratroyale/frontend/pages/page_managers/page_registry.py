@@ -1,29 +1,11 @@
-import importlib
-import sys
-from pathlib import Path
-
 from ratroyale.frontend.pages.page_managers.base_page import Page
 
 # region Path Configuration
 
-frontend_folder = Path(__file__).parent.parent
-sys.path.append(frontend_folder.resolve().as_posix())
-
-PAGES_FOLDER = frontend_folder / "page_definitions"
-MODULE_PATH = "ratroyale.frontend.pages.page_definitions."
 
 # endregion
 
 _PAGE_REGISTRY: dict[str, type[Page]] = {}
-
-
-def auto_import_pages() -> None:
-    for py_file in PAGES_FOLDER.glob("*.py"):
-        module_name = py_file.stem
-        if module_name == "__init__":
-            continue
-        module_path = MODULE_PATH + module_name
-        importlib.import_module(module_path)
 
 
 def register_page(cls: type[Page]) -> type[Page]:
