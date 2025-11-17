@@ -365,6 +365,66 @@ class InspectEntity(Page):
             camera=self.camera,
         )
         elements.append(skill_stamina_label)
+
+        # passive panel
+        passive_panel = ui_element_wrapper(
+            pygame_gui.elements.UIPanel(
+                relative_rect=pygame.Rect(10, 276, 280, 120),
+                manager=self.gui_manager,
+                container=panel.get_interactable(pygame_gui.elements.UIPanel),
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="PassivePanel", object_id="passive_panel"
+                ),
+                anchors={
+                    "left": "left",
+                    "top": "top",
+                },
+            ),
+            registered_name="passive_panel",
+            grouping_name="inspect_entity",
+            camera=self.camera,
+        )
+        elements.append(passive_panel)
+
+        # Create scrollable container for ALL passive skills (name + description stay together)
+        passive_scroll = pygame_gui.elements.UIScrollingContainer(
+            relative_rect=pygame.Rect(8, 8, 264, 108),
+            manager=self.gui_manager,
+            container=passive_panel.get_interactable(pygame_gui.elements.UIPanel),
+            allow_scroll_x=False,
+            anchors={"left": "left", "top": "top"},
+        )
+
+        # Add passive skills
+        if isinstance(entity, Rodent):
+            passives = entity.passive_descriptions()
+            y_offset = 0
+            if passives:
+                for passive_index, (passive_name, passive_desc) in enumerate(passives):
+                    # Create a container for each passive (name + description together)
+                    passive_card = pygame_gui.elements.UITextBox(
+                        relative_rect=pygame.Rect(0, y_offset, 254, 80),
+                        html_text=f"<b>{passive_name}</b><br><font size=2>{passive_desc}</font>",
+                        manager=self.gui_manager,
+                        container=passive_scroll,
+                        object_id=pygame_gui.core.ObjectID(
+                            class_id="PassiveCard",
+                            object_id=f"passive_card_{passive_index}",
+                        ),
+                        wrap_to_height=True,
+                        anchors={
+                            "left": "left",
+                            "top": "top",
+                        },
+                    )
+
+                    # Adjust height based on content
+                    text_height = int(passive_card.get_relative_rect().height)
+                    passive_card.set_dimensions((254, text_height))
+                    y_offset += text_height + 10  # Add padding between passives
+
+                passive_scroll.set_scrollable_area_dimensions((254, y_offset))
+
         self.post(
             PageCallbackEvent(
                 "can_show_skill_panel_or_not", payload=EntityPayload(self.entity)
@@ -372,6 +432,31 @@ class InspectEntity(Page):
         )
 
         self.setup_elements(elements)
+
+        # Hide passive panel initially, show stats panel
+        passive_panel_element = self._element_manager.get_element("passive_panel")
+        if passive_panel_element:
+            passive_panel_element.get_interactable(pygame_gui.elements.UIPanel).hide()
+
+    @input_event_bind("stats_button", pygame_gui.UI_BUTTON_PRESSED)
+    def show_stats_tab(self, msg: pygame.event.Event) -> None:
+        """Show the stats panel and hide passive panel."""
+        stats_panel = self._element_manager.get_element("stats_panel")
+        if stats_panel:
+            stats_panel.get_interactable(pygame_gui.elements.UIPanel).show()
+        passive_panel = self._element_manager.get_element("passive_panel")
+        if passive_panel:
+            passive_panel.get_interactable(pygame_gui.elements.UIPanel).hide()
+
+    @input_event_bind("passive_button", pygame_gui.UI_BUTTON_PRESSED)
+    def show_passive_tab(self, msg: pygame.event.Event) -> None:
+        """Show the passive panel and hide stats panel."""
+        stats_panel = self._element_manager.get_element("stats_panel")
+        if stats_panel:
+            stats_panel.get_interactable(pygame_gui.elements.UIPanel).hide()
+        passive_panel = self._element_manager.get_element("passive_panel")
+        if passive_panel:
+            passive_panel.get_interactable(pygame_gui.elements.UIPanel).show()
 
     @callback_event_bind("crumb")
     def set_crumb(self, msg: PageCallbackEvent) -> None:
