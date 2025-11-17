@@ -32,7 +32,6 @@ class GameFilePage(Page):
 
     def define_initial_gui(self) -> list[ElementWrapper]:
         """Return all GUI elements for the select player page."""
-        print("HEllo")
         elements: list[ElementWrapper] = []
 
         screen_width, screen_height = SCREEN_SIZE
@@ -113,7 +112,6 @@ class GameFilePage(Page):
                 button_width,
                 button_height,
             )
-            print(btn_rect)
             button = pygame_gui.elements.UIButton(
                 relative_rect=btn_rect,
                 text=text,

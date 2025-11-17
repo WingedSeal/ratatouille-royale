@@ -242,8 +242,6 @@ class GameBoard(Page):
         assert isinstance(squeak_element, SqueakElement)
         targeted_set.insert(hand_index, squeak_element.registered_name)
 
-        print("INSERTION:", self.game_state, squeak_element.registered_name)
-
     @game_event_bind(EntityDamagedEvent)
     def entity_damaged_event(self, event: EntityDamagedEvent) -> None:
         """Plays entity damaged animation."""
@@ -302,7 +300,6 @@ class GameBoard(Page):
         who_won = event.victory_side
 
         print(who_won)
-
         self.is_game_over = True
 
         # self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
@@ -448,9 +445,6 @@ class GameBoard(Page):
                     hide_slot,
                 ]
 
-                print("Player1 Squeak IDs:", squeak1.ids)
-                print("Player2 Squeak IDs:", squeak2.ids)
-
             self.setup_elements(element_configs)
 
             crumb = payload.starting_crumbs
@@ -540,7 +534,6 @@ class GameBoard(Page):
                 self.temp_skill_target_count = info.target_count
             else:
                 # TODO: relay information to alert page
-                print(info)
                 self.post(
                     PageNavigationEvent(
                         [(PageNavigation.CLOSE, "SelectTargetPromptPage")]
