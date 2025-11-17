@@ -15,13 +15,13 @@ class GestureType(Enum):
     """
 
     CLICK = _BASE + 1
-    RIGHT_CLICK = _BASE + 1
     DRAG_START = _BASE + 2
     DRAG = _BASE + 3
     DRAG_END = _BASE + 4
     SWIPE = _BASE + 5
     HOLD = _BASE + 6
     HOVER = _BASE + 7
+    RIGHT_CLICK = _BASE + 8
 
     def to_pygame_event(self) -> int:
         return self.value
