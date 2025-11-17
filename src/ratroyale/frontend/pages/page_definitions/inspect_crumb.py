@@ -211,7 +211,7 @@ class InspectCrumb(Page):
                 container=table,
             )
             turn_crumbs, turn_crumbs_diff = self.crumbs_modifier.get_crumbs(
-                turn, self.current_side.other_side()
+                i, self.current_side.other_side()
             )
 
             pygame_gui.elements.UILabel(
