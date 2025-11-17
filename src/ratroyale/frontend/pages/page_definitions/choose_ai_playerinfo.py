@@ -64,7 +64,6 @@ class ChooseAIPlayerInfo(Page):
         for i, (button_id, text) in enumerate(
             ai_player_info_preset + [("choose_player", "GO BACK")]
         ):
-            print(button_id, text)
             button_rect = pygame.Rect(
                 start_x,
                 start_y + i * (button_height + padding),
@@ -145,7 +144,6 @@ class ChooseAIPlayerInfo(Page):
 
     @callback_event_bind("send_player_info")
     def _set_player_info(self, event: PageCallbackEvent) -> None:
-        print("SET")
         assert isinstance(event.payload, PlayerInfoPayload)
         self.player_1_info = event.payload.player_1_info
         self.player_1_path = event.payload.player_1_path
