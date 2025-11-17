@@ -29,6 +29,9 @@ class Game:
         )
         self.average_fps: float = 0.0
 
+        pygame.display.set_caption("Ratatouille Royale")
+        # icon = pygame.image.load(ICONS_DIR_PATH / "Mice.png")
+
     def run(self) -> None:
         init_data()
         self.coordination_manager.put_message(
