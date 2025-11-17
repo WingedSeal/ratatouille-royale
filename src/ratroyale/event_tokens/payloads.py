@@ -12,6 +12,7 @@ from ratroyale.backend.source_of_damage_or_heal import SourceOfDamageOrHeal
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
 from ratroyale.backend.crumbs_per_turn_modifier import CrumbsPerTurnModifier
+from pathlib import Path
 
 
 @dataclass
@@ -158,3 +159,4 @@ class SaveFilesPayload(Payload):
 @dataclass
 class PlayerInfoPayload(Payload):
     player_info: PlayerInfo
+    path: Path | None

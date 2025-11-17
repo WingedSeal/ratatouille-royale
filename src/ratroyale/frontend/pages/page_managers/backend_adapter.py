@@ -22,6 +22,7 @@ from ratroyale.event_tokens.payloads import (
     GameOverPayload,
     SidePayload,
     DeckPayload,
+    PlayerInfoPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
@@ -60,8 +61,7 @@ class BackendAdapter:
             "skill_canceled": self.handle_skill_canceled,
             "inspect_deck_clicked": self.handle_inspect_deck_clicked,
             "get_player_1": self.handle_get_player_1,
-            "load_all_saves": self.handle_load_all_saves,
-            "select_profile": self.handle_select_profile,
+            "update_after_game_over": self.handle_update_after_game_over,
             "gacha": self.handle_gacha,
         }
 
@@ -324,14 +324,12 @@ class BackendAdapter:
             )
         )
 
-    def handle_load_all_saves(self, event: GameManagerEvent) -> None:
-        ...
-        # FOR SAVING AT APPDATA PATH
-        # appdata_path = os.getenv("APPDATA")
-        # assert appdata_path is not None
-        # app_name = "RatatouilleRoyale"
-        # rr_path = os.path.join(appdata_path, app_name)
-        # os.makedirs(rr_path, exist_ok=True)
+    def handle_update_after_game_over(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, PlayerInfoPayload)
+        player_info = payload.player_info
+        player_info_path = payload.path
+        assert player_info_path is not None
+        player_info.to_file(player_info_path)
 
-    def handle_select_profile(self, event: GameManagerEvent) -> None: ...
     def handle_gacha(self, event: GameManagerEvent) -> None: ...

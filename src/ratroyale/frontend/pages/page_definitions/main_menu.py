@@ -173,7 +173,7 @@ class MainMenu(Page):
         self.post(
             PageCallbackEvent(
                 "send_player_info",
-                payload=PlayerInfoPayload(self.player_info),
+                payload=PlayerInfoPayload(self.player_info, self.player_info_path),
             )
         )
 
@@ -209,3 +209,4 @@ class MainMenu(Page):
     def _set_player_info(self, event: PageCallbackEvent) -> None:
         assert isinstance(event.payload, PlayerInfoPayload)
         self.player_info = event.payload.player_info
+        self.player_info_path = event.payload.path

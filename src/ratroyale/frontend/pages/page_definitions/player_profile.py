@@ -195,6 +195,9 @@ class PlayerProfile(Page):
         self.post(PageNavigationEvent([(PageNavigation.OPEN, "MainMenu")]))
         self.post(
             PageCallbackEvent(
-                "set_player_info", payload=PlayerInfoPayload(selected_player_info)
+                "set_player_info",
+                payload=PlayerInfoPayload(
+                    selected_player_info, self.save_files[button_index]
+                ),
             )
         )

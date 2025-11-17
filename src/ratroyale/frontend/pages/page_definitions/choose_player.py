@@ -112,6 +112,12 @@ class ChoosePlayer(Page):
         )
         self.close_self()
         self.open_page("GameBoard")
+        self.post(
+            PageCallbackEvent(
+                "game_board_player_info",
+                payload=PlayerInfoPayload(self.player_info, self.player_info_path),
+            )
+        )
         self.open_page("GameInfoPage")
         self.open_page("PauseButton")
 
@@ -121,3 +127,4 @@ class ChoosePlayer(Page):
     def _set_player_info(self, event: PageCallbackEvent) -> None:
         assert isinstance(event.payload, PlayerInfoPayload)
         self.player_info = event.payload.player_info
+        self.player_info_path = event.payload.path
