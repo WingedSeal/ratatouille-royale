@@ -22,12 +22,16 @@ from ratroyale.event_tokens.payloads import (
     GameOverPayload,
     SidePayload,
     DeckPayload,
+    SaveFilesPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
 )
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
+
+import os
+from ratroyale.backend.player_info.player_info import SAVE_FILE_EXTENSION
 
 if TYPE_CHECKING:
     from ratroyale.frontend.pages.page_managers.page_manager import PageManager
@@ -60,6 +64,9 @@ class BackendAdapter:
             "skill_canceled": self.handle_skill_canceled,
             "inspect_deck_clicked": self.handle_inspect_deck_clicked,
             "get_player_1": self.handle_get_player_1,
+            "load_all_saves": self.handle_load_all_saves,
+            "select_profile": self.handle_select_profile,
+            "gacha": self.handle_gacha,
         }
 
     def execute_backend_callback(self) -> None:
@@ -320,3 +327,44 @@ class BackendAdapter:
                 payload=SidePayload(side=player_1_side),
             )
         )
+
+    def handle_load_all_saves(self, event: GameManagerEvent) -> None:
+        appdata_path = os.getenv("LOCALAPPDATA")
+        assert appdata_path is not None
+        app_name = "RatatouilleRoyale"
+        rr_path = os.path.join(appdata_path, app_name)
+        os.makedirs(rr_path, exist_ok=True)
+
+        save_files = [
+            f
+            for f in os.listdir(rr_path)
+            if f.endswith(SAVE_FILE_EXTENSION)
+            and os.path.isfile(os.path.join(rr_path, f))
+        ]
+
+        self.coordination_manager.put_message(
+            PageCallbackEvent(
+                callback_action="load_all_saves",
+                payload=SaveFilesPayload(save_files),
+            )
+        )
+
+    def handle_select_profile(self, event: GameManagerEvent) -> None:
+        appdata_path = os.getenv("LOCALAPPDATA")
+        assert appdata_path is not None
+        app_name = "RatatouilleRoyale"
+        rr_path = os.path.join(appdata_path, app_name)
+        os.makedirs(rr_path, exist_ok=True)
+
+        # # 4. Define your dynamic file path and save data
+        # file_name = "config_settings.txt"  # Or generate dynamically
+        # file_path = os.path.join(rr_path, file_name)
+
+        # try:
+        #     with open(file_path, "w") as f:
+        #         f.write("This is some dynamic data.")
+        #     print(f"File saved to: {file_path}")
+        # except IOError as e:
+        #     print(f"Error saving file: {e}")
+
+    def handle_gacha(self, event: GameManagerEvent) -> None: ...

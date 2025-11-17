@@ -148,3 +148,8 @@ class SidePayload(Payload):
 @dataclass
 class DeckPayload(Payload):
     deck: list[Squeak]
+
+
+@dataclass
+class SaveFilesPayload(Payload):
+    save_files: list[str]
