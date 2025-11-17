@@ -1,13 +1,20 @@
 import pygame
 import pygame_gui
 
+from ratroyale.backend.ai.rushb_ai import RushBAI
+from ratroyale.backend.player_info.preset_player_info import (
+    AI_PLAYER_INFO,
+    get_default_player_info,
+)
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.payloads import BackendStartPayload
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
+from ratroyale.backend.side import Side
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
@@ -18,6 +25,33 @@ from ratroyale.frontend.pages.page_elements.spatial_component import (
 
 
 from ..page_managers.base_page import Page
+
+
+def _temp_get_map():  # type: ignore
+    from ratroyale.backend.hexagon import OddRCoord
+    from ratroyale.backend.features.common import DeploymentZone, Lair
+    from ratroyale.backend.map import Map, heights_to_tiles
+
+    size = 10
+    return Map(
+        "Example Map",
+        size,
+        size,
+        heights_to_tiles([[1 for i in range(size)] for i in range(size)]),
+        entities=[],
+        features=[
+            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
+            Lair([OddRCoord(size - 1, size - 1)], 10, side=Side.RAT),
+            DeploymentZone(shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE),
+            DeploymentZone(
+                shape=[
+                    OddRCoord(size - 2, size - 1),
+                    OddRCoord(size - 1, size - 2),
+                ],
+                side=Side.RAT,
+            ),
+        ],
+    )
 
 
 # TODO: make helpers to make button registration easier
@@ -32,14 +66,78 @@ class MainMenu(Page):
         """Return all GUI elements for the main menu page, auto-stacked vertically."""
         elements: list[ElementWrapper] = []
 
+        # === Image ===
+        banner_surface = pygame.Surface((100, 100))
+        LIGHT_GRAY = (180, 180, 180)
+        banner_surface.fill(LIGHT_GRAY)
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(100, 100, 200, 100),
+            image_surface=banner_surface,
+            manager=self.gui_manager,
+        )
+        # === Right Corner ===
+        player_info_panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(-320, 20, 300, 55),
+            manager=self.gui_manager,
+            anchors={"right": "right", "top": "top"},
+        )
+        # Lvl
+        pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(5, 18, 50, 20),
+            text="Level 1",
+            manager=self.gui_manager,
+            container=player_info_panel,
+        )
+        # Progress Bar
+        progress_bar = pygame_gui.elements.UIProgressBar(
+            relative_rect=pygame.Rect(55, 18, 120, 20),
+            manager=self.gui_manager,
+            container=player_info_panel,
+        )
+        progress_bar.set_current_progress(45)
+
+        # === Currency icon ===
+        cheese_surface = pygame.Surface((40, 40))
+        cheese_surface.fill((255, 220, 100))
+
+        pygame_gui.elements.UIImage(
+            relative_rect=pygame.Rect(-50, 5, 40, 40),
+            image_surface=cheese_surface,
+            manager=self.gui_manager,
+            container=player_info_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CurrencyIcon", object_id="currency_icon"
+            ),
+            anchors={"left": "right", "top": "top"},
+        )
+        # === Currency text ===
+        _ = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(180, 3, 80, 50),
+            text="999",
+            manager=self.gui_manager,
+            container=player_info_panel,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="CurrencyLabel", object_id="currency_label"
+            ),
+        )
+        # === Player Name  ===
+        pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect(-220, 80, 120, 25),
+            text="Player Name",
+            manager=self.gui_manager,
+            anchors={"right": "right", "top": "top"},
+        )
+
         button_specs = [
             ("start_button", "Start"),
             ("select_player_button", "Select Player"),
+            ("forge_button", "Forge"),
+            ("gacha_button", "Gacha"),
             ("quit_button", "Quit"),
         ]
 
         start_x = 100
-        start_y = 100
+        start_y = 210
         button_width = 200
         button_height = 50
         padding = 10  # space between buttons
@@ -68,6 +166,18 @@ class MainMenu(Page):
     @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_start_click(self, msg: pygame.event.Event) -> None:
         self.post(
+            GameManagerEvent(
+                "start",
+                BackendStartPayload(
+                    _temp_get_map(),  # type: ignore
+                    get_default_player_info(),
+                    AI_PLAYER_INFO["Balanced"],
+                    Side.RAT,
+                    RushBAI,
+                ),
+            )
+        )
+        self.post(
             PageNavigationEvent(
                 action_list=[
                     (PageNavigation.CLOSE_ALL, None),
@@ -88,7 +198,18 @@ class MainMenu(Page):
         self.post(
             PageNavigationEvent(
                 action_list=[
-                    (PageNavigation.OPEN, "SelectPlayerPage"),
+                    (PageNavigation.OPEN, "PlayerProfile"),
+                ]
+            )
+        )
+
+    @input_event_bind("gacha_button", pygame_gui.UI_BUTTON_PRESSED)
+    def _on_open_gacha_click(self, msg: pygame.event.Event) -> None:
+        self.close_self()
+        self.post(
+            PageNavigationEvent(
+                action_list=[
+                    (PageNavigation.OPEN, "GachaPage"),
                 ]
             )
         )

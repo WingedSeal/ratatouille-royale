@@ -75,6 +75,10 @@ class EntityEffect(ABC):
     @abstractmethod
     def effect_descriptions(self) -> str: ...
 
+    @staticmethod
+    @abstractmethod
+    def base_effect_descriptions() -> str: ...
+
 
 T = TypeVar("T", bound=EntityEffect)
 

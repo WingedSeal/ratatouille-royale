@@ -208,6 +208,12 @@ class ElementWrapper:
 
     def update_visibility(self) -> None:
         """Recompute visibility only if camera is dirty or element moved."""
+        # HACK: we will only consider updating visibility for WORLD elements.
+        # Skipping visibility for SCREEN elements since they are a minority ATM and shouldn't impact framerate too much.
+        if self.spatial_component.space_mode == "SCREEN":
+            self._is_visible = True
+            return
+
         spatial = self.get_absolute_rect()
         if spatial:
             self._is_visible = spatial.colliderect(screen_rect)
@@ -273,6 +279,7 @@ def ui_element_wrapper(
     camera: Camera,
     grouping_name: str = "UI_ELEMENT",
     z_order: int = 1,
+    payload: Payload | None = None,
 ) -> ElementWrapper:
     """
     Convenience helper to wrap a pygame_gui element into an ElementWrapper.
@@ -304,4 +311,5 @@ def ui_element_wrapper(
         spatial_component=spatial,
         visual_component=visual,
         interactable_component=interactable,
+        payload=payload,
     )

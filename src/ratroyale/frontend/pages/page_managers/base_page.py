@@ -257,7 +257,7 @@ class Page(ABC):
         """
         executed = False
         for callback_action, handler in self._game_event_bindings.items():
-            if type(msg) is callback_action:
+            if isinstance(msg, callback_action):
                 handler(msg)
                 executed = True
         return executed

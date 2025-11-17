@@ -1,5 +1,8 @@
+from .game import Game
+
+
 def main() -> None:
-    print("WIP")
+    Game().run()
 
 
 if __name__ == "__main__":

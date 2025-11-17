@@ -1,6 +1,12 @@
 from typing import TYPE_CHECKING, Iterable
 from ....entities.rodents.specialist import Mayo, TheOne
-from ...squeak import Squeak, SqueakType, rodent_placable_tile, summon, summon_on_place
+from ...squeak import (
+    RodentSqueakInfo,
+    Squeak,
+    rodent_placable_tile,
+    summon,
+    summon_on_place,
+)
 from ....hexagon import OddRCoord
 
 if TYPE_CHECKING:
@@ -9,10 +15,9 @@ if TYPE_CHECKING:
 MAYO = Squeak(
     name="Mayo",
     crumb_cost=7,
-    squeak_type=SqueakType.RODENT,
     on_place=summon_on_place(Mayo),
     get_placable_tiles=rodent_placable_tile,
-    rodent=Mayo,
+    squeak_info=RodentSqueakInfo(Mayo),
 )
 
 
@@ -34,8 +39,7 @@ def the_one_on_place(game_manager: "GameManager", coord: OddRCoord) -> None:
 THE_ONE = Squeak(
     name="The One",
     crumb_cost=50,
-    squeak_type=SqueakType.RODENT,
     on_place=the_one_on_place,
     get_placable_tiles=the_one_placable_tile,
-    rodent=TheOne,
+    squeak_info=RodentSqueakInfo(TheOne),
 )

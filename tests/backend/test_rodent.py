@@ -7,7 +7,7 @@ from ratroyale.backend.game_event import EntityDieEvent
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.player_info.forges import FORGES
 from ratroyale.backend.player_info.player_info import PlayerInfo
-from ratroyale.backend.player_info.squeak import Squeak
+from ratroyale.backend.player_info.squeak import RodentSqueakInfo, Squeak
 from ratroyale.backend.player_info.gacha import GACHA_POOL_WEIGHTS
 from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.map import Map, heights_to_tiles
@@ -43,7 +43,10 @@ RODENT_SQUEAKS_LIST = list(
     ids=[squeak.name.replace(" ", "_") for squeak in RODENT_SQUEAKS_LIST],
 )
 def test_rodents(rodent_map: Map, squeak: Squeak) -> None:
-    if squeak.rodent and EntityTag.NO_ATTACK in squeak.rodent.entity_tags:
+    if (
+        isinstance(squeak.squeak_info, RodentSqueakInfo)
+        and EntityTag.NO_ATTACK in squeak.squeak_info.rodent.entity_tags
+    ):
         return None
     game_manager = GameManager(
         rodent_map,
@@ -67,7 +70,7 @@ def test_rodents(rodent_map: Map, squeak: Squeak) -> None:
                 is_progression_frozen=True,
             ),
         ),
-        first_turn=Side.RAT,
+        player_1=Side.RAT,
     )
     ai = RandomAI(game_manager, Side.MOUSE)
     game_manager.crumbs = 10000

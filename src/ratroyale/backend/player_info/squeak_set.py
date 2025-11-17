@@ -46,7 +46,7 @@ class SqueakSet:
             [
                 squeak
                 for squeak, count in self.deck.items()
-                for _ in range(count - self.hands[squeak])
+                for _ in range(count - self.hands.get(squeak, 0))
             ],
             [squeak for squeak, count in self.hands.items() for _ in range(count)],
         )
