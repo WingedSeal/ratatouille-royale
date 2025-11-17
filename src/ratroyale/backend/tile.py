@@ -34,7 +34,7 @@ class Tile:
 
     def __repr__(self) -> str:
         return f"""Tile(
-    tile_id={self.tile_id}
+    tile_id={self.tile_id},
     coord={repr(self.coord)}, 
     height={self.height},
     entities={pformat(self.entities)},

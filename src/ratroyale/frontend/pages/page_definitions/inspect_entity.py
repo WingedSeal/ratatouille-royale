@@ -301,25 +301,41 @@ class InspectEntity(Page):
             )
             elements.append(speed_label)
 
-            stam_label = ui_element_wrapper(
+            move_stamina_label = ui_element_wrapper(
                 pygame_gui.elements.UILabel(
                     relative_rect=pygame.Rect(140, 34, 120, 24),
-                    text=f"STAMINA: {entity.move_stamina} / {entity.max_move_stamina}",
+                    text=f"Move: {entity.move_stamina} / {entity.max_move_stamina}",
                     manager=self.gui_manager,
                     container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
                     object_id=pygame_gui.core.ObjectID(
-                        class_id="StatLabel", object_id="stam_label"
+                        class_id="StatLabel", object_id="move_stamina_label"
                     ),
                     anchors={
                         "left": "left",
                         "top": "top",
                     },
                 ),
-                registered_name="stam_label",
+                registered_name="move_stamina_label",
                 grouping_name="inspect_entity",
                 camera=self.camera,
             )
-            elements.append(stam_label)
+            elements.append(move_stamina_label)
+
+            skill_stamina_label = ui_element_wrapper(
+                pygame_gui.elements.UILabel(
+                    relative_rect=pygame.Rect(8, 62, 120, 24),
+                    text=f"Skill: {entity.skill_stamina} / {entity.max_skill_stamina}",
+                    manager=self.gui_manager,
+                    container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
+                    object_id=pygame_gui.core.ObjectID(
+                        class_id="StatLabel", object_id="skill_stamina_label"
+                    ),
+                ),
+                registered_name="skill_stamina_label",
+                grouping_name="inspect_entity",
+                camera=self.camera,
+            )
+            elements.append(skill_stamina_label)
 
         self.post(
             PageCallbackEvent(
@@ -347,7 +363,7 @@ class InspectEntity(Page):
             IntegerPayload
         )
 
-        if skill_cost.value > self.crumb:
+        if skill_cost.value > self.crumb or self.entity.skill_stamina == 0:
             return
 
         skill_id = int(id.split("_")[-1])

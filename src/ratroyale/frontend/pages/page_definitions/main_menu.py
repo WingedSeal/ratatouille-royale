@@ -1,15 +1,9 @@
 import pygame
 import pygame_gui
 
-from ratroyale.backend.ai.rushb_ai import RushBAI
-from ratroyale.backend.player_info.preset_player_info import (
-    AI_PLAYER_INFO,
-    get_default_player_info,
-)
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
-from ratroyale.event_tokens.payloads import BackendStartPayload
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
@@ -25,12 +19,13 @@ from ratroyale.frontend.pages.page_elements.spatial_component import (
 
 
 from ..page_managers.base_page import Page
+from ratroyale.backend.map import Map
 
 
 def _temp_get_map():  # type: ignore
     from ratroyale.backend.hexagon import OddRCoord
     from ratroyale.backend.features.common import DeploymentZone, Lair
-    from ratroyale.backend.map import Map, heights_to_tiles
+    from ratroyale.backend.map import heights_to_tiles
 
     size = 10
     return Map(
@@ -165,28 +160,8 @@ class MainMenu(Page):
 
     @input_event_bind("start_button", pygame_gui.UI_BUTTON_PRESSED)
     def on_start_click(self, msg: pygame.event.Event) -> None:
-        self.post(
-            GameManagerEvent(
-                "start",
-                BackendStartPayload(
-                    _temp_get_map(),  # type: ignore
-                    get_default_player_info(),
-                    AI_PLAYER_INFO["Balanced"],
-                    Side.RAT,
-                    RushBAI,
-                ),
-            )
-        )
-        self.post(
-            PageNavigationEvent(
-                action_list=[
-                    (PageNavigation.CLOSE_ALL, None),
-                    (PageNavigation.OPEN, "GameBoard"),
-                    (PageNavigation.OPEN, "GameInfoPage"),
-                    (PageNavigation.OPEN, "PauseButton"),
-                ]
-            )
-        )
+        self.post(PageNavigationEvent(action_list=[(PageNavigation.CLOSE_ALL, None)]))
+        self.open_page("ChoosePlayer")
 
     @input_event_bind("quit_button", pygame_gui.UI_BUTTON_PRESSED)
     def _on_quit_click(self, msg: pygame.event.Event) -> None:

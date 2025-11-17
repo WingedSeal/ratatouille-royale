@@ -42,6 +42,7 @@ class SqueakElement(ElementWrapper):
         self.camera = camera
         self.font = font
         self.squeak = squeak
+        self.can_be_played = True
 
         # --- Create main squeak element ---
         # TODO: replace random with smth better
@@ -139,14 +140,14 @@ class SqueakElement(ElementWrapper):
         assert isinstance(squeak, SqueakPayload)
 
         higher_cost_than_current_crumb = squeak.squeak.crumb_cost > current_crumb
-        is_previously_interactable = self.is_interactable
+        is_previously_playable = self.can_be_played
 
         # Update interactivity state
-        self.is_interactable = not higher_cost_than_current_crumb
-        is_now_interactable = self.is_interactable
+        self.can_be_played = not higher_cost_than_current_crumb
+        is_now_interactable = self.can_be_played
 
         # If state changed, trigger appropriate animation
-        if is_now_interactable != is_previously_interactable:
+        if is_now_interactable != is_previously_playable:
             if is_now_interactable:
                 self.enable_anim()
             else:

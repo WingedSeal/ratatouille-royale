@@ -45,7 +45,7 @@ class DeploymentZone(Feature):
 @dataclass
 class CrumbsStack(Feature):
     side_count: dict[Side, int] = field(
-        default_factory=lambda: defaultdict(int), init=False
+        default_factory=lambda: defaultdict(int), init=False, repr=False
     )
 
     @staticmethod

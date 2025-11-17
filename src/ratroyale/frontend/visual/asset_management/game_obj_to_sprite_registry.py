@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from collections import defaultdict
 from ratroyale.backend.entities.rodents.vanguard import Tailblazer
 from ratroyale.backend.entities.rodents.duelist import (
     RatbertBrewbelly,
@@ -26,6 +27,16 @@ class SpritesheetMetadata:
     animation_list: dict[str, list[int]]
     frame_rate: float = 60
     scale: tuple[float, float] = (1.0, 1.0)
+
+
+@dataclass
+class TilesetMetadata:
+    map_name: str
+    path: Path
+    sprite_size: tuple[int, int]
+    row: int
+    col: int
+    tile_count: int
 
 
 DUMMY_TEXTURE_METADATA: SpritesheetMetadata = SpritesheetMetadata(
@@ -97,14 +108,39 @@ SQUEAK_IMAGE_METADATA_REGISTRY: dict[Squeak, SpritesheetMetadata] = {
     ),
 }
 
-TILE_SPRITE_METADATA: dict[int, SpritesheetMetadata] = {
-    1: SpritesheetMetadata(
-        "GRASS_TILE",
-        ASSET_DIR / "terrain32x32.png",
-        (32, 32),
-        {"NONE": [156]},
+TILESET_MAP: dict[str, TilesetMetadata] = {
+    "Starting Kitchen": TilesetMetadata(
+        "Starting Kitchen",
+        ASSET_DIR / "tilesets/starting-kitchen.png",
+        (100, 100),
+        row=10,
+        col=8,
+        tile_count=77,
     )
 }
+
+spritesheet_metadata_cache: dict[str, dict[int, SpritesheetMetadata]] = defaultdict(
+    dict
+)
+
+
+def get_spritesheet_metadata(
+    tileset_metadata: TilesetMetadata, tile_id: int
+) -> SpritesheetMetadata:
+    if tile_id > tileset_metadata.tile_count:
+        raise ValueError("Invalid tile_id")
+    if tile_id in spritesheet_metadata_cache[tileset_metadata.map_name]:
+        return spritesheet_metadata_cache[tileset_metadata.map_name][tile_id]
+    spritesheet_metadata = SpritesheetMetadata(
+        f"{tileset_metadata.map_name}-{tile_id}",
+        tileset_metadata.path,
+        tileset_metadata.sprite_size,
+        {"NONE": [tile_id - 1]},
+    )
+    spritesheet_metadata_cache[tileset_metadata.map_name][
+        tile_id
+    ] = spritesheet_metadata
+    return spritesheet_metadata
 
 
 FEATURE_SPRITE_METADATA: dict[int, SpritesheetMetadata] = {

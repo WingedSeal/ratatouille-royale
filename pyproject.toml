@@ -55,6 +55,8 @@ build = "build.py"
 
 [tool.poe.tasks]
 render-test = "python ./src/render_test.py"
+git-reset-map-making-kit =  "python ./src/git_reset_map_making_kit.py"
+edit-map = "python ./src/edit_map.py"
 format = "black ./src ./tests"
 fix = [
   { cmd = "ruff check --fix" },

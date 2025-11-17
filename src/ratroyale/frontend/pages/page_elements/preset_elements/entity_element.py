@@ -218,7 +218,7 @@ class EntityElement(ElementWrapper):
             spatial_component=SpatialComponent(
                 hurt_particle_rect,
                 space_mode="WORLD",
-                z_order=100,  # one layer above icon
+                z_order=1000,  # one layer above icon
             ),
             visual_component=VisualComponent(
                 SpritesheetComponent(hurt_particle_surface)

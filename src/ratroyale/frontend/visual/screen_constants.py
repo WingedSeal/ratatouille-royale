@@ -1,8 +1,8 @@
 import pygame
 
 # Should actually be floats but I don't have the energy to deal with this right now.
-DIAG: int = 200
-SCREEN_RATIO: tuple[int, int] = (4, 3)  # 4:3 width to height ratio
+DIAG: int = 100
+SCREEN_RATIO: tuple[int, int] = (16, 9)
 
 SCREEN_SIZE: tuple[int, int] = (
     SCREEN_RATIO[0] * DIAG,

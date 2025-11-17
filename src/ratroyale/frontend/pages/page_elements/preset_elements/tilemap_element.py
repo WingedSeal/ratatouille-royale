@@ -2,8 +2,9 @@ from ..element import ElementWrapper
 from ..spatial_component import Camera
 from ratroyale.backend.tile import Tile
 from ....visual.asset_management.game_obj_to_sprite_registry import (
-    TILE_SPRITE_METADATA,
+    TILESET_MAP,
     TYPICAL_TILE_SIZE,
+    get_spritesheet_metadata,
 )
 from ....visual.asset_management.spritesheet_manager import SpritesheetManager
 from ..spatial_component import SpatialComponent
@@ -27,6 +28,7 @@ class ChunkedTileMapElement(ElementWrapper):
         # Pre-render surface for this chunk
         self._chunk_surface = pygame.Surface(self._map_rect.size, pygame.SRCALPHA)
 
+        tileset_metadata = TILESET_MAP["Starting Kitchen"]  # TODO: get map name
         for tile in tiles_flat:
             tile_rect = self._define_tile_rect(tile)
 
@@ -38,9 +40,8 @@ class ChunkedTileMapElement(ElementWrapper):
             )
 
             # Get spritesheet/frame
-            sprite_metadata = TILE_SPRITE_METADATA[tile.tile_id]
             spritesheet_name = SpritesheetManager.register_spritesheet(
-                sprite_metadata
+                get_spritesheet_metadata(tileset_metadata, tile.tile_id)
             ).get_key()
             visual = VisualComponent(
                 SpritesheetComponent(spritesheet_reference=spritesheet_name), "NONE"
