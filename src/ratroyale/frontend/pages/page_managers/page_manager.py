@@ -99,7 +99,7 @@ class PageManager:
                     GameManager(
                         payload.map,
                         (payload.player_info1, payload.player_info2),
-                        payload.first_turn,
+                        payload.player_1,
                     ),
                     self,
                     self.coordination_manager,

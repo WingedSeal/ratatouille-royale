@@ -15,6 +15,7 @@ class GestureType(Enum):
     """
 
     CLICK = _BASE + 1
+    RIGHT_CLICK = _BASE + 1
     DRAG_START = _BASE + 2
     DRAG = _BASE + 3
     DRAG_END = _BASE + 4
@@ -63,6 +64,8 @@ def inspect_gesture_events(events: list[pygame.event.Event]) -> None:
             print("Hold initiated")
         elif e.type == GestureType.CLICK.value:
             print("Click detected")
+        elif e.type == GestureType.RIGHT_CLICK.value:
+            print("Right Click detected")
         elif e.type == GestureType.SWIPE.value:
             print("Swipe detected")
         elif e.type == GestureType.HOVER.value:
