@@ -40,7 +40,8 @@ class SpritesheetComponent:
         if key in self._scale_cache:
             return self._scale_cache[key]
 
-        scaled_frame = pygame.transform.scale(current_frame, (target_w, target_h))
+        surf = current_frame.convert_alpha()
+        scaled_frame = pygame.transform.smoothscale(surf, (target_w, target_h))
         aligned_surface = pygame.Surface((target_w, target_h), pygame.SRCALPHA)
         aligned_surface.blit(scaled_frame, (0, 0))
         self._scale_cache[key] = aligned_surface
