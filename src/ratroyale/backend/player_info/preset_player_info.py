@@ -79,7 +79,9 @@ def get_demo_player_info() -> PlayerInfo:
 __ai_demo_player_info = get_demo_player_info()
 __ai_demo_player_info.is_progression_frozen = True
 
-AI_PLAYER_INFO: Final[dict[Literal["Balanced", "Demo"], PlayerInfo]] = {
+AIPlayerInfo = Literal["Balanced", "Demo"]
+
+AI_PLAYER_INFO: Final[dict[AIPlayerInfo, PlayerInfo]] = {
     "Balanced": _make_ai_player_info(
         {
             TAILBLAZER: 3,

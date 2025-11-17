@@ -32,7 +32,7 @@ class MainMenu(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
-        self.player_info: PlayerInfo | None = None
+        self.player_1_info: PlayerInfo | None = None
         super().__init__(coordination_manager, theme_name="main_menu", camera=camera)
 
     def define_initial_gui(self) -> list[ElementWrapper]:
@@ -158,11 +158,11 @@ class MainMenu(Page):
     def on_start_click(self, msg: pygame.event.Event) -> None:
         self.post(PageNavigationEvent(action_list=[(PageNavigation.CLOSE_ALL, None)]))
         self.open_page("ChoosePlayer")
-        assert self.player_info is not None
+        assert self.player_1_info is not None
         self.post(
             PageCallbackEvent(
                 "send_player_info",
-                payload=PlayerInfoPayload(self.player_info, self.player_info_path),
+                payload=PlayerInfoPayload(self.player_1_info, self.player_1_path),
             )
         )
 
@@ -197,15 +197,15 @@ class MainMenu(Page):
     @callback_event_bind("set_player_info")
     def _set_player_info(self, event: PageCallbackEvent) -> None:
         assert isinstance(event.payload, PlayerInfoPayload)
-        self.player_info = event.payload.player_info
-        self.player_info_path = event.payload.path
+        self.player_1_info = event.payload.player_1_info
+        self.player_1_path = event.payload.player_1_path
         self._element_manager.get_element("player_name_label").get_interactable(
             pygame_gui.elements.UILabel
-        ).set_text(event.payload.path.stem)
+        ).set_text(event.payload.player_1_path.stem)
         self._element_manager.get_element("player_level_label").get_interactable(
             pygame_gui.elements.UILabel
-        ).set_text(f"Level: {self.player_info.get_level()}")
-        exp_leftover, exp_required_in_this_level = self.player_info.get_exp_progress()
+        ).set_text(f"Level: {self.player_1_info.get_level()}")
+        exp_leftover, exp_required_in_this_level = self.player_1_info.get_exp_progress()
         progress_bar = self._element_manager.get_element(
             "player_progress_bar"
         ).get_interactable(pygame_gui.elements.UIProgressBar)
@@ -214,4 +214,26 @@ class MainMenu(Page):
         )
         self._element_manager.get_element("cheese_label").get_interactable(
             pygame_gui.elements.UILabel
-        ).set_text(f"{self.player_info.cheese}")
+        ).set_text(f"{self.player_1_info.cheese}")
+
+    # @callback_event_bind("set_player_info")
+    # def _set_player_info(self, event: PageCallbackEvent) -> None:
+    #     assert isinstance(event.payload, BothPlayerInfoPayload)
+    #     self.player_1_info = event.payload.player_1_info
+    #     self.player_1_path = event.payload.player_1_path
+    #     self._element_manager.get_element("player_name_label").get_interactable(
+    #         pygame_gui.elements.UILabel
+    #     ).set_text(event.payload.player_1_path.stem)
+    #     self._element_manager.get_element("player_level_label").get_interactable(
+    #         pygame_gui.elements.UILabel
+    #     ).set_text(f"Level: {self.player_1_info.get_level()}")
+    #     exp_leftover, exp_required_in_this_level = self.player_1_info.get_exp_progress()
+    #     progress_bar = self._element_manager.get_element(
+    #         "player_progress_bar"
+    #     ).get_interactable(pygame_gui.elements.UIProgressBar)
+    #     progress_bar.set_current_progress(
+    #         exp_leftover * 100 / exp_required_in_this_level
+    #     )
+    #     self._element_manager.get_element("cheese_label").get_interactable(
+    #         pygame_gui.elements.UILabel
+    #     ).set_text(f"{self.player_1_info.cheese}")
