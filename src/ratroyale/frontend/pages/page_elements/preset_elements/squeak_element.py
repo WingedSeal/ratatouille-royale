@@ -87,7 +87,7 @@ class SqueakElement(ElementWrapper):
         # Render cost text
         squeak_cost = squeak.crumb_cost
         squeak_cost_text = self.font.render(
-            str(squeak_cost), False, pygame.Color(255, 255, 255)
+            str(squeak_cost), False, pygame.Color("black")
         )
         # Compute cost rect anchored to bottom-right of card
         cost_width, cost_height = squeak_cost_text.get_size()
@@ -117,7 +117,7 @@ class SqueakElement(ElementWrapper):
 
     def _temp_name_generator(self) -> ElementWrapper:
         name_text = italic_bold_arial.render(
-            str(self.squeak.name), False, pygame.Color(255, 255, 255)
+            str(self.squeak.name), False, pygame.Color("black")
         )
         name_element = ElementWrapper(
             registered_name="squeakname_" + str(uuid.uuid4()),
