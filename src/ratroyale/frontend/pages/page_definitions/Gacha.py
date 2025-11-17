@@ -55,7 +55,7 @@ class GachaPage(Page):
                     class_id="CurrencyLabel", object_id="currency_label"
                 ),
             ),
-            registered_name="back_button",
+            registered_name="currency_label",
             camera=self.camera,
         )
         gui_elements.append(currency_label)
