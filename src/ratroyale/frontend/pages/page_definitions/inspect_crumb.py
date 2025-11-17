@@ -1,4 +1,3 @@
-from threading import Timer
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
@@ -237,24 +236,23 @@ class InspectCrumb(Page):
 
         self.scroll_container.set_scrollable_area_dimensions((base_x, 140))
 
-        if payload.jump_to_turn is None:
-            return
-        # --- find the target turn panel ---
-        scrollable_surface = self.scroll_container.scrollable_container
-        visible_width = self.scroll_container.relative_rect.width
+        if payload.jump_to_turn is not None and self.scroll_container.horiz_scroll_bar:
+            target_panel = self.turn_panels[payload.jump_to_turn - payload.turn_number]
+            visible_width = self.scroll_container.relative_rect.width
+            scrollable_width = (
+                self.scroll_container.scrollable_container.relative_rect.width
+            )
 
-        target_panel = self.turn_panels[payload.jump_to_turn - payload.turn_number]
-        panel_x = target_panel.relative_rect.x
-        panel_w = target_panel.relative_rect.width
+            # Center target panel in view
+            center_offset = (
+                target_panel.relative_rect.centerx
+                - visible_width
+                + target_panel.rect.width / 2
+            )
+            max_scroll = max(0, scrollable_width - visible_width)
 
-        # --- compute offset so that target is centered in view ---
-        new_scroll_x = panel_x + panel_w / 2 - visible_width / 2
-
-        # clamp within valid range
-        max_scroll = max(0, scrollable_surface.relative_rect.width - visible_width)
-        new_scroll_x = max(0, min(new_scroll_x, max_scroll))
-
-        # --- move the inner container (jump instantly) ---
-        Timer(
-            0.2, lambda: scrollable_surface.set_relative_position((-new_scroll_x, 0))
-        ).start()  # FIXME: It wouldn't work without delay but this is a recipe for diaster.
+            if max_scroll > 0:
+                scroll_percentage = max(0, min(center_offset / max_scroll, 1))
+                self.scroll_container.horiz_scroll_bar.set_scroll_from_start_percentage(
+                    scroll_percentage
+                )
