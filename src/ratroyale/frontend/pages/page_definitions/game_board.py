@@ -744,7 +744,7 @@ class GameBoard(Page):
                 if selected_squeaks:
                     self.return_squeak_to_hand(selected_squeaks[0])
 
-            self._element_manager.deselect_all("SELECTMASK")
+            # self._element_manager.deselect_all("SELECTMASK")
             self._element_manager.deselect_all("AVAILABLEMASK")
 
             self.camera.end_drag()  # HACK: Im not sure how but this seems to fix the jumping issue in tandem to the other HACK fix.
