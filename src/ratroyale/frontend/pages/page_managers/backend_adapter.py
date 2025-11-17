@@ -317,8 +317,8 @@ class BackendAdapter:
     def handle_update_after_game_over(self, event: GameManagerEvent) -> None:
         payload = event.payload
         assert isinstance(payload, PlayerInfoPayload)
-        player_info = payload.player_info
-        player_info_path = payload.path
+        player_info = payload.player_1_info
+        player_info_path = payload.player_1_path
         assert player_info_path is not None
         player_info.to_file(player_info_path)
 

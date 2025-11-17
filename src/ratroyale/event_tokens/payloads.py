@@ -160,5 +160,5 @@ class SaveFilesPayload(Payload):
 
 @dataclass
 class PlayerInfoPayload(Payload):
-    player_info: PlayerInfo
-    path: Path
+    player_1_info: PlayerInfo
+    player_1_path: Path

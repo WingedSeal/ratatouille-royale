@@ -123,14 +123,20 @@ class PlayerProfile(Page):
             )
 
             # === SELECT & DELETE ===
-            pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(150, y_offset + 65, 120, 35),
-                text="SELECT",
-                manager=self.gui_manager,
-                container=scroll_container,
-                object_id=pygame_gui.core.ObjectID(
-                    class_id="SelectButton", object_id=f"select_button_{index}"
-                ),
+            self._element_manager.add_element(
+                ui_element_wrapper(
+                    pygame_gui.elements.UIButton(
+                        relative_rect=pygame.Rect(150, y_offset + 65, 120, 35),
+                        text="SELECT",
+                        manager=self.gui_manager,
+                        container=scroll_container,
+                        object_id=pygame_gui.core.ObjectID(
+                            class_id="SelectButton", object_id=f"select_button_{index}"
+                        ),
+                    ),
+                    f"select_button_{index}",
+                    self.camera,
+                )
             )
 
             pygame_gui.elements.UIButton(
@@ -195,6 +201,15 @@ class PlayerProfile(Page):
         self.post(
             PageCallbackEvent(
                 "set_player_info",
+                payload=PlayerInfoPayload(
+                    selected_player_info, self.save_files[button_index]
+                ),
+            )
+        )
+        print("setting")
+        self.post(
+            PageCallbackEvent(
+                "set_player_info2",
                 payload=PlayerInfoPayload(
                     selected_player_info, self.save_files[button_index]
                 ),
