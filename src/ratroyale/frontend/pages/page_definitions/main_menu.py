@@ -11,7 +11,6 @@ from ratroyale.frontend.pages.page_managers.event_binder import (
 )
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
-from ratroyale.backend.side import Side
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
@@ -21,38 +20,10 @@ from ratroyale.frontend.pages.page_elements.spatial_component import (
 )
 
 from ..page_managers.base_page import Page
-from ratroyale.backend.map import Map
 
 from ratroyale.backend.player_info.player_info import PlayerInfo
 from ratroyale.event_tokens.payloads import PlayerInfoPayload
 from ratroyale.event_tokens.page_token import PageCallbackEvent
-
-
-def _temp_get_map():  # type: ignore
-    from ratroyale.backend.hexagon import OddRCoord
-    from ratroyale.backend.features.common import DeploymentZone, Lair
-    from ratroyale.backend.map import heights_to_tiles
-
-    size = 10
-    return Map(
-        "Example Map",
-        size,
-        size,
-        heights_to_tiles([[1 for i in range(size)] for i in range(size)]),
-        entities=[],
-        features=[
-            Lair([OddRCoord(0, 0)], 10, side=Side.MOUSE),
-            Lair([OddRCoord(size - 1, size - 1)], 10, side=Side.RAT),
-            DeploymentZone(shape=[OddRCoord(0, 1), OddRCoord(1, 0)], side=Side.MOUSE),
-            DeploymentZone(
-                shape=[
-                    OddRCoord(size - 2, size - 1),
-                    OddRCoord(size - 1, size - 2),
-                ],
-                side=Side.RAT,
-            ),
-        ],
-    )
 
 
 # TODO: make helpers to make button registration easier

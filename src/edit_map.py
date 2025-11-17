@@ -2,8 +2,9 @@ import black
 import re
 from pathlib import Path
 from ratroyale.backend.map import Map
+from ratroyale.game_data import RRMAPS_DIR_PATH
 
-MAP_DIRECTORY = Path(__file__).parent / "ratroyale/map_file"
+MAP_DIRECTORY = RRMAPS_DIR_PATH
 MAP_MAKING_KIT_DIRECTORY = Path(__file__).parents[1] / "Tiled/rrmap-making-kit"
 
 

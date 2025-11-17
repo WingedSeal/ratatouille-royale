@@ -234,7 +234,6 @@ class BackendAdapter:
 
     def handle_end_turn_event(self, event: GameEvent) -> None:
         assert isinstance(event, EndTurnEvent)
-        print(event.__str__())
         self.coordination_manager.put_message(
             PageCallbackEvent(callback_action="end_turn")
         )
@@ -247,26 +246,21 @@ class BackendAdapter:
 
     def handle_squeak_placed_event(self, event: GameEvent) -> None:
         assert isinstance(event, SqueakPlacedEvent)
-        print(event.__str__())
 
     def handle_squeak_set_reset_event(self, event: GameEvent) -> None:
         assert isinstance(event, SqueakSetResetEvent)
-        print(event.__str__())
 
     def handle_entity_die_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntityDieEvent)
-        print(event.__str__())
         CoordinationManager.put_message(
             PageCallbackEvent("entity_died", payload=EntityPayload(event.entity))
         )
 
     def handle_feature_die_event(self, event: GameEvent) -> None:
         assert isinstance(event, FeatureDieEvent)
-        print(event.__str__())
 
     def handle_entity_damaged_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntityDamagedEvent)
-        print(event.__str__())
         CoordinationManager.put_message(
             PageCallbackEvent(
                 "entity_damaged",
@@ -281,19 +275,15 @@ class BackendAdapter:
 
     def handle_entity_healed_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntityHealedEvent)
-        print(event.__str__())
 
     def handle_feature_damaged_event(self, event: GameEvent) -> None:
         assert isinstance(event, FeatureDamagedEvent)
-        print(event.__str__())
 
     def handle_entity_effect_update_event(self, event: GameEvent) -> None:
         assert isinstance(event, EntityEffectUpdateEvent)
-        print(event.__str__())
 
     def handle_game_over_event(self, event: GameEvent) -> None:
         assert isinstance(event, GameOverEvent)
-        print(event.__str__())
         CoordinationManager.put_message(
             PageCallbackEvent(
                 "game_over",

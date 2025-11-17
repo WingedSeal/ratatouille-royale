@@ -1,6 +1,6 @@
 import random
 
-from ratroyale.backend.player_info.squeaks.tricks.offense import SUNDIAL
+from .squeaks.tricks.offense import SUNDIAL
 from .squeaks.rodents.vanguard import TAILBLAZER
 import sys
 from .squeaks.rodents.tank import CRACKER

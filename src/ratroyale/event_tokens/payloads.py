@@ -25,7 +25,7 @@ class BackendStartPayload(Payload):
     map: Map
     player_info1: PlayerInfo
     player_info2: PlayerInfo
-    first_turn: Side
+    player_1: Side
     ai_type: type[BaseAI] | None
 
 
@@ -137,8 +137,10 @@ class FeaturePayload(Payload):
 @dataclass
 class TurnPayload(Payload):
     turn_number: int
+    current_turn_number: int
     current_side: Side
     crumbs_modifier: CrumbsPerTurnModifier
+    jump_to_turn: int | None = None
 
 
 @dataclass
