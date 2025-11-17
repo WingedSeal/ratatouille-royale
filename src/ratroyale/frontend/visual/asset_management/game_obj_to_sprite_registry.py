@@ -181,7 +181,6 @@ for i, (rodent_type, squeak) in enumerate(
         {"IDLE": [i], "HURT": [i], "DIE": [i]},
         60,
     )
-    print(type(squeak).__name__)
     SQUEAK_IMAGE_METADATA_REGISTRY[squeak] = SpritesheetMetadata(
         str(uuid4()),
         SPRITES_DIR_PATH / "rodent_second_set.jpg",
