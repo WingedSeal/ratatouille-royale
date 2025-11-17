@@ -457,8 +457,8 @@ class GameBoard(Page):
         else:
             raise RuntimeError(f"Failed to start game: {msg.error_msg}")
 
-    @callback_event_bind("can_show_skill_panel_or_not")
-    def can_show_skill_panel_or_not_response(self, msg: PageCallbackEvent) -> None:
+    @callback_event_bind("can_give_commands_or_not")
+    def can_give_commands_or_not_response(self, msg: PageCallbackEvent) -> None:
         if not (msg.success and msg.payload):
             return
 
@@ -474,10 +474,11 @@ class GameBoard(Page):
 
         # Only allow showing the panel if the entity belongs to the side whose turn it is
         if payload.entity.side != current_side:
+            self.post(PageCallbackEvent("can_give_commands", success=False))
             return
 
         # Post event to actually show panel
-        self.post(PageCallbackEvent("can_show_skill_panel"))
+        self.post(PageCallbackEvent("can_give_commands", success=True))
 
     @callback_event_bind("handle_squeak_placable_tiles")
     def _handle_squeak_placable_tiles(self, msg: PageCallbackEvent) -> None:
