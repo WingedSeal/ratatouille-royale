@@ -383,12 +383,10 @@ class GameBoard(Page):
 
             for feature in features:
                 feature_element_ids = []
-                coord_list = feature.shape
-                if coord_list:
-                    for coord in coord_list:
-                        feature_element = FeatureElement(feature, coord, self.camera)
-                        feature_element_ids.append(feature_element.registered_name)
-                        element_configs.append(feature_element)
+
+                feature_element = FeatureElement(feature, coord, self.camera)
+                feature_element_ids.append(feature_element.registered_name)
+                element_configs.append(feature_element)
                 self.feature_to_element_id_mapping[id(feature)] = feature_element_ids
 
             player1_squeak_list = payload.player1_squeaks
@@ -447,9 +445,6 @@ class GameBoard(Page):
                     slot,
                     hide_slot,
                 ]
-
-                print("Player1 Squeak IDs:", squeak1.ids)
-                print("Player2 Squeak IDs:", squeak2.ids)
 
             self.setup_elements(element_configs)
 

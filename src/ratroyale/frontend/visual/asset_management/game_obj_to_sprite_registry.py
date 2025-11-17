@@ -158,6 +158,14 @@ FEATURE_SPRITE_METADATA: dict[int, SpritesheetMetadata] = {
     ),
 }
 
+FEATURE_SPRITE_PATH: dict[int, Path] = {
+    2: ASSET_DIR / "tilesets/carpet.png",
+    3: ASSET_DIR / "tilesets/crumbs.png",
+}
+
+RED_LAIR_PATH = ASSET_DIR / "tilesets/Lair-red.png"
+BLUE_LAIR_PATH = ASSET_DIR / "tilesets/Lair-blue.png"
+
 MISC_SPRITE_METADATA: dict[str, SpritesheetMetadata] = {
     "HealthIcon": SpritesheetMetadata(
         "HEALTH_ICON", ASSET_DIR / "HealthIcon.png", (20, 18), {"NONE": [0]}

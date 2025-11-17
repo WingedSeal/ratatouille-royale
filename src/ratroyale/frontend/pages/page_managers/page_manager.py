@@ -243,7 +243,7 @@ class PageManager:
     def execute_page_callback(self) -> None:
         msg_queue = self.coordination_manager.mailboxes[PageManagerEvent]
         while not msg_queue.empty():
-            msg = msg_queue.get()
+            msg = msg_queue.get_nowait()
             if isinstance(msg, PageNavigationEvent):
                 self._navigate(msg)
             elif isinstance(msg, PageCallbackEvent):

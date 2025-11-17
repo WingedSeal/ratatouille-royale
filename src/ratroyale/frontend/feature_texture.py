@@ -1,6 +1,7 @@
 import pygame
 import math
 from enum import IntEnum
+from pathlib import Path
 
 from ratroyale.backend.hexagon import OddRCoord
 
@@ -135,6 +136,30 @@ def generate_feature_surface(
             surface.blit(temp_surf, (0, 0))
 
     return surface
+
+
+def load_three_tiles(
+    path: Path,
+) -> tuple[pygame.Surface, pygame.Surface, pygame.Surface]:
+    """
+    Load an image containing 3 horizontal 100x100 tiles
+    and return a tuple of 3 separate Surfaces.
+    """
+    full_img = pygame.image.load(path).convert_alpha()
+
+    tile_width = 100
+    tile_height = 100
+
+    t0 = pygame.Surface((tile_width, tile_height), pygame.SRCALPHA)
+    t0.blit(full_img, (0, 0), pygame.Rect(0, 0, tile_width, tile_height))
+
+    t1 = pygame.Surface((tile_width, tile_height), pygame.SRCALPHA)
+    t1.blit(full_img, (0, 0), pygame.Rect(100, 0, tile_width, tile_height))
+
+    t2 = pygame.Surface((tile_width, tile_height), pygame.SRCALPHA)
+    t2.blit(full_img, (0, 0), pygame.Rect(200, 0, tile_width, tile_height))
+
+    return (t0, t1, t2)
 
 
 def __create_example_textures(

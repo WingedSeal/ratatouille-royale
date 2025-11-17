@@ -3,11 +3,11 @@ from ..spatial_component import Camera
 from ratroyale.backend.feature import Feature
 from ratroyale.backend.hexagon import OddRCoord
 from ....visual.asset_management.game_obj_to_sprite_registry import (
-    DUMMY_TEXTURE_METADATA,
-    FEATURE_SPRITE_METADATA,
     TYPICAL_TILE_SIZE,
+    FEATURE_SPRITE_PATH,
+    RED_LAIR_PATH,
+    BLUE_LAIR_PATH,
 )
-from ....visual.asset_management.spritesheet_manager import SpritesheetManager
 from ....visual.anim.core.anim_structure import SequentialAnim
 from ..spatial_component import SpatialComponent
 from ..hitbox import HexHitbox
@@ -20,6 +20,8 @@ from ....visual.anim.presets.presets import (
     entity_die,
     hurt_particle_motion,
 )
+from ....feature_texture import generate_feature_surface, load_three_tiles
+from ratroyale.backend.side import Side
 
 import pygame
 
@@ -29,23 +31,39 @@ italic_bold_arial = pygame.font.SysFont("Arial", 30, bold=True, italic=True)
 
 class FeatureElement(ElementWrapper):
     def __init__(self, feature: Feature, coord: OddRCoord, camera: Camera):
-        sprite_metadata = FEATURE_SPRITE_METADATA.get(
-            feature.FEATURE_ID(), DUMMY_TEXTURE_METADATA
-        )
-        spritesheet_name = SpritesheetManager.register_spritesheet(
-            sprite_metadata
-        ).get_key()
+        relative_shape, origin = feature.get_relative_shape_and_origin()
+        feature_id = feature.FEATURE_ID()
+
+        if feature_id == 1:
+            if feature.side == Side.RAT:
+                feature_surface = generate_feature_surface(
+                    relative_shape,
+                    load_three_tiles(RED_LAIR_PATH),
+                    TYPICAL_TILE_SIZE[0],
+                )
+            else:
+                feature_surface = generate_feature_surface(
+                    relative_shape,
+                    load_three_tiles(BLUE_LAIR_PATH),
+                    TYPICAL_TILE_SIZE[0],
+                )
+        else:
+            feature_surface = generate_feature_surface(
+                relative_shape,
+                load_three_tiles(FEATURE_SPRITE_PATH[feature_id]),
+                TYPICAL_TILE_SIZE[0],
+            )
 
         super().__init__(
             registered_name=f"feature_{id(feature)}_portion_{uuid.uuid4()}",
             grouping_name="FEATURE",
             camera=camera,
             spatial_component=SpatialComponent(
-                FeatureElement._define_tile_rect(coord), space_mode="WORLD", z_order=5
+                FeatureElement._compute_map_rect(feature), space_mode="WORLD", z_order=5
             ),
             interactable_component=HexHitbox(),
             visual_component=VisualComponent(
-                SpritesheetComponent(spritesheet_reference=spritesheet_name),
+                SpritesheetComponent(spritesheet_reference=feature_surface),
                 "NONE",
             ),
         )
@@ -109,3 +127,14 @@ class FeatureElement(ElementWrapper):
         anim = entity_die(self, self.spatial_component, self.camera)
 
         return (self, anim)
+
+    @staticmethod
+    def _compute_map_rect(feature: Feature) -> pygame.Rect:
+        rects = [FeatureElement._define_tile_rect(tile) for tile in feature.shape]
+        if not rects:
+            return pygame.Rect(0, 0, 0, 0)
+        min_x = min(r.left for r in rects)
+        min_y = min(r.top for r in rects)
+        max_x = max(r.right for r in rects)
+        max_y = max(r.bottom for r in rects)
+        return pygame.Rect(min_x, min_y, max_x - min_x, max_y - min_y)
