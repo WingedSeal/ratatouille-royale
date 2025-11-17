@@ -47,7 +47,7 @@ def get_demo_player_info() -> PlayerInfo:
     squeak_set = {
         TAILBLAZER: 1,
         TAILTRAIL: 2,
-        PEA_PEA_POOL_POOL: 40,
+        PEA_PEA_POOL_POOL: 4,
         RATBERT_BREWBELLY: 3,
         CRACKER: 3,
         MORTAR: 2,

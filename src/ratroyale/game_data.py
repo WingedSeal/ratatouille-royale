@@ -15,6 +15,7 @@ ICONS_DIR_PATH = DATA_DIR_PATH / "icons"
 RRMAPS_DIR_PATH = DATA_DIR_PATH / "rrmaps"
 TILESETS_DIR_PATH = DATA_DIR_PATH / "tilesets"
 OTHER_IMAGES_PATH = DATA_DIR_PATH / "other_images"
+THEMES_PATH = DATA_DIR_PATH / "themes"
 RRSAVES_DIR_PATH = DATA_DIR_PATH / "saves"
 
 
@@ -29,8 +30,6 @@ def init_data() -> None:
             raise Exception("A non-directory exists in assets directory.")
         source_name = item.name
         destination_path = DATA_DIR_PATH / source_name
-        if destination_path.exists():
-            continue
 
         with pkg_resources.as_file(item) as source_path:
             shutil.copytree(source_path, destination_path)
