@@ -49,6 +49,7 @@ from ratroyale.event_tokens.payloads import (
     GameSetupPayload,
     PlayableTilesPayload,
     AbilityTargetPayload,
+    PlayerInfoPayload,
 )
 from ratroyale.backend.game_event import (
     EndTurnEvent,
@@ -300,6 +301,12 @@ class GameBoard(Page):
         who_won = event.victory_side
 
         print(who_won)
+        self.post(
+            GameManagerEvent(
+                "update_after_game_over",
+                payload=PlayerInfoPayload(self.player_1_info, self.player_1_info_path),
+            )
+        )
         self.is_game_over = True
 
         # self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
@@ -882,4 +889,8 @@ class GameBoard(Page):
 
     # endregion
 
-    # endregion
+    @callback_event_bind("game_board_player_info")
+    def _set_player_1_info(self, event: PageCallbackEvent) -> None:
+        assert isinstance(event.payload, PlayerInfoPayload)
+        self.player_1_info = event.payload.player_info
+        self.player_1_info_path = event.payload.path

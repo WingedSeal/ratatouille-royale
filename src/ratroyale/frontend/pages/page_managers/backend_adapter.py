@@ -22,6 +22,7 @@ from ratroyale.event_tokens.payloads import (
     GameOverPayload,
     SidePayload,
     DeckPayload,
+    PlayerInfoPayload,
 )
 from ratroyale.backend.game_event import (
     GameEvent,
@@ -60,6 +61,8 @@ class BackendAdapter:
             "skill_canceled": self.handle_skill_canceled,
             "inspect_deck_clicked": self.handle_inspect_deck_clicked,
             "get_player_1": self.handle_get_player_1,
+            "update_after_game_over": self.handle_update_after_game_over,
+            "gacha": self.handle_gacha,
         }
 
     def execute_backend_callback(self) -> None:
@@ -310,3 +313,13 @@ class BackendAdapter:
                 payload=SidePayload(side=player_1_side),
             )
         )
+
+    def handle_update_after_game_over(self, event: GameManagerEvent) -> None:
+        payload = event.payload
+        assert isinstance(payload, PlayerInfoPayload)
+        player_info = payload.player_info
+        player_info_path = payload.path
+        assert player_info_path is not None
+        player_info.to_file(player_info_path)
+
+    def handle_gacha(self, event: GameManagerEvent) -> None: ...
