@@ -1,7 +1,7 @@
 import pygame
 
 # Should actually be floats but I don't have the energy to deal with this right now.
-DIAG: int = 100
+DIAG: int = 80
 SCREEN_RATIO: tuple[int, int] = (16, 9)
 
 SCREEN_SIZE: tuple[int, int] = (

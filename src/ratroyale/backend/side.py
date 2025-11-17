@@ -12,6 +12,13 @@ class Side(Enum):
             return Side.RAT
         raise ValueError("Unreachable")
 
+    def to_string(self) -> str:
+        match self:
+            case Side.RAT:
+                return "Rat"
+            case Side.MOUSE:
+                return "Mouse"
+
     @classmethod
     def from_int(cls, value: int) -> "Side | None":
         if value == 0:

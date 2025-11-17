@@ -1,7 +1,9 @@
+import math
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
 
 from ..page_managers.base_page import Page
@@ -42,7 +44,9 @@ class InspectDeckPage(Page):
         # region Card Panel + Card buttons
         deck_panel_id = "inspect_deck_panel"
         deck_panel = pygame_gui.elements.UIPanel(
-            relative_rect=pygame.Rect(100, 100, 600, 400),
+            relative_rect=pygame.Rect(
+                100, 100, SCREEN_SIZE[0] - 200, SCREEN_SIZE[1] - 200
+            ),
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="InspectDeckPanel", object_id="panel_event"
@@ -53,7 +57,12 @@ class InspectDeckPage(Page):
 
         # Nested button inside the panel
         pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect(250, 350, 100, 40),
+            relative_rect=pygame.Rect(
+                (deck_panel.relative_rect.width - 40) / 2,
+                deck_panel.relative_rect.height - 50,
+                100,
+                40,
+            ),
             text="Close",
             manager=self.gui_manager,
             container=deck_panel,
@@ -73,14 +82,45 @@ class InspectDeckPage(Page):
         deck = msg.payload.deck
         deck_panel = self._element_manager.get_element("inspect_deck_panel")
         deck_panel_object = deck_panel.get_interactable(pygame_gui.elements.UIPanel)
+        scroll_container = pygame_gui.elements.UIScrollingContainer(
+            relative_rect=pygame.Rect(
+                0,
+                0,
+                deck_panel_object.relative_rect.width,
+                deck_panel_object.relative_rect.height - 60,
+            ),
+            manager=self.gui_manager,
+            allow_scroll_y=True,
+            allow_scroll_x=False,
+            container=deck_panel_object,
+            object_id=pygame_gui.core.ObjectID(
+                class_id="DeckScrollArea", object_id="deck_scroll_area"
+            ),
+        )
+        CARD_WIDTH = 200
+        CARD_HEIGHT = 70
+        MARGIN = 10
+        CARD_PER_ROW = max(
+            (deck_panel_object.relative_rect.width - MARGIN) // (CARD_WIDTH + MARGIN), 1
+        )
+        ROW_COUNT = math.ceil(len(deck) / CARD_PER_ROW)
+        scroll_container.set_scrollable_area_dimensions(
+            (
+                scroll_container.relative_rect.width,
+                MARGIN + (ROW_COUNT * CARD_HEIGHT) + (ROW_COUNT * MARGIN),
+            )
+        )
         for card_index, squeak in enumerate(deck):
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(
-                    10 + card_index % 9 * 60, 10 + (card_index // 9) * 80, 50, 70
+                    MARGIN + card_index % CARD_PER_ROW * (CARD_WIDTH + MARGIN),
+                    MARGIN + (card_index // CARD_PER_ROW) * (CARD_HEIGHT + MARGIN),
+                    CARD_WIDTH,
+                    CARD_HEIGHT,
                 ),
                 text=f"{squeak.name}",
                 manager=self.gui_manager,
-                container=deck_panel_object,
+                container=scroll_container,
                 object_id=pygame_gui.core.ObjectID(
                     class_id="Card",
                     object_id=f"card{card_index}",

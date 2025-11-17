@@ -242,8 +242,6 @@ class GameBoard(Page):
         assert isinstance(squeak_element, SqueakElement)
         targeted_set.insert(hand_index, squeak_element.registered_name)
 
-        print("INSERTION:", self.game_state, squeak_element.registered_name)
-
     @game_event_bind(EntityDamagedEvent)
     def entity_damaged_event(self, event: EntityDamagedEvent) -> None:
         """Plays entity damaged animation."""
@@ -302,7 +300,6 @@ class GameBoard(Page):
         who_won = event.victory_side
 
         print(who_won)
-
         self.is_game_over = True
 
         # self.post(PageNavigationEvent([(PageNavigation.OPEN, "GameOver")]))
@@ -535,7 +532,6 @@ class GameBoard(Page):
                 self.temp_skill_target_count = info.target_count
             else:
                 # TODO: relay information to alert page
-                print(info)
                 self.post(
                     PageNavigationEvent(
                         [(PageNavigation.CLOSE, "SelectTargetPromptPage")]
@@ -669,7 +665,8 @@ class GameBoard(Page):
     # region Squeak Related Events
 
     @input_event_bind("squeak", GestureType.HOLD.to_pygame_event())
-    def squeak_hold_inspect(self, msg: pygame.event.Event) -> None:
+    @input_event_bind("squeak", GestureType.RIGHT_CLICK.to_pygame_event())
+    def squeak_inspect(self, msg: pygame.event.Event) -> None:
         squeak_payload = get_payload_from_msg(msg, SqueakPayload)
         self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectSqueak")]))
         self.post(PageCallbackEvent("squeak_data", payload=squeak_payload))

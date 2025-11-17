@@ -27,8 +27,13 @@ from ratroyale.backend.player_info.squeaks.rodents.duelist import (
 from ratroyale.backend.player_info.squeaks.rodents.specialist import MAYO, THE_ONE
 from ratroyale.backend.player_info.squeaks.rodents.tank import CRACKER
 from uuid import uuid4
+from ratroyale.game_data import (
+    ICONS_DIR_PATH,
+    OTHER_IMAGES_PATH,
+    SPRITES_DIR_PATH,
+    TILESETS_DIR_PATH,
+)
 
-ASSET_DIR = Path(__file__).resolve().parent.parent / "asset"
 
 TYPICAL_TILE_SIZE = (64, 64)
 
@@ -55,7 +60,7 @@ class TilesetMetadata:
 
 DUMMY_TEXTURE_METADATA: SpritesheetMetadata = SpritesheetMetadata(
     "DUMMY",
-    ASSET_DIR / "missingTexture.jpg",
+    OTHER_IMAGES_PATH / "missingTexture.jpg",
     (749, 745),
     {"NONE": [0], "HURT": [0]},
     60,
@@ -152,14 +157,14 @@ for i, (rodent_type, squeak) in enumerate(
 ):
     SPRITE_METADATA_REGISTRY[rodent_type] = SpritesheetMetadata(
         rodent_type.__name__,
-        ASSET_DIR / "rodent/rodent_first_set.jpg",
+        SPRITES_DIR_PATH / "rodent_first_set.jpg",
         (436, 434),
         {"IDLE": [i], "HURT": [i], "DIE": [i]},
         60,
     )
     SQUEAK_IMAGE_METADATA_REGISTRY[squeak] = SpritesheetMetadata(
         str(uuid4()),
-        ASSET_DIR / "rodent/rodent_first_set.jpg",
+        SPRITES_DIR_PATH / "rodent_first_set.jpg",
         (436, 434),
         {"NONE": [i]},
         60,
@@ -171,7 +176,7 @@ for i, (rodent_type, squeak) in enumerate(
 ):
     SPRITE_METADATA_REGISTRY[rodent_type] = SpritesheetMetadata(
         rodent_type.__name__,
-        ASSET_DIR / "rodent/rodent_second_set.jpg",
+        SPRITES_DIR_PATH / "rodent_second_set.jpg",
         (347, 347),
         {"IDLE": [i], "HURT": [i], "DIE": [i]},
         60,
@@ -179,7 +184,7 @@ for i, (rodent_type, squeak) in enumerate(
     print(type(squeak).__name__)
     SQUEAK_IMAGE_METADATA_REGISTRY[squeak] = SpritesheetMetadata(
         str(uuid4()),
-        ASSET_DIR / "rodent/rodent_second_set.jpg",
+        SPRITES_DIR_PATH / "rodent_second_set.jpg",
         (347, 347),
         {"NONE": [i]},
         60,
@@ -189,7 +194,7 @@ for i, (rodent_type, squeak) in enumerate(
 TILESET_MAP: dict[str, TilesetMetadata] = {
     "Starting Kitchen": TilesetMetadata(
         "Starting Kitchen",
-        ASSET_DIR / "tilesets/starting-kitchen.png",
+        TILESETS_DIR_PATH / "starting-kitchen.png",
         (100, 100),
         row=10,
         col=8,
@@ -222,18 +227,21 @@ def get_spritesheet_metadata(
 
 
 FEATURE_SPRITE_PATH: dict[int, Path] = {
-    2: ASSET_DIR / "tilesets/carpet.png",
-    3: ASSET_DIR / "tilesets/crumbs.png",
+    2: TILESETS_DIR_PATH / "carpet.png",
+    3: TILESETS_DIR_PATH / "crumbs.png",
 }
 
-RED_LAIR_PATH = ASSET_DIR / "tilesets/Lair-red.png"
-BLUE_LAIR_PATH = ASSET_DIR / "tilesets/Lair-blue.png"
+RED_LAIR_PATH = TILESETS_DIR_PATH / "Lair-red.png"
+BLUE_LAIR_PATH = TILESETS_DIR_PATH / "Lair-blue.png"
 
 MISC_SPRITE_METADATA: dict[str, SpritesheetMetadata] = {
     "HealthIcon": SpritesheetMetadata(
-        "HEALTH_ICON", ASSET_DIR / "HealthIcon.png", (20, 18), {"NONE": [0]}
+        "HEALTH_ICON", ICONS_DIR_PATH / "HealthIcon.png", (20, 18), {"NONE": [0]}
     ),
     "MoveStaminaIcon": SpritesheetMetadata(
-        "MOVE_STAMINA_ICON", ASSET_DIR / "MoveStaminaIcon.png", (16, 22), {"NONE": [0]}
+        "MOVE_STAMINA_ICON",
+        ICONS_DIR_PATH / "MoveStaminaIcon.png",
+        (16, 22),
+        {"NONE": [0]},
     ),
 }

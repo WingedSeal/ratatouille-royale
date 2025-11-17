@@ -70,6 +70,7 @@ class GameInfoPage(Page):
         self.move_history_buttons: list[str] = []
         self.button_move_data: dict[str, MoveEntry] = {}
         self.button_feature_data: dict[str, Feature] = {}
+        self.end_turn_button: pygame_gui.elements.UIButton | None = None
         # self.font = self.gui_manager.get_theme().get_font_dictionary().get_default_font()
         super().__init__(coordination_manager, camera, is_blocking=False)
 
@@ -125,7 +126,7 @@ class GameInfoPage(Page):
         end_turn_button_id = "end_turn_button"
         end_turn_button_pos = (SCREEN_SIZE[0] * 7 / 8, SCREEN_SIZE[1] * 9 / 12)
         end_turn_button_dim = (SCREEN_SIZE[0] / 8, SCREEN_SIZE[1] / 12)
-        end_turn_button = pygame_gui.elements.UIButton(
+        self.end_turn_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(
                 end_turn_button_pos[0],
                 end_turn_button_pos[1],
@@ -140,7 +141,7 @@ class GameInfoPage(Page):
             ),
         )
         end_turn_button_element = ui_element_wrapper(
-            end_turn_button, end_turn_button_id, self.camera
+            self.end_turn_button, end_turn_button_id, self.camera
         )
         gui_elements.append(end_turn_button_element)
         # end region
@@ -236,7 +237,7 @@ class GameInfoPage(Page):
         assert self.current_turn_side is not None
         end_turn_button = self._element_manager.get_element("end_turn_button")
         end_turn_button.get_interactable(pygame_gui.elements.UIButton).set_text(
-            f"End {self.current_turn_side.name} Turn"
+            f"End Turn <{self.current_turn_side.to_string()}> ({self.current_turn})"
         )
 
     @callback_event_bind("tile_selected")
@@ -244,6 +245,11 @@ class GameInfoPage(Page):
         if msg.success and msg.payload:
             payload = msg.payload
             assert isinstance(payload, TilePayload)
+            if self.temp_selected_tile == payload.tile:
+                self.temp_selected_tile = None
+                self.kill_old_tile_data()
+                return
+
             self.temp_selected_tile = payload.tile
 
             self.kill_old_tile_data()
@@ -344,11 +350,11 @@ class GameInfoPage(Page):
     def on_end_turn(self, event: EndTurnEvent) -> None:
         """Track turn changes."""
         self.current_turn_side = event.to_side
-        self.current_turn += 1
+        self.current_turn = event.turn_count
         self._refresh_move_history_panel()
         end_turn_button = self._element_manager.get_element("end_turn_button")
         end_turn_button.get_interactable(pygame_gui.elements.UIButton).set_text(
-            f"End {self.current_turn_side.name} Turn"
+            f"End Turn <{self.current_turn_side.to_string()}> ({self.current_turn})"
         )
 
     @callback_event_bind("move_history")
@@ -382,7 +388,10 @@ class GameInfoPage(Page):
         assert self.current_turn_side is not None
         assert self.crumbs_modifier is not None
         payload = TurnPayload(
-            self.current_turn, self.current_turn_side, self.crumbs_modifier
+            self.current_turn,
+            self.current_turn,
+            self.current_turn_side,
+            self.crumbs_modifier,
         )
         self.post(
             PageNavigationEvent(
@@ -408,8 +417,6 @@ class GameInfoPage(Page):
 
             if feature.health is not None:
                 description_parts.append(f"Health: {feature.health}")
-
-            if feature.defense is not None:
                 description_parts.append(f"Defense: {feature.defense}")
 
             description_parts.append(
@@ -510,9 +517,9 @@ class GameInfoPage(Page):
         coord_button_wrapper = ui_element_wrapper(
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(
-                    PADDING_X, PADDING_Y, 100 + PADDING_X, 20 + PADDING_Y
+                    PADDING_X, PADDING_Y, 120 + PADDING_X, 20 + PADDING_Y
                 ),
-                text=f"Odd-R: {tile.coord}",
+                text=f"{tile.coord} Height: {tile.height}",
                 manager=self.gui_manager,
                 container=tile_hover_data_panel_object,
                 object_id=pygame_gui.core.ObjectID(

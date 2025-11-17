@@ -238,9 +238,18 @@ class InspectEntity(Page):
         )
         elements.append(stats_panel)
 
+        def _get_stats_rect(row: int, col: int | None) -> pygame.Rect:
+            assert row >= 0
+            if col is not None:
+                assert col >= 0
+                assert col <= 1
+                return pygame.Rect(8 + col * 132, 6 + row * 28, 120, 24)
+            else:
+                return pygame.Rect(8, 6 + row * 28, 252, 24)
+
         hp_label = ui_element_wrapper(
             pygame_gui.elements.UILabel(
-                relative_rect=pygame.Rect(8, 6, 120, 24),
+                relative_rect=_get_stats_rect(0, 0),
                 text=f"HP: {entity.health} / {entity.max_health}",
                 manager=self.gui_manager,
                 container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
@@ -260,8 +269,8 @@ class InspectEntity(Page):
 
         def_label = ui_element_wrapper(
             pygame_gui.elements.UILabel(
-                relative_rect=pygame.Rect(8, 34, 120, 24),
-                text=f"DEF: {entity.defense}",
+                relative_rect=_get_stats_rect(0, 1),
+                text=f"Defense: {entity.defense}",
                 manager=self.gui_manager,
                 container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
                 object_id=pygame_gui.core.ObjectID(
@@ -278,13 +287,11 @@ class InspectEntity(Page):
         )
         elements.append(def_label)
 
-        # Only rodents have speed and stamina.
-        # If the entity is not a rodent, we skip this part.
         if isinstance(entity, Rodent):
             speed_label = ui_element_wrapper(
                 pygame_gui.elements.UILabel(
-                    relative_rect=pygame.Rect(140, 6, 120, 24),
-                    text=f"SPEED: {entity.speed}",
+                    relative_rect=_get_stats_rect(1, 0),
+                    text=f"Speed: {entity.speed}",
                     manager=self.gui_manager,
                     container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
                     object_id=pygame_gui.core.ObjectID(
@@ -301,10 +308,30 @@ class InspectEntity(Page):
             )
             elements.append(speed_label)
 
+            attack_label = ui_element_wrapper(
+                pygame_gui.elements.UILabel(
+                    relative_rect=_get_stats_rect(1, 1),
+                    text=f"Attack: {entity.attack}",
+                    manager=self.gui_manager,
+                    container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
+                    object_id=pygame_gui.core.ObjectID(
+                        class_id="StatLabel", object_id="attack_label"
+                    ),
+                    anchors={
+                        "left": "left",
+                        "top": "top",
+                    },
+                ),
+                registered_name="attack_label",
+                grouping_name="inspect_entity",
+                camera=self.camera,
+            )
+            elements.append(attack_label)
+
             move_stamina_label = ui_element_wrapper(
                 pygame_gui.elements.UILabel(
-                    relative_rect=pygame.Rect(140, 34, 120, 24),
-                    text=f"Move: {entity.move_stamina} / {entity.max_move_stamina}",
+                    relative_rect=_get_stats_rect(3, None),
+                    text=f"Move Stamina: {entity.move_stamina} / {entity.max_move_stamina}",
                     manager=self.gui_manager,
                     container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
                     object_id=pygame_gui.core.ObjectID(
@@ -321,22 +348,23 @@ class InspectEntity(Page):
             )
             elements.append(move_stamina_label)
 
-            skill_stamina_label = ui_element_wrapper(
-                pygame_gui.elements.UILabel(
-                    relative_rect=pygame.Rect(8, 62, 120, 24),
-                    text=f"Skill: {entity.skill_stamina} / {entity.max_skill_stamina}",
-                    manager=self.gui_manager,
-                    container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
-                    object_id=pygame_gui.core.ObjectID(
-                        class_id="StatLabel", object_id="skill_stamina_label"
-                    ),
+        skill_stamina_label = ui_element_wrapper(
+            pygame_gui.elements.UILabel(
+                relative_rect=_get_stats_rect(
+                    2 if isinstance(entity, Rodent) else 1, None
                 ),
-                registered_name="skill_stamina_label",
-                grouping_name="inspect_entity",
-                camera=self.camera,
-            )
-            elements.append(skill_stamina_label)
-
+                text=f"Skill Stamina: {entity.skill_stamina} / {entity.max_skill_stamina}",
+                manager=self.gui_manager,
+                container=stats_panel.get_interactable(pygame_gui.elements.UIPanel),
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="StatLabel", object_id="skill_stamina_label"
+                ),
+            ),
+            registered_name="skill_stamina_label",
+            grouping_name="inspect_entity",
+            camera=self.camera,
+        )
+        elements.append(skill_stamina_label)
         self.post(
             PageCallbackEvent(
                 "can_show_skill_panel_or_not", payload=EntityPayload(self.entity)
