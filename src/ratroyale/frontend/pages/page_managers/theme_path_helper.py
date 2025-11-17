@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from ratroyale.game_data import THEMES_PATH
+
 
 def resolve_theme_path(theme_name: str) -> Path:
     """
@@ -8,16 +10,10 @@ def resolve_theme_path(theme_name: str) -> Path:
 
     Example:
         theme_name = "main_menu_theme"
-        -> returns frontend/visual/gui_themes/main_menu_theme.json
     """
-    # Determine project root (frontend/)
-    BASE_DIR = (
-        Path(__file__).resolve().parent.parent.parent
-    )  # Adjust depending on file location
-    theme_path = BASE_DIR / "visual" / "gui_themes" / f"{theme_name}.json"
+    theme_path = THEMES_PATH / f"{theme_name}.json"
 
     if not theme_path.exists():
-        # raise FileNotFoundError(f"Theme JSON not found: {theme_path}")
-        pass  # suppress for now
+        pass
 
     return theme_path
