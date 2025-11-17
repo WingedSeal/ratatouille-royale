@@ -34,7 +34,7 @@ class Game:
         self.coordination_manager.put_message(
             PageNavigationEvent(
                 action_list=[
-                    (PageNavigation.OPEN, "MainMenu"),
+                    (PageNavigation.OPEN, "StartPage"),
                 ]
             )
         )
