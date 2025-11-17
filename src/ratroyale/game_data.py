@@ -7,6 +7,7 @@ from . import assets
 APP_NAME = "Ratroyale"
 
 DATA_DIR_PATH = Path(user_data_dir(APP_NAME))
+print(f"Data Directory: {DATA_DIR_PATH.resolve().as_posix()}")
 CONFIG_DIR_PATH = Path(user_config_dir(APP_NAME))
 
 SPRITES_DIR_PATH = DATA_DIR_PATH / "sprites"
