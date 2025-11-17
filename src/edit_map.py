@@ -34,8 +34,8 @@ def edit_map(path: Path) -> None:
 
 
 def main() -> None:
-    path = MAP_DIRECTORY / "starting-kitchen.rrmap"
-    # path = MAP_MAKING_KIT_DIRECTORY / "starting-kitchen.rrmap"
+    # path = MAP_DIRECTORY / "starting-kitchen.rrmap"
+    path = MAP_MAKING_KIT_DIRECTORY / "starting-kitchen.rrmap"
     print_info(path)
     # edit_map(path)
 
