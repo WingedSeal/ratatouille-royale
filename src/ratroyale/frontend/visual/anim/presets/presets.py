@@ -32,7 +32,7 @@ def on_select_color_fade_in(
     )
     result = SequentialAnim(
         [GroupedAnim([color_overlay_anim], run_together_with_default=True)],
-        interrupts_queue=True,
+        interrupts_queue=False,
     )
     return result
 
@@ -52,7 +52,7 @@ def on_select_color_fade_out(
     )
     result = SequentialAnim(
         [GroupedAnim([color_overlay_anim], run_together_with_default=True)],
-        interrupts_queue=True,
+        interrupts_queue=False,
     )
     return result
 
