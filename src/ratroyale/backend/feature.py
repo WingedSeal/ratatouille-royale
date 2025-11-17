@@ -37,7 +37,7 @@ class Feature(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_name() -> str: ...
+    def get_name_and_description() -> tuple[str, str]: ...
 
     def __init_subclass__(cls) -> None:
         if cls.FEATURE_ID() in Feature.ALL_FEATURES:
@@ -81,9 +81,9 @@ class Feature(ABC):
         self,
         game_manager: "GameManager",
         entity: "Entity",
-        coord_that_entity_exit: OddRCoord,
+        coord_that_entity_exit: OddRCoord | None,
     ) -> None:
-        """Can trigger multiple times in a move of entity enter and exit again"""
+        """Can trigger multiple times in a move of entity enter and exit again. If it dies, the `coord_that_entity_exit` will be None."""
         pass
 
     def on_entity_turn_change(

@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from enum import Enum, auto
+from abc import abstractmethod
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Iterable, Protocol
 
 from ..hexagon import OddRCoord
@@ -10,9 +10,42 @@ if TYPE_CHECKING:
     from ..entity import Entity
 
 
-class SqueakType(Enum):
-    RODENT = auto()
-    TRICK = auto()
+@dataclass(frozen=True)
+class SqueakInfo:
+    @staticmethod
+    @abstractmethod
+    def is_rodent() -> bool: ...
+
+    @staticmethod
+    @abstractmethod
+    def is_trick() -> bool: ...
+
+
+@dataclass(frozen=True)
+class RodentSqueakInfo(SqueakInfo):
+    rodent: type["Rodent"]
+
+    @staticmethod
+    def is_rodent() -> bool:
+        return True
+
+    @staticmethod
+    def is_trick() -> bool:
+        return False
+
+
+@dataclass(frozen=True)
+class TrickSqueakInfo(SqueakInfo):
+    description: str
+    related_entities: tuple[type["Entity"], ...]
+
+    @staticmethod
+    def is_rodent() -> bool:
+        return True
+
+    @staticmethod
+    def is_trick() -> bool:
+        return False
 
 
 class SqueakOnPlace(Protocol):
@@ -29,17 +62,14 @@ class SqueakGetPlacableTiles(Protocol):
 class Squeak:
     name: str
     crumb_cost: int
-    squeak_type: SqueakType
+    squeak_info: SqueakInfo
     on_place: SqueakOnPlace
     get_placable_tiles: SqueakGetPlacableTiles
-    rodent: "type[Rodent] | None"
-    related_entities: list["Entity"] = field(default_factory=list, hash=False)
+    trick_description: str | None = None
     SQEAK_MAP: ClassVar[dict[str, "Squeak"]] = {}
-    REVERSED_SQEAK_MAP: ClassVar[dict["Squeak", str]] = {}
 
     def __post_init__(self) -> None:
         type(self).SQEAK_MAP[self.name] = self
-        type(self).REVERSED_SQEAK_MAP[self] = self.name
 
 
 def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
@@ -58,19 +88,19 @@ def rodent_placable_tile(game_manager: "GameManager") -> Iterable[OddRCoord]:
             yield pos
 
 
-def summon_on_place(rodent_type: type["Rodent"]) -> SqueakOnPlace:
+def summon_on_place(entity_type: type["Entity"]) -> SqueakOnPlace:
     def on_place(game_manager: "GameManager", coord: OddRCoord) -> None:
-        summon(game_manager, coord, rodent_type)
+        summon(game_manager, coord, entity_type)
 
     return on_place
 
 
 def summon(
-    game_manager: "GameManager", coord: OddRCoord, rodent_type: type["Rodent"]
+    game_manager: "GameManager", coord: OddRCoord, entity_type: type["Entity"]
 ) -> "Entity":
     tile = game_manager.board.get_tile(coord)
     if tile is None:
         raise ValueError("Trying to summon rodent on None tile")
-    entity = rodent_type(coord, game_manager.turn)
+    entity = entity_type(coord, game_manager.turn)
     game_manager.board.add_entity(entity, game_manager)
     return entity

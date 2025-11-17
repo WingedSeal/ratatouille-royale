@@ -234,14 +234,14 @@ class GameManager:
             path_tile = self.board.get_tile(path_coord)
             if path_tile is None:
                 continue
-            new_entities_in_features: list[Feature] = []
+            new_entity_in_features: list[Feature] = []
             for feature in self.board.cache.entities_in_features[entity]:
                 if feature in path_tile.features:
                     feature.on_entity_moving_by(self, entity, path_coord)
-                    new_entities_in_features.append(feature)
+                    new_entity_in_features.append(feature)
                 else:
                     feature.on_entity_exit(self, entity, path_coord)
-            self.board.cache.entities_in_features[entity] = new_entities_in_features
+            self.board.cache.entities_in_features[entity] = new_entity_in_features
 
             for feature in path_tile.features:
                 if feature not in self.board.cache.entities_in_features[entity]:
@@ -537,6 +537,9 @@ class GameManager:
         if tile is None:
             raise EntityInvalidPosError()
         tile.entities.remove(entity)
+        if entity in self.board.cache.entities_in_features:
+            for feature in self.board.cache.entities_in_features[entity]:
+                feature.on_entity_exit(self, entity, None)
         self.board.remove_entity(entity)
         self.event_queue.put_nowait(EntityDieEvent(entity))
 

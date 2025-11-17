@@ -1,10 +1,13 @@
-from pathlib import Path
+import pygame
 
-from .backend.game_manager import GameManager
-from .backend.player_info.player_info import SAVE_FILE_EXTENSION, PlayerInfo
-from .game_states import GameState, MainMenu
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEvent
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 
-SAVE_FILE = f"idk_where_this_is.{SAVE_FILE_EXTENSION}"
+from .frontend.pages.page_managers.page_manager import PageManager
+
+
+MILLISECOND_PER_SECOND = 1000
 
 
 class Game:
@@ -12,34 +15,47 @@ class Game:
     The entry-point and the controller class
     """
 
+    FPS_ALPHA = 0.1
+    """Smoothing factor for calculating average FPS"""
+    MAX_FPS = 60
+
     def __init__(self) -> None:
-        self.player_info = PlayerInfo.from_file(Path(SAVE_FILE))
-        self.state: GameState = MainMenu()
+        self.screen = pygame.display.set_mode(SCREEN_SIZE)
+        self.clock = pygame.time.Clock()
+        self.coordination_manager = CoordinationManager()
+        self.page_manager = PageManager(
+            screen=self.screen, coordination_manager=self.coordination_manager
+        )
+        self.average_fps: float = 0.0
 
     def run(self) -> None:
-        # self.renderer.init()
-        # while self.renderer.is_running:
-        #     match self.state:
-        #         case MainMenu():
-        #             self.main_menu_tick()
-        #         case GamePlay(game_manager):
-        #             self.game_play_tick(game_manager)
-        #     self.renderer.render_frame(self.state)
-        # self.renderer.cleanup()
-        pass
+        self.coordination_manager.put_message(
+            PageNavigationEvent(
+                action_list=[
+                    (PageNavigation.OPEN, "MainMenu"),
+                ]
+            )
+        )
 
-    def main_menu_tick(self) -> None:
-        # event = self.renderer.input_manager.event_queue.get_or_none()
-        # match event:
-        #     case TEMP_EVENT_DELETE_LATER():
-        #         map_path = Path(
-        #             f"path/to/randomly_selected_map_file.{MAP_FILE_EXTENSION}")
-        #         map = Map.from_file(map_path)
-        #         # Generate AI's side info (deck, etc.)
-        #         ai_info = PlayerInfo([], [], 0)
-        #         self.state = GamePlay(GameManager(
-        #             map, (self.player_info, ai_info), Side.RAT))
-        pass
+        while self.coordination_manager.game_running:
+            dt = self.clock.tick(self.MAX_FPS) / MILLISECOND_PER_SECOND
+            self.update(dt)
+            current_fps = self.clock.get_fps()
+            if current_fps > 0:
+                self.average_fps = (
+                    1 - self.FPS_ALPHA
+                ) * self.average_fps + self.FPS_ALPHA * current_fps
 
-    def game_play_tick(self, game_manager: GameManager) -> None:
-        pass
+        pygame.quit()
+
+    def update(self, dt: float) -> None:
+        self.screen.fill((0, 0, 0))
+        self.page_manager.handle_events()
+
+        while not self.coordination_manager.all_mailboxes_empty():
+            self.page_manager.execute_page_callback()
+            self.page_manager.execute_visual_callback()
+            self.page_manager.execute_backend_page_callback()
+
+        self.page_manager.render(dt)
+        pygame.display.flip()

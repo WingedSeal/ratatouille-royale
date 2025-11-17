@@ -41,6 +41,7 @@ class InspectEntity(Page):
             is_blocking=True,
             theme_name="inspect_entity",
             camera=camera,
+            base_color=(0, 0, 0, 128),
         )
         self.temp_skill_panel_id: str | None = None
         self.crumb: int = 0
@@ -61,7 +62,7 @@ class InspectEntity(Page):
         self.entity = payload.entity
         entity = self.entity
         elements: list[ElementWrapper] = []
-        panel_w, panel_h = 300, 420
+        panel_w, panel_h = 320, 420
         panel_x = 10
         panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         panel = ui_element_wrapper(
@@ -391,7 +392,7 @@ class InspectEntity(Page):
         elements = []
         skill_panel_id = f"skill_panel_{uuid.uuid4()}"
         # Position the temporary skill description panel same as the main inspect panel
-        panel_w, panel_h = 300, 420
+        panel_w, panel_h = 320, 420
         panel_x = 10
         panel_y = (SCREEN_SIZE[1] - panel_h) // 2
         skill_panel = ui_element_wrapper(
@@ -450,7 +451,7 @@ class InspectEntity(Page):
     def skill_panel(self, msg: PageCallbackEvent) -> None:
         entity = self.entity
         panel_width = 160
-        panel_x = 350
+        panel_x = SCREEN_SIZE[0] - panel_width - 10
         panel_id = "skill_panel"
         self.ability_panel_id = panel_id
         panel_height = len(entity.skills) * 30 + 30 + 10
@@ -514,10 +515,13 @@ class InspectEntity(Page):
                 },
             )
 
+            if entity.move_stamina == 0:
+                move_button.disable()  # type: ignore
+
             skill_buttons.append(
                 ui_element_wrapper(
                     move_button,
-                    "move_button",
+                    "skill_-1",
                     self.camera,
                     "SKILL_BUTTONS",
                     payload=IntegerPayload(entity.move_cost),

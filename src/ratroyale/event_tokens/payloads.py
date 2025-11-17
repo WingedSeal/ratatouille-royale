@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from ratroyale.backend.map import Map
+from ratroyale.backend.player_info.player_info import PlayerInfo
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.entity import Entity
 from ratroyale.backend.hexagon import OddRCoord
@@ -7,6 +9,7 @@ from ratroyale.backend.player_info.squeak import Squeak
 from ratroyale.backend.entity import SkillTargeting, SkillCompleted
 from ratroyale.backend.instant_kill import InstantKill
 from ratroyale.backend.source_of_damage_or_heal import SourceOfDamageOrHeal
+from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
 from ratroyale.backend.crumbs_per_turn_modifier import CrumbsPerTurnModifier
 
@@ -14,6 +17,15 @@ from ratroyale.backend.crumbs_per_turn_modifier import CrumbsPerTurnModifier
 @dataclass
 class Payload:
     pass
+
+
+@dataclass
+class BackendStartPayload(Payload):
+    map: Map
+    player_info1: PlayerInfo
+    player_info2: PlayerInfo
+    first_turn: Side
+    ai_type: type[BaseAI] | None
 
 
 @dataclass
@@ -108,10 +120,10 @@ class GameOverPayload(Payload):
 @dataclass
 class MoveHistoryPayload(Payload):
     entity_name: str
-    from_pos: str
-    to_pos: str
+    from_pos: OddRCoord
+    to_pos: OddRCoord
     turn: int
-    is_player_move: bool
+    side: Side
 
 
 @dataclass

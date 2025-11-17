@@ -1,4 +1,5 @@
 from typing import Final
+from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.backend.crumbs_per_turn_modifier import CrumbsPerTurnModifier
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
@@ -7,18 +8,18 @@ from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.payloads import (
     MoveHistoryPayload,
     FeaturePayload,
-    TurnPayload,
     SidePayload,
+    TurnPayload,
 )
 
-
+from ratroyale.event_tokens.input_token import get_id
+from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.event_binder import (
     input_event_bind,
     callback_event_bind,
     game_event_bind,
 )
-from ratroyale.event_tokens.input_token import get_id
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_elements.spatial_component import (
     Camera,
@@ -36,10 +37,20 @@ from ratroyale.event_tokens.payloads import (
 from ratroyale.backend.tile import Tile
 from ratroyale.backend.game_event import CrumbChangeEvent, EntityMoveEvent, EndTurnEvent
 from ratroyale.backend.side import Side
-from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.backend.feature import Feature
 
 import pygame_gui
 import pygame
+from dataclasses import dataclass
+
+
+@dataclass
+class MoveEntry:
+    entity_name: str
+    from_pos: OddRCoord
+    to_pos: OddRCoord
+    turn: int
+    side: Side
 
 
 @register_page
@@ -52,12 +63,13 @@ class GameInfoPage(Page):
         self.temp_selected_tile: Tile | None = None
         self.temp_hovered_tile: Tile | None = None
         self.crumbs_modifier: CrumbsPerTurnModifier | None = None
-        # Move history tracking
-        self.move_history: list[dict[str, object]] = []  # Stores move history entries
+        self.move_history: list[MoveEntry] = []
         self.current_turn: int = 1
-        self.current_turn_side: Side | None = None  # Track whose turn it is
-        self.player_side: Side | None = None  # Track player's side
-        self.move_history_buttons: list[str] = []  # Track buttons for clearing
+        self.current_turn_side: Side | None = None
+        self.player_1_side: Side | None = None
+        self.move_history_buttons: list[str] = []
+        self.button_move_data: dict[str, MoveEntry] = {}
+        self.button_feature_data: dict[str, Feature] = {}
         # self.font = self.gui_manager.get_theme().get_font_dictionary().get_default_font()
         super().__init__(coordination_manager, camera, is_blocking=False)
 
@@ -317,14 +329,14 @@ class GameInfoPage(Page):
     @game_event_bind(EntityMoveEvent)
     def on_entity_move(self, event: EntityMoveEvent) -> None:
         """Track entity movements in move history."""
-        # Record the move
-        move_entry = {
-            "entity_name": event.entity.name,
-            "from_pos": str(event.from_pos),
-            "to_pos": str(event.path[-1]),
-            "turn": self.current_turn,
-            "side": event.entity.side,  # Track which side made the move
-        }
+        assert event.entity.side is not None
+        move_entry: MoveEntry = MoveEntry(
+            event.entity.name,
+            event.from_pos,
+            event.path[-1],
+            self.current_turn,
+            event.entity.side,
+        )
         self.move_history.append(move_entry)
         self._refresh_move_history_panel()
 
@@ -347,32 +359,23 @@ class GameInfoPage(Page):
     @input_event_bind("move_history_btn", pygame_gui.UI_BUTTON_PRESSED)
     def on_move_history_click(self, msg: pygame.event.Event) -> None:
         """Handle click on move history button to show inspect history."""
-        if hasattr(msg, "ui_element") and hasattr(msg.ui_element, "move_data"):
-            move_data = msg.ui_element.move_data
+        button_id = (
+            msg.ui_element.object_ids[1] if len(msg.ui_element.object_ids) > 1 else None
+        )
+        if button_id and button_id in self.button_move_data:
+            move_data = self.button_move_data[button_id]
+            turn_value = move_data.turn
+            assert isinstance(turn_value, int), "turn must be an int"
             payload = MoveHistoryPayload(
-                entity_name=move_data["entity_name"],
-                from_pos=move_data["from_pos"],
-                to_pos=move_data["to_pos"],
-                turn=move_data["turn"],
-                is_player_move=(move_data["side"] == self.player_side),
+                entity_name=move_data.entity_name,
+                from_pos=move_data.from_pos,
+                to_pos=move_data.to_pos,
+                turn=turn_value,
+                side=move_data.side,
+                # is_player_1_move=(move_data["side"] == self.player_1_side),
             )
-            # Open inspect history page with the move data
             self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectHistory")]))
             self.post(PageCallbackEvent("move_history_data", payload=payload))
-
-    @input_event_bind("ShowEntityButton", pygame_gui.UI_BUTTON_PRESSED)
-    def entity_selected(self, msg: pygame.event.Event) -> None:
-        id = get_id(msg)
-        assert id
-        # The id is given as "entity_hover_data_panel.ShowEntityButton_x"
-        entity_index = int(id.split("_")[-1])
-
-        assert self.temp_selected_tile
-        entity = self.temp_selected_tile.entities[entity_index]
-
-        self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectEntity")]))
-        self.post(PageCallbackEvent("crumb", payload=CrumbUpdatePayload(self.crumbs)))
-        self.post(PageCallbackEvent("entity_data", payload=EntityPayload(entity)))
 
     @input_event_bind("show_crumbs", pygame_gui.UI_BUTTON_PRESSED)
     def on_show_crumbs_button_click(self, msg: pygame.event.Event) -> None:
@@ -390,48 +393,40 @@ class GameInfoPage(Page):
         )
         self.post(PageCallbackEvent("show_crumbs", payload=payload))
 
-    @input_event_bind("ShowFeatureButton", pygame_gui.UI_BUTTON_PRESSED)
+    @input_event_bind("feature_btn", pygame_gui.UI_BUTTON_PRESSED)
     def on_feature_button_click(self, msg: pygame.event.Event) -> None:
         """Handle feature button click to show feature details."""
-        feature_button = msg.ui_element
+        button_id = (
+            msg.ui_element.object_ids[1] if len(msg.ui_element.object_ids) > 1 else None
+        )
 
-        # Extract feature from button's feature_data attribute
-        if hasattr(feature_button, "feature_data"):
-            feature = feature_button.feature_data
+        if button_id and button_id in self.button_feature_data:
+            feature = self.button_feature_data[button_id]
 
-            # Build feature description with relevant stats
-            description_parts = []
+            feature_name, feature_description = feature.get_name_and_description()
+            description_parts: list[str] = [feature_description]
 
-            # Add health if available
             if feature.health is not None:
                 description_parts.append(f"Health: {feature.health}")
 
-            # Add defense if greater than 0
-            if feature.defense > 0:
+            if feature.defense is not None:
                 description_parts.append(f"Defense: {feature.defense}")
 
-            # Add collision info
-            is_collision = "Collision" if feature.is_collision() else "No Collision"
-            description_parts.append(is_collision)
+            description_parts.append(
+                f"Collision: {'Yes' if feature.is_collision() else 'No'}"
+            )
 
-            # Add side info if available
             if feature.side is not None:
                 description_parts.append(f"Side: {feature.side}")
 
-            feature_description = (
-                "\n".join(description_parts)
-                if description_parts
-                else "No details available"
-            )
+            feature_full_description = "\n".join(description_parts)
 
-            # Create payload with feature information
             payload = FeaturePayload(
-                feature_name=feature.get_name(),
-                feature_description=feature_description,
+                feature_name=feature_name,
+                feature_description=feature_full_description,
                 feature_type=type(feature).__name__,
             )
 
-            # Open InspectFeature page and pass feature data
             self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectFeature")]))
             self.post(PageCallbackEvent("feature_data", payload=payload))
 
@@ -531,9 +526,10 @@ class GameInfoPage(Page):
         self.temp_saved_buttons.append(coord_button_id)
         new_element_wrappers.append(coord_button_wrapper)
 
-        for index, feature in enumerate(reversed(tile.features)):
-            feature_button_id = f"ShowFeatureButton_{id(feature)}"
-            text_width, text_height = font.size(f"{feature.get_name()}")
+        for index, feature in enumerate(tile.features):
+            feature_button_id = f"feature_btn_{id(feature)}"
+            feature_name, feature_description = feature.get_name_and_description()
+            text_width, text_height = font.size(feature_name)
             feature_button = pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(
                     120
@@ -543,11 +539,11 @@ class GameInfoPage(Page):
                     text_width + PADDING_X,
                     text_height + PADDING_Y,
                 ),
-                text=f"{feature.get_name()}",
+                text=f"{feature_name}",
                 manager=self.gui_manager,
                 container=tile_hover_data_panel_object,
                 object_id=pygame_gui.core.ObjectID(
-                    class_id="ShowFeatureButton",
+                    class_id="feature_btn",
                     object_id=feature_button_id,
                 ),
             )
@@ -559,6 +555,8 @@ class GameInfoPage(Page):
                 feature_button_id,
                 self.camera,
             )
+            # Store feature data in dictionary instead of attaching to button
+            self.button_feature_data[feature_button_id] = feature
             new_element_wrappers.append(feature_button_wrapper)
             self.temp_saved_buttons.append(feature_button_id)
         self.setup_elements(new_element_wrappers)
@@ -566,6 +564,7 @@ class GameInfoPage(Page):
     def kill_old_tile_data(self) -> None:
         for ids in self.temp_saved_buttons:
             self._element_manager.remove_element(ids)
+            self.button_feature_data.pop(ids, None)  # Clean up feature data
         self.temp_saved_buttons.clear()
 
     @callback_event_bind("player_1_info")
@@ -580,50 +579,56 @@ class GameInfoPage(Page):
         try:
             move_history_panel = self._element_manager.get_element("move_history_panel")
         except KeyError:
-            # Panel not yet created
             return
 
         move_history_panel_object = move_history_panel.get_interactable(
             pygame_gui.elements.UIPanel
         )
 
-        # Clear old buttons
         for button_id in self.move_history_buttons:
             try:
                 self._element_manager.remove_element(button_id)
             except KeyError:
                 pass
+            self.button_move_data.pop(button_id, None)
         self.move_history_buttons.clear()
 
-        # Display move history entries (show last 10 moves)
         y_offset = 0
-        displayed_moves = self.move_history[-10:]  # Show last 10 moves
+        displayed_moves = self.move_history[-10:]
 
         self.post(GameManagerEvent(game_action="get_player_1", payload=None))
         for index, move in enumerate(displayed_moves):
-            button_id = f"move_history_btn_{index}"
-            is_player_turn = move["side"] == self.player_side
-            assert self.player_side is not None
-            turn_prefix = (
-                f"{self.player_side.name}"
-                if is_player_turn
-                else f"{self.player_side.other_side().name}"
-            )
-            move_text = f"{turn_prefix} T{move['turn']}: {move['entity_name']}"
+            button_id = f"move_history_btn_{id(move)}"
+            is_player_1_turn = move.side == self.player_1_side
+            turn_prefix = "[Player1]" if is_player_1_turn else "[Player2]"
+            move_text = f"{turn_prefix} T{move.turn}: {move.entity_name}"
 
-            button = pygame_gui.elements.UIButton(
+            pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(0, y_offset, 195, 25),
                 text=move_text,
                 manager=self.gui_manager,
                 container=move_history_panel_object,
                 object_id=pygame_gui.core.ObjectID(
-                    class_id="MoveHistoryButton",
+                    class_id="move_history_btn",
                     object_id=button_id,
                 ),
             )
-            # Store move data for hover access
-            button.move_data = move  # type: ignore
+            self.button_move_data[button_id] = move
             self.move_history_buttons.append(button_id)
             y_offset += 25
+
+    @input_event_bind("ShowEntityButton", pygame_gui.UI_BUTTON_PRESSED)
+    def entity_selected(self, msg: pygame.event.Event) -> None:
+        id = get_id(msg)
+        assert id
+        # The id is given as "entity_hover_data_panel.ShowEntityButton_x"
+        entity_index = int(id.split("_")[-1])
+
+        assert self.temp_selected_tile
+        entity = self.temp_selected_tile.entities[entity_index]
+
+        self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectEntity")]))
+        self.post(PageCallbackEvent("crumb", payload=CrumbUpdatePayload(self.crumbs)))
+        self.post(PageCallbackEvent("entity_data", payload=EntityPayload(entity)))
 
     # endregion

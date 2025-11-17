@@ -109,7 +109,11 @@ class TheOneBrace(EntityEffect):
         self.entity.defense -= 5
 
     def effect_descriptions(self) -> str:
-        return "Brace for impact"
+        return "Brace for impact and increase defense by 5"
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Brace for impact and increase defense by 5"
 
 
 @rodent_data(

@@ -171,6 +171,9 @@ class Entity:
         """
         return True
 
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return []
+
     def _heal(
         self,
         game_manager: "GameManager",

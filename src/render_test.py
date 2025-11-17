@@ -11,6 +11,7 @@ from ratroyale.backend.player_info.squeaks.rodents.duelist import (
     SODA_KABOOMA,
     MORTAR,
 )
+from ratroyale.backend.player_info.squeaks.tricks.offense import SUNDIAL
 from ratroyale.backend.player_info.squeaks.rodents.specialist import MAYO
 from ratroyale.backend.player_info.squeaks.rodents.tank import CRACKER
 from ratroyale.backend.entity import Entity
@@ -21,7 +22,6 @@ from ratroyale.backend.player_info.squeak import (
     Squeak,
     SqueakGetPlacableTiles,
     SqueakOnPlace,
-    SqueakType,
     rodent_placable_tile,
     summon_on_place,
 )
@@ -100,9 +100,9 @@ def main():
 
     # Player 1: create a SqueakSet directly in the constructor
     player_info_1 = PlayerInfo(
-        {TAILBLAZER: 5},
-        [{TAILBLAZER: 5}],
-        [{TAILBLAZER: 5}],
+        {TAILBLAZER: 5, SUNDIAL: 2},
+        [{TAILBLAZER: 5, SUNDIAL: 2}],
+        [{TAILBLAZER: 3, SUNDIAL: 2}],
         selected_squeak_set_index=0,
         exp=0,
         cheese=0,
@@ -121,7 +121,7 @@ def main():
     )
 
     game_manager = GameManager(
-        map=map, players_info=(player_info_1, player_info_2), player_1=Side.RAT
+        map=map, players_info=(player_info_1, player_info_2), first_turn=Side.RAT
     )
     # endregion
 
@@ -135,10 +135,14 @@ def main():
     coordination_manager.put_message(
         PageNavigationEvent(
             action_list=[
-                (PageNavigation.OPEN, "MainMenu"),
+                (PageNavigation.CLOSE_ALL, None),
+                (PageNavigation.OPEN, "GameBoard"),
+                (PageNavigation.OPEN, "GameInfoPage"),
+                (PageNavigation.OPEN, "PauseButton"),
             ]
         )  # change this to test your page
     )
+    page_manager.backend_adapter = backend_adapter  # A hack to make it works in test
 
     avg_fps = 0
     fps_alpha = 0.1  # smoothing factor for running average
@@ -152,7 +156,7 @@ def main():
         while not coordination_manager.all_mailboxes_empty():
             page_manager.execute_page_callback()
             page_manager.execute_visual_callback()
-            backend_adapter.execute_backend_callback()
+            page_manager.execute_backend_page_callback()
 
         page_manager.render(dt)
         pygame.display.flip()

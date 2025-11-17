@@ -1,0 +1,251 @@
+{
+  "defaults": {
+    "font": {
+        "name": "Arial",
+        "size": 16,
+        "bold": false,
+        "italic": false
+    },
+    "text_color": "#e8dcc8",
+    "bg_color": "#2a3a4a",
+    "border_width": 1,
+    "border_color": "#8b6f47",
+    "shadow_width": 0
+  },
+
+  "InspectPanel": {
+    "colours": {
+      "normal_bg": "#1a2330",
+      "normal_border": "#d4a574"
+    },
+    "misc": {
+      "border_width": "3",
+      "shadow_width": "5"
+    }
+  },
+
+  "#inspect_panel": {
+    "colours": {
+      "normal_bg": "#1a2330",
+      "normal_border": "#d4a574"
+    },
+    "misc": {
+      "border_width": "3",
+      "shadow_width": "5"
+    }
+  },
+
+  "CloseButton": {
+    "colours": {
+      "normal_bg": "#c4885f",
+      "hovered_bg": "#d4985f",
+      "disabled_bg": "#6a5a4a",
+      "selected_bg": "#d4a875",
+      "active_bg": "#e4b885",
+      "normal_text": "#ffffff",
+      "hovered_text": "#ffffff",
+      "selected_text": "#ffffff",
+      "disabled_text": "#909090",
+      "active_text": "#ffffff",
+      "normal_border": "#8b6f47",
+      "hovered_border": "#b48a52",
+      "disabled_border": "#5a4a3a",
+      "selected_border": "#c4a474",
+      "active_border": "#d4b484"
+    },
+    "misc": {
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "4",
+      "border_width": "1",
+      "shadow_width": "2"
+    }
+  },
+
+  "#close_button": {
+    "colours": {
+      "normal_bg": "#c4885f",
+      "hovered_bg": "#d4985f",
+      "disabled_bg": "#6a5a4a",
+      "selected_bg": "#d4a875",
+      "active_bg": "#e4b885",
+      "normal_text": "#ffffff",
+      "hovered_text": "#ffffff",
+      "selected_text": "#ffffff",
+      "disabled_text": "#909090",
+      "active_text": "#ffffff",
+      "normal_border": "#8b6f47",
+      "hovered_border": "#b48a52",
+      "disabled_border": "#5a4a3a",
+      "selected_border": "#c4a474",
+      "active_border": "#d4b484"
+    },
+    "misc": {
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "4",
+      "border_width": "1",
+      "shadow_width": "2"
+    }
+  },
+
+  "PortraitArea": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "#portrait_area": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "InspectLabel": {
+    "colours": {
+      "normal_text": "#e8dcc8",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "InspectButton": {
+    "colours": {
+      "normal_bg": "#4a5a6a",
+      "hovered_bg": "#6a7a8a",
+      "disabled_bg": "#2a3a4a",
+      "selected_bg": "#7a9aaa",
+      "active_bg": "#8aaaba",
+      "normal_text": "#e8dcc8",
+      "hovered_text": "#ffffff",
+      "selected_text": "#ffffff",
+      "disabled_text": "#707080",
+      "active_text": "#ffffff",
+      "normal_border": "#6b8fa7",
+      "hovered_border": "#8badbb",
+      "disabled_border": "#3a4a5a",
+      "selected_border": "#9abfcb",
+      "active_border": "#aacfdb"
+    }
+  },
+
+  "NameTitle": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "Desc": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "StatsPanel": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "StatsHeader": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "StatKey": {
+    "colours": {
+      "normal_text": "#e8dcc8",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "StatVal": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "StatLabel": {
+    "colours": {
+      "normal_text": "#e8dcc8",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "SkillInspectPanel": {
+    "colours": {
+      "normal_bg": "#1a2330",
+      "normal_border": "#d4a574"
+    },
+    "misc": {
+      "border_width": "3",
+      "shadow_width": "5"
+    }
+  },
+
+  "SkillLabel": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "SkillPanel": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "#skill_panel": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "SkillButton": {
+    "colours": {
+      "normal_bg": "#4a5a6a",
+      "hovered_bg": "#6a7a8a",
+      "disabled_bg": "#2a3a4a",
+      "selected_bg": "#7a9aaa",
+      "active_bg": "#8aaaba",
+      "normal_text": "#e8dcc8",
+      "hovered_text": "#ffffff",
+      "selected_text": "#ffffff",
+      "disabled_text": "#707080",
+      "active_text": "#ffffff",
+      "normal_border": "#6b8fa7",
+      "hovered_border": "#8badbb",
+      "disabled_border": "#3a4a5a",
+      "selected_border": "#9abfcb",
+      "active_border": "#aacfdb"
+    }
+  }
+}

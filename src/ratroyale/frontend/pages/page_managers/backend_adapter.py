@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from ratroyale.backend.game_manager import GameManager
 from ratroyale.backend.entities.rodent import Rodent
@@ -28,7 +28,9 @@ from ratroyale.backend.game_event import (
 )
 from ratroyale.backend.ai.base_ai import BaseAI
 from ratroyale.backend.side import Side
-from ratroyale.frontend.pages.page_managers.page_manager import PageManager
+
+if TYPE_CHECKING:
+    from ratroyale.frontend.pages.page_managers.page_manager import PageManager
 
 
 # TODO: Expand this to handle more backend events as needed. Maybe add decorator-based registration?
@@ -36,7 +38,7 @@ class BackendAdapter:
     def __init__(
         self,
         game_manager: GameManager,
-        page_manager: PageManager,
+        page_manager: "PageManager",
         coordination_manager: CoordinationManager,
         ai_type: type[BaseAI] | None,
     ) -> None:
@@ -61,34 +63,13 @@ class BackendAdapter:
         }
 
     def execute_backend_callback(self) -> None:
-        # Get the page -> backend queue
-        msg_queue_from_page: EventQueue[GameManagerEvent] | None = (
-            self.coordination_manager.mailboxes.get(GameManagerEvent, None)
-        )
-        # Get the backend -> page queue
         msg_queue_from_backend: EventQueue[GameEvent] = self.game_manager.event_queue
 
-        if msg_queue_from_page is None:
-            return
-
         # Process all messages currently in both queues
-        while not msg_queue_from_page.empty() or not msg_queue_from_backend.empty():
-            # Process page -> backend messages
-            if not msg_queue_from_page.empty():
-                msg_from_page: GameManagerEvent = msg_queue_from_page.get()
-                page_handler = self.game_manager_response.get(msg_from_page.game_action)
-                if page_handler:
-                    page_handler(msg_from_page)
-                else:
-                    pass
-                    # print(
-                    #     f"No handler for page event type: {msg_from_page.game_action}"
-                    # )
+        while not msg_queue_from_backend.empty():
+            msg_from_backend: GameEvent = msg_queue_from_backend.get()
 
-            # Process backend -> page messages
-            if not msg_queue_from_backend.empty():
-                msg_from_backend: GameEvent = msg_queue_from_backend.get()
-                self.page_manager.execute_game_event_callback(msg_from_backend)
+            self.page_manager.execute_game_event_callback(msg_from_backend)
 
     def handle_game_start(self, event: GameManagerEvent) -> None:
         board = self.game_manager.board
@@ -201,8 +182,6 @@ class BackendAdapter:
         self.game_manager.end_turn()
         if self.ai:
             self.ai.run_ai_and_update_game_manager()
-        else:
-            print("NO AI!")
 
     def handle_target_selected(self, event: GameManagerEvent) -> None:
         payload = event.payload

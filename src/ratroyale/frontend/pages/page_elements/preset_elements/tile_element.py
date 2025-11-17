@@ -5,6 +5,7 @@ from ratroyale.backend.hexagon import OddRCoord
 from ....visual.asset_management.game_obj_to_sprite_registry import (
     TILE_SPRITE_METADATA,
     TYPICAL_TILE_SIZE,
+    DUMMY_TEXTURE_METADATA,
 )
 from ....visual.asset_management.spritesheet_manager import SpritesheetManager
 from ..spatial_component import SpatialComponent
@@ -18,7 +19,10 @@ import pygame
 
 class TileElement(ElementWrapper):
     def __init__(self, tile: Tile, camera: Camera):
-        sprite_metadata = TILE_SPRITE_METADATA[tile.tile_id]
+        try:
+            sprite_metadata = TILE_SPRITE_METADATA[tile.tile_id]
+        except KeyError:
+            sprite_metadata = DUMMY_TEXTURE_METADATA
         spritesheet_name = SpritesheetManager.register_spritesheet(
             sprite_metadata
         ).get_key()
