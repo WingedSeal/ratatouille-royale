@@ -154,7 +154,7 @@ class GameBoard(Page):
     @game_event_bind(EndTurnEvent)
     def end_turn_event(self, event: EndTurnEvent) -> None:
         self.clear_selections()
-        self.is_player_1_now = not event.is_from_first_turn_side
+        self.is_player_1_now = not event.is_from_player_1_side
 
         # If not playing with an AI, switches player hands.
         if not self.is_playing_with_ai:

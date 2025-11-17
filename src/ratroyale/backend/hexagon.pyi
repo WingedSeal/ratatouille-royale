@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable, Iterator, Protocol, Self
+from typing import Any, Callable, Iterator, Protocol, Self
 
 class IsCoordBlocked(Protocol):
     """
@@ -76,6 +76,8 @@ class OddRCoord:
         """
         ...
 
+    def __str__(self) -> str: ...
+    def __repr__(self) -> str: ...
     @classmethod
     def from_pixel(
         cls,
@@ -87,6 +89,7 @@ class OddRCoord:
     ) -> OddRCoord: ...
     def __add__(self, other: Self) -> Self: ...
     def __sub__(self, other: Self) -> Self: ...
+    def __eq__(self, other: Any) -> bool: ...
     def path_find(
         self,
         goal: OddRCoord,

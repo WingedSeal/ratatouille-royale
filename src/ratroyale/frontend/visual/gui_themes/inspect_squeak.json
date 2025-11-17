@@ -1,0 +1,305 @@
+{
+  "defaults": {
+    "font": {
+        "name": "Arial",
+        "size": 16,
+        "bold": false,
+        "italic": false
+    },
+    "text_color": "#e8dcc8",
+    "bg_color": "#2a3a4a",
+    "border_width": 1,
+    "border_color": "#8b6f47",
+    "shadow_width": 0
+  },
+
+  "MainPanel": {
+    "colours": {
+      "normal_bg": "#1a2330",
+      "normal_border": "#d4a574"
+    },
+    "misc": {
+      "border_width": "3",
+      "shadow_width": "5"
+    }
+  },
+
+  "#main_panel": {
+    "colours": {
+      "normal_bg": "#1a2330",
+      "normal_border": "#d4a574"
+    },
+    "misc": {
+      "border_width": "3",
+      "shadow_width": "5"
+    }
+  },
+
+  "CloseButton": {
+    "colours": {
+      "normal_bg": "#c4885f",
+      "hovered_bg": "#d4985f",
+      "disabled_bg": "#6a5a4a",
+      "selected_bg": "#d4a875",
+      "active_bg": "#e4b885",
+      "normal_text": "#ffffff",
+      "hovered_text": "#ffffff",
+      "selected_text": "#ffffff",
+      "disabled_text": "#909090",
+      "active_text": "#ffffff",
+      "normal_border": "#8b6f47",
+      "hovered_border": "#b48a52",
+      "disabled_border": "#5a4a3a",
+      "selected_border": "#c4a474",
+      "active_border": "#d4b484"
+    },
+    "misc": {
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "4",
+      "border_width": "1",
+      "shadow_width": "2"
+    }
+  },
+
+  "#close_button": {
+    "colours": {
+      "normal_bg": "#c4885f",
+      "hovered_bg": "#d4985f",
+      "disabled_bg": "#6a5a4a",
+      "selected_bg": "#d4a875",
+      "active_bg": "#e4b885",
+      "normal_text": "#ffffff",
+      "hovered_text": "#ffffff",
+      "selected_text": "#ffffff",
+      "disabled_text": "#909090",
+      "active_text": "#ffffff",
+      "normal_border": "#8b6f47",
+      "hovered_border": "#b48a52",
+      "disabled_border": "#5a4a3a",
+      "selected_border": "#c4a474",
+      "active_border": "#d4b484"
+    },
+    "misc": {
+      "shape": "rounded_rectangle",
+      "shape_corner_radius": "4",
+      "border_width": "1",
+      "shadow_width": "2"
+    }
+  },
+
+  "NameTitle": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "#char_name": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "Desc": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "#desc": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#1a2330"
+    }
+  },
+
+  "StatsPanel": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "#stats_panel": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "SkillsPanel": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "#skills_panel": {
+    "colours": {
+      "normal_bg": "#2a3a4a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "2",
+      "shadow_width": "2"
+    }
+  },
+
+  "StatsHeader": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "#stats_header": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "StatKey": {
+    "colours": {
+      "normal_text": "#e8dcc8",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "StatVal": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "panel": {
+    "colours": {
+      "normal_bg": "#3a4a5a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "1",
+      "shadow_width": "1"
+    }
+  },
+
+  "UITextBox": {
+    "colours": {
+      "normal_text": "#e8dcc8",
+      "normal_bg": "#3a4a5a"
+    }
+  },
+
+  "UILabel": {
+    "colours": {
+      "normal_text": "#e8dcc8",
+      "normal_bg": "#3a4a5a"
+    }
+  },
+
+  "SkillCard": {
+    "colours": {
+      "normal_bg": "#3a4a5a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "1",
+      "shadow_width": "1"
+    }
+  },
+
+  "#skill_card": {
+    "colours": {
+      "normal_bg": "#3a4a5a",
+      "normal_border": "#8b6f47"
+    },
+    "misc": {
+      "border_width": "1",
+      "shadow_width": "1"
+    }
+  },
+
+  "SkillName": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#3a4a5a"
+    }
+  },
+
+  "#skill_name": {
+    "colours": {
+      "normal_text": "#ffc878",
+      "normal_bg": "#3a4a5a"
+    }
+  },
+
+  "SkillDesc": {
+    "colours": {
+      "normal_text": "#e8dcc8",
+      "normal_bg": "#3a4a5a"
+    }
+  },
+
+  "#skill_desc": {
+    "colours": {
+      "normal_text": "#e8dcc8",
+      "normal_bg": "#3a4a5a"
+    }
+  },
+
+  "SkillsHeader": {
+    "colours": {
+      "normal_text": "#d4a574",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "#active_skills_header": {
+    "colours": {
+      "normal_text": "#d4a574",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "#passive_skills_header": {
+    "colours": {
+      "normal_text": "#d4a574",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "SkillsPanelHeader": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "#skills_panel_header": {
+    "colours": {
+      "normal_text": "#ffd89b",
+      "normal_bg": "#2a3a4a"
+    }
+  },
+
+  "UIScrollingContainer": {
+    "colours": {
+      "normal_bg": "#2a3a4a"
+    }
+  }
+}
