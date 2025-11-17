@@ -35,6 +35,7 @@ def edit_map(path: Path) -> None:
 def main() -> None:
     path = MAP_DIRECTORY / "starting-kitchen.rrmap"
     print_info(path)
+    # edit_map(path)
 
 
 if __name__ == "__main__":
