@@ -75,6 +75,7 @@ class Entity:
     height: int
     side: Side | None
     skills: list[CallableEntitySkill]
+    _cached_skills: list[EntitySkill]
     is_dead: bool
     PRE_PLACED_ENTITIES: ClassVar[dict[int, type["Entity"]]] = {}
     """Map of preplaced-able entities' IDs to the entity class"""
@@ -236,6 +237,39 @@ class Entity:
 Entity_T = TypeVar("Entity_T", bound=Entity)
 
 
+def override_skills(
+    skills: list[EntitySkill | int],
+) -> Callable[[type[Entity_T]], type[Entity_T]]:
+    def wrapper(cls: type[Entity_T]) -> type[Entity_T]:
+        assert issubclass(cls, Entity)
+        cls.skills = []
+        for skill in skills:
+            if isinstance(skill, int):
+                skill = cls._cached_skills[skill]
+            if not hasattr(cls, skill.method_name):
+                raise ValueError(f"{skill} is not an attribute of {cls.__name__}")
+            skill_function = getattr(cls, skill.method_name)
+            if not callable(skill_function):
+                raise ValueError(f"{skill} is not callable")
+            arg_count = len(inspect.signature(skill_function).parameters)
+            if arg_count != 2:
+                raise ValueError(
+                    f"Expected {skill} method to take 2 arguments (got {arg_count - 1})"
+                )
+            cls.skills.append(
+                CallableEntitySkill(
+                    **asdict(skill),
+                    func=cast(
+                        Callable[[Entity, "GameManager"], SkillResult],
+                        skill_function,
+                    ),
+                )
+            )
+        return cls
+
+    return wrapper
+
+
 def entity_data(
     *,
     health: int | None = None,
@@ -263,6 +297,7 @@ def entity_data(
         cls.name = name
         cls.entity_tags = entity_tags
         cls.skills = []
+        cls._cached_skills = skills
         for skill in skills:
             if not hasattr(cls, skill.method_name):
                 raise ValueError(f"{skill} is not an attribute of {cls.__name__}")

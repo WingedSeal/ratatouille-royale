@@ -1,9 +1,11 @@
 import pytest
+from itertools import chain
 
 from ratroyale.backend.ai.random_ai import RandomAI
 from ratroyale.backend.features.common import DeploymentZone
 from ratroyale.backend.game_event import EntityDieEvent
 from ratroyale.backend.game_manager import GameManager
+from ratroyale.backend.player_info.forges import FORGES
 from ratroyale.backend.player_info.player_info import PlayerInfo
 from ratroyale.backend.player_info.squeak import RodentSqueakInfo, Squeak
 from ratroyale.backend.player_info.gacha import GACHA_POOL_WEIGHTS
@@ -28,12 +30,17 @@ def rodent_map() -> Map:
     )
 
 
+RODENT_SQUEAKS_LIST = list(
+    chain(GACHA_POOL_WEIGHTS.keys(), (forge[1] for forge in FORGES))
+)
+
+
 @pytest.mark.slow
 @pytest.mark.integration
 @pytest.mark.parametrize(
     "squeak",
-    GACHA_POOL_WEIGHTS.keys(),
-    ids=[squeak.name.replace(" ", "_") for squeak in GACHA_POOL_WEIGHTS.keys()],
+    RODENT_SQUEAKS_LIST,
+    ids=[squeak.name.replace(" ", "_") for squeak in RODENT_SQUEAKS_LIST],
 )
 def test_rodents(rodent_map: Map, squeak: Squeak) -> None:
     if (
