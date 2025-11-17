@@ -3,6 +3,7 @@ import pygame
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.page_token import PageNavigation, PageNavigationEvent
 from ratroyale.frontend.visual.screen_constants import SCREEN_SIZE
+from ratroyale.game_data import init_data
 
 from .frontend.pages.page_managers.page_manager import PageManager
 
@@ -20,6 +21,7 @@ class Game:
     MAX_FPS = 60
 
     def __init__(self) -> None:
+        init_data()
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.clock = pygame.time.Clock()
         self.coordination_manager = CoordinationManager()

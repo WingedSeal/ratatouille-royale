@@ -79,13 +79,16 @@ class GameManager:
     """Crumbs of the current side"""
     player_1: Side
     game_stats: GameStats
+    is_disable_reward: bool
 
     def __init__(
         self,
         map: Map,
         players_info: tuple[PlayerInfo, PlayerInfo],
         player_1: Side,
+        is_disable_reward: bool = False,
     ) -> None:
+        self.is_disable_reward = is_disable_reward
         self.turn = player_1
         self.player_1 = player_1
         self.turn_count = 1
@@ -418,6 +421,7 @@ class GameManager:
             to_side=self.turn,
             leftover_crumbs=leftover_crumbs,
             new_crumbs=self.crumbs,
+            turn_count=self.turn_count,
         )
         self.event_queue.put_nowait(event)
         self.event_queue.put_nowait(CrumbChangeEvent(old_crumbs, self.crumbs, event))
@@ -610,6 +614,7 @@ class GameManager:
                 )
                 self.event_queue.put_nowait(game_over_event)
                 self.game_over_event = game_over_event
-                self.players_info[feature.side.other_side()].game_won(self)
-                self.players_info[feature.side].game_lost(self)
+                if not self.is_disable_reward:
+                    self.players_info[feature.side.other_side()].game_won(self)
+                    self.players_info[feature.side].game_lost(self)
         self.event_queue.put_nowait(FeatureDieEvent(feature))

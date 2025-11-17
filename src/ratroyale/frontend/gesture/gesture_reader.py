@@ -90,6 +90,16 @@ class GestureReader:
                 self._on_mousemotion(event.pos, raw_event=event)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self._on_mouseup(event.pos, raw_event=event)
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
+                self.output_gesture(
+                    GestureData(
+                        gesture_type=GestureType.RIGHT_CLICK,
+                        mouse_pos=event.pos,
+                        duration=0,
+                        click_count=1,
+                        raw_event=event,
+                    )
+                )
 
         self._check_hold()
 
