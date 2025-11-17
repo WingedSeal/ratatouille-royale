@@ -37,7 +37,7 @@ italic_bold_arial = pygame.font.SysFont("Arial", 30, bold=True, italic=True)
 
 
 class EntityElement(ElementWrapper):
-    _ENTITY_NORMAL_WIDTH_HEIGHT = (50, 50)
+    _ENTITY_NORMAL_WIDTH_HEIGHT = (40, 40)
     _ENTITY_STARTING_WIDTH_HEIGHT = (1, 1)
 
     def __init__(self, entity: Entity, camera: Camera):
@@ -54,6 +54,7 @@ class EntityElement(ElementWrapper):
             sprite_metadata
         ).get_key()
         spritesheet_component = SpritesheetComponent(spritesheet_name)
+        spritesheet_component._rounded_corner = 5
 
         # Build visual component
         visual_component = VisualComponent(
