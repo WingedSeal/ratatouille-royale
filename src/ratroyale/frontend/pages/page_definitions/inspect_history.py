@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 import math
+from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
@@ -165,6 +166,7 @@ class InspectHistory(Page):
         if self.map_surface and self.map_panel_element:
 
             map_panel = self.map_panel_element
+            assert map_panel.rect is not None
             # Blit the map surface onto the panel
             canvas.blit(self.map_surface, (map_panel.rect.x + 2, map_panel.rect.y + 2))
 
@@ -194,12 +196,8 @@ class InspectHistory(Page):
     def _draw_map_with_movement(self, payload: MoveHistoryPayload) -> None:
         """Draw a simple map visualization showing the movement path."""
         # Parse coordinates from strings like "(9, 8)"
-        from_str = payload.from_pos.strip("()")
-        to_str = payload.to_pos.strip("()")
-        from_coords_list = list(map(int, from_str.split(",")))
-        to_coords_list = list(map(int, to_str.split(",")))
-        from_coords = (from_coords_list[0], from_coords_list[1])
-        to_coords = (to_coords_list[0], to_coords_list[1])
+        from_coords = payload.from_pos
+        to_coords = payload.to_pos
 
         # Get panel element
         map_panel_element = self._element_manager.get_element("history_map")
@@ -207,6 +205,7 @@ class InspectHistory(Page):
 
         # Get panel dimensions
         panel_rect = map_panel.rect
+        assert panel_rect is not None
         panel_width = int(panel_rect.width - 4)
         panel_height = int(panel_rect.height - 4)
 
@@ -227,15 +226,15 @@ class InspectHistory(Page):
         self,
         surface: pygame.Surface,
         hex_radius: int,
-        from_coords: tuple[int, int],
-        to_coords: tuple[int, int],
+        from_coords: OddRCoord,
+        to_coords: OddRCoord,
     ) -> None:
         """Draw a grid of square tiles showing the actual movement area at real scale."""
         # Show tiles in a smaller range around the movement for better visibility
-        min_q = min(from_coords[0], to_coords[0]) - 1
-        max_q = max(from_coords[0], to_coords[0]) + 1
-        min_r = min(from_coords[1], to_coords[1]) - 1
-        max_r = max(from_coords[1], to_coords[1]) + 1
+        min_q = min(from_coords.x, to_coords.x) - 1
+        max_q = max(from_coords.x, to_coords.x) + 1
+        min_r = min(from_coords.y, to_coords.y) - 1
+        max_r = max(from_coords.y, to_coords.y) + 1
 
         grid_width = max_q - min_q + 1
         grid_height = max_r - min_r + 1
@@ -258,10 +257,10 @@ class InspectHistory(Page):
                 y = start_y + (r - min_r) * tile_size
 
                 # Determine color based on position
-                if (q, r) == from_coords:
+                if OddRCoord(q, r) == from_coords:
                     color = (100, 255, 100)  # Bright green for start
                     border_width = 3
-                elif (q, r) == to_coords:
+                elif OddRCoord(q, r) == to_coords:
                     color = (255, 100, 100)  # Bright red for end
                     border_width = 3
                 else:
@@ -277,10 +276,10 @@ class InspectHistory(Page):
                 surface.blit(text, text_rect)
 
         # Draw arrow showing movement direction
-        from_q = from_coords[0]
-        from_r = from_coords[1]
-        to_q = to_coords[0]
-        to_r = to_coords[1]
+        from_q = from_coords.x
+        from_r = from_coords.y
+        to_q = to_coords.x
+        to_r = to_coords.y
 
         # Calculate tile center positions for arrow
         from_x = start_x + (from_q - min_q) * tile_size + tile_size / 2

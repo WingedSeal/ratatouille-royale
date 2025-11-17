@@ -1,3 +1,4 @@
+from ratroyale.backend.hexagon import OddRCoord
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
@@ -32,6 +33,16 @@ from ratroyale.backend.feature import Feature
 
 import pygame_gui
 import pygame
+from dataclasses import dataclass
+
+
+@dataclass
+class MoveEntry:
+    entity_name: str
+    from_pos: OddRCoord
+    to_pos: OddRCoord
+    turn: int
+    side: Side
 
 
 @register_page
@@ -44,12 +55,12 @@ class GameInfoPage(Page):
         self.temp_saved_buttons: list[str] = []
         self.temp_selected_tile: Tile | None = None
         self.temp_hovered_tile: Tile | None = None
-        self.move_history: list[dict[str, str | int | Side | None]] = []
+        self.move_history: list[MoveEntry] = []
         self.current_turn: int = 1
         self.current_turn_side: Side | None = None
-        self.player_side: Side | None = None
+        self.player_1_side: Side | None = None
         self.move_history_buttons: list[str] = []
-        self.button_move_data: dict[str, dict[str, str | int | Side | None]] = {}
+        self.button_move_data: dict[str, MoveEntry] = {}
         self.button_feature_data: dict[str, Feature] = {}
 
     def define_initial_gui(self) -> list[ElementWrapper]:
@@ -167,7 +178,7 @@ class GameInfoPage(Page):
             )
             self.crumbs = payload.starting_crumbs
             # Store player side for tracking turns
-            self.player_side = payload.player_1_side
+            self.player_1_side = payload.player_1_side
 
     @callback_event_bind("tile_selected")
     def tile_selected(self, msg: PageCallbackEvent) -> None:
@@ -227,13 +238,14 @@ class GameInfoPage(Page):
     @game_event_bind(EntityMoveEvent)
     def on_entity_move(self, event: EntityMoveEvent) -> None:
         """Track entity movements in move history."""
-        move_entry: dict[str, str | int | Side | None] = {
-            "entity_name": event.entity.name,
-            "from_pos": str(event.from_pos),
-            "to_pos": str(event.path[-1]),
-            "turn": self.current_turn,
-            "side": event.entity.side,
-        }
+        assert event.entity.side is not None
+        move_entry: MoveEntry = MoveEntry(
+            event.entity.name,
+            event.from_pos,
+            event.path[-1],
+            self.current_turn,
+            event.entity.side,
+        )
         self.move_history.append(move_entry)
         self._refresh_move_history_panel()
 
@@ -257,14 +269,15 @@ class GameInfoPage(Page):
         )
         if button_id and button_id in self.button_move_data:
             move_data = self.button_move_data[button_id]
-            turn_value = move_data["turn"]
+            turn_value = move_data.turn
             assert isinstance(turn_value, int), "turn must be an int"
             payload = MoveHistoryPayload(
-                entity_name=str(move_data["entity_name"]),
-                from_pos=str(move_data["from_pos"]),
-                to_pos=str(move_data["to_pos"]),
+                entity_name=move_data.entity_name,
+                from_pos=move_data.from_pos,
+                to_pos=move_data.to_pos,
                 turn=turn_value,
-                # is_player_1_move=(move_data["side"] == self.player_side),
+                side=move_data.side,
+                # is_player_1_move=(move_data["side"] == self.player_1_side),
             )
             self.post(PageNavigationEvent([(PageNavigation.OPEN, "InspectHistory")]))
             self.post(PageCallbackEvent("move_history_data", payload=payload))
@@ -417,9 +430,9 @@ class GameInfoPage(Page):
 
         for index, move in enumerate(displayed_moves):
             button_id = f"move_history_btn_{id(move)}"
-            is_player_turn = move["side"] == self.player_side
-            turn_prefix = "[YOU]" if is_player_turn else "[ENEMY]"
-            move_text = f"{turn_prefix} T{move['turn']}: {move['entity_name']}"
+            is_player_1_turn = move.side == self.player_1_side
+            turn_prefix = "[Player1]" if is_player_1_turn else "[Player2]"
+            move_text = f"{turn_prefix} T{move.turn}: {move.entity_name}"
 
             pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect(0, y_offset, 195, 25),

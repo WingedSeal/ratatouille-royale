@@ -332,6 +332,12 @@ cdef class OddRCoord:
     def __sub__(self, OddRCoord other):
         return OddRCoord(self.x - other.x, self.y - other.y)
 
+    def __eq__(self, other):
+        if not isinstance(other, OddRCoord):
+            return False
+
+        return self.x == other.x and self.y == other.y
+
     cpdef list[OddRCoord] path_find(
         self,
         OddRCoord goal,

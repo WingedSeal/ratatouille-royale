@@ -118,9 +118,10 @@ class GameOverPayload(Payload):
 @dataclass
 class MoveHistoryPayload(Payload):
     entity_name: str
-    from_pos: str
-    to_pos: str
+    from_pos: OddRCoord
+    to_pos: OddRCoord
     turn: int
+    side: Side
 
 
 @dataclass
