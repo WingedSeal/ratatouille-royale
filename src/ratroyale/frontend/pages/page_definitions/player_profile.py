@@ -138,6 +138,9 @@ class PlayerProfile(Page):
                 text="DELETE",
                 manager=self.gui_manager,
                 container=scroll_container,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="DeleteButton", object_id=f"delete_button_{index}"
+                ),
             )
             # === Divider line ===
             divider_surface = pygame.Surface((400, 2))
@@ -200,3 +203,16 @@ class PlayerProfile(Page):
                 ),
             )
         )
+
+    @input_event_bind("delete_button", pygame_gui.UI_BUTTON_PRESSED)
+    def delete_button(self, msg: pygame.event.Event) -> None:
+        button_id = get_id(msg)
+        assert button_id is not None
+
+        button_index = int(button_id.split("_")[-1])
+        file_to_delete = self.save_files[button_index]
+
+        file_to_delete.unlink()
+
+        self.close_self()
+        self.post(PageNavigationEvent([(PageNavigation.OPEN, "PlayerProfile")]))
