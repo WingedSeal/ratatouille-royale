@@ -1,0 +1,88 @@
+import pytest
+from itertools import chain
+
+from ratroyale.backend.ai.random_ai import RandomAI
+from ratroyale.backend.features.common import DeploymentZone
+from ratroyale.backend.game_event import EntityDieEvent
+from ratroyale.backend.game_manager import GameManager
+from ratroyale.backend.player_info.forges import FORGES
+from ratroyale.backend.player_info.player_info import PlayerInfo
+from ratroyale.backend.player_info.squeak import RodentSqueakInfo, Squeak
+from ratroyale.backend.player_info.gacha import GACHA_POOL_WEIGHTS
+from ratroyale.backend.hexagon import OddRCoord
+from ratroyale.backend.map import Map, heights_to_tiles
+from ratroyale.backend.side import Side
+from ratroyale.backend.tags import EntityTag
+
+
+@pytest.fixture
+def rodent_map() -> Map:
+    return Map(
+        "Rodent Map",
+        2,
+        1,
+        heights_to_tiles([[1, 1]]),
+        entities=[],
+        features=[
+            DeploymentZone([OddRCoord(0, 0)], None, side=Side.RAT),
+            DeploymentZone([OddRCoord(1, 0)], None, side=Side.MOUSE),
+        ],
+    )
+
+
+RODENT_SQUEAKS_LIST = list(
+    chain(GACHA_POOL_WEIGHTS.keys(), (forge[1] for forge in FORGES))
+)
+
+
+@pytest.mark.slow
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "squeak",
+    RODENT_SQUEAKS_LIST,
+    ids=[squeak.name.replace(" ", "_") for squeak in RODENT_SQUEAKS_LIST],
+)
+def test_rodents(rodent_map: Map, squeak: Squeak) -> None:
+    if (
+        isinstance(squeak.squeak_info, RodentSqueakInfo)
+        and EntityTag.NO_ATTACK in squeak.squeak_info.rodent.entity_tags
+    ):
+        return None
+    game_manager = GameManager(
+        rodent_map,
+        players_info=(
+            PlayerInfo(
+                {squeak: 5},
+                [{squeak: 5}],
+                [{squeak: 5}],
+                selected_squeak_set_index=0,
+                exp=0,
+                cheese=0,
+                is_progression_frozen=True,
+            ),
+            PlayerInfo(
+                {squeak: 5},
+                [{squeak: 5}],
+                [{squeak: 5}],
+                selected_squeak_set_index=0,
+                exp=0,
+                cheese=0,
+                is_progression_frozen=True,
+            ),
+        ),
+        player_1=Side.RAT,
+    )
+    ai = RandomAI(game_manager, Side.MOUSE)
+    game_manager.crumbs = 10000
+    game_manager.place_squeak(0, OddRCoord(0, 0))
+    for _ in range(30):
+        assert game_manager.turn == Side.RAT
+        # Player Turn
+        game_manager.end_turn()
+        game_manager.crumbs = 10000
+        # AI Turn
+        for _ in ai._run_ai_and_update_game_manager():
+            for event in game_manager.event_queue:
+                if isinstance(event, EntityDieEvent):
+                    return
+    assert False

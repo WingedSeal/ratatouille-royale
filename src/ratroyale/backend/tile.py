@@ -1,0 +1,45 @@
+from dataclasses import dataclass, field
+from pprint import pformat
+
+from .entity import Entity
+from .feature import Feature
+from .hexagon import OddRCoord
+from .side import Side
+
+
+@dataclass
+class Tile:
+    tile_id: int
+    """Non-Zero positive integer ID for visual rendering of that tile"""
+    coord: OddRCoord
+    height: int
+    """Zero or positive integer representing tile height"""
+    entities: list[Entity] = field(default_factory=list)
+    features: list[Feature] = field(default_factory=list)
+
+    def get_total_height(self, turn: Side | None) -> int:
+        return self.height + max(
+            (entity.height for entity in self.entities if entity.side != turn),
+            default=0,
+        )
+
+    def is_collision(self, is_source_entity_collision: bool) -> bool:
+        if is_source_entity_collision and any(
+            entity.collision for entity in self.entities
+        ):
+            return True
+        if any(feature.is_collision() for feature in self.features):
+            return True
+        return False
+
+    def __repr__(self) -> str:
+        return f"""Tile(
+    tile_id={self.tile_id},
+    coord={repr(self.coord)}, 
+    height={self.height},
+    entities={pformat(self.entities)},
+    features={pformat(self.features)}
+)"""
+
+    def __str__(self) -> str:
+        return f"Tile(height={self.height})"

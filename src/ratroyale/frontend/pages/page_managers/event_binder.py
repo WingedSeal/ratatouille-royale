@@ -1,0 +1,84 @@
+from typing import Callable, ParamSpec, TypeVar
+
+from ratroyale.event_tokens.page_token import *
+from ratroyale.backend.game_event import GameEvent
+from enum import Enum, auto
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+class SpecialInputScope(Enum):
+    GLOBAL = auto()
+    UNCONSUMED = auto()
+
+
+def input_event_bind(
+    element_id: str | SpecialInputScope, event_type: int
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    """
+    Decorator used for attaching input bindings to methods.
+    Multiple bindings can be attached to a single method by stacking these decorators.\n
+    Usage example:\n
+    @input_event_bind("my_button", GestureType.CLICK)\n
+    def handle_click(self, msg: InputManagerEvent):\n
+        ...
+    """
+
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
+        bindings = getattr(func, "_input_bindings", [])
+        bindings.append((element_id, event_type))
+        setattr(func, "_input_bindings", bindings)
+        return func  # no wrapper needed
+
+    return decorator
+
+
+def callback_event_bind(
+    callback_action: str,
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    """
+    Decorator used for attaching input bindings to methods.
+    Multiple bindings can be attached to a single method by stacking these decorators.\n
+    Usage example:\n
+    @bind_to("my_button", GestureType.CLICK)\n
+    def handle_click(self, msg: InputManagerEvent):\n
+        ...
+    """
+
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
+
+        bindings = getattr(func, "_callback_bindings", [])
+        bindings.append(callback_action)
+        setattr(func, "_callback_bindings", bindings)
+        return func
+
+    return decorator
+
+
+def game_event_bind(
+    game_event_type: type[GameEvent],
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
+
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
+
+        bindings = getattr(func, "_game_event_bindings", [])
+        bindings.append(game_event_type)
+        setattr(func, "_game_event_bindings", bindings)
+        return func
+
+    return decorator
+
+
+def visual_event_bind(
+    visual_callback_action: str,
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
+
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
+
+        bindings = getattr(func, "_visual_event_bindings", [])
+        bindings.append(visual_callback_action)
+        setattr(func, "_visual_event_bindings", bindings)
+        return func
+
+    return decorator

@@ -1,0 +1,150 @@
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from pprint import pformat
+from typing import TYPE_CHECKING, ClassVar
+
+from .instant_kill import InstantKill
+from .source_of_damage_or_heal import SourceOfDamageOrHeal
+from .hexagon import OddRCoord
+from .side import Side
+
+if TYPE_CHECKING:
+    from .entity import Entity
+    from .game_manager import GameManager
+
+MINIMAL_FEATURE_DAMAGE_TAKEN = 1
+
+
+@dataclass
+class Feature(ABC):
+    shape: list[OddRCoord]
+    health: int | None = None
+    defense: int = 0
+    side: Side | None = None
+    is_dead: bool = field(default=False, init=False)
+    ALL_FEATURES: ClassVar[dict[int, type["Feature"]]] = {}
+    """Map of all features' IDs to the feature class"""
+
+    @staticmethod
+    @abstractmethod
+    def FEATURE_ID() -> int:
+        """Non-zero positive integer representing feature's ID unique to each feature class"""
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def is_collision() -> bool: ...
+
+    @staticmethod
+    @abstractmethod
+    def get_name_and_description() -> tuple[str, str]: ...
+
+    def __init_subclass__(cls) -> None:
+        if cls.FEATURE_ID() in Feature.ALL_FEATURES:
+            raise Exception(
+                f"{cls.__name__} and {Feature.ALL_FEATURES[cls.FEATURE_ID()]} both have the same feature ID ({cls.FEATURE_ID()})"
+            )
+        Feature.ALL_FEATURES[cls.FEATURE_ID()] = cls
+
+    def on_damage_taken(
+        self,
+        game_manager: "GameManager",
+        damage: int | InstantKill,
+        source: SourceOfDamageOrHeal,
+    ) -> int | None:
+        pass
+
+    def on_hp_loss(
+        self, game_manager: "GameManager", hp_loss: int, source: SourceOfDamageOrHeal
+    ) -> None:
+        pass
+
+    def on_death(
+        self, game_manager: "GameManager", source: SourceOfDamageOrHeal
+    ) -> bool:
+        """
+        Method called when entity dies
+        :returns: Whether the entity actually dies
+        """
+        return True
+
+    def on_entity_enter(
+        self,
+        game_manager: "GameManager",
+        entity: "Entity",
+        coord_that_entity_enter: OddRCoord,
+    ) -> None:
+        """Can trigger multiple times in a move of entity exit and enter again"""
+        pass
+
+    def on_entity_exit(
+        self,
+        game_manager: "GameManager",
+        entity: "Entity",
+        coord_that_entity_exit: OddRCoord | None,
+    ) -> None:
+        """Can trigger multiple times in a move of entity enter and exit again. If it dies, the `coord_that_entity_exit` will be None."""
+        pass
+
+    def on_entity_turn_change(
+        self, game_manager: "GameManager", entity: "Entity"
+    ) -> None:
+        pass
+
+    def on_entity_moving_by(
+        self, game_manager: "GameManager", entity: "Entity", path_coord: OddRCoord
+    ) -> None:
+        """Trigger multiple times in a single move for every coord entity is moving pass"""
+        pass
+
+    def self_destruct(
+        self, game_manager: "GameManager", is_trigger_on_death: bool = False
+    ) -> None:
+        game_manager.destroy_feature(
+            self, self, is_trigger_on_death=is_trigger_on_death
+        )
+
+    def _take_damage(
+        self,
+        game_manager: "GameManager",
+        damage: int | InstantKill,
+        source: SourceOfDamageOrHeal,
+    ) -> tuple[bool, int]:
+        """
+        Take damage and reduce health accordingly if entity has health
+        :param damage: How much damage taken
+        :returns: Whether the entity die and hp loss
+        """
+        if isinstance(damage, InstantKill):
+            self.on_damage_taken(game_manager, damage, source)
+            self.on_hp_loss(game_manager, self.health or 0, source)
+            return True, self.health or 0
+        new_damage = self.on_damage_taken(game_manager, damage, source)
+        if new_damage is not None:
+            damage = new_damage
+        if self.health is None:
+            raise ValueError("Entity without health just taken damage")
+        damage_taken = max(MINIMAL_FEATURE_DAMAGE_TAKEN, damage - self.defense)
+        self.health -= damage_taken
+        if self.health <= 0:
+            damage_taken += self.health
+            self.health = 0
+            self.is_dead = True
+            self.on_hp_loss(game_manager, damage_taken, source)
+            return True, damage_taken
+        self.on_hp_loss(game_manager, damage_taken, source)
+        return False, damage_taken
+
+    def get_relative_shape_and_origin(self) -> tuple[list[OddRCoord], OddRCoord]:
+        x = min(coord.x for coord in self.shape)
+        y = min(coord.y for coord in self.shape)
+        origin = OddRCoord(x, y)
+        return [coord - origin for coord in self.shape], origin
+
+    def __repr__(self) -> str:
+        return f"""Feature(
+    shape={pformat(self.shape)},
+    health={self.health},
+    defense={self.defense},
+    side={self.side},
+)"""

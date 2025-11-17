@@ -1,0 +1,404 @@
+import dataclasses
+import itertools
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
+
+
+from .common_skills import SelectTarget, TargetAction
+from ...entity_effect import EffectClearSide, EntityEffect, effect_data
+from ...hexagon import OddRCoord
+from ...source_of_damage_or_heal import SourceOfDamageOrHeal
+from ...instant_kill import INSTANT_KILL, InstantKill
+from ...effects.global_rodent_effects import Stunned
+from ...entity import (
+    EntitySkill,
+    SkillCompleted,
+    SkillResult,
+    SkillTargeting,
+    entity_skill_check,
+)
+from ...tags import RodentClassTag, SkillTag
+from ...timer import Timer, TimerClearSide
+from ..rodent import Rodent, rodent_data
+
+if TYPE_CHECKING:
+    from ...game_manager import GameManager
+
+
+@rodent_data(
+    name="Ratbert Brewbelly",
+    description="A bloated, beer-stained brown rat with bloodshot eyes and a sloshing belly who waddles unsteadily through combat. Armed with projectile vomit attacks that stun enemies with some damages.",
+    health=7,
+    defense=1,
+    speed=3,
+    move_stamina=2,
+    skill_stamina=1,
+    attack=3,
+    move_cost=8,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Projectile Vomit",
+            method_name="projectile_vomit",
+            reach=6,
+            altitude=0,
+            crumb_cost=10,
+            tags=[],
+        ),
+    ],
+)
+class RatbertBrewbelly(Rodent):
+    def vomit_timer_callback(self, timer: Timer, game_manager: "GameManager") -> None:
+        game_manager.damage_entity(timer.entity, self.attack // 2, self)
+
+    @entity_skill_check
+    def projectile_vomit(self, game_manager: "GameManager") -> SkillTargeting:
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_enemy()
+            .add_target_action(
+                TargetAction(self)
+                .acquire_enemy()
+                .damage(self.attack + 3)
+                .apply_effect(Stunned, duration=2)
+                .apply_timer(
+                    TimerClearSide.ENEMY,
+                    on_timer_over=self.vomit_timer_callback,
+                    duration=2,
+                )
+            )
+            .to_skill_targeting(game_manager)
+        )
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            f"Launches chunky bile that 'stuns' enemies on impact for 2 turns, dealing {self.attack+3}(ATK+3) on the first turn and {self.attack//2}(ATK/2) on the second turn."
+        ]
+
+
+@rodent_data(
+    name="Soda Kabooma",
+    description="No idea what it is doing here, but it was told to hold this soda can, and hold the soda can it will.",
+    health=9,
+    defense=5,
+    speed=2,
+    move_stamina=2,
+    skill_stamina=1,
+    attack=5,
+    move_cost=2,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Shake the Can",
+            method_name="shake_the_can",
+            reach=None,
+            altitude=None,
+            crumb_cost=5,
+            tags=[SkillTag.SELF_DEFEATED, SkillTag.AOE],
+        ),
+    ],
+)
+class SodaKabooma(Rodent):
+    SHAKE_THE_CAN_RADIUS = 2
+
+    @entity_skill_check
+    def shake_the_can(self, game_manager: "GameManager") -> SkillCompleted:
+        TargetAction(self).aoe(self.SHAKE_THE_CAN_RADIUS).acquire_any().damage(
+            self.attack * 2 + 1
+        ).run(game_manager, [self.pos])
+        if not self.is_dead:
+            game_manager.damage_entity(self, INSTANT_KILL, self)
+        return SkillCompleted.SUCCESS
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            f"Shakes the soda can to make it explode, dealing {self.attack * 2 + 1}(ATK*2+1) damage to all rodents (including its allies) in a {self.SHAKE_THE_CAN_RADIUS}-tile radius. This rodent is then defeated afterwards."
+        ]
+
+
+@rodent_data(
+    name="Pea Pea Pool Pool",
+    description="A rodent in a pool with a gun. That is if a cup of water can be called pool and a pea can be called a gun.",
+    health=10,
+    defense=2,
+    speed=10,
+    move_stamina=2,
+    skill_stamina=3,
+    attack=4,
+    move_cost=3,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Pea",
+            method_name="pea",
+            reach=12,
+            altitude=1,
+            crumb_cost=5,
+            tags=[],
+        ),
+    ],
+)
+class PeaPeaPoolPool(Rodent):
+
+    @entity_skill_check
+    def pea(self, game_manager: "GameManager") -> SkillTargeting:
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_enemy()
+            .add_target_action(
+                TargetAction(self)
+                .acquire_enemy()
+                .damage(self.attack // 2)
+                .damage(self.attack // 2)
+            )
+            .to_skill_targeting(game_manager)
+        )
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            f"Shoot the peas inside the pod at an enemy dealing {self.attack // 2}(ATK/2) damage twice."
+        ]
+
+
+@rodent_data(
+    name="Mortar",
+    description="A coward with an access to artillery strike.",
+    health=12,
+    defense=3,
+    speed=3,
+    move_stamina=2,
+    skill_stamina=2,
+    attack=5,
+    move_cost=2,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Artillery Strike",
+            method_name="artillery_strike",
+            reach=7,
+            altitude=3,
+            crumb_cost=10,
+            tags=[SkillTag.AOE],
+        ),
+        EntitySkill(
+            name="Artillery Strikes",
+            method_name="artillery_strikes",
+            reach=7,
+            altitude=3,
+            crumb_cost=30,
+            tags=[SkillTag.AOE],
+        ),
+    ],
+)
+class Mortar(Rodent):
+    double_speed_timer: Timer | None = None
+
+    @entity_skill_check
+    def artillery_strike(self, game_manager: "GameManager") -> SkillTargeting:
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_any_tile()
+            .add_target_action(
+                TargetAction(self).aoe(2).acquire_enemy().damage(self.attack + 4)
+            )
+            .to_skill_targeting(game_manager)
+        )
+
+    @entity_skill_check
+    def artillery_strikes(self, game_manager: "GameManager") -> SkillTargeting:
+        return (
+            SelectTarget(self, skill_index=1)
+            .can_select_any_tile()
+            .add_target_action(
+                TargetAction(self).aoe(3).acquire_enemy().damage(self.attack + 8)
+            )
+            .to_skill_targeting(game_manager)
+        )
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            f"Launch the artillery at any tile damaging all enemy within 2-tiles radius dealing {self.attack + 4}(ATK+4) damage.",
+            f"Launch multiple artilleries at any tile damaging all enemy within 3-tiles radius dealing {self.attack + 8}(ATK+8) damage.",
+        ]
+
+    def __clear_double_speed(self, timer: "Timer", game_manager: "GameManager") -> None:
+        self.speed -= type(self).speed
+        self.double_speed_timer = None
+
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return [("A Coward", "After taking damage, gain 100% speed for 1 turn.")]
+
+    def on_damage_taken(
+        self,
+        game_manager: "GameManager",
+        damage: int | InstantKill,
+        source: SourceOfDamageOrHeal,
+    ) -> int | None:
+        if self.double_speed_timer is not None:
+            return None
+        self.speed += type(self).speed
+        self.double_speed_timer = Timer(
+            self,
+            TimerClearSide.ALLY,
+            on_timer_over=self.__clear_double_speed,
+            on_turn_change=None,
+            duration=1,
+        )
+        game_manager.apply_timer(self.double_speed_timer)
+        return None
+
+
+@effect_data(EffectClearSide.ALLY, name="Railgun Charged")
+class RailgunCharged(EntityEffect):
+    def on_turn_change(self, game_manager: "GameManager") -> None:
+        pass
+
+    def on_applied(self, game_manager: "GameManager", *, is_overriding: bool) -> None:
+        pass
+
+    def on_cleared(self, game_manager: "GameManager", *, is_overridden: bool) -> None:
+        pass
+
+    def effect_descriptions(self) -> str:
+        return "Railgun is charged and is ready to fire."
+
+    @staticmethod
+    def base_effect_descriptions() -> str:
+        return "Railgun is charged and is ready to fire."
+
+
+@rodent_data(
+    name="Rail Rodent",
+    description="A little over confident rodent that happens to have giant weapon of mass destruction in its hands.",
+    health=7,
+    defense=3,
+    speed=3,
+    move_stamina=2,
+    skill_stamina=1,
+    attack=10,
+    move_cost=3,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Railgun Charge",
+            method_name="railgun_charge",
+            reach=None,
+            altitude=None,
+            crumb_cost=20,
+            tags=[],
+        ),
+        EntitySkill(
+            name="Railgun",
+            method_name="railgun",
+            reach=20,
+            altitude=0,
+            crumb_cost=5,
+            tags=[SkillTag.NO_TARGET_FEATURE],
+        ),
+    ],
+)
+class RailRodent(Rodent):
+
+    @entity_skill_check
+    def railgun_charge(self, game_manager: "GameManager") -> SkillCompleted:
+        if RailgunCharged.name in self.effects:
+            return SkillCompleted.CANCELLED
+        game_manager.apply_effect(RailgunCharged(self, duration=3))
+        return SkillCompleted.SUCCESS
+
+    def get_attackable_coords(self, game_manager: "GameManager") -> Iterable[OddRCoord]:
+        assert self.skills[1].reach is not None
+        return set(
+            itertools.chain(
+                game_manager.board.get_attackable_coords(self, self.skills[1]),
+                game_manager.board.get_attackable_coords(
+                    self,
+                    dataclasses.replace(
+                        self.skills[1], altitude=-1, reach=self.skills[1].reach + 1
+                    ),
+                ),
+            )
+        )
+
+    @entity_skill_check
+    def railgun(self, game_manager: "GameManager") -> SkillResult:
+        if RailgunCharged.name not in self.effects:
+            return SkillCompleted.CANCELLED
+        return (
+            SelectTarget(self, skill_index=1)
+            .custom_attackable_coords(self.get_attackable_coords)
+            .can_select_enemy_entity()
+            .add_target_action(
+                TargetAction(self)
+                .acquire_enemy_entity()
+                .damage(self.attack * 2)
+                .force_clear_effect(RailgunCharged, raise_error_if_not_exist=True)
+            )
+            .to_skill_targeting(game_manager)
+        )
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            'Charge its railgun and give itself "Railgun Charged" status effect for 3 of ally turn.',
+            f'If it has "Railgun Charged" status effect, fire the railgun at an enemy dealing {self.attack*2}(ATK*2) damage and clear said effect.',
+        ]
+
+    def passive_descriptions(self) -> list[tuple[str, str]]:
+        return [
+            (
+                "High Ground",
+                "When being at higher tile than the target, reach of all skills +1.",
+            ),
+            ("Too OP", "This rodent cannot attack any structure."),
+        ]
+
+
+@rodent_data(
+    name="Clanker",
+    description="Robotic Rodent",
+    health=3,
+    defense=999,
+    speed=2,
+    move_stamina=1,
+    skill_stamina=2,
+    attack=20,
+    move_cost=20,
+    height=0,
+    class_tag=RodentClassTag.DUELIST,
+    entity_tags=[],
+    skills=[
+        EntitySkill(
+            name="Pancakes!",
+            method_name="pancakes",
+            reach=2,
+            altitude=0,
+            crumb_cost=10,
+            tags=[],
+        ),
+    ],
+)
+class Clanker(Rodent):
+
+    @entity_skill_check
+    def pancakes(self, game_manager: "GameManager") -> SkillTargeting:
+        return (
+            SelectTarget(self, skill_index=0)
+            .can_select_enemy()
+            .add_target_action(TargetAction(self).acquire_enemy().damage(self.attack))
+            .to_skill_targeting(game_manager)
+        )
+
+    def skill_descriptions(self) -> list[str]:
+        return [
+            f"Clanker stabs his opponent with his pancake fork dealing {self.attack}(ATK) damage.",
+        ]

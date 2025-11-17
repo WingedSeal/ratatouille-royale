@@ -1,0 +1,100 @@
+from dataclasses import dataclass
+
+import pygame
+
+from ratroyale.frontend.gesture.gesture_data import GestureData, GestureType
+
+from .base import EventToken
+from .page_token import PageCallbackEvent
+from .payloads import Payload
+from typing import TypeVar
+
+T = TypeVar("T", bound="Payload")
+
+
+@dataclass
+class InputManagerEvent(EventToken):
+    element_id: str | None
+    gesture_data: GestureData
+    payload: Payload | None = None
+
+
+def post_gesture_event(input_manager_event: InputManagerEvent) -> None:
+    """
+    Posts a GestureData event to Pygame's event queue using the
+    hybrid gesture-specific event type mapping. The listener can
+    access both gesture_data and element_id from the event.
+    """
+    event_type: int = input_manager_event.gesture_data.gesture_type.to_pygame_event()
+    pygame.event.post(
+        pygame.event.Event(event_type, input_manager_event=input_manager_event)
+    )
+
+
+def get_id(event: pygame.event.Event) -> str | None:
+    """
+    Extracts the element_id or ui_object_id from a pygame or pygame_gui event.
+
+    - pygame_gui events: return ui_object_id
+    - custom gesture events: return element_id from input_manager_event
+    - others: return None
+    """
+    event_type = event.type
+
+    is_pygame_gui_event = hasattr(event, "ui_object_id")
+    if is_pygame_gui_event:
+        value = getattr(event, "ui_object_id")
+        if isinstance(value, str):
+            return value
+        raise TypeError("pygame_gui event has invalid ui_object_id")
+
+    is_custom_gesture_event = event_type in [g.to_pygame_event() for g in GestureType]
+    if is_custom_gesture_event:
+        input_manager_event = getattr(event, "input_manager_event", None)
+        if isinstance(input_manager_event, InputManagerEvent):
+            return input_manager_event.element_id
+        raise TypeError("Gesture event missing InputManagerEvent or has wrong type")
+
+    return None
+
+
+def get_gesture_data(event: pygame.event.Event) -> GestureData:
+    """Extract GestureData from an event or its input_manager_event wrapper."""
+    gesture_data = getattr(event, "gesture_data", None)
+
+    # Check top level first
+    if isinstance(gesture_data, GestureData):
+        return gesture_data
+
+    # If not found, check nested input_manager_event
+    inner = getattr(event, "input_manager_event", None)
+    if (
+        inner
+        and hasattr(inner, "gesture_data")
+        and isinstance(inner.gesture_data, GestureData)
+    ):
+        return inner.gesture_data
+
+    raise TypeError(f"Event {event} does not contain GestureData.")
+
+
+def get_payload_from_msg(
+    obj_with_payload: pygame.event.Event | PageCallbackEvent,
+    payload_type: type[T],
+) -> T | None:
+    """
+    Extracts and type-checks the payload from an InputManagerEvent attached
+    to a pygame event. Returns None if not found or not of the expected type.
+    """
+
+    if isinstance(obj_with_payload, PageCallbackEvent) and isinstance(
+        obj_with_payload.payload, payload_type
+    ):
+        return obj_with_payload.payload
+
+    input_mgr_event = getattr(obj_with_payload, "input_manager_event", None)
+    if isinstance(input_mgr_event, InputManagerEvent) and isinstance(
+        input_mgr_event.payload, payload_type
+    ):
+        return input_mgr_event.payload
+    return None

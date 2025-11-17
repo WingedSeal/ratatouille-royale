@@ -1,0 +1,19 @@
+from enum import Enum
+
+
+class SkillTag(Enum):
+    NO_TARGET_FEATURE = "no-target-feature"
+    SELF_DEFEATED = "self-defeated"
+    AOE = "aoe"
+
+
+class EntityTag(Enum):
+    NO_ATTACK = "no-attack"
+
+
+class RodentClassTag(Enum):
+    VANGUARD = "Vanguard"
+    DUELIST = "Duelist"
+    TANK = "Tank"
+    SPECIALIST = "Specialist"
+    SUPPORT = "Support"

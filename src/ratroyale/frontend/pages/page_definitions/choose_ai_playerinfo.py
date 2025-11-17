@@ -1,0 +1,149 @@
+import pygame
+import pygame_gui
+
+from ratroyale.backend.ai.rushb_ai import RushBAI
+from ratroyale.coordination_manager import CoordinationManager
+from ratroyale.event_tokens.game_token import *
+from ratroyale.event_tokens.page_token import *
+from ratroyale.event_tokens.payloads import BackendStartPayload, PlayerInfoPayload
+from ratroyale.event_tokens.visual_token import *
+from ratroyale.frontend.pages.page_managers.event_binder import (
+    input_event_bind,
+    callback_event_bind,
+)
+from ratroyale.frontend.pages.page_managers.page_registry import register_page
+from ratroyale.event_tokens.input_token import get_id
+
+from ratroyale.backend.side import Side
+from ratroyale.frontend.pages.page_elements.element import (
+    ElementWrapper,
+    ui_element_wrapper,
+)
+from ratroyale.frontend.pages.page_elements.spatial_component import (
+    Camera,
+)
+
+from ratroyale.game_data import RRMAPS_DIR_PATH
+
+
+from ..page_managers.base_page import Page
+from ratroyale.backend.map import Map
+from ratroyale.backend.ai.base_ai import BaseAI
+from ratroyale.backend.ai.random_ai import RandomAI
+from ratroyale.backend.player_info.preset_player_info import (
+    AI_PLAYER_INFO,
+    AIPlayerInfo,
+)
+
+from typing import cast
+
+
+# TODO: make helpers to make button registration easier
+@register_page
+class ChooseAIPlayerInfo(Page):
+    def __init__(
+        self, coordination_manager: CoordinationManager, camera: Camera
+    ) -> None:
+        super().__init__(coordination_manager, theme_name="main_menu", camera=camera)
+        self.map = Map.from_file(RRMAPS_DIR_PATH / "starting-kitchen.rrmap")
+        self.ai_type: type[BaseAI] | None = None
+
+    def define_initial_gui(self) -> list[ElementWrapper]:
+        """Return all GUI elements for the main menu page, auto-stacked vertically."""
+        elements: list[ElementWrapper] = []
+        ai_player_info_preset = [
+            ("ai_player_info_clicked" + name, name) for name in AI_PLAYER_INFO.keys()
+        ]
+
+        start_x = 100
+        start_y = 100
+        button_width = 200
+        button_height = 50
+        padding = 10  # space between buttons
+
+        for i, (button_id, text) in enumerate(
+            ai_player_info_preset + [("choose_player", "GO BACK")]
+        ):
+            button_rect = pygame.Rect(
+                start_x,
+                start_y + i * (button_height + padding),
+                button_width,
+                button_height,
+            )
+            button = pygame_gui.elements.UIButton(
+                relative_rect=button_rect,
+                text=text,
+                manager=self.gui_manager,
+                object_id=pygame_gui.core.ObjectID(
+                    class_id="ChoosePlayerButton", object_id=button_id
+                ),
+            )
+            elements.append(ui_element_wrapper(button, button_id, self.camera))
+
+        return elements
+
+    # region Input Responses
+
+    @callback_event_bind("local_multiplayer_clicked")
+    def local_multiplayer(self, msg: pygame.event.Event) -> None:
+        pass
+
+    @callback_event_bind("vs_random_ai_clicked")
+    def vs_random_ai(self, msg: pygame.event.Event) -> None:
+        self.ai_type = RandomAI
+
+    @callback_event_bind("vs_rush_b_ai_clicked")
+    def vs_rushb_ai(self, msg: pygame.event.Event) -> None:
+        self.ai_type = RushBAI
+
+    @input_event_bind("ai_player_info_clicked", pygame_gui.UI_BUTTON_PRESSED)
+    def ai_player_info_clicked(self, msg: pygame.event.Event) -> None:
+        button_id = get_id(msg)
+        assert button_id is not None
+        button_index = cast(AIPlayerInfo, button_id[len("ai_player_info_clicked") :])
+        self.player_2_info = AI_PLAYER_INFO[button_index]
+        assert self.player_2_info is not None
+
+        self.close_self()
+        self.start_game()
+
+    @input_event_bind("choose_player", pygame_gui.UI_BUTTON_PRESSED)
+    def go_back(self, msg: pygame.event.Event) -> None:
+        self.close_self()
+        self.open_page("ChoosePlayer")
+
+    def start_game(self) -> None:
+        assert self.map
+        self.post(
+            GameManagerEvent(
+                "start",
+                BackendStartPayload(
+                    self.map,
+                    self.player_1_info,
+                    self.player_2_info,
+                    Side.RAT,
+                    self.ai_type,
+                ),
+            )
+        )
+        self.close_self()
+        self.open_page("GameBoard")
+        self.post(
+            PageCallbackEvent(
+                "game_board_player_info",
+                payload=PlayerInfoPayload(
+                    self.player_1_info,
+                    self.player_1_path,
+                ),
+            )
+        )
+        self.open_page("GameInfoPage")
+        self.open_page("PauseButton")
+
+    # endregion
+
+    @callback_event_bind("send_player_info")
+    def _set_player_info(self, event: PageCallbackEvent) -> None:
+        assert isinstance(event.payload, PlayerInfoPayload)
+        self.player_1_info = event.payload.player_1_info
+        self.player_1_path = event.payload.player_1_path

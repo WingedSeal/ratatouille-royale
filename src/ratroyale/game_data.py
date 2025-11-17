@@ -1,0 +1,40 @@
+import importlib.resources as pkg_resources
+import shutil
+from platformdirs import user_config_dir, user_data_dir
+from pathlib import Path
+from . import assets
+
+APP_NAME = "Ratroyale"
+
+DATA_DIR_PATH = Path(user_data_dir(APP_NAME))
+print(f"Data Directory: {DATA_DIR_PATH.resolve().as_posix()}")
+CONFIG_DIR_PATH = Path(user_config_dir(APP_NAME))
+
+SPRITES_DIR_PATH = DATA_DIR_PATH / "sprites"
+ICONS_DIR_PATH = DATA_DIR_PATH / "icons"
+RRMAPS_DIR_PATH = DATA_DIR_PATH / "rrmaps"
+TILESETS_DIR_PATH = DATA_DIR_PATH / "tilesets"
+OTHER_IMAGES_PATH = DATA_DIR_PATH / "other_images"
+THEMES_PATH = DATA_DIR_PATH / "themes"
+RRSAVES_DIR_PATH = DATA_DIR_PATH / "saves"
+
+
+def init_data() -> None:
+    DATA_DIR_PATH.mkdir(parents=True, exist_ok=True)
+    assets_root = pkg_resources.files(assets)
+
+    for item in assets_root.iterdir():
+        if item.name.startswith("__") or item.name.startswith("."):
+            continue
+        if not item.is_dir():
+            raise Exception(f"A non-directory exists in assets directory. {item.name}")
+        source_name = item.name
+        destination_path = DATA_DIR_PATH / source_name
+
+        if destination_path.is_dir():
+            shutil.rmtree(destination_path)
+
+        with pkg_resources.as_file(item) as source_path:
+            shutil.copytree(source_path, destination_path)
+
+    RRSAVES_DIR_PATH.mkdir(parents=True, exist_ok=True)
