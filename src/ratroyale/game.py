@@ -24,6 +24,7 @@ class Game:
     MAX_FPS = 60
 
     def __init__(self) -> None:
+        init_data()
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.clock = pygame.time.Clock()
         self.coordination_manager = CoordinationManager()
@@ -37,7 +38,6 @@ class Game:
         pygame.display.set_icon(icon)
 
     def run(self) -> None:
-        init_data()
         self.coordination_manager.put_message(
             PageNavigationEvent(
                 action_list=[

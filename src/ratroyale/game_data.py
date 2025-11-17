@@ -31,6 +31,9 @@ def init_data() -> None:
         source_name = item.name
         destination_path = DATA_DIR_PATH / source_name
 
+        if destination_path.is_dir():
+            shutil.rmtree(destination_path)
+
         with pkg_resources.as_file(item) as source_path:
             shutil.copytree(source_path, destination_path)
 
