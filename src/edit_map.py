@@ -4,6 +4,7 @@ from pathlib import Path
 from ratroyale.backend.map import Map
 
 MAP_DIRECTORY = Path(__file__).parent / "ratroyale/map_file"
+MAP_MAKING_KIT_DIRECTORY = Path(__file__).parents[1] / "Tiled/rrmap-making-kit"
 
 
 def sanitize_repr(repr_string: str):
@@ -34,6 +35,7 @@ def edit_map(path: Path) -> None:
 
 def main() -> None:
     path = MAP_DIRECTORY / "starting-kitchen.rrmap"
+    # path = MAP_MAKING_KIT_DIRECTORY / "starting-kitchen.rrmap"
     print_info(path)
     # edit_map(path)
 
