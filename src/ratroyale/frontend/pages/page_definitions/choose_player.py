@@ -4,14 +4,16 @@ import pygame_gui
 from ratroyale.backend.ai.rushb_ai import RushBAI
 from ratroyale.backend.player_info.preset_player_info import (
     AI_PLAYER_INFO,
-    get_default_player_info,
 )
 from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
-from ratroyale.event_tokens.payloads import BackendStartPayload
+from ratroyale.event_tokens.payloads import BackendStartPayload, PlayerInfoPayload
 from ratroyale.event_tokens.visual_token import *
-from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_managers.event_binder import (
+    input_event_bind,
+    callback_event_bind,
+)
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.backend.side import Side
@@ -101,7 +103,7 @@ class ChoosePlayer(Page):
                 "start",
                 BackendStartPayload(
                     self.map,
-                    get_default_player_info(),
+                    self.player_info,
                     AI_PLAYER_INFO["Balanced"],
                     Side.RAT,
                     self.ai_type,
@@ -114,3 +116,8 @@ class ChoosePlayer(Page):
         self.open_page("PauseButton")
 
     # endregion
+
+    @callback_event_bind("send_player_info")
+    def _set_player_info(self, event: PageCallbackEvent) -> None:
+        assert isinstance(event.payload, PlayerInfoPayload)
+        self.player_info = event.payload.player_info

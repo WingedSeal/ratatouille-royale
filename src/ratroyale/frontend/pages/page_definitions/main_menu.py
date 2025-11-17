@@ -5,7 +5,10 @@ from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.game_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.visual_token import *
-from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
+from ratroyale.frontend.pages.page_managers.event_binder import (
+    input_event_bind,
+    callback_event_bind,
+)
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 
 from ratroyale.backend.side import Side
@@ -17,9 +20,12 @@ from ratroyale.frontend.pages.page_elements.spatial_component import (
     Camera,
 )
 
-
 from ..page_managers.base_page import Page
 from ratroyale.backend.map import Map
+
+from ratroyale.backend.player_info.player_info import PlayerInfo
+from ratroyale.event_tokens.payloads import PlayerInfoPayload
+from ratroyale.event_tokens.page_token import PageCallbackEvent
 
 
 def _temp_get_map():  # type: ignore
@@ -55,6 +61,7 @@ class MainMenu(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
+        self.player_info: PlayerInfo | None = None
         super().__init__(coordination_manager, theme_name="main_menu", camera=camera)
 
     def define_initial_gui(self) -> list[ElementWrapper]:
@@ -162,6 +169,13 @@ class MainMenu(Page):
     def on_start_click(self, msg: pygame.event.Event) -> None:
         self.post(PageNavigationEvent(action_list=[(PageNavigation.CLOSE_ALL, None)]))
         self.open_page("ChoosePlayer")
+        assert self.player_info is not None
+        self.post(
+            PageCallbackEvent(
+                "send_player_info",
+                payload=PlayerInfoPayload(self.player_info),
+            )
+        )
 
     @input_event_bind("quit_button", pygame_gui.UI_BUTTON_PRESSED)
     def _on_quit_click(self, msg: pygame.event.Event) -> None:
@@ -190,3 +204,8 @@ class MainMenu(Page):
         )
 
     # endregion
+
+    @callback_event_bind("set_player_info")
+    def _set_player_info(self, event: PageCallbackEvent) -> None:
+        assert isinstance(event.payload, PlayerInfoPayload)
+        self.player_info = event.payload.player_info

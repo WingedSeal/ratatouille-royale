@@ -15,8 +15,12 @@ from ratroyale.frontend.pages.page_elements.element import (
 )
 from ..page_elements.spatial_component import Camera
 
+from ratroyale.backend.player_info.preset_player_info import get_default_player_info
+
 import pygame_gui
 import pygame
+
+from ratroyale.frontend.pages.page_definitions.player_profile import RRSAVE_DIR_PATH
 
 
 @register_page
@@ -113,6 +117,12 @@ class CreateProfile(Page):
 
     @input_event_bind("confirm_button", pygame_gui.UI_BUTTON_PRESSED)
     def confirm_profile(self, msg: pygame.event.Event) -> None:
+        ui_text_entry_line_element = self._element_manager.get_element("name_entry")
+        ui_text_entry_line = ui_text_entry_line_element.get_interactable(
+            pygame_gui.elements.UITextEntryLine
+        )
+        text = ui_text_entry_line.get_text().strip()
+        get_default_player_info().to_file(RRSAVE_DIR_PATH / f"{text}.rrmap")
         self.close_self()
 
     @input_event_bind("cancel_button", pygame_gui.UI_BUTTON_PRESSED)

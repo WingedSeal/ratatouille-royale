@@ -153,3 +153,8 @@ class DeckPayload(Payload):
 @dataclass
 class SaveFilesPayload(Payload):
     save_files: list[str]
+
+
+@dataclass
+class PlayerInfoPayload(Payload):
+    player_info: PlayerInfo

@@ -3,12 +3,15 @@ from ratroyale.coordination_manager import CoordinationManager
 from ratroyale.event_tokens.visual_token import *
 from ratroyale.event_tokens.page_token import *
 from ratroyale.event_tokens.game_token import *
+from ratroyale.backend.player_info.player_info import SAVE_FILE_EXTENSION
 
 
 from ..page_managers.base_page import Page
 from ratroyale.frontend.pages.page_managers.page_registry import register_page
 from ratroyale.frontend.pages.page_managers.event_binder import input_event_bind
-
+from ratroyale.event_tokens.input_token import get_id
+from ratroyale.backend.player_info.player_info import PlayerInfo
+from ratroyale.event_tokens.payloads import PlayerInfoPayload
 from ratroyale.frontend.pages.page_elements.element import (
     ElementWrapper,
     ui_element_wrapper,
@@ -17,6 +20,10 @@ from ..page_elements.spatial_component import Camera
 
 import pygame_gui
 import pygame
+import os
+from pathlib import Path
+
+RRSAVE_DIR_PATH = Path("./saves")
 
 
 @register_page
@@ -24,6 +31,7 @@ class PlayerProfile(Page):
     def __init__(
         self, coordination_manager: CoordinationManager, camera: Camera
     ) -> None:
+        self.save_files: list[str] = []
         super().__init__(coordination_manager, camera)
 
     def define_initial_gui(self) -> list[ElementWrapper]:
@@ -60,7 +68,7 @@ class PlayerProfile(Page):
         gui_elements.append(panel_element_wrapper)
 
         # === Scroll Container ===
-        scroll_container = pygame_gui.elements.UIScrollingContainer(
+        pygame_gui.elements.UIScrollingContainer(
             relative_rect=pygame.Rect(0, 0, 430, 450),
             manager=self.gui_manager,
             container=panel_element,
@@ -78,8 +86,25 @@ class PlayerProfile(Page):
         )
         gui_elements.append(panel_element_wrapper)
 
+        return gui_elements
+
+    def on_open(self) -> None:
+        os.makedirs(RRSAVE_DIR_PATH, exist_ok=True)
+
+        self.save_files = [
+            f
+            for f in os.listdir(RRSAVE_DIR_PATH)
+            if f.endswith(SAVE_FILE_EXTENSION)
+            and os.path.isfile(os.path.join(RRSAVE_DIR_PATH, f))
+        ]
+
+        scroll_container_element = self._element_manager.get_element("scroll_container")
+        scroll_container = scroll_container_element.get_interactable(
+            pygame_gui.elements.UIScrollingContainer
+        )
+
         y_offset = 10
-        for i in range(4):
+        for index, save in enumerate(self.save_files):
             pygame_gui.elements.UIImage(
                 relative_rect=pygame.Rect(10, y_offset, 100, 100),
                 image_surface=pygame.Surface((100, 100)),
@@ -90,7 +115,7 @@ class PlayerProfile(Page):
             # === Name ===
             pygame_gui.elements.UILabel(
                 relative_rect=pygame.Rect(100, y_offset + 10, 150, 25),
-                text="Name",
+                text=f"Name: {save}",
                 manager=self.gui_manager,
                 container=scroll_container,
             )
@@ -110,7 +135,7 @@ class PlayerProfile(Page):
                 manager=self.gui_manager,
                 container=scroll_container,
                 object_id=pygame_gui.core.ObjectID(
-                    class_id="SelectButton", object_id="select_button"
+                    class_id="SelectButton", object_id=f"select_button_{index}"
                 ),
             )
 
@@ -147,11 +172,10 @@ class PlayerProfile(Page):
             registered_name="create_button",
             camera=self.camera,
         )
-        gui_elements.append(create_button)
+
+        self._element_manager.add_element(create_button)
 
         scroll_container.set_scrollable_area_dimensions((600, y_offset + 100))
-
-        return gui_elements
 
     @input_event_bind("create_button", pygame_gui.UI_BUTTON_PRESSED)
     def proceed_to_create_profile(self, msg: pygame.event.Event) -> None:
@@ -165,7 +189,21 @@ class PlayerProfile(Page):
 
     @input_event_bind("select_button", pygame_gui.UI_BUTTON_PRESSED)
     def select_button(self, msg: pygame.event.Event) -> None:
+        button_id = get_id(msg)
+        assert button_id is not None
+        int_button_id = int(button_id)
+        selected_player_info = PlayerInfo.from_file(
+            Path(
+                os.path.join(
+                    RRSAVE_DIR_PATH, self.save_files[int_button_id], SAVE_FILE_EXTENSION
+                )
+            )
+        )
+        assert selected_player_info is not None
         self.close_self()
-        CoordinationManager.put_message(
-            PageNavigationEvent([(PageNavigation.OPEN, "MainMenu")])
+        self.post(PageNavigationEvent([(PageNavigation.OPEN, "MainMenu")]))
+        self.post(
+            PageCallbackEvent(
+                "set_player_info", payload=PlayerInfoPayload(selected_player_info)
+            )
         )
