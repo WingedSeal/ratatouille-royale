@@ -133,7 +133,7 @@ class GameInfoPage(Page):
                 end_turn_button_dim[0],
                 end_turn_button_dim[1],
             ),
-            text=f"End Turn",
+            text="End Turn",
             manager=self.gui_manager,
             object_id=pygame_gui.core.ObjectID(
                 class_id="EndTurnButton",
